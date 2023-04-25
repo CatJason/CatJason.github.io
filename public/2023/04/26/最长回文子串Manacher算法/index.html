@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="keywords" content="Hexo Theme Redefine">
+    
+    <meta name="author" content="朕小猫">
+    <!-- preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://evan.beee.top" crossorigin>
+    
+    <!--- Seo Part-->
+    
+    <link rel="canonical" href="http://example.com/2023/04/26/最长回文子串manacher算法/"/>
+    <meta name="robots" content="index,follow">
+    <meta name="googlebot" content="index,follow">
+    <meta name="revisit-after" content="1 days">
+    
+        <meta name="description" content="数据预处理： 首先回文子串有两种形式 奇数 与 偶数 也就有两种对应的指针操作方式 假定有字符数组 ababaabc 改成 # a # b # a # b # a # a # b # c # 将偶数数组变成奇数统一处理 索性改成 ^ # a # b # a # b # a # a # b # c # $，头尾清晰这样就可以通过把每个字符作为回文子串的中心向两边扩展，找出最长回文子串 时间复杂度是">
+<meta property="og:type" content="article">
+<meta property="og:title" content="最长回文子串Manacher算法">
+<meta property="og:url" content="http://example.com/2023/04/26/%E6%9C%80%E9%95%BF%E5%9B%9E%E6%96%87%E5%AD%90%E4%B8%B2Manacher%E7%AE%97%E6%B3%95/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="数据预处理： 首先回文子串有两种形式 奇数 与 偶数 也就有两种对应的指针操作方式 假定有字符数组 ababaabc 改成 # a # b # a # b # a # a # b # c # 将偶数数组变成奇数统一处理 索性改成 ^ # a # b # a # b # a # a # b # c # $，头尾清晰这样就可以通过把每个字符作为回文子串的中心向两边扩展，找出最长回文子串 时间复杂度是">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-04-25T19:52:00.690Z">
+<meta property="article:modified_time" content="2023-04-25T22:26:41.105Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+    
+    <!--- Icon Part-->
+    <link rel="icon" type="image/png" href="/images/redefine-favicon.svg" sizes="192x192">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/redefine-favicon.svg">
+    <meta name="theme-color" content="#A31F34">
+    <link rel="shortcut icon" href="/images/redefine-favicon.svg">
+    <!--- Page Info-->
+    
+    <title>
+        
+            最长回文子串Manacher算法 -
+        
+        猫窝
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    
+<link rel="stylesheet" href="/assets/fonts.css">
+
+    <!--- Font Part-->
+    
+    
+    
+    
+
+    <!--- Inject Part-->
+    
+    <script id="hexo-configurations">
+    let Global = window.Global || {};
+    Global.hexo_config = {"hostname":"example.com","root":"/","language":"en"};
+    Global.theme_config = {"articles":{"style":{"font_size":"16px","line_height":1.5,"image_border_radius":"14px","image_alignment":"center","image_caption":false,"link_icon":true},"word_count":{"enable":true,"count":true,"min2read":true},"author_label":{"enable":true,"auto":false,"list":[""]},"code_block":{"copy":true,"style":"mac","font":{"enable":false,"family":null,"url":null}},"toc":{"enable":true,"max_depth":3,"number":false,"expand":true,"init_open":true},"copyright":true,"lazyload":true,"recommendation":{"enable":false,"title":"推荐阅读","limit":3,"placeholder":"/images/wallhaven-wqery6-light.webp","skip_dirs":[]}},"colors":{"primary":"#A31F34","secondary":null},"global":{"fonts":{"chinese":{"enable":false,"family":null,"url":null},"english":{"enable":false,"family":null,"url":null}},"content_max_width":"1000px","sidebar_width":"210px","hover":{"shadow":true,"scale":false},"scroll_progress":{"bar":false,"percentage":true},"busuanzi_counter":{"enable":true,"site_pv":true,"site_uv":true,"post_pv":true},"pjax":true,"open_graph":true},"home_banner":{"enable":true,"image":{"light":"/images/wallhaven-wqery6-light.webp","dark":"/images/wallhaven-wqery6-dark.webp"},"title":"鹏北海，凤朝阳，再携书剑路茫茫","subtitle":{"text":[],"hitokoto":{"enable":false,"api":"https://v1.hitokoto.cn"},"typing_speed":100,"backing_speed":80,"starting_delay":500,"backing_delay":1500,"loop":true,"smart_backspace":true},"text_color":{"light":"#fff","dark":"#d1d1b6"},"text_style":{"title_size":"2.8rem","subtitle_size":"1.5rem","line_height":1.2},"custom_font":{"enable":false,"family":null,"url":null},"social_links":{"enable":false,"links":{"github":null,"instagram":null,"zhihu":null,"twitter":null,"email":null}}},"plugins":{"feed":{"enable":false},"aplayer":{"enable":false,"type":"fixed","audios":[{"name":null,"artist":null,"url":null,"cover":null}]},"mermaid":{"enable":false,"version":"9.3.0"}},"version":"2.1.2","navbar":{"auto_hide":false,"color":{"left":"#f78736","right":"#367df7","transparency":35},"links":{"Home":{"path":"/","icon":"fa-regular fa-house"}},"search":{"enable":false,"preload":true}},"page_templates":{"friends_column":2,"tags_style":"blur"},"home":{"sidebar":{"enable":true,"position":"left","first_item":"menu","announcement":null,"links":null},"article_date_format":"auto","categories":{"enable":true,"limit":3},"tags":{"enable":true,"limit":3}}};
+    Global.language_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"};
+  </script>
+    
+    <!--- Fontawesome Part-->
+    
+<link rel="stylesheet" href="/fontawesome/fontawesome.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/brands.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/solid.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/regular.min.css">
+
+    
+    
+    
+    
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+        <span class="pjax-progress-bar"></span>
+        <span class="pjax-progress-icon">
+            <i class="fa-solid fa-circle-notch fa-spin"></i>
+        </span>
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="main-content-container">
+
+        <div class="main-content-header">
+            <header class="navbar-container">
+    
+    <div class="navbar-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                
+                猫窝
+                
+            </a>
+        </div>
+
+        <div class="right">
+            <!-- PC -->
+            <div class="desktop">
+                <ul class="navbar-list">
+                    
+                        
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class="" 
+                                    href="/"  >
+                                    
+                                        
+                                            <i class="fa-regular fa-house"></i>
+                                        
+                                        HOME
+                                    
+                                </a>
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                    
+                </ul>
+            </div>
+            <!-- Mobile -->
+            <div class="mobile">
+                
+                <div class="icon-item navbar-bar">
+                    <div class="navbar-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile drawer -->
+    <div class="navbar-drawer">
+        <ul class="drawer-navbar-list">
+            
+                
+                    <li class="drawer-navbar-item flex-center">
+                        <a class="" 
+                        href="/"  >
+                             
+                                
+                                    <i class="fa-regular fa-house"></i>
+                                
+                                HOME
+                            
+                        </a>
+                    </li>
+                    <!-- Submenu -->
+                    
+            
+
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="main-content-body">
+
+            
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="post-page-container">
+        <div class="article-content-container">
+
+            
+             
+                <div class="article-title">         
+                    <img src="/../image/1.jpg" alt="最长回文子串Manacher算法" />
+                    <h1 class="article-title-cover">最长回文子串Manacher算法</h1>
+                </div>
+            
+                
+            
+
+            
+                <div class="article-header">
+                    <div class="avatar">
+                        <img src="/images/avatar.jpeg">
+                    </div>
+                    <div class="info">
+                        <div class="author">
+                            <span class="name">朕小猫</span>
+                            
+                                <span class="author-label"></span>
+                            
+                        </div>
+                        <div class="meta-info">
+                            <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fa-regular fa-pen-fancy"></i>&nbsp;
+        <span class="desktop">2023-04-26 03:52</span>
+        <span class="mobile">2023-04-26 03:52</span>
+        <span class="hover-info">Created</span>
+    </span>
+    
+        <span class="article-date article-meta-item">
+            <i class="fa-regular fa-wrench"></i>&nbsp;
+            <span class="desktop">2023-04-26 06:26:41</span>
+            <span class="mobile">2023-04-26 06:26</span>
+            <span class="hover-info">Updated</span>
+        </span>
+    
+
+    
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fa-regular fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                        </div>
+                    </div>
+                </div>
+            
+
+            <div class="article-content markdown-body">
+                <p>数据预处理： 首先回文子串有两种形式 奇数 与 偶数 也就有两种对应的指针操作方式</p>
+<p>假定有字符数组 ababaabc 改成 # a # b # a # b # a # a # b # c # 将偶数数组变成奇数统一处理 索性改成 ^ # a # b # a # b # a # a # b # c # $，头尾清晰<br>这样就可以通过把每个字符作为回文子串的中心向两边扩展，找出最长回文子串 时间复杂度是 O(n^2)</p>
+<p>现在需要我们观察回文子串的规律，简化计算</p>
+<div class="highlight-container" data-rel="Css"><figure class="iseeu highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">        <span class="number">0</span> <span class="number">1</span> <span class="number">2</span> <span class="number">3</span> <span class="number">4</span> <span class="number">5</span> <span class="number">6</span> <span class="number">7</span> <span class="number">8</span> <span class="number">9</span> <span class="number">0</span> <span class="number">1</span> <span class="number">2</span> <span class="number">3</span> <span class="number">4</span> <span class="number">5</span> <span class="number">6</span> <span class="number">7</span> <span class="number">8</span></span><br><span class="line">        ^ # <span class="selector-tag">a</span> # <span class="selector-tag">b</span> # <span class="selector-tag">a</span> # <span class="selector-tag">b</span> # <span class="selector-tag">a</span> # <span class="selector-tag">a</span> # <span class="selector-tag">b</span> # c # $</span><br><span class="line">  <span class="number">0</span>     ^                                      <span class="selector-tag">P</span><span class="selector-attr">[0]</span>  = <span class="number">0</span></span><br><span class="line">  <span class="number">1</span>       ^                                    <span class="selector-tag">P</span><span class="selector-attr">[1]</span>  = <span class="number">0</span></span><br><span class="line">  <span class="number">2</span>       --^--                                <span class="selector-tag">p</span><span class="selector-attr">[2]</span>  = <span class="number">1</span></span><br><span class="line">  <span class="number">3</span>           ^                                <span class="selector-tag">P</span><span class="selector-attr">[3]</span>  = <span class="number">0</span></span><br><span class="line">  <span class="number">4</span>       ------^------                        <span class="selector-tag">P</span><span class="selector-attr">[4]</span>  = <span class="number">3</span></span><br><span class="line">  <span class="number">5</span>               ^                            <span class="selector-tag">P</span><span class="selector-attr">[5]</span>  = <span class="number">0</span></span><br><span class="line">  <span class="number">6</span>       ----------^----------                <span class="selector-tag">P</span><span class="selector-attr">[6]</span>  = <span class="number">5</span></span><br><span class="line">  <span class="number">7</span>                   ^                        <span class="selector-tag">P</span><span class="selector-attr">[7]</span>  = <span class="number">0</span></span><br><span class="line">  <span class="number">8</span>               ------^------                <span class="selector-tag">P</span><span class="selector-attr">[8]</span>  = <span class="number">3</span></span><br><span class="line">  <span class="number">9</span>                       ^                    <span class="selector-tag">P</span><span class="selector-attr">[9]</span>  = <span class="number">0</span></span><br><span class="line">  <span class="number">10</span>                      --^--                <span class="selector-tag">P</span><span class="selector-attr">[10]</span> = <span class="number">1</span></span><br><span class="line">  <span class="number">11</span>                  --------^--------        <span class="selector-tag">P</span><span class="selector-attr">[11]</span> = <span class="number">2</span></span><br><span class="line">  <span class="number">12</span>                          --^--            <span class="selector-tag">P</span><span class="selector-attr">[12]</span> = <span class="number">0</span></span><br><span class="line">  <span class="number">13</span>                              ^            <span class="selector-tag">P</span><span class="selector-attr">[13]</span> = <span class="number">0</span></span><br><span class="line">  <span class="number">14</span>                              --^--        <span class="selector-tag">P</span><span class="selector-attr">[14]</span> = <span class="number">1</span></span><br><span class="line">  <span class="number">15</span>                                  ^        <span class="selector-tag">P</span><span class="selector-attr">[15]</span> = <span class="number">0</span></span><br><span class="line">  <span class="number">16</span>                                  --^--    <span class="selector-tag">P</span><span class="selector-attr">[16]</span> = <span class="number">1</span></span><br><span class="line">  <span class="number">17</span>                                      ^    <span class="selector-tag">P</span><span class="selector-attr">[17]</span> = <span class="number">0</span></span><br><span class="line">  <span class="number">18</span>                                        ^  <span class="selector-tag">P</span><span class="selector-attr">[18]</span> = <span class="number">0</span> </span><br><span class="line">情况一：</span><br><span class="line">``` css</span><br><span class="line">  <span class="number">10</span>                      --^--                <span class="selector-tag">P</span><span class="selector-attr">[10]</span> = <span class="number">1</span></span><br><span class="line">  <span class="number">11</span>                  --------^--------        <span class="selector-tag">P</span><span class="selector-attr">[11]</span> = <span class="number">2</span></span><br><span class="line">  <span class="number">12</span>                          --^--            <span class="selector-tag">P</span><span class="selector-attr">[12]</span> = <span class="number">0</span></span><br></pre></td></tr></table></figure></div>
+
+<p>第 10 行，第 12 行 都是 第 11 行 的子串，完全包含在 第 11 行 之中，由于回文串的对称性 此时直接有 P[10] &#x3D; P[12]</p>
+<p>情况二：</p>
+<div class="highlight-container" data-rel="Css"><figure class="iseeu highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">4</span>       ------^------                        <span class="selector-tag">P</span><span class="selector-attr">[4]</span>  = <span class="number">3</span></span><br><span class="line"><span class="number">6</span>       ----------^----------                <span class="selector-tag">P</span><span class="selector-attr">[6]</span>  = <span class="number">5</span></span><br><span class="line"><span class="number">8</span>               ------^------                <span class="selector-tag">P</span><span class="selector-attr">[8]</span>  = <span class="number">3</span></span><br></pre></td></tr></table></figure></div>
+<p>第 4 行，第 8 行 都是 第 6 行 的子串，分别位于字符串的两端，当我们知道 第 4 行 的信息之后，我们知道 第 8 行 至少有 第 4 行 那么长，至于会不会更长，继续试着向两边扩展即可 此时需要干两件事 1. 将 P[8] &#x3D; P[4]; 2. 继续向外扩展</p>
+<p>情况三： 8 ——^—— P[8] &#x3D; 3 11 ——–^——– P[11] &#x3D; 2 14 –^– P[14] &#x3D; 1 第 8 行 部分与 第 11 行 重叠，第 14 行 是 第 11 行 的子串，非常简单，舍弃超出部分 8 –^– P[8] &#x3D; 3 11 ——–^——– P[11] &#x3D; 2 14 –^– P[14] &#x3D; 1 当成这样处理即可 定义遍历指针 i ，指向回文的中心的指针 center 和 指向回文串右边界的指针 r 此时需要干两件事 1. 将 P[8] &#x3D; r - i ; 2. 继续向外扩展</p>
+<p>好，我们现在已经理解了 Manacher 算法的精髓了 我们思考一下算法该怎么写</p>
+<p>P[i] 计算过程</p>
+<div class="highlight-container" data-rel="Css"><figure class="iseeu highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">      <span class="number">0</span> <span class="number">1</span> <span class="number">2</span> <span class="number">3</span> <span class="number">4</span> <span class="number">5</span> <span class="number">6</span> <span class="number">7</span> <span class="number">8</span> <span class="number">9</span> <span class="number">0</span> <span class="number">1</span> <span class="number">2</span> <span class="number">3</span> <span class="number">4</span> <span class="number">5</span> <span class="number">6</span> <span class="number">7</span> <span class="number">8</span></span><br><span class="line">      ^ # <span class="selector-tag">a</span> # <span class="selector-tag">b</span> # <span class="selector-tag">a</span> # <span class="selector-tag">b</span> # <span class="selector-tag">a</span> # <span class="selector-tag">a</span> # <span class="selector-tag">b</span> # c # $</span><br><span class="line"><span class="number">0</span>     ^                                      <span class="selector-tag">P</span><span class="selector-attr">[0]</span>  = <span class="number">0</span>  -- 起始，不必计算，更新 r</span><br><span class="line"><span class="number">1</span>       ^                                    <span class="selector-tag">P</span><span class="selector-attr">[1]</span>  = <span class="number">0</span>  -- 暴力计算，一次计算，更新 r</span><br><span class="line"><span class="number">2</span>       --^--                                <span class="selector-tag">p</span><span class="selector-attr">[2]</span>  = <span class="number">1</span>  -- 暴力计算，二次计算，更新 r</span><br><span class="line"><span class="number">3</span>           ^                                <span class="selector-tag">P</span><span class="selector-attr">[3]</span>  = <span class="number">0</span>  -- 情况二，一次计算</span><br><span class="line"><span class="number">4</span>       ------^------                        <span class="selector-tag">P</span><span class="selector-attr">[4]</span>  = <span class="number">3</span>  -- 暴力计算，四次计算，更新 r</span><br><span class="line"><span class="number">5</span>               ^                            <span class="selector-tag">P</span><span class="selector-attr">[5]</span>  = <span class="number">0</span>  -- 情况一，零次计算</span><br><span class="line"><span class="number">6</span>       ----------^----------                <span class="selector-tag">P</span><span class="selector-attr">[6]</span>  = <span class="number">5</span>  -- 情况二，六次计算，更新 r</span><br><span class="line"><span class="number">7</span>                   ^                        <span class="selector-tag">P</span><span class="selector-attr">[7]</span>  = <span class="number">0</span>  -- 情况一，零次计算</span><br><span class="line"><span class="number">8</span>               ------^------                <span class="selector-tag">P</span><span class="selector-attr">[8]</span>  = <span class="number">3</span>  -- 情况二，一次计算</span><br><span class="line"><span class="number">9</span>                       ^                    <span class="selector-tag">P</span><span class="selector-attr">[9]</span>  = <span class="number">0</span>  -- 情况一，零次计算</span><br><span class="line"><span class="number">10</span>                      --^--                <span class="selector-tag">P</span><span class="selector-attr">[10]</span> = <span class="number">1</span>  -- 情况二，一次计算</span><br><span class="line"><span class="number">11</span>                  --------^--------        <span class="selector-tag">P</span><span class="selector-attr">[11]</span> = <span class="number">2</span>  -- 情况二，五次计算，更新 r</span><br><span class="line"><span class="number">12</span>                          --^--            <span class="selector-tag">P</span><span class="selector-attr">[12]</span> = <span class="number">0</span>  -- 情况一，零次计算</span><br><span class="line"><span class="number">13</span>                              ^            <span class="selector-tag">P</span><span class="selector-attr">[13]</span> = <span class="number">0</span>  -- 情况一，零次计算</span><br><span class="line"><span class="number">14</span>                              --^--        <span class="selector-tag">P</span><span class="selector-attr">[14]</span> = <span class="number">1</span>  -- 情况三，一次计算</span><br><span class="line"><span class="number">15</span>                                  ^        <span class="selector-tag">P</span><span class="selector-attr">[15]</span> = <span class="number">0</span>  -- 情况二，一次计算</span><br><span class="line"><span class="number">16</span>                                  --^--    <span class="selector-tag">P</span><span class="selector-attr">[16]</span> = <span class="number">1</span>  -- 暴力计算，两次计算，更新 r</span><br><span class="line"><span class="number">17</span>                                      ^    <span class="selector-tag">P</span><span class="selector-attr">[17]</span> = <span class="number">0</span>  -- 情况二，一次计算</span><br><span class="line"><span class="number">18</span>                                        ^  <span class="selector-tag">P</span><span class="selector-attr">[18]</span> = <span class="number">0</span>  -- 终止</span><br></pre></td></tr></table></figure></div>
+<p>我列出了每次计算面对的情况，计算的次数以及是否需要 r 我希望大家思考 当新计算出的 r 与旧的 r 相等时，是否应该更新 center ？ 当然不应该，我们肯定更倾向于选择更长的回文串</p>
+<p>是这样吗？ 我们思考一种情况</p>
+<div class="highlight-container" data-rel="Css"><figure class="iseeu highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">2</span>       --^--                                <span class="selector-tag">p</span><span class="selector-attr">[2]</span>  = <span class="number">1</span></span><br><span class="line"><span class="number">3</span>           ^                                <span class="selector-tag">P</span><span class="selector-attr">[3]</span>  = <span class="number">0</span></span><br><span class="line"><span class="number">4</span>       ------^------                        <span class="selector-tag">P</span><span class="selector-attr">[4]</span>  = <span class="number">3</span></span><br><span class="line"><span class="number">5</span>               ^                            <span class="selector-tag">P</span><span class="selector-attr">[5]</span>  = <span class="number">0</span></span><br><span class="line"><span class="number">6</span>       ----------^----------                <span class="selector-tag">P</span><span class="selector-attr">[6]</span>  = <span class="number">5</span></span><br><span class="line"><span class="number">7</span>                   ^                        <span class="selector-tag">P</span><span class="selector-attr">[7]</span>  = <span class="number">0</span></span><br><span class="line"><span class="number">8</span>               ------^------                <span class="selector-tag">P</span><span class="selector-attr">[8]</span>  = <span class="number">3</span></span><br><span class="line"><span class="number">9</span>                       ^                    <span class="selector-tag">P</span><span class="selector-attr">[9]</span>  = <span class="number">0</span></span><br><span class="line"><span class="number">10</span>                      --^--                <span class="selector-tag">P</span><span class="selector-attr">[10]</span> = <span class="number">1</span> </span><br></pre></td></tr></table></figure></div>
+<p>第 6 行 较长有什么用呢，有用的只是 i 到 r 这一小截而已，不更新是因为都一样，没必要更新 所以只有当我们发现了更右边的 r 更新即可</p>
+<div class="highlight-container" data-rel="Kotlin"><figure class="iseeu highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">fun</span> <span class="title">formatString</span><span class="params">(s: <span class="type">String</span>)</span></span>: String&#123;</span><br><span class="line">        <span class="keyword">val</span> tString : StringBuffer = StringBuffer(<span class="string">&quot;^#&quot;</span>)</span><br><span class="line">        <span class="keyword">for</span> ( i <span class="keyword">in</span> s.indices )&#123;</span><br><span class="line">            tString.append(s[i])</span><br><span class="line">            tString.append(<span class="string">&#x27;#&#x27;</span>)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> tString.append(<span class="string">&#x27;$&#x27;</span>).toString()</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">fun</span> <span class="title">extend</span><span class="params">(s: <span class="type">String</span>, leftIndex: <span class="type">Int</span>, rightIndex: <span class="type">Int</span>)</span></span>: <span class="built_in">Int</span> &#123;</span><br><span class="line">        <span class="keyword">var</span> r = <span class="number">0</span></span><br><span class="line">        <span class="keyword">var</span> left = leftIndex</span><br><span class="line">        <span class="keyword">var</span> right = rightIndex</span><br><span class="line">        <span class="keyword">while</span> (left &gt; <span class="number">0</span> &amp;&amp; right &lt; s.length &amp;&amp; s[left] == s[right])&#123;</span><br><span class="line">           r ++</span><br><span class="line">           left --</span><br><span class="line">           right ++</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> r</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">longestPalindrome</span><span class="params">(s: <span class="type">String</span>)</span></span>: String &#123;</span><br><span class="line">        <span class="keyword">val</span> tString = formatString(s)</span><br><span class="line">        <span class="keyword">var</span> maxR = <span class="number">0</span></span><br><span class="line">        <span class="keyword">var</span> maxCenter = <span class="number">0</span></span><br><span class="line">        <span class="keyword">var</span> center = -<span class="number">1</span></span><br><span class="line">        <span class="keyword">var</span> R = <span class="number">0</span></span><br><span class="line">        <span class="keyword">val</span> p = Array&lt;<span class="built_in">Int</span>&gt;(tString.length) &#123; <span class="number">0</span> &#125;</span><br><span class="line">    </span><br><span class="line">        <span class="keyword">for</span> ( i <span class="keyword">in</span> tString.indices )&#123;</span><br><span class="line">            <span class="keyword">val</span> iMirror = center - (i - center)</span><br><span class="line">            <span class="keyword">var</span> rightIndex = i</span><br><span class="line">            <span class="keyword">var</span> leftIndex = i</span><br><span class="line">            <span class="keyword">val</span> maxLength = R - i</span><br><span class="line">    </span><br><span class="line">            <span class="keyword">val</span> hasMirrorIndex = i &lt; R &amp;&amp; center - maxLength &gt; <span class="number">0</span></span><br><span class="line">            <span class="keyword">val</span> case1CompletelyIncluded = hasMirrorIndex &amp;&amp; i &gt; center &amp;&amp; p[iMirror] &lt; R - i</span><br><span class="line">            <span class="keyword">val</span> case2NotCompletelyInclude = hasMirrorIndex &amp;&amp; !case1CompletelyIncluded</span><br><span class="line">            </span><br><span class="line">            <span class="keyword">if</span>(!hasMirrorIndex)&#123;</span><br><span class="line">                p[i] = <span class="number">0</span></span><br><span class="line">                rightIndex = i + <span class="number">1</span></span><br><span class="line">                leftIndex = i - <span class="number">1</span></span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">if</span>(case1CompletelyIncluded) &#123;</span><br><span class="line">                    p[i] = p[iMirror]</span><br><span class="line">                    <span class="keyword">continue</span></span><br><span class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (case2NotCompletelyInclude) &#123;</span><br><span class="line">                    p[i] = maxLength</span><br><span class="line">                    rightIndex = R + <span class="number">1</span></span><br><span class="line">                    leftIndex = i - (rightIndex - i)</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            </span><br><span class="line">            p[i] += extend(tString, leftIndex, rightIndex)</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 更新最右边的 R 和 center</span></span><br><span class="line">            <span class="keyword">if</span>(i + p[i] &gt; R)&#123;</span><br><span class="line">                R = i + p[i]</span><br><span class="line">                center = i</span><br><span class="line">            &#125;</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 判断是不是最长的回文串</span></span><br><span class="line">            <span class="keyword">if</span>(p[i] &gt; maxR)&#123;</span><br><span class="line">                maxR = p[i]</span><br><span class="line">                maxCenter = i</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    </span><br><span class="line">        <span class="keyword">if</span>(maxR == <span class="number">0</span>) <span class="keyword">return</span> <span class="string">&quot;&quot;</span></span><br><span class="line">    </span><br><span class="line">        <span class="keyword">val</span> start = maxCenter - maxR</span><br><span class="line">        <span class="keyword">val</span> end = maxCenter + maxR</span><br><span class="line">        <span class="keyword">return</span> tString.substring(start..end).replace(<span class="string">&quot;#&quot;</span>, <span class="string">&quot;&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+            </div>
+
+            
+                <div class="post-copyright-info">
+                    <div class="article-copyright-info-container">
+    <ul>
+        <li><strong>Title:</strong> 最长回文子串Manacher算法</li>
+        <li><strong>Author:</strong> 朕小猫</li>
+        <li><strong>Created at:</strong> 2023-04-26 03:52:00</li>
+        
+            <li>
+                <strong>Updated at:</strong> 2023-04-26 06:26:41
+            </li>
+        
+        <li>
+            <strong>Link:</strong> https://redefine.ohevan.com/2023/04/26/最长回文子串Manacher算法/
+        </li>
+        <li>
+            <strong>License:</strong> This work is licensed under <a class="license" target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0</a>.
+        </li>
+    </ul>
+</div>
+
+                </div>
+            
+
+            
+
+            
+
+            
+                <div class="article-nav">
+                    
+                    
+                        <div class="article-next">
+                            <a class="next"
+                            rel="next"
+                            href="/2023/04/24/hello-world/"
+                            >
+                                <span class="title flex-center">
+                                    <span class="post-nav-title-item"></span>
+                                    <span class="post-nav-item">Next posts</span>
+                                </span>
+                                <span class="right arrow-icon flex-center">
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </span>
+                            </a>
+                        </div>
+                    
+                </div>
+            
+
+
+            
+                <div class="comment-container">
+                    <div class="comments-container">
+    <div id="comment-anchor"></div>
+    <div class="comment-area-title">
+        <i class="fa-solid fa-comments"></i>&nbsp;Comments
+    </div>
+    
+
+        
+            
+ 
+    <div id="waline"></div>
+    <script type="module"  data-pjax>
+        import { init } from 'https://evan.beee.top/js/waline.mjs';
+
+        function loadWaline() {
+            init({
+                el: '#waline',
+                serverURL: 'https://example.example.com',
+                lang: 'zh-CN',
+                dark: 'body[class~="dark-mode"]',
+                requiredMeta: ['nick','mail'], // cannot customize by theme config, change it yourself
+            });
+        }
+
+        if ('true') {
+            const loadWalineTimeout = setTimeout(() => {
+                loadWaline();
+                clearTimeout(loadWalineTimeout);
+            }, 1000);
+        } else {
+            window.addEventListener('DOMContentLoaded', loadWaline);
+        }
+        
+    </script>
+
+
+
+        
+    
+</div>
+
+                </div>
+            
+        </div>
+
+        
+            <div class="toc-content-container">
+                <div class="post-toc-wrap">
+    <div class="post-toc">
+        <div class="toc-title">On this page</div>
+        <div class="page-title">最长回文子串Manacher算法</div>
+        
+
+    </div>
+</div>
+            </div>
+        
+    </div>
+</div>
+
+
+                
+
+            </div>
+            
+            
+
+        </div>
+
+        <div class="main-content-footer">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info">
+            &copy;
+            
+              <span>2022</span>
+              -
+            
+            2023&nbsp;&nbsp;<i class="fa-solid fa-heart fa-beat" style="--fa-animation-duration: 0.5s; color: #f54545"></i>&nbsp;&nbsp;<a href="/">朕小猫</a>
+        </div>
+        
+            <script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv" class="busuanzi_container_site_uv">
+                        VISITOR COUNT&nbsp;<span id="busuanzi_value_site_uv" class="busuanzi_value_site_uv"></span>
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv" class="busuanzi_container_site_pv">
+                        TOTAL PAGE VIEWS&nbsp;<span id="busuanzi_value_site_pv" class="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            <span class="powered-by-container">POWERED BY <?xml version="1.0" encoding="utf-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg version="1.1" id="圖層_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="1rem" height="1rem" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve"><path fill="#0E83CD" d="M256.4,25.8l-200,115.5L56,371.5l199.6,114.7l200-115.5l0.4-230.2L256.4,25.8z M349,354.6l-18.4,10.7l-18.6-11V275H200v79.6l-18.4,10.7l-18.6-11v-197l18.5-10.6l18.5,10.8V237h112v-79.6l18.5-10.6l18.5,10.8V354.6z"/></svg><a target="_blank" href="https://hexo.io">Hexo</a></span>
+                <br>
+            <span class="theme-version-container">THEME&nbsp;<a class="theme-version" target="_blank" href="https://github.com/EvanNotFound/hexo-theme-redefine">Redefine v2.1.2</a>
+        </div>
+        
+        
+        
+            <div id="start_div" style="display:none">
+                2022/8/17 11:45:14
+            </div>
+            <div>
+                Blog up for <span class="odometer" id="runtime_days" ></span> days <span class="odometer" id="runtime_hours"></span> hrs <span class="odometer" id="runtime_minutes"></span> Min <span class="odometer" id="runtime_seconds"></span> Sec
+            </div>
+        
+        
+        
+            <script async data-pjax>
+                try {
+                    function odometer_init() {
+                    const elements = document.querySelectorAll('.odometer');
+                    elements.forEach(el => {
+                        new Odometer({
+                            el,
+                            format: '( ddd).dd',
+                            duration: 200
+                        });
+                    });
+                    }
+                    odometer_init();
+                } catch (error) {}
+            </script>
+        
+        
+        
+    </div>  
+</footer>
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="article-tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="right-bottom-tools page-aside-toggle">
+                <i class="fa-regular fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+            <li class="go-comment">
+                <i class="fa-regular fa-comments"></i>
+            </li>
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-side-tools-container">
+        <div class="side-tools-container">
+    <ul class="hidden-tools-list">
+        <li class="right-bottom-tools tool-font-adjust-plus flex-center">
+            <i class="fa-regular fa-magnifying-glass-plus"></i>
+        </li>
+
+        <li class="right-bottom-tools tool-font-adjust-minus flex-center">
+            <i class="fa-regular fa-magnifying-glass-minus"></i>
+        </li>
+
+        <li class="right-bottom-tools tool-expand-width flex-center">
+            <i class="fa-regular fa-expand"></i>
+        </li>
+
+        <li class="right-bottom-tools tool-dark-light-toggle flex-center">
+            <i class="fa-regular fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="right-bottom-tools tool-scroll-to-bottom flex-center">
+            <i class="fa-regular fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="visible-tools-list">
+        <li class="right-bottom-tools toggle-tools-list flex-center">
+            <i class="fa-regular fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="right-bottom-tools tool-scroll-to-top flex-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+        
+    </ul>
+</div>
+
+    </div>
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+
+
+</main>
+
+
+
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/main.js"></script>
+
+<script src="/js/layouts/navbarShrink.js"></script>
+
+<script src="/js/tools/scrollTopBottom.js"></script>
+
+<script src="/js/tools/lightDarkSwitch.js"></script>
+
+
+
+
+
+    
+<script src="/js/tools/codeBlock.js"></script>
+
+
+
+
+    
+<script src="/js/layouts/lazyload.js"></script>
+
+
+
+
+    
+<script src="/js/tools/runtime.js"></script>
+
+    
+<script src="/js/layouts/odometer.min.js"></script>
+
+    
+<link rel="stylesheet" href="/assets/odometer-theme-minimal.css">
+
+
+
+
+  
+<script src="/js/libs/Typed.min.js"></script>
+
+  
+<script src="/js/plugins/typed.js"></script>
+
+
+
+
+
+
+
+<div class="post-scripts pjax">
+    
+        
+<script src="/js/tools/tocToggle.js"></script>
+
+<script src="/js/libs/anime.min.js"></script>
+
+<script src="/js/layouts/toc.js"></script>
+
+<script src="/js/plugins/tabs.js"></script>
+
+    
+</div>
+
+
+    
+<script src="/js/libs/pjax.min.js"></script>
+
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        window.pjax = new Pjax({
+            selectors: [
+                'head title',
+                '.page-container',
+                '.pjax',
+            ],
+            history: true,
+            debug: false,
+            cacheBust: false,
+            timeout: 0,
+            analytics: false,
+            currentUrlFullReload: false,
+            scrollRestoration: false,
+            // scrollTo: true,
+        });
+
+        document.addEventListener('pjax:send', () => {
+            Global.utils.pjaxProgressBarStart();
+        });
+
+        document.addEventListener('pjax:complete', () => {
+            Global.utils.pjaxProgressBarEnd();
+            window.pjax.executeScripts(document.querySelectorAll('script[data-pjax], .pjax script'));
+            Global.refresh();
+        });
+    });
+</script>
+
+
+
+
+</body>
+</html>
