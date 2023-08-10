@@ -126,16 +126,28 @@
 
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">算法题目</a>
+    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0 - 算法题目</a>
  
       
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p><code>简介</code></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">介绍 Manacher 算法</span><br><span class="line">理解回文串的对称性，减少与回文串相交的字符串的计算量</span><br><span class="line">关键词</span><br><span class="line">情况一：完全包含，直接赋值</span><br><span class="line">情况二：部分相交。直接从后一位接续计算</span><br></pre></td></tr></table></figure>
+        <h3 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h3><p>给你一个字符串 <code>s</code>，找到 <code>s</code> 中最长的回文子串。</p>
+<p>如果字符串的反序与原始字符串相同，则该字符串称为回文字符串。</p>
+<p><strong>示例 1：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：s = &quot;babad&quot;</span><br><span class="line">输出：&quot;bab&quot;</span><br><span class="line">解释：&quot;aba&quot; 同样是符合题意的答案。</span><br></pre></td></tr></table></figure>
 
-<p>数据预处理： 首先回文子串有两种形式 奇数 与 偶数 也就有两种对应的指针操作方式</p>
+<p><strong>示例 2：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入：s = &quot;cbbd&quot;</span><br><span class="line">输出：&quot;bb&quot;</span><br></pre></td></tr></table></figure>
+
+<p><strong>提示：</strong></p>
+<ul>
+<li><code>1 &lt;= s.length &lt;= 1000</code></li>
+<li><code>s</code> 仅由数字和英文字母组成</li>
+</ul>
+<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">介绍 Manacher 算法</span><br><span class="line">理解回文串的对称性，减少与回文串相交的字符串的计算量</span><br><span class="line">关键词</span><br><span class="line">情况一：完全包含，直接赋值</span><br><span class="line">情况二：部分相交。直接从后一位接续计算</span><br></pre></td></tr></table></figure>
+
+<h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>数据预处理： 首先回文子串有两种形式 奇数 与 偶数 也就有两种对应的指针操作方式</p>
 <p>假定有字符数组 ababaabc 改成 # a # b # a # b # a # a # b # c # 将偶数数组变成奇数统一处理 索性改成 ^ # a # b # a # b # a # a # b # c # $，头尾清晰<br>这样就可以通过把每个字符作为回文子串的中心向两边扩展，找出最长回文子串 时间复杂度是 O(n^2)</p>
 <p>现在需要我们观察回文子串的规律，简化计算</p>
 <figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">      <span class="number">0</span> <span class="number">1</span> <span class="number">2</span> <span class="number">3</span> <span class="number">4</span> <span class="number">5</span> <span class="number">6</span> <span class="number">7</span> <span class="number">8</span> <span class="number">9</span> <span class="number">0</span> <span class="number">1</span> <span class="number">2</span> <span class="number">3</span> <span class="number">4</span> <span class="number">5</span> <span class="number">6</span> <span class="number">7</span> <span class="number">8</span></span><br><span class="line">      ^ # <span class="selector-tag">a</span> # <span class="selector-tag">b</span> # <span class="selector-tag">a</span> # <span class="selector-tag">b</span> # <span class="selector-tag">a</span> # <span class="selector-tag">a</span> # <span class="selector-tag">b</span> # c # $</span><br><span class="line"><span class="number">0</span>     ^                                      <span class="selector-tag">P</span><span class="selector-attr">[0]</span>  = <span class="number">0</span></span><br><span class="line"><span class="number">1</span>       ^                                    <span class="selector-tag">P</span><span class="selector-attr">[1]</span>  = <span class="number">0</span></span><br><span class="line"><span class="number">2</span>       --^--                                <span class="selector-tag">p</span><span class="selector-attr">[2]</span>  = <span class="number">1</span></span><br><span class="line"><span class="number">3</span>           ^                                <span class="selector-tag">P</span><span class="selector-attr">[3]</span>  = <span class="number">0</span></span><br><span class="line"><span class="number">4</span>       ------^------                        <span class="selector-tag">P</span><span class="selector-attr">[4]</span>  = <span class="number">3</span></span><br><span class="line"><span class="number">5</span>               ^                            <span class="selector-tag">P</span><span class="selector-attr">[5]</span>  = <span class="number">0</span></span><br><span class="line"><span class="number">6</span>       ----------^----------                <span class="selector-tag">P</span><span class="selector-attr">[6]</span>  = <span class="number">5</span></span><br><span class="line"><span class="number">7</span>                   ^                        <span class="selector-tag">P</span><span class="selector-attr">[7]</span>  = <span class="number">0</span></span><br><span class="line"><span class="number">8</span>               ------^------                <span class="selector-tag">P</span><span class="selector-attr">[8]</span>  = <span class="number">3</span></span><br><span class="line"><span class="number">9</span>                       ^                    <span class="selector-tag">P</span><span class="selector-attr">[9]</span>  = <span class="number">0</span></span><br><span class="line"><span class="number">10</span>                      --^--                <span class="selector-tag">P</span><span class="selector-attr">[10]</span> = <span class="number">1</span></span><br><span class="line"><span class="number">11</span>                  --------^--------        <span class="selector-tag">P</span><span class="selector-attr">[11]</span> = <span class="number">2</span></span><br><span class="line"><span class="number">12</span>                          --^--            <span class="selector-tag">P</span><span class="selector-attr">[12]</span> = <span class="number">0</span></span><br><span class="line"><span class="number">13</span>                              ^            <span class="selector-tag">P</span><span class="selector-attr">[13]</span> = <span class="number">0</span></span><br><span class="line"><span class="number">14</span>                              --^--        <span class="selector-tag">P</span><span class="selector-attr">[14]</span> = <span class="number">1</span></span><br><span class="line"><span class="number">15</span>                                  ^        <span class="selector-tag">P</span><span class="selector-attr">[15]</span> = <span class="number">0</span></span><br><span class="line"><span class="number">16</span>                                  --^--    <span class="selector-tag">P</span><span class="selector-attr">[16]</span> = <span class="number">1</span></span><br><span class="line"><span class="number">17</span>                                      ^    <span class="selector-tag">P</span><span class="selector-attr">[17]</span> = <span class="number">0</span></span><br><span class="line"><span class="number">18</span>                                        ^  <span class="selector-tag">P</span><span class="selector-attr">[18]</span> = <span class="number">0</span> </span><br></pre></td></tr></table></figure>
@@ -163,11 +175,11 @@
     <footer class="entry-meta entry-footer">
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">算法题目</a>
+    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0 - 算法题目</a>
 
       
   <span class="ico-tags"></span>
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%B8%AD/" rel="tag">中</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/00-1-%E7%AE%97%E6%B3%95-%E4%B8%AD%E7%AD%89/" rel="tag">00.1 - 算法 - 中等</a></li></ul>
 
       
     </footer>
@@ -179,7 +191,7 @@
 <!-- Table of Contents -->
 
   
-    <article id="post-算法题目/寻找两个正序数组的中位数"  class="article article-type-post" itemscope itemprop="blogPost" >
+    <article id="post-算法题目/4 寻找两个正序数组的中位数"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -187,7 +199,7 @@
         
   
     <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2023/08/09/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/%E5%AF%BB%E6%89%BE%E4%B8%A4%E4%B8%AA%E6%AD%A3%E5%BA%8F%E6%95%B0%E7%BB%84%E7%9A%84%E4%B8%AD%E4%BD%8D%E6%95%B0/">寻找两个正序数组的中位数</a>
+      <a class="article-title" href="/2023/08/09/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/4%20%E5%AF%BB%E6%89%BE%E4%B8%A4%E4%B8%AA%E6%AD%A3%E5%BA%8F%E6%95%B0%E7%BB%84%E7%9A%84%E4%B8%AD%E4%BD%8D%E6%95%B0/">寻找两个正序数组的中位数</a>
     </h1>
   
 
@@ -195,23 +207,38 @@
     
     <div class="article-meta">
       
-	<a href="/2023/08/09/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/%E5%AF%BB%E6%89%BE%E4%B8%A4%E4%B8%AA%E6%AD%A3%E5%BA%8F%E6%95%B0%E7%BB%84%E7%9A%84%E4%B8%AD%E4%BD%8D%E6%95%B0/" class="article-date">
+	<a href="/2023/08/09/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/4%20%E5%AF%BB%E6%89%BE%E4%B8%A4%E4%B8%AA%E6%AD%A3%E5%BA%8F%E6%95%B0%E7%BB%84%E7%9A%84%E4%B8%AD%E4%BD%8D%E6%95%B0/" class="article-date">
 	  <time datetime="2023-08-08T23:05:00.603Z" itemprop="datePublished">August 9, 2023</time>
 	</a>
 
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">算法题目</a>
+    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0 - 算法题目</a>
  
       
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p><code>简介</code></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">讨论在两个有序数组中寻找中位数的问题</span><br><span class="line"></span><br><span class="line">观察单个有序数组，通过比较元素大小找到舍弃的元素，确定中位数。</span><br><span class="line"></span><br><span class="line">类推两个有序数组，准备两个区间来存放偏小值和偏大值。</span><br><span class="line">根据区间需要满足必要条件，使得偏小区间的元素都小于偏大区间。</span><br><span class="line">问题转化为在单个有序数组中查找满足条件的关键元素位置，可以使用二分查找。</span><br><span class="line"></span><br><span class="line">关键词:</span><br><span class="line">偏小区间</span><br><span class="line">偏大区间</span><br><span class="line">二分查找</span><br></pre></td></tr></table></figure>
+        <h3 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h3><p>给定两个大小分别为 <code>m</code> 和 <code>n</code> 的正序（从小到大）数组 <code>nums1</code> 和 <code>nums2</code>。请你找出并返回这两个正序数组的 <strong>中位数</strong> 。</p>
+<p>算法的时间复杂度应该为 <code>O(log (m+n))</code> 。</p>
+<p><strong>示例 1：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：nums1 = [1,3], nums2 = [2]</span><br><span class="line">输出：2.00000</span><br><span class="line">解释：合并数组 = [1,2,3] ，中位数 2</span><br></pre></td></tr></table></figure>
 
+<p><strong>示例 2：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：nums1 = [1,2], nums2 = [3,4]</span><br><span class="line">输出：2.50000</span><br><span class="line">解释：合并数组 = [1,2,3,4] ，中位数 (2 + 3) / 2 = 2.5</span><br></pre></td></tr></table></figure>
 
-<p>首先思考我们是否可以避免全排序找到中位数</p>
+<p><strong>提示：</strong></p>
+<ul>
+<li><code>nums1.length == m</code></li>
+<li><code>nums2.length == n</code></li>
+<li><code>0 &lt;= m &lt;= 1000</code></li>
+<li><code>0 &lt;= n &lt;= 1000</code></li>
+<li><code>1 &lt;= m + n &lt;= 2000</code></li>
+<li><code>-10^6 &lt;= nums1[i], nums2[i] &lt;= 10^6</code></li>
+</ul>
+<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">讨论在两个有序数组中寻找中位数的问题</span><br><span class="line"></span><br><span class="line">观察单个有序数组，通过比较元素大小找到舍弃的元素，确定中位数。</span><br><span class="line"></span><br><span class="line">类推两个有序数组，准备两个区间来存放偏小值和偏大值。</span><br><span class="line">根据区间需要满足必要条件，使得偏小区间的元素都小于偏大区间。</span><br><span class="line">问题转化为在单个有序数组中查找满足条件的关键元素位置，可以使用二分查找。</span><br><span class="line"></span><br><span class="line">关键词:</span><br><span class="line">偏小区间</span><br><span class="line">偏大区间</span><br><span class="line">二分查找</span><br></pre></td></tr></table></figure>
+
+<h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>首先思考我们是否可以避免全排序找到中位数</p>
 <p>我们有一种想法就是通过比较元素的大小找到需要舍弃的元素</p>
 <p>我们观察一个有序数组，我们准备两个区间 RSmall, RBig 分别存放这个数组的偏小值与偏大值（相对中位数而言）</p>
 <p>分别用 left，right 指针从两头操作偏小值与偏大值，将他们依次放入对应的数组</p>
@@ -252,11 +279,11 @@
     <footer class="entry-meta entry-footer">
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">算法题目</a>
+    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0 - 算法题目</a>
 
       
   <span class="ico-tags"></span>
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%B8%AD/" rel="tag">中</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/00-2-%E7%AE%97%E6%B3%95-%E5%9B%B0%E9%9A%BE/" rel="tag">00.2 - 算法 - 困难</a></li></ul>
 
       
     </footer>
@@ -268,7 +295,7 @@
 <!-- Table of Contents -->
 
   
-    <article id="post-算法题目/无重复字符的最长子串"  class="article article-type-post" itemscope itemprop="blogPost" >
+    <article id="post-算法题目/3 无重复字符的最长子串"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -276,7 +303,7 @@
         
   
     <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2023/08/09/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/%E6%97%A0%E9%87%8D%E5%A4%8D%E5%AD%97%E7%AC%A6%E7%9A%84%E6%9C%80%E9%95%BF%E5%AD%90%E4%B8%B2/">无重复字符的最长子串</a>
+      <a class="article-title" href="/2023/08/09/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/3%20%E6%97%A0%E9%87%8D%E5%A4%8D%E5%AD%97%E7%AC%A6%E7%9A%84%E6%9C%80%E9%95%BF%E5%AD%90%E4%B8%B2/">无重复字符的最长子串</a>
     </h1>
   
 
@@ -284,21 +311,35 @@
     
     <div class="article-meta">
       
-	<a href="/2023/08/09/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/%E6%97%A0%E9%87%8D%E5%A4%8D%E5%AD%97%E7%AC%A6%E7%9A%84%E6%9C%80%E9%95%BF%E5%AD%90%E4%B8%B2/" class="article-date">
+	<a href="/2023/08/09/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/3%20%E6%97%A0%E9%87%8D%E5%A4%8D%E5%AD%97%E7%AC%A6%E7%9A%84%E6%9C%80%E9%95%BF%E5%AD%90%E4%B8%B2/" class="article-date">
 	  <time datetime="2023-08-08T23:05:00.599Z" itemprop="datePublished">August 9, 2023</time>
 	</a>
 
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">算法题目</a>
+    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0 - 算法题目</a>
  
       
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p><code>简介</code></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">巧妙的使用 HashMap&lt;Char, Int&gt; 记录每个字符的最新的位置</span><br><span class="line">巧妙的确定了每个元素对应的滑动窗口的左边界</span><br><span class="line">关键词：</span><br><span class="line">HashMap &lt;Char, Int&gt;用以查找位置</span><br><span class="line">窗口长度不固定，遍历指针作为左边界</span><br></pre></td></tr></table></figure>
-<p>本题的巧妙在于使用 HashMap 和 遍历指针构建了一个滑动窗口</p>
+        <h3 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h3><p>给定一个字符串 <code>s</code> ，请你找出其中不含有重复字符的 <strong>最长子串</strong> 的长度。</p>
+<p><strong>示例 1:</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入: s = &quot;abcabcbb&quot;</span><br><span class="line">输出: 3 </span><br><span class="line">解释: 因为无重复字符的最长子串是 &quot;abc&quot;，所以其长度为 3。</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 2:</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入: s = &quot;bbbbb&quot;</span><br><span class="line">输出: 1</span><br><span class="line">解释: 因为无重复字符的最长子串是 &quot;b&quot;，所以其长度为 1。</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 3:</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">输入: s = &quot;pwwkew&quot;</span><br><span class="line">输出: 3</span><br><span class="line">解释: 因为无重复字符的最长子串是 &quot;wke&quot;，所以其长度为 3。</span><br><span class="line">     请注意，你的答案必须是 子串 的长度，&quot;pwke&quot; 是一个子序列，不是子串。</span><br></pre></td></tr></table></figure>
+
+<p><strong>提示：</strong></p>
+<ul>
+<li><code>0 &lt;= s.length &lt;= 5 * 10^4</code></li>
+<li><code>s</code> 由英文字母、数字、符号和空格组成</li>
+</ul>
+<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">巧妙的使用 HashMap&lt;Char, Int&gt; 记录每个字符的最新的位置</span><br><span class="line">巧妙的确定了每个元素对应的滑动窗口的左边界</span><br><span class="line">关键词：</span><br><span class="line">HashMap &lt;Char, Int&gt;用以查找位置</span><br><span class="line">窗口长度不固定，遍历指针作为左边界</span><br></pre></td></tr></table></figure>
+<h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>本题的巧妙在于使用 HashMap 和 遍历指针构建了一个滑动窗口</p>
 <p>在寻找滑动窗口的时候，我们总是固定住一端位置去寻找另一端的位置，通常需要我们找到两个端点之间的关系</p>
 <p>来分析滑动窗口的性质：左边届位置，右边界的位置，滑动窗口的长度<br>三者有以下这些关系：<code>滑动窗口的长度 = 滑动窗口右边届 - 滑动窗口左边界</code><br>无论算法如何变化，我们知二求一</p>
 <p>我们分析，遍历指针和左右边界的关系有三<br>情况一：遍历指针是滑动窗口的左边界<br>情况二：遍历指针是滑动窗口的右边界<br>情况三：遍历指针在滑动窗口的中间</p>
@@ -311,11 +352,11 @@
     <footer class="entry-meta entry-footer">
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">算法题目</a>
+    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0 - 算法题目</a>
 
       
   <span class="ico-tags"></span>
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%B8%AD/" rel="tag">中</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/00-1-%E7%AE%97%E6%B3%95-%E4%B8%AD%E7%AD%89/" rel="tag">00.1 - 算法 - 中等</a></li></ul>
 
       
     </footer>
@@ -327,7 +368,7 @@
 <!-- Table of Contents -->
 
   
-    <article id="post-算法题目/1"  class="article article-type-post" itemscope itemprop="blogPost" >
+    <article id="post-算法题目/1 两数之和"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -335,7 +376,7 @@
         
   
     <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2023/08/09/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/1/">两数之和</a>
+      <a class="article-title" href="/2023/08/09/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/1%20%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/">两数之和</a>
     </h1>
   
 
@@ -343,22 +384,41 @@
     
     <div class="article-meta">
       
-	<a href="/2023/08/09/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/1/" class="article-date">
+	<a href="/2023/08/09/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/1%20%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/" class="article-date">
 	  <time datetime="2023-08-08T23:05:00.596Z" itemprop="datePublished">August 9, 2023</time>
 	</a>
 
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">算法题目</a>
+    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0 - 算法题目</a>
  
       
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p><code>简介</code></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">这道题的关键在于对 hashmap 查找时间复杂度 O(1) 的应用</span><br><span class="line">关键词：</span><br><span class="line">HashMap&lt;Key, Value&gt;</span><br><span class="line">hashmap.containsKey(Value)</span><br></pre></td></tr></table></figure>
+        <h3 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h3><p>给定一个整数数组 <code>nums</code> 和一个整数目标值 <code>target</code>，请你在该数组中找出 <strong>和为目标值</strong> <em><code>target</code></em> 的那 <strong>两个</strong> 整数，并返回它们的数组下标。</p>
+<p>你可以假设每种输入只会对应一个答案。但是，数组中同一个元素在答案里不能重复出现。</p>
+<p>你可以按任意顺序返回答案。</p>
+<p><strong>示例 1：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：nums = [2,7,11,15], target = 9</span><br><span class="line">输出：[0,1]</span><br><span class="line">解释：因为 nums[0] + nums[1] == 9 ，返回 [0, 1] 。</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">twoSum</span><span class="params">(nums: <span class="type">IntArray</span>, target: <span class="type">Int</span>)</span></span>: IntArray &#123;</span><br><span class="line">        <span class="keyword">val</span> hashmap = HashMap&lt;<span class="built_in">Int</span>, <span class="built_in">Int</span>&gt;()</span><br><span class="line">        <span class="keyword">for</span>(i <span class="keyword">in</span> nums.indices)&#123;</span><br><span class="line">            <span class="keyword">val</span> complement = target - nums[i]</span><br><span class="line">            <span class="keyword">if</span>(hashmap.containsKey(complement))&#123;</span><br><span class="line">                <span class="keyword">return</span> intArrayOf(hashmap[complement]!!, i)</span><br><span class="line">            &#125;</span><br><span class="line">            hashmap[nums[i]] = i        </span><br><span class="line">            &#125;</span><br><span class="line">        <span class="keyword">return</span> intArrayOf()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>示例 2：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入：nums = [3,2,4], target = 6</span><br><span class="line">输出：[1,2]</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 3：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入：nums = [3,3], target = 6</span><br><span class="line">输出：[0,1]</span><br></pre></td></tr></table></figure>
+
+<p><strong>提示：</strong></p>
+<ul>
+<li><code>2 &lt;= nums.length &lt;= 10^4</code></li>
+<li><code>-109 &lt;= nums[i] &lt;= 10^9</code></li>
+<li><code>-109 &lt;= target &lt;= 10^9</code></li>
+<li><strong>只会存在一个有效答案</strong></li>
+</ul>
+<p><strong>进阶：</strong>你可以想出一个时间复杂度小于 <code>O(n2)</code> 的算法吗？</p>
+<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">这道题的关键在于对 hashmap 查找时间复杂度 O(1) 的应用</span><br><span class="line">关键词：</span><br><span class="line">HashMap&lt;Key, Value&gt;</span><br><span class="line">hashmap.containsKey(Value)</span><br></pre></td></tr></table></figure>
+
+<h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">twoSum</span><span class="params">(nums: <span class="type">IntArray</span>, target: <span class="type">Int</span>)</span></span>: IntArray &#123;</span><br><span class="line">        <span class="keyword">val</span> hashmap = HashMap&lt;<span class="built_in">Int</span>, <span class="built_in">Int</span>&gt;()</span><br><span class="line">        <span class="keyword">for</span>(i <span class="keyword">in</span> nums.indices)&#123;</span><br><span class="line">            <span class="keyword">val</span> complement = target - nums[i]</span><br><span class="line">            <span class="keyword">if</span>(hashmap.containsKey(complement))&#123;</span><br><span class="line">                <span class="keyword">return</span> intArrayOf(hashmap[complement]!!, i)</span><br><span class="line">            &#125;</span><br><span class="line">            hashmap[nums[i]] = i        </span><br><span class="line">            &#125;</span><br><span class="line">        <span class="keyword">return</span> intArrayOf()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
       
@@ -366,11 +426,11 @@
     <footer class="entry-meta entry-footer">
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">算法题目</a>
+    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0 - 算法题目</a>
 
       
   <span class="ico-tags"></span>
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AE%80/" rel="tag">简</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/00-0-%E7%AE%97%E6%B3%95-%E7%AE%80%E5%8D%95/" rel="tag">00.0 - 算法 - 简单</a></li></ul>
 
       
     </footer>
@@ -404,25 +464,43 @@
 
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">算法题目</a>
+    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0 - 算法题目</a>
  
       
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p><code>简介</code></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">遍历两个链表，元素相加生成新列表。</span><br><span class="line">关键词：</span><br><span class="line">哨兵节点 val dummy = ListNode(0)</span><br><span class="line">关键返回值 dummy?.next</span><br></pre></td></tr></table></figure>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">addTwoNumbers</span><span class="params">(l1: <span class="type">ListNode</span>?, l2: <span class="type">ListNode</span>?)</span></span>: ListNode? &#123;</span><br><span class="line">        <span class="comment">// 定义两个指针 p1 和 p2，分别指向两个链表的头节点</span></span><br><span class="line">        <span class="keyword">var</span> p1 = l1</span><br><span class="line">        <span class="keyword">var</span> p2 = l2</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 定义一个哨兵节点 dummy，作为结果链表的头节点</span></span><br><span class="line">        <span class="keyword">val</span> dummy = ListNode(<span class="number">0</span>)</span><br><span class="line">        <span class="comment">// 定义一个节点 cur, 作为结果链表的尾节点</span></span><br><span class="line">        <span class="keyword">var</span> cur = dummy</span><br><span class="line"></span><br><span class="line">        <span class="keyword">var</span> carry = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(p1 != <span class="literal">null</span> || p2 != <span class="literal">null</span>)&#123;</span><br><span class="line">            <span class="keyword">val</span> x = p1?.`<span class="keyword">val</span>` ?: <span class="number">0</span></span><br><span class="line">            <span class="keyword">val</span> y = p2?.`<span class="keyword">val</span>` ?: <span class="number">0</span></span><br><span class="line">            <span class="keyword">var</span> sum = x + y + carry</span><br><span class="line">            carry = sum / <span class="number">10</span></span><br><span class="line">            sum = sum % <span class="number">10</span></span><br><span class="line"></span><br><span class="line">            cur?.next = ListNode(sum)</span><br><span class="line"></span><br><span class="line">            p1 = p1?.next</span><br><span class="line">            p2 = p2?.next</span><br><span class="line">            cur = cur?.next</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(carry &gt; <span class="number">0</span>)&#123;</span><br><span class="line">            cur?.next = ListNode(carry)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> dummy?.next</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+        <h3 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h3><p>给你两个 <strong>非空</strong> 的链表，表示两个非负的整数。它们每位数字都是按照 <strong>逆序</strong> 的方式存储的，并且每个节点只能存储 <strong>一位</strong> 数字。</p>
+<p>请你将两个数相加，并以相同形式返回一个表示和的链表。</p>
+<p>你可以假设除了数字 0 之外，这两个数都不会以 0 开头。</p>
+<p><strong>示例 1：</strong></p>
+<p><img src="https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2021/01/02/addtwonumber1.jpg" alt="img"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：l1 = [2,4,3], l2 = [5,6,4]</span><br><span class="line">输出：[7,0,8]</span><br><span class="line">解释：342 + 465 = 807.</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 2：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入：l1 = [0], l2 = [0]</span><br><span class="line">输出：[0]</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 3：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入：l1 = [9,9,9,9,9,9,9], l2 = [9,9,9,9]</span><br><span class="line">输出：[8,9,9,9,0,0,0,1]</span><br></pre></td></tr></table></figure>
+
+<p><strong>提示：</strong></p>
+<ul>
+<li>每个链表中的节点数在范围 <code>[1, 100]</code> 内</li>
+<li><code>0 &lt;= Node.val &lt;= 9</code></li>
+<li>题目数据保证列表表示的数字不含前导零</li>
+</ul>
+<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">遍历两个链表，元素相加生成新列表。</span><br><span class="line">关键词：</span><br><span class="line">哨兵节点 val dummy = ListNode(0)</span><br><span class="line">关键返回值 dummy?.next</span><br></pre></td></tr></table></figure>
+<h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">addTwoNumbers</span><span class="params">(l1: <span class="type">ListNode</span>?, l2: <span class="type">ListNode</span>?)</span></span>: ListNode? &#123;</span><br><span class="line">        <span class="comment">// 定义两个指针 p1 和 p2，分别指向两个链表的头节点</span></span><br><span class="line">        <span class="keyword">var</span> p1 = l1</span><br><span class="line">        <span class="keyword">var</span> p2 = l2</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 定义一个哨兵节点 dummy，作为结果链表的头节点</span></span><br><span class="line">        <span class="keyword">val</span> dummy = ListNode(<span class="number">0</span>)</span><br><span class="line">        <span class="comment">// 定义一个节点 cur, 作为结果链表的尾节点</span></span><br><span class="line">        <span class="keyword">var</span> cur = dummy</span><br><span class="line"></span><br><span class="line">        <span class="keyword">var</span> carry = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(p1 != <span class="literal">null</span> || p2 != <span class="literal">null</span>)&#123;</span><br><span class="line">            <span class="keyword">val</span> x = p1?.`<span class="keyword">val</span>` ?: <span class="number">0</span></span><br><span class="line">            <span class="keyword">val</span> y = p2?.`<span class="keyword">val</span>` ?: <span class="number">0</span></span><br><span class="line">            <span class="keyword">var</span> sum = x + y + carry</span><br><span class="line">            carry = sum / <span class="number">10</span></span><br><span class="line">            sum = sum % <span class="number">10</span></span><br><span class="line"></span><br><span class="line">            cur?.next = ListNode(sum)</span><br><span class="line"></span><br><span class="line">            p1 = p1?.next</span><br><span class="line">            p2 = p2?.next</span><br><span class="line">            cur = cur?.next</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(carry &gt; <span class="number">0</span>)&#123;</span><br><span class="line">            cur?.next = ListNode(carry)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> dummy?.next</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
       
     </div>
     <footer class="entry-meta entry-footer">
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">算法题目</a>
+    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0 - 算法题目</a>
 
       
   <span class="ico-tags"></span>
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AE%80/" rel="tag">简</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/00-0-%E7%AE%97%E6%B3%95-%E7%AE%80%E5%8D%95/" rel="tag">00.0 - 算法 - 简单</a></li></ul>
 
       
     </footer>
@@ -456,15 +534,37 @@
 
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">算法题目</a>
+    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0 - 算法题目</a>
  
       
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p><code>简介</code></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">重点不在字形，重点在变换是什么变换</span><br><span class="line">关键词：</span><br><span class="line">一维函数变二维函数</span><br><span class="line">往复变化函数</span><br></pre></td></tr></table></figure>
-<p>我们思考，为什么这个算法难写<br>分析 <code>N字形</code> 的离散函数，我们面临着一个唯一的 <code>x</code> 对应着 1- N 个 <code>y</code><br>在 <code>x</code> 变化的时候，我们首先要算该 <code>x</code> 对应了几个 <code>y</code><br>这根本不符合函数的定义<br><code>函数是指一个集合中的每个元素都有且仅有一个映射到另一个集合中的元素，这种关系被称为函数映射</code></p>
+        <h3 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h3><p>将一个给定字符串 <code>s</code> 根据给定的行数 <code>numRows</code> ，以从上往下、从左到右进行 Z 字形排列。</p>
+<p>比如输入字符串为 <code>&quot;PAYPALISHIRING&quot;</code> 行数为 <code>3</code> 时，排列如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">P   A   H   N</span><br><span class="line">A P L S I I G</span><br><span class="line">Y   I   R</span><br></pre></td></tr></table></figure>
+
+<p>之后，你的输出需要从左往右逐行读取，产生出一个新的字符串，比如：<code>&quot;PAHNAPLSIIGYIR&quot;</code>。</p>
+<p>请你实现这个将字符串进行指定行数变换的函数：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">string convert(string s, int numRows);</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 1：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入：s = &quot;PAYPALISHIRING&quot;, numRows = 3</span><br><span class="line">输出：&quot;PAHNAPLSIIGYIR&quot;</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 2：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">输入：s = &quot;PAYPALISHIRING&quot;, numRows = 4</span><br><span class="line">输出：&quot;PINALSIGYAHRPI&quot;</span><br><span class="line">解释：</span><br><span class="line">P     I    N</span><br><span class="line">A   L S  I G</span><br><span class="line">Y A   H R</span><br><span class="line">P     I</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 3：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入：s = &quot;A&quot;, numRows = 1</span><br><span class="line">输出：&quot;A&quot;</span><br></pre></td></tr></table></figure>
+
+<p><strong>提示：</strong></p>
+<ul>
+<li><code>1 &lt;= s.length &lt;= 1000</code></li>
+<li><code>s</code> 由英文字母（小写和大写）、<code>&#39;,&#39;</code> 和 <code>&#39;.&#39;</code> 组成</li>
+<li><code>1 &lt;= numRows &lt;= 1000</code></li>
+</ul>
+<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">重点不在字形，重点在变换是什么变换</span><br><span class="line">关键词：</span><br><span class="line">一维函数变二维函数</span><br><span class="line">往复变化函数</span><br></pre></td></tr></table></figure>
+<h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>我们思考，为什么这个算法难写<br>分析 <code>N字形</code> 的离散函数，我们面临着一个唯一的 <code>x</code> 对应着 1- N 个 <code>y</code><br>在 <code>x</code> 变化的时候，我们首先要算该 <code>x</code> 对应了几个 <code>y</code><br>这根本不符合函数的定义<br><code>函数是指一个集合中的每个元素都有且仅有一个映射到另一个集合中的元素，这种关系被称为函数映射</code></p>
 <p>推出我们需要把一个一维度线性离线函数 s &#x3D; f(n) 变成二维离散函数 s &#x3D; g(x, y)<br>注意，这里好玩的是 y 和 x 其实是数列<br>即 s &#x3D; g(x(n), y(n))<br>我们开始推导</p>
 <figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">x(n) = x(n-<span class="number">1</span>) + <span class="number">1</span></span><br><span class="line">函数 x(n) 很简单，我们怎么表达 y(n) 呢</span><br><span class="line">我们发现 y(n) 是一个往复的等差数列</span><br><span class="line">对于本题有</span><br><span class="line">y(n) = y(n - <span class="number">1</span>) + step(n)</span><br><span class="line">step 是一个往复函数</span><br><span class="line">用 flag 代表往复函数的方向</span><br><span class="line">			 |	-<span class="number">1</span>  当 y(n - <span class="number">1</span>) 到达最大值或者最小值时</span><br><span class="line">flag = |	 <span class="number">1</span>  其他</span><br><span class="line">step(n) = flag * step(n-<span class="number">1</span>)	当 y(n - <span class="number">1</span>) 到达最大值或者最小值时</span><br><span class="line">			 		|	-step(n-<span class="number">1</span>)			其他</span><br><span class="line">step(n) = |	step(n)</span><br></pre></td></tr></table></figure>
 <figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">convert</span><span class="params">(s: <span class="type">String</span>, numRows: <span class="type">Int</span>)</span></span>: String &#123;</span><br><span class="line">        推出 (numRows &lt; <span class="number">2</span>) <span class="keyword">return</span> s</span><br><span class="line">        <span class="keyword">val</span> rows: MutableList&lt;StringBuilder&gt; = ArrayList()</span><br><span class="line">        <span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">0</span> until numRows) rows.add(StringBuilder())</span><br><span class="line">        <span class="keyword">var</span> i = <span class="number">0</span></span><br><span class="line">        <span class="keyword">var</span> step = -<span class="number">1</span></span><br><span class="line">        <span class="keyword">for</span> (c <span class="keyword">in</span> s.toCharArray()) &#123;</span><br><span class="line">            rows[i].append(c)</span><br><span class="line">            <span class="keyword">if</span> (i == <span class="number">0</span> || i == numRows - <span class="number">1</span>) step = -step</span><br><span class="line">            i += step</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">val</span> res = StringBuilder()</span><br><span class="line">        <span class="keyword">for</span> (row <span class="keyword">in</span> rows) res.append(row)</span><br><span class="line">        <span class="keyword">return</span> res.toString()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -473,11 +573,11 @@
     <footer class="entry-meta entry-footer">
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">算法题目</a>
+    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0 - 算法题目</a>
 
       
   <span class="ico-tags"></span>
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%B8%AD/" rel="tag">中</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/00-1-%E7%AE%97%E6%B3%95-%E4%B8%AD%E7%AD%89/" rel="tag">00.1 - 算法 - 中等</a></li></ul>
 
       
     </footer>
@@ -489,7 +589,7 @@
 <!-- Table of Contents -->
 
   
-    <article id="post-协程/协程中的取消和异常 （取消操作详解）"  class="article article-type-post" itemscope itemprop="blogPost" >
+    <article id="post-Kotlin/Kotlin 协程/协程中的取消和异常 （取消操作详解）"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -497,7 +597,7 @@
         
   
     <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2023/06/17/%E5%8D%8F%E7%A8%8B/%E5%8D%8F%E7%A8%8B%E4%B8%AD%E7%9A%84%E5%8F%96%E6%B6%88%E5%92%8C%E5%BC%82%E5%B8%B8%20%EF%BC%88%E5%8F%96%E6%B6%88%E6%93%8D%E4%BD%9C%E8%AF%A6%E8%A7%A3%EF%BC%89/">协程中的取消和异常 （取消操作详解）</a>
+      <a class="article-title" href="/2023/06/17/Kotlin/Kotlin%20%E5%8D%8F%E7%A8%8B/%E5%8D%8F%E7%A8%8B%E4%B8%AD%E7%9A%84%E5%8F%96%E6%B6%88%E5%92%8C%E5%BC%82%E5%B8%B8%20%EF%BC%88%E5%8F%96%E6%B6%88%E6%93%8D%E4%BD%9C%E8%AF%A6%E8%A7%A3%EF%BC%89/">协程中的取消和异常 （取消操作详解）</a>
     </h1>
   
 
@@ -505,19 +605,19 @@
     
     <div class="article-meta">
       
-	<a href="/2023/06/17/%E5%8D%8F%E7%A8%8B/%E5%8D%8F%E7%A8%8B%E4%B8%AD%E7%9A%84%E5%8F%96%E6%B6%88%E5%92%8C%E5%BC%82%E5%B8%B8%20%EF%BC%88%E5%8F%96%E6%B6%88%E6%93%8D%E4%BD%9C%E8%AF%A6%E8%A7%A3%EF%BC%89/" class="article-date">
+	<a href="/2023/06/17/Kotlin/Kotlin%20%E5%8D%8F%E7%A8%8B/%E5%8D%8F%E7%A8%8B%E4%B8%AD%E7%9A%84%E5%8F%96%E6%B6%88%E5%92%8C%E5%BC%82%E5%B8%B8%20%EF%BC%88%E5%8F%96%E6%B6%88%E6%93%8D%E4%BD%9C%E8%AF%A6%E8%A7%A3%EF%BC%89/" class="article-date">
 	  <time datetime="2023-06-17T05:55:03.131Z" itemprop="datePublished">June 17, 2023</time>
 	</a>
 
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/Kotlin/">Kotlin</a>, <a class="article-category-link" href="/categories/Kotlin/Kotlin-%E5%8D%8F%E7%A8%8B/">Kotlin 协程</a>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a>
  
       
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>在开发中，我们要避免不必要的的任务来节约设备的内存和电量的使用，协程也是如此。在使用的过程我们需要控制好它的生命周期，在不需要它的取消它。</p>
+        <h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>在开发中，我们要避免不必要的的任务来节约设备的内存和电量的使用，协程也是如此。在使用的过程我们需要控制好它的生命周期，在不需要它的取消它。</p>
 <h3 id="调用cancel方法"><a href="#调用cancel方法" class="headerlink" title="调用cancel方法"></a>调用cancel方法</h3><h4 id="取消作用域会取消它的子协程"><a href="#取消作用域会取消它的子协程" class="headerlink" title="取消作用域会取消它的子协程"></a>取消作用域会取消它的子协程</h4><p>当启动了很多个协程，我们一个个协程的取消比较麻烦，我们可以通过取消整个作用域来解决这个问题，因为取消作用域可以取消该作用域创建的所有协程。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/ 假设我们已经定义了一个作用域</span><br><span class="line"></span><br><span class="line"><span class="type">val</span> <span class="variable">job1</span> <span class="operator">=</span> scope.launch &#123; … &#125;</span><br><span class="line"><span class="type">val</span> <span class="variable">job2</span> <span class="operator">=</span> scope.launch &#123; … &#125;</span><br><span class="line"></span><br><span class="line">scope.cancel()</span><br></pre></td></tr></table></figure>
 
@@ -575,7 +675,7 @@
     <footer class="entry-meta entry-footer">
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/Kotlin/">Kotlin</a>, <a class="article-category-link" href="/categories/Kotlin/Kotlin-%E5%8D%8F%E7%A8%8B/">Kotlin 协程</a>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a>
 
       
       
@@ -610,13 +710,13 @@
 
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/Kotlin/">Kotlin</a>, <a class="article-category-link" href="/categories/Kotlin/Kotlin-%E5%8D%8F%E7%A8%8B/">Kotlin 协程</a>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a>
  
       
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>几乎就是用阻塞的写法来完成非阻塞的任务。<br>Kotlin-JVM中所谓的协程是假协程<br>Kotlin-JVM中所谓的 协程挂起 ，就是开启了一个子线程去执行任务</p>
+        <h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>几乎就是用阻塞的写法来完成非阻塞的任务。<br>Kotlin-JVM中所谓的协程是假协程<br>Kotlin-JVM中所谓的 协程挂起 ，就是开启了一个子线程去执行任务</p>
 <p>对于Java来说，不管你用什么方法，只要你没有魔改JVM，那么最终你代码里start几个线程，操作系统就会创建几个线程，是1比1的关系。<br>Kotlin官网中那个创建10w个Kotlin协程没有oom的例子其实有误导性，本质上那10w个Kotlin协程就是10w个并发任务仅此而已，他下面运行的就是一个单线程的线程池。你往一个线程池里面丢多少个任务都不会OOM的（前提是你的线程池创建的时候设定了对应的拒绝策略，否则无界队列下，任务过多一定会OOM），因为在运行的始终是那几个线程。</p>
 <p>创建协程的方式有五种：</p>
 <figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">GlobalScope<span class="selector-class">.launch</span>&#123;&#125;</span><br><span class="line">launch&#123;&#125;</span><br><span class="line">runBlocking&#123;&#125;</span><br><span class="line">coroutineScope&#123;&#125;</span><br><span class="line">async&#123;&#125;</span><br></pre></td></tr></table></figure>
@@ -627,7 +727,7 @@
     <footer class="entry-meta entry-footer">
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/Kotlin/">Kotlin</a>, <a class="article-category-link" href="/categories/Kotlin/Kotlin-%E5%8D%8F%E7%A8%8B/">Kotlin 协程</a>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a>
 
       
       
@@ -662,7 +762,7 @@
 
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/Kotlin/">Kotlin</a>, <a class="article-category-link" href="/categories/Kotlin/Kotlin-%E5%9F%BA%E7%A1%80/">Kotlin 基础</a>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a>
  
       
     </div>
@@ -821,7 +921,7 @@
     <footer class="entry-meta entry-footer">
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/Kotlin/">Kotlin</a>, <a class="article-category-link" href="/categories/Kotlin/Kotlin-%E5%9F%BA%E7%A1%80/">Kotlin 基础</a>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a>
 
       
       
@@ -956,21 +1056,6 @@
    			<li><a target="_blank" rel="noopener" href="https://github.com/CatJason" title="Github"><i class="fa fa-github" aria-hidden="true"></i></a></li> 
 
    		
-   			<li><a href="" title="Weibo"><i class="fa fa-weibo" aria-hidden="true"></i></a></li> 
-
-   		
-   			<li><a href="" title="Twitter"><i class="fa fa-twitter" aria-hidden="true"></i></a></li> 
-
-   		
-   			<li><a href="" title="Facebook"><i class="fa fa-facebook" aria-hidden="true"></i></a></li> 
-
-   		
-   			<li><a href="" title="Google-plus"><i class="fa fa-google-plus" aria-hidden="true"></i></a></li> 
-
-   		
-   			<li><a href="" title="Instagram"><i class="fa fa-instagram" aria-hidden="true"></i></a></li> 
-
-   		
    		</ul>
 
 
@@ -984,6 +1069,37 @@
 			<li class="widget-si-instagram"><a target="_blank" rel="noopener" href="http://instagram.com" title="Instagram"><i class="ico-instagram"></i></a></li>
 		</ul> -->
 
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0 - 算法题目</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">5</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.0 - Java 多线程</a><span class="category-list-count">1</span></li></ul></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/00-0-%E7%AE%97%E6%B3%95-%E7%AE%80%E5%8D%95/" rel="tag">00.0 - 算法 - 简单</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/00-1-%E7%AE%97%E6%B3%95-%E4%B8%AD%E7%AD%89/" rel="tag">00.1 - 算法 - 中等</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/00-2-%E7%AE%97%E6%B3%95-%E5%9B%B0%E9%9A%BE/" rel="tag">00.2 - 算法 - 困难</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">May 2023</a><span class="archive-list-count">5</span></li></ul>
     </div>
   </div>
 
@@ -1015,7 +1131,7 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2023/08/09/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/%E5%AF%BB%E6%89%BE%E4%B8%A4%E4%B8%AA%E6%AD%A3%E5%BA%8F%E6%95%B0%E7%BB%84%E7%9A%84%E4%B8%AD%E4%BD%8D%E6%95%B0/">寻找两个正序数组的中位数</a></h6>
+              <h6 style="margin: 0;"><a href="/2023/08/09/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/4%20%E5%AF%BB%E6%89%BE%E4%B8%A4%E4%B8%AA%E6%AD%A3%E5%BA%8F%E6%95%B0%E7%BB%84%E7%9A%84%E4%B8%AD%E4%BD%8D%E6%95%B0/">寻找两个正序数组的中位数</a></h6>
               <span>August 9, 2023</span>
             </div>
 
@@ -1027,7 +1143,7 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2023/08/09/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/%E6%97%A0%E9%87%8D%E5%A4%8D%E5%AD%97%E7%AC%A6%E7%9A%84%E6%9C%80%E9%95%BF%E5%AD%90%E4%B8%B2/">无重复字符的最长子串</a></h6>
+              <h6 style="margin: 0;"><a href="/2023/08/09/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/3%20%E6%97%A0%E9%87%8D%E5%A4%8D%E5%AD%97%E7%AC%A6%E7%9A%84%E6%9C%80%E9%95%BF%E5%AD%90%E4%B8%B2/">无重复字符的最长子串</a></h6>
               <span>August 9, 2023</span>
             </div>
 
@@ -1039,7 +1155,7 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2023/08/09/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/1/">两数之和</a></h6>
+              <h6 style="margin: 0;"><a href="/2023/08/09/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/1%20%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/">两数之和</a></h6>
               <span>August 9, 2023</span>
             </div>
 
@@ -1072,46 +1188,6 @@
       </ul>
     </div>
   </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Categories</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Kotlin/">Kotlin</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/Kotlin/Kotlin-%E5%8D%8F%E7%A8%8B/">Kotlin 协程</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Kotlin/Kotlin-%E5%9F%BA%E7%A1%80/">Kotlin 基础</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">算法题目</a><span class="category-list-count">6</span></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%AD/" rel="tag">中</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%80/" rel="tag">简</a><span class="tag-list-count">2</span></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/%E4%B8%AD/" style="font-size: 20px;">中</a> <a href="/tags/%E7%AE%80/" style="font-size: 10px;">简</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">May 2023</a><span class="archive-list-count">5</span></li></ul>
-    </div>
-  </div>
-
 
   
 </aside>

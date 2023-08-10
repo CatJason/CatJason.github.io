@@ -3,22 +3,25 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Kotlin 的协程本质到底什么 | 喵星科技报</title>
+  <title>两数之和 | 喵星科技报</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
+  <meta name="keywords" content="00.0 - 算法 - 简单" />
   
   
   
-  <meta name="description" content="正文几乎就是用阻塞的写法来完成非阻塞的任务。Kotlin-JVM中所谓的协程是假协程Kotlin-JVM中所谓的 协程挂起 ，就是开启了一个子线程去执行任务 对于Java来说，不管你用什么方法，只要你没有魔改JVM，那么最终你代码里start几个线程，操作系统就会创建几个线程，是1比1的关系。Kotlin官网中那个创建10w个Kotlin协程没有oom的例子其实有误导性，本质上那10w个Kotli">
+  
+  <meta name="description" content="题目给定一个整数数组 nums 和一个整数目标值 target，请你在该数组中找出 和为目标值 target 的那 两个 整数，并返回它们的数组下标。 你可以假设每种输入只会对应一个答案。但是，数组中同一个元素在答案里不能重复出现。 你可以按任意顺序返回答案。 示例 1： 123输入：nums &#x3D; [2,7,11,15], target &#x3D; 9输出：[0,1]解释：因为 nums[0] + num">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Kotlin 的协程本质到底什么">
-<meta property="og:url" content="http://example.com/2023/06/17/Kotlin/Kotlin%20%E5%8D%8F%E7%A8%8B/Kotlin%20%E7%9A%84%E5%8D%8F%E7%A8%8B%E6%9C%AC%E8%B4%A8%E5%88%B0%E5%BA%95%E4%BB%80%E4%B9%88/index.html">
+<meta property="og:title" content="两数之和">
+<meta property="og:url" content="http://example.com/2023/08/09/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/1%20%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/index.html">
 <meta property="og:site_name" content="喵星科技报">
-<meta property="og:description" content="正文几乎就是用阻塞的写法来完成非阻塞的任务。Kotlin-JVM中所谓的协程是假协程Kotlin-JVM中所谓的 协程挂起 ，就是开启了一个子线程去执行任务 对于Java来说，不管你用什么方法，只要你没有魔改JVM，那么最终你代码里start几个线程，操作系统就会创建几个线程，是1比1的关系。Kotlin官网中那个创建10w个Kotlin协程没有oom的例子其实有误导性，本质上那10w个Kotli">
+<meta property="og:description" content="题目给定一个整数数组 nums 和一个整数目标值 target，请你在该数组中找出 和为目标值 target 的那 两个 整数，并返回它们的数组下标。 你可以假设每种输入只会对应一个答案。但是，数组中同一个元素在答案里不能重复出现。 你可以按任意顺序返回答案。 示例 1： 123输入：nums &#x3D; [2,7,11,15], target &#x3D; 9输出：[0,1]解释：因为 nums[0] + num">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2023-06-17T05:52:43.121Z">
-<meta property="article:modified_time" content="2023-08-09T22:07:48.254Z">
+<meta property="article:published_time" content="2023-08-08T23:05:00.596Z">
+<meta property="article:modified_time" content="2023-08-10T05:49:48.708Z">
 <meta property="article:author" content="John Doe">
+<meta property="article:tag" content="00.0 - 算法 - 简单">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternate" href="/atom.xml" title="喵星科技报" type="application/atom+xml">
@@ -106,7 +109,7 @@
             
       <div id="content" class="outer">
         
-          <section id="main" style="float:none;"><article id="post-Kotlin/Kotlin 协程/Kotlin 的协程本质到底什么" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+          <section id="main" style="float:none;"><article id="post-算法题目/1 两数之和" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -114,7 +117,7 @@
         
   
     <h1 class="thumb" class="article-title" itemprop="name">
-      Kotlin 的协程本质到底什么
+      两数之和
     </h1>
   
 
@@ -122,13 +125,13 @@
     
     <div class="article-meta">
       
-	<a href="/2023/06/17/Kotlin/Kotlin%20%E5%8D%8F%E7%A8%8B/Kotlin%20%E7%9A%84%E5%8D%8F%E7%A8%8B%E6%9C%AC%E8%B4%A8%E5%88%B0%E5%BA%95%E4%BB%80%E4%B9%88/" class="article-date">
-	  <time datetime="2023-06-17T05:52:43.121Z" itemprop="datePublished">June 17, 2023</time>
+	<a href="/2023/08/09/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/1%20%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/" class="article-date">
+	  <time datetime="2023-08-08T23:05:00.596Z" itemprop="datePublished">August 9, 2023</time>
 	</a>
 
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a>
+    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0 - 算法题目</a>
  
       
 	<span id="busuanzi_container_page_pv">
@@ -138,10 +141,29 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>几乎就是用阻塞的写法来完成非阻塞的任务。<br>Kotlin-JVM中所谓的协程是假协程<br>Kotlin-JVM中所谓的 协程挂起 ，就是开启了一个子线程去执行任务</p>
-<p>对于Java来说，不管你用什么方法，只要你没有魔改JVM，那么最终你代码里start几个线程，操作系统就会创建几个线程，是1比1的关系。<br>Kotlin官网中那个创建10w个Kotlin协程没有oom的例子其实有误导性，本质上那10w个Kotlin协程就是10w个并发任务仅此而已，他下面运行的就是一个单线程的线程池。你往一个线程池里面丢多少个任务都不会OOM的（前提是你的线程池创建的时候设定了对应的拒绝策略，否则无界队列下，任务过多一定会OOM），因为在运行的始终是那几个线程。</p>
-<p>创建协程的方式有五种：</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">GlobalScope<span class="selector-class">.launch</span>&#123;&#125;</span><br><span class="line">launch&#123;&#125;</span><br><span class="line">runBlocking&#123;&#125;</span><br><span class="line">coroutineScope&#123;&#125;</span><br><span class="line">async&#123;&#125;</span><br></pre></td></tr></table></figure>
+        <h3 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h3><p>给定一个整数数组 <code>nums</code> 和一个整数目标值 <code>target</code>，请你在该数组中找出 <strong>和为目标值</strong> <em><code>target</code></em> 的那 <strong>两个</strong> 整数，并返回它们的数组下标。</p>
+<p>你可以假设每种输入只会对应一个答案。但是，数组中同一个元素在答案里不能重复出现。</p>
+<p>你可以按任意顺序返回答案。</p>
+<p><strong>示例 1：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：nums = [2,7,11,15], target = 9</span><br><span class="line">输出：[0,1]</span><br><span class="line">解释：因为 nums[0] + nums[1] == 9 ，返回 [0, 1] 。</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 2：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入：nums = [3,2,4], target = 6</span><br><span class="line">输出：[1,2]</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 3：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入：nums = [3,3], target = 6</span><br><span class="line">输出：[0,1]</span><br></pre></td></tr></table></figure>
+
+<p><strong>提示：</strong></p>
+<ul>
+<li><code>2 &lt;= nums.length &lt;= 10^4</code></li>
+<li><code>-109 &lt;= nums[i] &lt;= 10^9</code></li>
+<li><code>-109 &lt;= target &lt;= 10^9</code></li>
+<li><strong>只会存在一个有效答案</strong></li>
+</ul>
+<p><strong>进阶：</strong>你可以想出一个时间复杂度小于 <code>O(n2)</code> 的算法吗？</p>
+<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">这道题的关键在于对 hashmap 查找时间复杂度 O(1) 的应用</span><br><span class="line">关键词：</span><br><span class="line">HashMap&lt;Key, Value&gt;</span><br><span class="line">hashmap.containsKey(Value)</span><br></pre></td></tr></table></figure>
+
+<h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">twoSum</span><span class="params">(nums: <span class="type">IntArray</span>, target: <span class="type">Int</span>)</span></span>: IntArray &#123;</span><br><span class="line">        <span class="keyword">val</span> hashmap = HashMap&lt;<span class="built_in">Int</span>, <span class="built_in">Int</span>&gt;()</span><br><span class="line">        <span class="keyword">for</span>(i <span class="keyword">in</span> nums.indices)&#123;</span><br><span class="line">            <span class="keyword">val</span> complement = target - nums[i]</span><br><span class="line">            <span class="keyword">if</span>(hashmap.containsKey(complement))&#123;</span><br><span class="line">                <span class="keyword">return</span> intArrayOf(hashmap[complement]!!, i)</span><br><span class="line">            &#125;</span><br><span class="line">            hashmap[nums[i]] = i        </span><br><span class="line">            &#125;</span><br><span class="line">        <span class="keyword">return</span> intArrayOf()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
       
@@ -149,9 +171,12 @@
     <footer class="entry-meta entry-footer">
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a>
+    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0 - 算法题目</a>
 
       
+  <span class="ico-tags"></span>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/00-0-%E7%AE%97%E6%B3%95-%E7%AE%80%E5%8D%95/" rel="tag">00.0 - 算法 - 简单</a></li></ul>
+
       
         
 	<div id="comment">
@@ -185,19 +210,19 @@
     
 <nav id="article-nav">
   
-    <a href="/2023/06/17/Kotlin/Kotlin%20%E5%8D%8F%E7%A8%8B/%E5%8D%8F%E7%A8%8B%E4%B8%AD%E7%9A%84%E5%8F%96%E6%B6%88%E5%92%8C%E5%BC%82%E5%B8%B8%20%EF%BC%88%E5%8F%96%E6%B6%88%E6%93%8D%E4%BD%9C%E8%AF%A6%E8%A7%A3%EF%BC%89/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2023/08/09/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/3%20%E6%97%A0%E9%87%8D%E5%A4%8D%E5%AD%97%E7%AC%A6%E7%9A%84%E6%9C%80%E9%95%BF%E5%AD%90%E4%B8%B2/" id="article-nav-newer" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          协程中的取消和异常 （取消操作详解）
+          无重复字符的最长子串
         
       </div>
     </a>
   
   
-    <a href="/2023/06/17/Kotlin/Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%E4%B8%AD%E7%9A%84%E6%83%B0%E6%80%A7%E6%93%8D%E4%BD%9C%E5%AE%B9%E5%99%A8%E2%80%94%E2%80%94Sequence/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/2023/08/09/%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/2%20%E4%B8%A4%E6%95%B0%E7%9B%B8%E5%8A%A0/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">Kotlin中的惰性操作容器——Sequence</div>
+      <div class="article-nav-title">两数相加</div>
     </a>
   
 </nav>
@@ -211,7 +236,7 @@
     <div id="toc" class="toc-article">
     <strong class="toc-title">Contents</strong>
     
-      <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A3%E6%96%87"><span class="nav-number">1.</span> <span class="nav-text">正文</span></a></li></ol>
+      <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%98%E7%9B%AE"><span class="nav-number">1.</span> <span class="nav-text">题目</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">2.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A3%E6%96%87"><span class="nav-number">3.</span> <span class="nav-text">正文</span></a></li></ol>
     
     </div>
   </aside>
