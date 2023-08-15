@@ -592,7 +592,7 @@
 <p>Q: 既然可以存在多个 Handler 往 MessageQueue 中添加数据（发消息时各个 Handler 可能处于不同线程），那它内部时如何确保线程安全的？</p>
 <p>Q: Looper 死循环为什么不会导致应用卡死</p>
 <p>Q: 为什么主线程不需要自己创建和管理消息循环</p>
-<h3 id="Handler-在-Android-中的作用"><a href="#Handler-在-Android-中的作用" class="headerlink" title="Handler 在 Android 中的作用"></a>Handler 在 Android 中的作用</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Handler 是针对 Android 系统中与 UI 线程通信而专门设计的多线程通信机制</span><br></pre></td></tr></table></figure>
+<h3 id="Handler-在-Android-中的应用"><a href="#Handler-在-Android-中的应用" class="headerlink" title="Handler 在 Android 中的应用"></a>Handler 在 Android 中的应用</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Handler 是针对 Android 系统中与 UI 线程通信而专门设计的多线程通信机制</span><br></pre></td></tr></table></figure>
 
 <p>Retorfit，eventbus，rxjava，Looper</p>
 <h3 id="Handler-源代码分析"><a href="#Handler-源代码分析" class="headerlink" title="Handler 源代码分析"></a>Handler 源代码分析</h3><h4 id="子线程-发送-MSG"><a href="#子线程-发送-MSG" class="headerlink" title="子线程 发送 MSG"></a>子线程 发送 MSG</h4><p>​	android.os.Handler#sendMessage -&gt;<br>​	android.os.Handler#sendMessageDelayed -&gt;<br>​	android.os.Handler#sendMessageAtTime -&gt;<br>​	android.os.Handler#enqueueMessage -&gt;<br>​	android.os.MessageQueue#enqueueMessage -&gt;<br>​	android.os.Looper#loop</p>
