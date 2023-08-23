@@ -244,9 +244,9 @@
 <h3 id="从-Android-系统设计说起"><a href="#从-Android-系统设计说起" class="headerlink" title="从 Android 系统设计说起"></a>从 Android 系统设计说起</h3><h4 id="Android-的系统的三个层次"><a href="#Android-的系统的三个层次" class="headerlink" title="Android 的系统的三个层次"></a>Android 的系统的三个层次</h4><p>application 应用层 - Framework 层- native 层</p>
 <p>Android 中的应用层和系统服务层不在同一个进程，系统服务在单独的进程中。<br>Android 中的不同应用属于不同的进程，每一个应用是 zygote fork 出来的</p>
 <p>为了安全，Android 的应用层与系统层之间是隔离的</p>
-<h3 id="Android-系统-IPC-原理"><a href="#Android-系统-IPC-原理" class="headerlink" title="Android 系统 IPC 原理"></a>Android 系统 IPC 原理</h3><p><img src="http://gityuan.com/images/binder/prepare/binder_interprocess_communication.png" alt="IPC原理"></p>
-<p>每个 Android 的进程，只能运行在自己进程所拥有的虚拟地址空间。<br>对应一个 4GB 的<strong>虚拟地址空间</strong>，其中 3GB 是用户空间，1GB 是内核空间，当然内核空间的大小是可以通过参数配置调整的。<br>对于用户空间，不同进程之间彼此是不能共享的，而内核空间却是可共享的。<br>Client 进程向 Server 进程通信，恰恰是利用进程间可共享的内核内存空间来完成底层通信工作的，Client 端与 Server 端进程往往采用ioctl 等方法跟内核空间的驱动进行交互。</p>
-<h3 id="用户空间和内核空间知识补充"><a href="#用户空间和内核空间知识补充" class="headerlink" title="用户空间和内核空间知识补充"></a>用户空间和内核空间知识补充</h3><p>Q: 对于用户空间，不同进程之间彼此是不能共享的，而内核空间却是可共享的怎么理解</p>
+<h3 id="Android-系统-IPC-原理"><a href="#Android-系统-IPC-原理" class="headerlink" title="Android 系统 IPC 原理"></a>Android 系统 IPC 原理</h3><p><img src="/pic/binder_interprocess_communication.png" alt="IPC原理"></p>
+<p>每个 Android 的进程，只能运行在自己进程所拥有的虚拟地址空间。<br>对应一个 4GB 的<strong>虚拟地址空间</strong>，其中 3GB 是用户空间，1GB 是内核空间，当然内核空间的大小是可以通过参数配置调整的。<br>对于用户空间，不同进程之间彼此是不能共享的，而内核空间却是可共享的。<br>Client 进程向 Server 进程通信，恰恰是<strong>利用进程间可共享的内核内存空间来完成底层通信工作的</strong>，Client 端与 Server 端进程往往采用 ioctl 等方法跟内核空间的驱动进行交互。</p>
+<h4 id="用户空间和内核空间知识补充"><a href="#用户空间和内核空间知识补充" class="headerlink" title="用户空间和内核空间知识补充"></a>用户空间和内核空间知识补充</h4><p>怎么理解不同进程之间用户空间不能共享，而内核空间却是可共享的？</p>
 <ol>
 <li><strong>用户空间的共享：</strong> 在标准情况下，不同进程的用户空间是彼此隔离的，不能直接共享内存。每个进程有自己独立的虚拟地址空间，不同进程的相同虚拟地址并不会映射到相同的物理内存。这意味着一个进程不能直接访问另一个进程的用户空间。</li>
 <li><strong>内核空间的共享：</strong> 内核空间是操作系统内核的一部分，对所有进程来说都是共享的。这是因为内核提供了操作系统的核心功能，比如进程调度、内存管理、文件系统等。不同进程需要与内核进行交互来请求服务和操作资源。因此，<strong>所有进程都共享一个操作系统内核</strong>。</li>
@@ -254,10 +254,16 @@
 <li><strong>内核空间中的共享数据结构：</strong> 在某些情况下，内核中可能存在一些数据结构是为多个进程共享的，例如文件描述符表、进程控制块等。这种共享是通过内核维护的数据结构来实现的，而不是直接让不同进程的内核空间映射到相同的物理内存。</li>
 </ol>
 <p>总结起来，不同进程的用户空间通常是不能直接共享的，每个进程都有自己的独立虚拟地址空间。但所有进程共享同一个内核空间，内核提供了操作系统的核心功能。<strong>内核空间中的数据隔离和共享是通过内核内部的机制来实现的</strong>。</p>
-<h3 id="页表知识补充"><a href="#页表知识补充" class="headerlink" title="页表知识补充"></a>页表知识补充</h3><p>页表是操作系统中用于管理虚拟内存与物理内存之间映射关系的数据结构。在计算机中，虚拟内存是指操作系统为每个进程提供的独立的内存地址空间，而物理内存则是实际的硬件内存。由于物理内存有限，虚拟内存允许多个进程同时运行，而不会受到物理内存大小的限制。</p>
+<h4 id="页表知识补充"><a href="#页表知识补充" class="headerlink" title="页表知识补充"></a>页表知识补充</h4><p>页表是操作系统中用于管理虚拟内存与物理内存之间映射关系的数据结构。在计算机中，虚拟内存是指操作系统为每个进程提供的独立的内存地址空间，而物理内存则是实际的硬件内存。由于物理内存有限，虚拟内存允许多个进程同时运行，而不会受到物理内存大小的限制。</p>
 <p>页表的主要功能是将虚拟地址转换为物理地址。当进程访问虚拟地址时，操作系统通过页表查找，找到对应的物理地址，从而实际完成内存的读写操作。</p>
 <p>具体来说，页表包含了虚拟地址和物理地址之间的映射关系。每个进程都有自己的页表，其中的页表项记录了虚拟地址的页号（page number）与物理地址的页框号（page frame number）之间的对应关系。页框是物理内存的一个固定大小的块，而页是虚拟内存的一个固定大小的块。通过查找页表，操作系统可以找到虚拟地址对应的物理地址，从而实现内存访问。</p>
-<h3 id="Linux-进程间-IPC-共享内存-理论"><a href="#Linux-进程间-IPC-共享内存-理论" class="headerlink" title="Linux 进程间 IPC-共享内存 理论"></a>Linux 进程间 IPC-共享内存 理论</h3><h4 id="IPC-共享内存"><a href="#IPC-共享内存" class="headerlink" title="IPC-共享内存"></a>IPC-共享内存</h4><p><strong>用户空间：</strong></p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><ol>
+<li><strong>用户空间与内核空间</strong>: IPC 机制总的操作又可以分为用户空间进行的操作和内核空间进行的操作</li>
+<li><strong>内核空间中的数据结构不同</strong>: 不同 IPC 机制内核中的数据结构不同</li>
+<li><strong>复制与映射</strong>: IPC 机制利用进程间可共享的内核空间来完成底层通信工作，其中我们可以简单的分为复制和虚拟内存映射两种方式</li>
+</ol>
+<p>我们从这几个角度来快速的区分 IPC 机制</p>
+<h3 id="IPC-共享内存"><a href="#IPC-共享内存" class="headerlink" title="IPC-共享内存"></a>IPC-共享内存</h3><h4 id="用户空间与内核空间行为"><a href="#用户空间与内核空间行为" class="headerlink" title="用户空间与内核空间行为"></a>用户空间与内核空间行为</h4><p><strong>用户空间：</strong></p>
 <ol>
 <li><strong>创建共享内存：</strong> 进程通过系统调用在用户空间申请一块共享内存，得到一个唯一的标识符。</li>
 <li><strong>映射共享内存：</strong> 进程使用系统调用将共享内存映射到自己的虚拟地址空间，从而可以直接访问这块内存区域。这个映射实际上是指向了内核空间中设置的共享页表项。</li>
@@ -269,7 +275,9 @@
 <li><strong>同步和权限控制：</strong> 内核维护共享内存的元信息，包括大小、权限等。在多个进程访问时，内核会处理访问的同步和权限控制问题。</li>
 <li><strong>不同进程的映射：</strong> 当不同进程请求映射共享内存时，内核将相同的物理内存映射到不同的进程虚拟地址空间，使它们共享同一块内存。它们共享相同的页表项，由 TLB（Translation Lookaside Buffer，页表查找缓冲器）实现。</li>
 </ol>
-<h3 id="Linux-进程间-IPC-管道-理论"><a href="#Linux-进程间-IPC-管道-理论" class="headerlink" title="Linux 进程间 IPC-管道 理论"></a>Linux 进程间 IPC-管道 理论</h3><h4 id="不同管道类型"><a href="#不同管道类型" class="headerlink" title="不同管道类型"></a>不同管道类型</h4><h5 id="无名管道（Unnamed-Pipe）"><a href="#无名管道（Unnamed-Pipe）" class="headerlink" title="无名管道（Unnamed Pipe）"></a>无名管道（Unnamed Pipe）</h5><ul>
+<h4 id="内核空间中的关键数据结构"><a href="#内核空间中的关键数据结构" class="headerlink" title="内核空间中的关键数据结构"></a>内核空间中的关键数据结构</h4><p>共享的页表项</p>
+<h4 id="复制与映射"><a href="#复制与映射" class="headerlink" title="复制与映射"></a>复制与映射</h4><p>双进程分享的是共享页表项，物理地址内数据只有一份，复制次数 0</p>
+<h3 id="IPC-管道"><a href="#IPC-管道" class="headerlink" title="IPC-管道"></a>IPC-管道</h3><h4 id="不同管道类型"><a href="#不同管道类型" class="headerlink" title="不同管道类型"></a>不同管道类型</h4><h5 id="无名管道（Unnamed-Pipe）"><a href="#无名管道（Unnamed-Pipe）" class="headerlink" title="无名管道（Unnamed Pipe）"></a>无名管道（Unnamed Pipe）</h5><ul>
 <li>无名管道是一种单向通信机制，<strong>只能用于父子进程或者具有共同祖先的进程之间通信</strong>。</li>
 <li>创建无名管道使用的是 <code>pipe()</code> 系统调用。该调用返回一对文件描述符，一个用于读取，一个用于写入。</li>
 <li>无名管道的数据传输是单向的，数据写入一个描述符后可以被另一个描述符读取。</li>
@@ -286,7 +294,8 @@
 <p><strong>某些系统可能会允许你通过特定的系统参数进行配置</strong>。具体的设置方法可能会因操作系统版本和发行版而异。</p>
 </li>
 </ul>
-<h4 id="IPC-管道"><a href="#IPC-管道" class="headerlink" title="IPC-管道"></a>IPC-管道</h4><p><strong>用户空间：</strong></p>
+<h4 id="管道的指针操作，写满与阻塞"><a href="#管道的指针操作，写满与阻塞" class="headerlink" title="管道的指针操作，写满与阻塞"></a>管道的指针操作，写满与阻塞</h4><p>写入从头指针开始，读取从尾指针开始。写入之后，头指针挪动，读取之后尾指针挪动。<br>如果是头指针赶上尾指针，那么管道被写满，写就会被阻塞。如果是尾指针赶上头指针，那么管道为空，read阻塞。</p>
+<h4 id="用户空间与内核空间行为-1"><a href="#用户空间与内核空间行为-1" class="headerlink" title="用户空间与内核空间行为"></a>用户空间与内核空间行为</h4><p><strong>用户空间：</strong></p>
 <ol>
 <li><strong>创建管道：</strong> 进程通过系统调用在用户空间创建一个管道，得到两个文件描述符，一个用于读取，一个用于写入。</li>
 <li><strong>写入数据：</strong> 进程使用写入文件描述符将数据写入管道。</li>
@@ -298,7 +307,10 @@
 <li><strong>数据传递：</strong> 内核通过管道将写入的数据从一个进程的写入文件描述符复制到另一个进程的读取文件描述符。</li>
 <li><strong>进程同步：</strong> 内核确保在多个进程访问管道时的同步，避免数据错乱。</li>
 </ol>
-<h3 id="Linux-进程间-IPC-消息队列-理论"><a href="#Linux-进程间-IPC-消息队列-理论" class="headerlink" title="Linux 进程间 IPC-消息队列 理论"></a>Linux 进程间 IPC-消息队列 理论</h3><h4 id="IPC-消息队列"><a href="#IPC-消息队列" class="headerlink" title="IPC-消息队列"></a>IPC-消息队列</h4><p><strong>用户空间：</strong></p>
+<h4 id="内核空间中的关键数据结构-1"><a href="#内核空间中的关键数据结构-1" class="headerlink" title="内核空间中的关键数据结构"></a>内核空间中的关键数据结构</h4><p>单向管道</p>
+<h4 id="复制与映射-1"><a href="#复制与映射-1" class="headerlink" title="复制与映射"></a>复制与映射</h4><p>在基本的管道（Pipe）IPC 机制中，数据实际上只涉及一次复制操作，因为管道是一个字节流传输机制，数据在管道中以字节为单位连续传输。</p>
+<p>简单的说 Linux 是文件系统，管道也是文件，这个文件由两个指针进行操作，一头写入一头读取，当一个进程将数据写入管道时，数据直接写入这个文件内，即管道的缓冲区中，当另一个进程从管道中读取数据时，这些数据会被从管道的缓冲区读取到接收方进程的内存中，而<strong>管道不持有这些数据</strong>，数据的角度来看，实际上只有一次数据复制。</p>
+<h3 id="IPC-消息队列"><a href="#IPC-消息队列" class="headerlink" title="IPC-消息队列"></a>IPC-消息队列</h3><h4 id="用户空间与内核空间行为-2"><a href="#用户空间与内核空间行为-2" class="headerlink" title="用户空间与内核空间行为"></a>用户空间与内核空间行为</h4><p><strong>用户空间：</strong></p>
 <ol>
 <li><strong>创建消息队列：</strong> 进程通过系统调用在用户空间创建一个消息队列，得到一个唯一的标识符。</li>
 <li><strong>发送消息：</strong> 进程使用系统调用将消息发送到消息队列，包括消息类型和数据（需要通信双方约定好）。</li>
@@ -310,7 +322,13 @@
 <li><strong>消息传递：</strong> 内核<strong>将进程发送的消息复制到消息队列中</strong>，或<strong>从消息队列中复制消息给接收的进程</strong>。（跨进程消息队列<strong>两次复制</strong>）</li>
 <li><strong>进程同步：</strong> 内核确保在多个进程访问消息队列时的同步，以避免竞态条件。</li>
 </ol>
-<h3 id="Linux-进程间-IPC-Socket-理论"><a href="#Linux-进程间-IPC-Socket-理论" class="headerlink" title="Linux 进程间 IPC-Socket 理论"></a>Linux 进程间 IPC-Socket 理论</h3><h4 id="IPC-socket"><a href="#IPC-socket" class="headerlink" title="IPC-socket"></a>IPC-socket</h4><p><strong>用户空间：</strong></p>
+<h4 id="内核空间中的关键数据结构-2"><a href="#内核空间中的关键数据结构-2" class="headerlink" title="内核空间中的关键数据结构"></a>内核空间中的关键数据结构</h4><p>消息队列</p>
+<h4 id="复制与映射-2"><a href="#复制与映射-2" class="headerlink" title="复制与映射"></a>复制与映射</h4><p>两次复制</p>
+<ol>
+<li><strong>写入数据：</strong> 当一个进程将消息写入消息队列时，消息数据会从发送方进程的内存复制到消息队列的内核缓冲区中。这是第一次复制操作。</li>
+<li><strong>读取数据：</strong> 在接收方进程中，数据需要从内核缓冲区复制到接收方进程的内核空间中。这是第二次复制操作。</li>
+</ol>
+<h3 id="IPC-Socket"><a href="#IPC-Socket" class="headerlink" title="IPC-Socket"></a>IPC-Socket</h3><h4 id="用户空间与内核空间行为-3"><a href="#用户空间与内核空间行为-3" class="headerlink" title="用户空间与内核空间行为"></a>用户空间与内核空间行为</h4><p><strong>用户空间：</strong></p>
 <ol>
 <li><strong>创建 Socket：</strong> 进程通过系统调用在用户空间创建一个 Socket，得到一个文件描述符，用于读写数据。</li>
 <li><strong>发送数据：</strong> 进程使用文件描述符发送数据到指定的 Socket。</li>
@@ -322,23 +340,20 @@
 <li><strong>数据传递：</strong> 内核通过 Socket 将进程发送的数据从一个进程的发送缓冲区复制到另一个进程的接收缓冲区。</li>
 <li><strong>连接管理：</strong> 内核负责管理连接的建立、维护和断开，以及处理各种网络协议。</li>
 </ol>
-<h4 id="IPC-socket-的缓冲区"><a href="#IPC-socket-的缓冲区" class="headerlink" title="IPC-socket 的缓冲区"></a>IPC-socket 的缓冲区</h4><ol>
+<p>内核空间中的关键数据结构</p>
+<h4 id="内核空间中的关键数据结构-3"><a href="#内核空间中的关键数据结构-3" class="headerlink" title="内核空间中的关键数据结构"></a>内核空间中的关键数据结构</h4><ol>
 <li><strong>发送缓冲区：</strong> 发送方进程使用 Socket 发送数据时，数据首先被复制到发送缓冲区（Send Buffer）中。这个缓冲区在内核空间中，用于临时存储待发送的数据。发送缓冲区的大小可以由操作系统参数或套接字选项进行配置。</li>
 <li><strong>接收缓冲区：</strong> 接收方进程使用 Socket 接收数据时，数据会被存储在接收缓冲区（Receive Buffer）中。这个缓冲区同样位于内核空间，用于临时存储接收到的数据。接收缓冲区的大小也可以通过操作系统参数或套接字选项进行配置</li>
 </ol>
-<h4 id="IPC-socket-中-CS-双端通信"><a href="#IPC-socket-中-CS-双端通信" class="headerlink" title="IPC-socket 中 CS 双端通信"></a>IPC-socket 中 CS 双端通信</h4><ol>
-<li><strong>应用层到内核缓冲区：</strong> 当进程通过 Socket 发送数据时，数据首先从应用层的用户空间<strong>复制</strong>到内核空间的发送缓冲区。</li>
-<li><strong>内核缓冲区到网络协议栈：</strong> 数据在内核空间的发送缓冲区被<strong>复制</strong>到网络协议栈中，以便构建网络数据包。</li>
-<li><strong>发送到网络：</strong> 数据在网络协议栈中被进一步处理，例如添加 TCP&#x2F;IP 头部信息，然后被发送到网络中。</li>
-<li><strong>网络接收：</strong> 对端进程接收数据后，数据会经过类似的复制过程，从网络接收到内核空间的接收缓冲区。</li>
-<li><strong>内核缓冲区到应用层：</strong> 最后，数据从内核空间的接收缓冲区被复制到进程的用户空间，供应用程序进程处理。</li>
-</ol>
-<h3 id="Linux-进程间-IPC-Binder-理论"><a href="#Linux-进程间-IPC-Binder-理论" class="headerlink" title="Linux 进程间 IPC-Binder 理论"></a>Linux 进程间 IPC-Binder 理论</h3><h4 id="IPC-Binder"><a href="#IPC-Binder" class="headerlink" title="IPC-Binder"></a>IPC-Binder</h4><p>从用户空间和内核空间的角度来看，IPC（Inter-Process Communication，进程间通信）Binder 的工作可以简洁地描述如下：</p>
+<h4 id="复制与映射-3"><a href="#复制与映射-3" class="headerlink" title="复制与映射"></a>复制与映射</h4><h5 id="linux-2-4-内核以下"><a href="#linux-2-4-内核以下" class="headerlink" title="linux 2.4 内核以下"></a>linux 2.4 内核以下</h5><p>两次用户、内核态的切换，三次数据拷贝</p>
+<h5 id="linux-2-4-内核及其以上"><a href="#linux-2-4-内核及其以上" class="headerlink" title="linux 2.4 内核及其以上"></a>linux 2.4 内核及其以上</h5><p>两次用户、内核态的切换，两次数据拷贝</p>
+<h6 id="内核态零拷贝原理"><a href="#内核态零拷贝原理" class="headerlink" title="内核态零拷贝原理"></a>内核态零拷贝原理</h6><p>数据不再被复制到 socket 关联的缓冲区中了，仅仅是将一个描述符（包含了数据的位置和长度等信息）追加到 socket 关联的缓冲区中。DMA 直接将内核中的缓冲区中的数据传输给协议引擎，消除了那一次需要 cpu 周期的数据复制。</p>
+<h3 id="IPC-Binder"><a href="#IPC-Binder" class="headerlink" title="IPC-Binder"></a>IPC-Binder</h3><h4 id="用户空间与内核空间行为-4"><a href="#用户空间与内核空间行为-4" class="headerlink" title="用户空间与内核空间行为"></a>用户空间与内核空间行为</h4><p>从用户空间和内核空间的角度来看，IPC（Inter-Process Communication，进程间通信）Binder 的工作可以简洁地描述如下：</p>
 <p><strong>用户空间：</strong></p>
 <ol>
 <li><strong>创建 Binder 对象：</strong> 进程通过系统调用创建 Binder 对象，通常是 <code>Binder</code> 类的子类实例。这个对象用于表示一个通信通道，可以用来发送和接收数据。</li>
 <li><strong>发送数据：</strong> 进程通过 Binder 对象将数据（通常是 Parcel 对象）发送到另一个进程。这个过程会<strong>将数据传递给内核空间的 Binder 驱动</strong>。</li>
-<li><strong>接收数据：</strong> 进程通过 Binder 对象接收另一个进程发送的数据。<strong>接收的数据也是以 Parcel 对象的形式返回给用户空间</strong>。</li>
+<li><strong>接收数据：</strong> 进程通过 Binder 对象接收另一个进程发送的数据。接收的数据也是以 Parcel 对象的形式返回给用户空间。</li>
 </ol>
 <p><strong>内核空间：</strong></p>
 <ol>
@@ -347,6 +362,8 @@
 <li><strong>线程池管理：</strong> Binder 驱动还管理了一个线程池，用于处理进程间的数据传递请求。这确保了数据的传递不会阻塞主线程，提高了性能。</li>
 <li><strong>权限和安全性：</strong> Binder 驱动实施权限和安全性控制，确保只有经过授权的进程可以进行 Binder 通信。</li>
 </ol>
+<h4 id="内核空间中的关键数据结构-4"><a href="#内核空间中的关键数据结构-4" class="headerlink" title="内核空间中的关键数据结构"></a>内核空间中的关键数据结构</h4><p>指向物理内存的内核空间虚拟内存</p>
+<h4 id="复制与映射-4"><a href="#复制与映射-4" class="headerlink" title="复制与映射"></a>复制与映射</h4><p>复制：发送方进程将数据复制到内核空间虚拟内存中。<br>映射：将这个内核中的虚拟内存映射给接收方进程。</p>
 <h2 id="为什么-Android-要采用-Binder-作为-IPC-机制？"><a href="#为什么-Android-要采用-Binder-作为-IPC-机制？" class="headerlink" title="为什么 Android 要采用 Binder 作为 IPC 机制？"></a>为什么 Android 要采用 Binder 作为 IPC 机制？</h2><p><strong>在下不才，这个问题，交给大佬回答</strong></p>
 <p>作者：Gityuan<br>链接：<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/39440766/answer/89210950">https://www.zhihu.com/question/39440766/answer/89210950</a><br>来源：知乎<br>著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</p>
 <p><strong>在开始回答 前，先简单概括性地说说Linux现有的所有进程间IPC方式：</strong></p>
