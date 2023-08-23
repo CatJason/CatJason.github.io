@@ -16,18 +16,18 @@
 <meta property="og:site_name" content="喵星科技报">
 <meta property="og:description" content="要理解 Message 的创建，先要说内存抖动内存抖动的原因及引发的问题在 Android 虚拟机中，当我们在应用程序中创建大量的临时对象，并且这些对象的存在时间很短暂，虚拟机会识别这些临时对象并将它们标记为待清理的垃圾对象，以便在适当的时候回收它们。然而，这个垃圾回收过程可能会引发一个称为“stop the world”的现象。所谓“stop the world”指的是，在进行垃圾回收的过程中，">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://example.com/pic/20160713203707125">
-<meta property="og:image" content="http://example.com/pic/20160713203837939">
-<meta property="og:image" content="http://example.com/pic/20160713203910065">
-<meta property="og:image" content="http://example.com/pic/20160713203938940">
-<meta property="og:image" content="http://example.com/pic/20160713204015503">
-<meta property="og:image" content="http://example.com/pic/20160713204035066">
-<meta property="og:image" content="http://example.com/pic/20160713204119209">
+<meta property="og:image" content="http://example.com/pic/20160713203707125.png">
+<meta property="og:image" content="http://example.com/pic/20160713203837939.png">
+<meta property="og:image" content="http://example.com/pic/20160713203910065.png">
+<meta property="og:image" content="http://example.com/pic/20160713203938940.png">
+<meta property="og:image" content="http://example.com/pic/20160713204015503.png">
+<meta property="og:image" content="http://example.com/pic/20160713204035066.png">
+<meta property="og:image" content="http://example.com/pic/20160713204119209.png">
 <meta property="article:published_time" content="2023-08-19T02:28:06.546Z">
-<meta property="article:modified_time" content="2023-08-23T10:38:38.828Z">
+<meta property="article:modified_time" content="2023-08-23T11:05:50.584Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/pic/20160713203707125">
+<meta name="twitter:image" content="http://example.com/pic/20160713203707125.png">
   
     <link rel="alternate" href="/atom.xml" title="喵星科技报" type="application/atom+xml">
   
@@ -160,16 +160,16 @@
 <p>这段代码是用于在 Android 中创建和管理消息对象的一部分。它通过维护一个对象池，允许在需要时重复利用已有的消息对象，从而减少内存分配和垃圾回收的开销。当需要获取一个新的消息对象时，它会首先检查对象池是否有可用的对象。如果有，它会从对象池中取出一个对象并重置其状态，然后返回；如果对象池为空，它会创建一个新的消息对象并返回。这种做法有助于提高应用程序的性能和效率。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">synchronized</span> (sPoolSync) &#123;</span><br><span class="line">    <span class="keyword">if</span> (sPool != <span class="literal">null</span>) &#123;</span><br><span class="line">    		...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p><img src="/pic/20160713203707125" alt="链表初始态"></p>
+<p><img src="/pic/20160713203707125.png" alt="链表初始态"></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Message</span> <span class="variable">m</span> <span class="operator">=</span> sPool;</span><br></pre></td></tr></table></figure>
 
-<p><img src="/pic/20160713203837939" alt="Message m = sPool;"></p>
+<p><img src="/pic/20160713203837939.png" alt="Message m = sPool;"></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sPool = m.next;</span><br></pre></td></tr></table></figure>
 
-<p><img src="/pic/20160713203910065" alt="sPool = m.next;"></p>
+<p><img src="/pic/20160713203910065.png" alt="sPool = m.next;"></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">m.next = <span class="literal">null</span>;</span><br></pre></td></tr></table></figure>
 
-<p><img src="/pic/20160713203938940" alt="m.next = null;"></p>
+<p><img src="/pic/20160713203938940.png" alt="m.next = null;"></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">m.flags=<span class="number">0</span>;</span><br><span class="line">sPoolSize--;</span><br><span class="line"><span class="keyword">return</span> m;</span><br></pre></td></tr></table></figure>
 
 <h5 id="回收-android-os-Message-recycle"><a href="#回收-android-os-Message-recycle" class="headerlink" title="回收: android.os.Message#recycle()"></a>回收: android.os.Message#recycle()</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Return a Message instance to the global pool.</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;</span></span><br><span class="line"><span class="comment"> * You MUST NOT touch the Message after calling this function because it has</span></span><br><span class="line"><span class="comment"> * effectively been freed.  It is an error to recycle a message that is currently</span></span><br><span class="line"><span class="comment"> * enqueued or that is in the process of being delivered to a Handler.</span></span><br><span class="line"><span class="comment"> * &lt;/p&gt;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">recycle</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (isInUse()) &#123;</span><br><span class="line">        <span class="keyword">if</span> (gCheckRecycle) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalStateException</span>(<span class="string">&quot;This message cannot be recycled because it &quot;</span></span><br><span class="line">                    + <span class="string">&quot;is still in use.&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    recycleUnchecked();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -189,13 +189,13 @@
 <li>如果是，将当前消息对象放入消息池的链表中，以供将来重用。</li>
 <li>更新消息池的大小。</li>
 </ul>
-<p><img src="/pic/20160713204015503" alt="初始链表"></p>
+<p><img src="/pic/20160713204015503.png" alt="初始链表"></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">next=sPool;</span><br></pre></td></tr></table></figure>
 
-<p><img src="/pic/20160713204035066" alt="next=sPool;"></p>
+<p><img src="/pic/20160713204035066.png" alt="next=sPool;"></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sPool=<span class="built_in">this</span>;</span><br></pre></td></tr></table></figure>
 
-<p><img src="/pic/20160713204119209" alt="sPool=this;"></p>
+<p><img src="/pic/20160713204119209.png" alt="sPool=this;"></p>
 <hr>
 <p>内存抖动参考自:<br>知乎博主Android小瓜: Android 性能优化大法——内存抖动<br>原文链接: <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/575959909">https://zhuanlan.zhihu.com/p/575959909</a></p>
 <p>android.os.Message#obtain() 与 android.os.Message#recycleUnchecked 相关图片来自于:<br>版权声明：本文为CSDN博主「-_-void」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。<br>原文链接：<a target="_blank" rel="noopener" href="https://blog.csdn.net/xmh19936688/article/details/51901338">https://blog.csdn.net/xmh19936688/article/details/51901338</a></p>
