@@ -431,7 +431,7 @@
         
   
     <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2023/08/29/%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/Android-%E9%9F%B3%E8%A7%86%E9%A2%91%E6%9E%B6%E6%9E%84%E4%B8%93%E9%A1%B9/">Android 音视频架构专项</a>
+      <a class="article-title" href="/2023/08/29/%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/Android-%E9%9F%B3%E8%A7%86%E9%A2%91%E6%9E%B6%E6%9E%84%E4%B8%93%E9%A1%B9/">Android 音视频屏幕旋转方案</a>
     </h1>
   
 
@@ -451,7 +451,7 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="Android-音视频屏幕旋转方案"><a href="#Android-音视频屏幕旋转方案" class="headerlink" title="Android 音视频屏幕旋转方案"></a>Android 音视频屏幕旋转方案</h3><p>在Android平台上，实现音视频播放过程中的屏幕旋转涉及到以下几个方面：界面布局的调整、Activity的生命周期管理、保存和恢复播放状态、以及处理屏幕旋转时可能引发的音视频播放问题。以下是一个基本的音视频屏幕旋转方案的步骤：</p>
+        <h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>在Android平台上，实现音视频播放过程中的屏幕旋转涉及到以下几个方面：界面布局的调整、Activity的生命周期管理、保存和恢复播放状态、以及处理屏幕旋转时可能引发的音视频播放问题。以下是一个基本的音视频屏幕旋转方案的步骤：</p>
 <h4 id="布局调整"><a href="#布局调整" class="headerlink" title="布局调整"></a>布局调整</h4><p>在<code>res</code>文件夹中创建不同方向的布局文件，例如<code>layout/activity_main.xml</code>和<code>layout-land/activity_main.xml</code>分别表示竖屏和横屏时的布局。在这些布局文件中，你可以调整控件的摆放位置以适应不同方向的屏幕。</p>
 <h4 id="Activity的生命周期管理"><a href="#Activity的生命周期管理" class="headerlink" title="Activity的生命周期管理"></a>Activity的生命周期管理</h4><p>当屏幕发生旋转时，Activity会经历重新创建的过程。确保你的Activity正确处理生命周期事件，特别是<code>onCreate</code>、<code>onSaveInstanceState</code>和<code>onRestoreInstanceState</code>等方法。</p>
 <h4 id="保存和恢复播放状态"><a href="#保存和恢复播放状态" class="headerlink" title="保存和恢复播放状态"></a>保存和恢复播放状态</h4><p>在<code>onSaveInstanceState</code>方法中保存当前的播放状态，例如播放位置、播放状态（播放、暂停等），以及其他相关信息。然后在<code>onCreate</code>和<code>onRestoreInstanceState</code>方法中恢复这些状态。</p>
@@ -697,7 +697,7 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2023/08/29/%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/Android-%E9%9F%B3%E8%A7%86%E9%A2%91%E6%9E%B6%E6%9E%84%E4%B8%93%E9%A1%B9/">Android 音视频架构专项</a></h6>
+              <h6 style="margin: 0;"><a href="/2023/08/29/%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/Android-%E9%9F%B3%E8%A7%86%E9%A2%91%E6%9E%B6%E6%9E%84%E4%B8%93%E9%A1%B9/">Android 音视频屏幕旋转方案</a></h6>
               <span>August 29, 2023</span>
             </div>
 

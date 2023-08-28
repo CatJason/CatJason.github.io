@@ -3,21 +3,21 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Android 音视频架构专项 | 喵星科技报</title>
+  <title>Android 音视频屏幕旋转方案 | 喵星科技报</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
   
   
   
-  <meta name="description" content="Android 音视频屏幕旋转方案在Android平台上，实现音视频播放过程中的屏幕旋转涉及到以下几个方面：界面布局的调整、Activity的生命周期管理、保存和恢复播放状态、以及处理屏幕旋转时可能引发的音视频播放问题。以下是一个基本的音视频屏幕旋转方案的步骤： 布局调整在res文件夹中创建不同方向的布局文件，例如layout&#x2F;activity_main.xml和layout-land&#x2F;activ">
+  <meta name="description" content="正文在Android平台上，实现音视频播放过程中的屏幕旋转涉及到以下几个方面：界面布局的调整、Activity的生命周期管理、保存和恢复播放状态、以及处理屏幕旋转时可能引发的音视频播放问题。以下是一个基本的音视频屏幕旋转方案的步骤： 布局调整在res文件夹中创建不同方向的布局文件，例如layout&#x2F;activity_main.xml和layout-land&#x2F;activity_main.xml分别表">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Android 音视频架构专项">
+<meta property="og:title" content="Android 音视频屏幕旋转方案">
 <meta property="og:url" content="http://example.com/2023/08/29/%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/Android-%E9%9F%B3%E8%A7%86%E9%A2%91%E6%9E%B6%E6%9E%84%E4%B8%93%E9%A1%B9/index.html">
 <meta property="og:site_name" content="喵星科技报">
-<meta property="og:description" content="Android 音视频屏幕旋转方案在Android平台上，实现音视频播放过程中的屏幕旋转涉及到以下几个方面：界面布局的调整、Activity的生命周期管理、保存和恢复播放状态、以及处理屏幕旋转时可能引发的音视频播放问题。以下是一个基本的音视频屏幕旋转方案的步骤： 布局调整在res文件夹中创建不同方向的布局文件，例如layout&#x2F;activity_main.xml和layout-land&#x2F;activ">
+<meta property="og:description" content="正文在Android平台上，实现音视频播放过程中的屏幕旋转涉及到以下几个方面：界面布局的调整、Activity的生命周期管理、保存和恢复播放状态、以及处理屏幕旋转时可能引发的音视频播放问题。以下是一个基本的音视频屏幕旋转方案的步骤： 布局调整在res文件夹中创建不同方向的布局文件，例如layout&#x2F;activity_main.xml和layout-land&#x2F;activity_main.xml分别表">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-08-28T18:37:10.872Z">
-<meta property="article:modified_time" content="2023-08-28T18:37:10.891Z">
+<meta property="article:modified_time" content="2023-08-28T18:45:13.540Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
   
@@ -117,7 +117,7 @@
         
   
     <h1 class="thumb" class="article-title" itemprop="name">
-      Android 音视频架构专项
+      Android 音视频屏幕旋转方案
     </h1>
   
 
@@ -141,7 +141,7 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="Android-音视频屏幕旋转方案"><a href="#Android-音视频屏幕旋转方案" class="headerlink" title="Android 音视频屏幕旋转方案"></a>Android 音视频屏幕旋转方案</h3><p>在Android平台上，实现音视频播放过程中的屏幕旋转涉及到以下几个方面：界面布局的调整、Activity的生命周期管理、保存和恢复播放状态、以及处理屏幕旋转时可能引发的音视频播放问题。以下是一个基本的音视频屏幕旋转方案的步骤：</p>
+        <h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>在Android平台上，实现音视频播放过程中的屏幕旋转涉及到以下几个方面：界面布局的调整、Activity的生命周期管理、保存和恢复播放状态、以及处理屏幕旋转时可能引发的音视频播放问题。以下是一个基本的音视频屏幕旋转方案的步骤：</p>
 <h4 id="布局调整"><a href="#布局调整" class="headerlink" title="布局调整"></a>布局调整</h4><p>在<code>res</code>文件夹中创建不同方向的布局文件，例如<code>layout/activity_main.xml</code>和<code>layout-land/activity_main.xml</code>分别表示竖屏和横屏时的布局。在这些布局文件中，你可以调整控件的摆放位置以适应不同方向的屏幕。</p>
 <h4 id="Activity的生命周期管理"><a href="#Activity的生命周期管理" class="headerlink" title="Activity的生命周期管理"></a>Activity的生命周期管理</h4><p>当屏幕发生旋转时，Activity会经历重新创建的过程。确保你的Activity正确处理生命周期事件，特别是<code>onCreate</code>、<code>onSaveInstanceState</code>和<code>onRestoreInstanceState</code>等方法。</p>
 <h4 id="保存和恢复播放状态"><a href="#保存和恢复播放状态" class="headerlink" title="保存和恢复播放状态"></a>保存和恢复播放状态</h4><p>在<code>onSaveInstanceState</code>方法中保存当前的播放状态，例如播放位置、播放状态（播放、暂停等），以及其他相关信息。然后在<code>onCreate</code>和<code>onRestoreInstanceState</code>方法中恢复这些状态。</p>
@@ -208,7 +208,7 @@
     <div id="toc" class="toc-article">
     <strong class="toc-title">Contents</strong>
     
-      <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Android-%E9%9F%B3%E8%A7%86%E9%A2%91%E5%B1%8F%E5%B9%95%E6%97%8B%E8%BD%AC%E6%96%B9%E6%A1%88"><span class="nav-number">1.</span> <span class="nav-text">Android 音视频屏幕旋转方案</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%83%E5%B1%80%E8%B0%83%E6%95%B4"><span class="nav-number">1.1.</span> <span class="nav-text">布局调整</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Activity%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%AE%A1%E7%90%86"><span class="nav-number">1.2.</span> <span class="nav-text">Activity的生命周期管理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BF%9D%E5%AD%98%E5%92%8C%E6%81%A2%E5%A4%8D%E6%92%AD%E6%94%BE%E7%8A%B6%E6%80%81"><span class="nav-number">1.3.</span> <span class="nav-text">保存和恢复播放状态</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%84%E7%90%86%E5%B1%8F%E5%B9%95%E6%97%8B%E8%BD%AC%E5%8F%AF%E8%83%BD%E5%BC%95%E5%8F%91%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">1.4.</span> <span class="nav-text">处理屏幕旋转可能引发的问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8ViewModel%E6%9D%A5%E4%BF%9D%E5%AD%98%E6%92%AD%E6%94%BE%E7%8A%B6%E6%80%81%EF%BC%88%E5%8F%AF%E9%80%89%EF%BC%89"><span class="nav-number">1.5.</span> <span class="nav-text">使用ViewModel来保存播放状态（可选）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%94%81%E5%AE%9A%E5%B1%8F%E5%B9%95%E6%96%B9%E5%90%91%EF%BC%88%E5%8F%AF%E9%80%89%EF%BC%89"><span class="nav-number">1.6.</span> <span class="nav-text">锁定屏幕方向（可选）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">2.</span> <span class="nav-text">总结</span></a></li></ol>
+      <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A3%E6%96%87"><span class="nav-number">1.</span> <span class="nav-text">正文</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%83%E5%B1%80%E8%B0%83%E6%95%B4"><span class="nav-number">1.1.</span> <span class="nav-text">布局调整</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Activity%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%AE%A1%E7%90%86"><span class="nav-number">1.2.</span> <span class="nav-text">Activity的生命周期管理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BF%9D%E5%AD%98%E5%92%8C%E6%81%A2%E5%A4%8D%E6%92%AD%E6%94%BE%E7%8A%B6%E6%80%81"><span class="nav-number">1.3.</span> <span class="nav-text">保存和恢复播放状态</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%84%E7%90%86%E5%B1%8F%E5%B9%95%E6%97%8B%E8%BD%AC%E5%8F%AF%E8%83%BD%E5%BC%95%E5%8F%91%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">1.4.</span> <span class="nav-text">处理屏幕旋转可能引发的问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8ViewModel%E6%9D%A5%E4%BF%9D%E5%AD%98%E6%92%AD%E6%94%BE%E7%8A%B6%E6%80%81%EF%BC%88%E5%8F%AF%E9%80%89%EF%BC%89"><span class="nav-number">1.5.</span> <span class="nav-text">使用ViewModel来保存播放状态（可选）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%94%81%E5%AE%9A%E5%B1%8F%E5%B9%95%E6%96%B9%E5%90%91%EF%BC%88%E5%8F%AF%E9%80%89%EF%BC%89"><span class="nav-number">1.6.</span> <span class="nav-text">锁定屏幕方向（可选）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">2.</span> <span class="nav-text">总结</span></a></li></ol>
     
     </div>
   </aside>
