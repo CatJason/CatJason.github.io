@@ -9,15 +9,15 @@
   
   
   
-  <meta name="description" content="ARouter  router-annotation 路由注解模块 src.main.java com.alibaba.android.arouter facade 提供注解和枚举的包 annotation 存放各种注解类的包 Autowired.java 自动注入的注解 Interceptor.java 拦截器的注解 Param.java 参数注解 Route.java 路由信息注解   en">
+  <meta name="description" content="ARouter router-annotation 路由注解模块  src.main.java com.alibaba.android.arouter facade 提供注解和枚举的包 annotation 存放各种注解类的包 Autowired.java 自动注入的注解 Interceptor.java 拦截器的注解 Param.java 参数注解 Route.java 路由信息注解   en">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Android 从零开始写一个 ARouter">
 <meta property="og:url" content="http://example.com/2023/09/08/Android/ARouter/ARouter/index.html">
 <meta property="og:site_name" content="喵星科技报">
-<meta property="og:description" content="ARouter  router-annotation 路由注解模块 src.main.java com.alibaba.android.arouter facade 提供注解和枚举的包 annotation 存放各种注解类的包 Autowired.java 自动注入的注解 Interceptor.java 拦截器的注解 Param.java 参数注解 Route.java 路由信息注解   en">
+<meta property="og:description" content="ARouter router-annotation 路由注解模块  src.main.java com.alibaba.android.arouter facade 提供注解和枚举的包 annotation 存放各种注解类的包 Autowired.java 自动注入的注解 Interceptor.java 拦截器的注解 Param.java 参数注解 Route.java 路由信息注解   en">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-09-08T08:29:09.233Z">
-<meta property="article:modified_time" content="2023-09-08T21:42:07.619Z">
+<meta property="article:modified_time" content="2023-09-08T21:51:49.534Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
   
@@ -142,9 +142,9 @@
     <div class="article-entry" itemprop="articleBody">
       
         <ul>
-<li><p>ARouter</p>
+<li>ARouter<ul>
+<li><p>router-annotation 路由注解模块</p>
 <ul>
-<li>router-annotation 路由注解模块<ul>
 <li>src.main.java<ul>
 <li>com.alibaba.android.arouter<ul>
 <li>facade 提供注解和枚举的包<ul>
@@ -173,20 +173,15 @@
 </li>
 </ul>
 </li>
-</ul>
-<p>​      </p>
-<ul>
 <li><p>arouter-api ARouter框架的API模块</p>
 <ul>
 <li>src.main.java<ul>
 <li>com.alibaba.android.arouter<ul>
-<li><p>base 基础功能相关的包</p>
-<ul>
+<li>base 基础功能相关的包<ul>
 <li><a href="UniqueKeyTreeMap">UniqueKeyTreeMap.java</a> 唯一键树形映射的类</li>
 </ul>
 </li>
-<li><p>core 核心功能相关的包</p>
-<ul>
+<li>core 核心功能相关的包<ul>
 <li><a href="#AutowiredLifecyleCallback">AutowiredLifecyleCallback.java</a> 自动注入生命周期回调的类</li>
 <li><a href="#AutowiredServiceImp">AutowiredServiceImpl.java</a> 自动注入服务的实现类</li>
 <li><a href="#InstrumentationHook">InstrumentationHook.java</a> 仪表钩子的类</li>
@@ -195,41 +190,26 @@
 <li><a href="#Warehouse.java">Warehouse.java</a> 仓库的类</li>
 </ul>
 </li>
-<li><p>exception 异常相关的包</p>
-</li>
-<li><p><a href="#HandlerException">HandlerException.java</a> 处理异常的类</p>
-</li>
-<li><p><a href="#InitException">InitException.java</a> 初始化异常的类</p>
-</li>
-<li><p><a href="#NoRouteFoundException">NoRouteFoundException.java</a> 未找到路由的异常类</p>
-</li>
-<li><p>facade 提供各种服务和回调的包</p>
-</li>
-<li><p>callback 回调相关的包</p>
-<ul>
+<li>exception 异常相关的包</li>
+<li><a href="#HandlerException">HandlerException.java</a> 处理异常的类</li>
+<li><a href="#InitException">InitException.java</a> 初始化异常的类</li>
+<li><a href="#NoRouteFoundException">NoRouteFoundException.java</a> 未找到路由的异常类</li>
+<li>facade 提供各种服务和回调的包</li>
+<li>callback 回调相关的包<ul>
 <li><a href="#InterceptorCallback">InterceptorCallback.java</a> 拦截器回调的接口</li>
-<li>[NavigationCallback.java 导航回调的接口</li>
+<li><a href="#NavigationCallback">NavigationCallback.java</a> 导航回调的接口</li>
 <li><a href="#NoRouteFoundException">NoRouteFoundException.java</a> 未找到路由的异常接口</li>
 </ul>
 </li>
-<li><p>service 服务相关的包</p>
-</li>
-<li><p><a href="#AutowiredService">AutowiredService.java</a> 自动注入服务的接口</p>
-</li>
-<li><p><a href="#ClassLoaderService">ClassLoaderService.java</a> 类加载器服务的接口</p>
-</li>
-<li><p><a href="#DegradeService">DegradeService.java</a> 降级服务的接口</p>
-</li>
-<li><p><a href="#InterceptorService">InterceptorService.java</a> 拦截器服务的接口</p>
-</li>
-<li><p><a href="#PathReplaceService">PathReplaceService.java</a> 路径替换服务的接口</p>
-</li>
-<li><p><a href="#PretreatmentService">PretreatmentService.java</a> 预处理服务的接口</p>
-</li>
-<li><p><a href="#SerializationService">SerializationService.java</a> 序列化服务的接口</p>
-</li>
-<li><p>template 模板相关的包</p>
-<ul>
+<li>service 服务相关的包</li>
+<li><a href="#AutowiredService">AutowiredService.java</a> 自动注入服务的接口</li>
+<li><a href="#ClassLoaderService">ClassLoaderService.java</a> 类加载器服务的接口</li>
+<li><a href="#DegradeService">DegradeService.java</a> 降级服务的接口</li>
+<li><a href="#InterceptorService">InterceptorService.java</a> 拦截器服务的接口</li>
+<li><a href="#PathReplaceService">PathReplaceService.java</a> 路径替换服务的接口</li>
+<li><a href="#PretreatmentService">PretreatmentService.java</a> 预处理服务的接口</li>
+<li><a href="#SerializationService">SerializationService.java</a> 序列化服务的接口v</li>
+<li>template 模板相关的包<ul>
 <li><a href="#IInterceptor">IInterceptor.java</a> 拦截器接口</li>
 <li><a href="#IInterceptorGroup">IInterceptorGroup.java</a> 拦截器分组接口</li>
 <li><a href="#Ilogger">Ilogger.java</a> 日志记录器接口</li>
@@ -242,22 +222,14 @@
 <li><a href="#Postcard">Postcard.java</a> 路由信息封装类</li>
 </ul>
 </li>
-<li><p>launcher 启动器）包含一些用于启动ARouter框架的类和线程管理相关的类。</p>
-</li>
-<li><p><a href="#_Arouter">_Arouter.java</a> ARouter框架的内部启动类，用于初始化ARouter。</p>
-</li>
-<li><p><a href="#Arouter">Arouter.java</a> ARouter框架的启动类，用于初始化ARouter。</p>
-</li>
-<li><p>thread （线程）包含了与线程管理相关的类。</p>
-</li>
-<li><p><a href="#CancelableCountDownLatch">CancelableCountDownLatch.java</a> 可取消的倒计时计数器，用于线程同步。</p>
-</li>
-<li><p><a href="#DefaultPoolExecutor">DefaultPoolExecutor.java</a> 默认的线程池执行器，用于执行异步任务。</p>
-</li>
-<li><p><a href="#DefaultThreadFactory">DefaultThreadFactory.java</a> 默认线程工厂，用于创建线程。</p>
-</li>
-<li><p>utils 工具类）包含了各种实用工具类。</p>
-<ul>
+<li>launcher 启动器）包含一些用于启动ARouter框架的类和线程管理相关的类。</li>
+<li><a href="#_Arouter">_Arouter.java</a> ARouter框架的内部启动类，用于初始化ARouter。</li>
+<li><a href="#Arouter">Arouter.java</a> ARouter框架的启动类，用于初始化ARouter。</li>
+<li>thread （线程）包含了与线程管理相关的类。</li>
+<li><a href="#CancelableCountDownLatch">CancelableCountDownLatch.java</a> 可取消的倒计时计数器，用于线程同步。</li>
+<li><a href="#DefaultPoolExecutor">DefaultPoolExecutor.java</a> 默认的线程池执行器，用于执行异步任务。</li>
+<li><a href="#DefaultThreadFactory">DefaultThreadFactory.java</a> 默认线程工厂，用于创建线程。</li>
+<li>utils 工具类）包含了各种实用工具类。<ul>
 <li><a href="#ClassUtils">ClassUtils.java</a> 用于操作类的实用工具类。</li>
 <li><a href="#Consts">Consts.java</a> 包含一些常量值的类。</li>
 <li><a href="#DefaultLogger">DefaultLogger.java</a> 默认的日志记录器类。</li>
