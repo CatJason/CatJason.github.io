@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>从零开始写一个 ARouter - router-annotation 路由注解模块 | 喵星科技报</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  
+  
+  
+  <meta name="description" content="ARouter router-annotation 路由注解模块  src.main.java com.alibaba.android.arouter facade 提供注解和枚举的包 annotation 存放各种注解类的包 Autowired.java 自动注入的注解 Interceptor.java 拦截器的注解 Param.java(废弃) 参数注解: 被 Autowired 淘汰 Ro">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从零开始写一个 ARouter - router-annotation 路由注解模块">
+<meta property="og:url" content="http://example.com/2023/09/10/Android/ARouter/01-ARouter/index.html">
+<meta property="og:site_name" content="喵星科技报">
+<meta property="og:description" content="ARouter router-annotation 路由注解模块  src.main.java com.alibaba.android.arouter facade 提供注解和枚举的包 annotation 存放各种注解类的包 Autowired.java 自动注入的注解 Interceptor.java 拦截器的注解 Param.java(废弃) 参数注解: 被 Autowired 淘汰 Ro">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-09-09T17:05:04.057Z">
+<meta property="article:modified_time" content="2023-09-09T17:05:04.072Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="喵星科技报" type="application/atom+xml">
+  
+  <link rel="icon" href="/css/images/favicon.ico">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+    
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Yanone+Kaffeesatz%3A200%2C300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Oswald%3A300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+<script src="/js/jquery-3.1.1.min.js"></script>
+
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.css" >
+  <link rel="stylesheet" href="/css/fashion.css" >
+  <link rel="stylesheet" href="/css/glyphs.css" >
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<a target="_blank" rel="noopener" href="https://github.com/CatJason">
+<img decoding="async" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" loading="lazy" data-recalc-dims="1">
+</a>
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  
+
+
+<header id="allheader" class="site-header" role="banner" 
+   >
+  <div class="clearfix container">
+      <div class="site-branding">
+
+          <h1 class="site-title">
+            
+              <a href="/" title="喵星科技报" rel="home"> 喵星科技报 </a>
+            
+          </h1>
+          
+          
+            
+          <nav id="main-navigation" class="main-navigation" role="navigation">
+            <a class="nav-open">Menu</a>
+            <a class="nav-close">Close</a>
+
+            <div class="clearfix sf-menu">
+              <ul id="main-nav" class="menu sf-js-enabled sf-arrows"  style="touch-action: pan-y;">
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="/"> <a class="" href="/">Home</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="archives"> <a class="" href="/archives">Archives</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="categories"> <a class="" href="/categories">Categories</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="tags"> <a class="" href="/tags">Tags</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="about"> <a class="" href="/about">About</a> </li>
+                    
+              </ul>
+            </div>
+          </nav>
+
+      </div>
+  </div>
+</header>
+
+
+  <div id="container">
+    <div id="wrap">
+            
+      <div id="content" class="outer">
+        
+          <section id="main" style="float:none;"><article id="post-Android/ARouter/01-ARouter" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" class="article-title" itemprop="name">
+      从零开始写一个 ARouter - router-annotation 路由注解模块
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/09/10/Android/ARouter/01-ARouter/" class="article-date">
+	  <time datetime="2023-09-09T17:05:04.057Z" itemprop="datePublished">September 10, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a>
+ 
+      
+	<span id="busuanzi_container_page_pv">
+	  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	</span>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <ul>
+<li>ARouter<ul>
+<li><p>router-annotation 路由注解模块</p>
+<ul>
+<li>src.main.java<ul>
+<li>com.alibaba.android.arouter<ul>
+<li>facade 提供注解和枚举的包<ul>
+<li>annotation 存放各种注解类的包<ul>
+<li><a href="#Autowired">Autowired.java</a> 自动注入的注解</li>
+<li><a href="#Interceptor">Interceptor.java</a> 拦截器的注解</li>
+<li><a href="#Param(%E5%BA%9F%E5%BC%83)">Param.java(废弃)</a> 参数注解: 被 Autowired 淘汰</li>
+<li><a href="#Route">Route.java</a> 路由信息注解</li>
+</ul>
+</li>
+<li>enums 包含各种枚举类型的包<ul>
+<li><a href="#RouteType">RouteType.java</a> 路由类型的枚举</li>
+<li><a href="#TypeKind">TypeKind.java</a> 类型种类的枚举</li>
+</ul>
+</li>
+<li>model 包含模型类的包<ul>
+<li><a href="#RouteMeta">RouteMeta.java</a> 路由元信息的模型类</li>
+<li><a href="#TypeWrapper">TypeWrapper.java</a> 存储目标对象的泛型类型信息的类</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>arouter-api ARouter框架的API模块</p>
+<ul>
+<li>src.main.java<ul>
+<li>com.alibaba.android.arouter<ul>
+<li>base 基础功能相关的包<ul>
+<li>UniqueKeyTreeMap.java 唯一键树形映射的类</li>
+</ul>
+</li>
+<li>core 核心功能相关的包<ul>
+<li>AutowiredLifecyleCallback.java(废弃) 自动注入生命周期回调的类</li>
+<li>AutowiredServiceImpl.java 自动注入服务的实现类</li>
+<li>InstrumentationHook.java(废弃) 仪表钩子的类</li>
+<li>InterceptorServiceImpl.java 拦截器服务的实现类</li>
+<li>LogisticsCenter.java 物流中心的类</li>
+<li>Warehouse.java 仓库的类</li>
+</ul>
+</li>
+<li>exception 异常相关的包<ul>
+<li>HandlerException.java 处理异常的类</li>
+<li>InitException.java 初始化异常的类</li>
+<li>NoRouteFoundException.java 未找到路由的异常类</li>
+</ul>
+</li>
+<li>facade 提供各种服务和回调的包<ul>
+<li>callback 回调相关的包<ul>
+<li>InterceptorCallback.java 拦截器回调的接口</li>
+<li>NavigationCallback.java 导航回调的接口</li>
+<li>NoRouteFoundException.java 未找到路由的异常接口</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>service 服务相关的包<ul>
+<li>AutowiredService.java 自动注入服务的接口</li>
+<li>ClassLoaderService.java 类加载器服务的接口</li>
+<li>DegradeService.java 降级服务的接口</li>
+<li>InterceptorService.java 拦截器服务的接口</li>
+<li>PathReplaceService.java 路径替换服务的接口</li>
+<li>PretreatmentService.java 预处理服务的接口</li>
+<li>SerializationService.java 序列化服务的接口</li>
+</ul>
+</li>
+<li>template 模板相关的包<ul>
+<li>IInterceptor.java 拦截器接口</li>
+<li>IInterceptorGroup.java 拦截器分组接口</li>
+<li>Ilogger.java 日志记录器接口</li>
+<li>IPolicy.java 策略接口</li>
+<li>IProvider.java 提供者接口</li>
+<li>IProviderGroup.java 提供者分组接口</li>
+<li>IRouteGroup.java 路由分组接口</li>
+<li>IRouteRoot.java 路由根接口</li>
+<li>Isyringe.java 注射器接口</li>
+<li>Postcard.java 路由信息封装类</li>
+</ul>
+</li>
+<li>launcher 启动器: 包含一些用于启动ARouter框架的类和线程管理相关的类。<ul>
+<li>_Arouter.java ARouter框架的内部启动类，用于初始化ARouter。</li>
+<li>Arouter.java ARouter框架的启动类，用于初始化ARouter。</li>
+</ul>
+</li>
+<li>thread （线程）包含了与线程管理相关的类。<ul>
+<li>CancelableCountDownLatch.java 可取消的倒计时计数器，用于线程同步。</li>
+<li>DefaultPoolExecutor.java 默认的线程池执行器，用于执行异步任务。</li>
+<li>DefaultThreadFactory.java 默认线程工厂，用于创建线程。</li>
+</ul>
+</li>
+<li>utils 工具类。<ul>
+<li>ClassUtils.java 用于操作类的实用工具类。</li>
+<li>Consts.java 包含一些常量值的类。</li>
+<li>DefaultLogger.java 默认的日志记录器类。</li>
+<li>MapUtils.java 用于操作地图数据的实用工具类。</li>
+<li>PackageUtils.java 用于操作包信息的实用工具类。</li>
+<li>TextUtils.java 用于操作文本数据的实用工具类。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>arouter-compiler</p>
+<ul>
+<li>src.main.java<ul>
+<li>com.alibaba.android.arouter<ul>
+<li>compiler 编译相关的包<ul>
+<li>entity 实体类相关的包<ul>
+<li>RouteDoc.java 路由文档实体类</li>
+</ul>
+</li>
+<li>processor 处理器相关的包<ul>
+<li>AutowiredProcessor.java 自动注入处理器</li>
+<li>BaseProcessor.java 基础处理器</li>
+<li>InterceptorProcessor.java 拦截器处理器</li>
+<li>RouteProcessor.java 路由处理器</li>
+</ul>
+</li>
+<li>utils 工具类相关的包<ul>
+<li>Consts.java 常量类</li>
+<li>Logger.java 日志记录器类</li>
+<li>TypeUtils.java 类型工具类</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="router-annotation-路由注解模块"><a href="#router-annotation-路由注解模块" class="headerlink" title="router-annotation 路由注解模块"></a>router-annotation 路由注解模块</h3><h4 id="annotation-存放各种注解类的包"><a href="#annotation-存放各种注解类的包" class="headerlink" title="annotation 存放各种注解类的包"></a>annotation 存放各种注解类的包</h4><h5 id="Autowired"><a href="#Autowired" class="headerlink" title="Autowired"></a>Autowired</h5><p>自动注入的注解</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.alibaba.android.arouter.facade.<span class="keyword">annotation</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Annotation for field, which need autowired.</span></span><br><span class="line"><span class="comment"> * 用于需要自动注入的字段的注解。</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> zhilong [Contact me.](mailto:zhilong.lzl<span class="doctag">@alibaba</span>-inc.com)</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@version</span> 1.0</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@since</span> 2017/2/20 下午4:26</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Target(AnnotationTarget.FIELD)</span> <span class="comment">// 表示该注解只能用于字段上</span></span><br><span class="line"><span class="meta">@kotlin</span>.<span class="keyword">annotation</span>.Retention(AnnotationRetention.BINARY) <span class="comment">// 表示该注解的生命周期为编译期</span></span><br><span class="line"><span class="keyword">annotation</span> <span class="keyword">class</span> <span class="title class_">Autowired</span>( <span class="comment">// Mark param&#x27;s name or service name.</span></span><br><span class="line">    <span class="comment">// 标记参数的名称或服务名称</span></span><br><span class="line">    <span class="keyword">val</span> name: String = <span class="string">&quot;&quot;</span>,  <span class="comment">// If required, app will be crash when value is null.</span></span><br><span class="line">    <span class="comment">// Primitive type wont be check!</span></span><br><span class="line">    <span class="comment">// 如果设置为true，在数值为null时应用程序将崩溃。不会检查原始类型！</span></span><br><span class="line">    <span class="keyword">val</span> required: <span class="built_in">Boolean</span> = <span class="literal">false</span>,  <span class="comment">// Description of the field</span></span><br><span class="line">    <span class="comment">// 字段的描述信息</span></span><br><span class="line">    <span class="keyword">val</span> desc: String = <span class="string">&quot;&quot;</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p><strong>标记需要注入的字段</strong>：在你的类中，标记需要进行自动注入的字段。使用 <code>@Autowired</code> 注解，例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.alibaba.android.arouter.facade.annotation.Autowired;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyClass</span> &#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> MyDependency myDependency;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这个示例中，<code>myDependency</code> 字段被标记为需要自动注入的依赖对象。</p>
+<p>假设你有两个相同类型的依赖对象 <code>MyDependency</code>，但它们在功能上略有不同，你需要指定要注入哪一个。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">javaCopy code</span><br><span class="line"><span class="keyword">import</span> com.alibaba.android.arouter.facade.annotation.Autowired;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyClass</span> &#123;</span><br><span class="line">    <span class="meta">@Autowired(name = &quot;dependencyA&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> MyDependency dependencyA;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired(name = &quot;dependencyB&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> MyDependency dependencyB;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="Interceptor"><a href="#Interceptor" class="headerlink" title="Interceptor"></a>Interceptor</h5><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.alibaba.android.arouter.facade.<span class="keyword">annotation</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 标记拦截器以拦截路由。</span></span><br><span class="line"><span class="comment"> * 注意：此注解仅可用于标记#&#123;IInterceptor&#125;的实现！！！</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> Alex [联系我。](mailto:zhilong.liu<span class="doctag">@aliyun</span>.com)</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@version</span> 1.0</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@since</span> 16/8/23 14:03</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.CLASS)</span> <span class="comment">// 表示该注解只能用于类上</span></span><br><span class="line"><span class="meta">@kotlin</span>.<span class="keyword">annotation</span>.Retention(AnnotationRetention.BINARY) <span class="comment">// 表示该注解的生命周期为编译期</span></span><br><span class="line"><span class="keyword">annotation</span> <span class="keyword">class</span> <span class="title class_">Interceptor</span>(</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 拦截器的优先级，ARouter将按优先级执行它们。</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">val</span> priority: <span class="built_in">Int</span>,</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 拦截器的名称，可能用于生成javadoc。</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">val</span> name: String = <span class="string">&quot;Default&quot;</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>要使用 <code>@Interceptor</code> 注解，你需要将其标记在实现了 <code>IInterceptor</code> 接口的类上，以定义一个拦截器。然后，你可以使用这个拦截器来拦截路由操作。下面是使用 <code>@Interceptor</code> 注解的一般步骤：</p>
+<p>创建一个实现了 <code>IInterceptor</code> 接口的类，该类将用作拦截器。确保类实现了接口中的 <code>process</code> 方法，该方法定义了拦截器的逻辑。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">kotlinCopy code</span><br><span class="line"><span class="keyword">import</span> com.alibaba.android.arouter.facade.annotation.Interceptor</span><br><span class="line"><span class="keyword">import</span> com.alibaba.android.arouter.facade.template.IInterceptor</span><br><span class="line"><span class="keyword">import</span> com.alibaba.android.arouter.facade.callback.InterceptorCallback</span><br><span class="line"></span><br><span class="line"><span class="meta">@Interceptor(priority = 1, name = &quot;ExampleInterceptor&quot;)</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ExampleInterceptor</span> : IInterceptor &#123;</span><br><span class="line">    override fun <span class="title function_">process</span><span class="params">(postcard: Postcard?, callback: InterceptorCallback?)</span> &#123;</span><br><span class="line">        <span class="comment">// 在这里编写拦截器的逻辑</span></span><br><span class="line">        <span class="comment">// 可以在进入路由之前或之后执行一些操作</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 最后，调用 callback.onContinue(postcard) 继续路由操作，或者 callback.onInterrupt(exception) 中断路由操作</span></span><br><span class="line">        callback?.onContinue(postcard)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="Param-废弃"><a href="#Param-废弃" class="headerlink" title="Param(废弃)"></a>Param(废弃)</h5><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.alibaba.android.arouter.facade.<span class="keyword">annotation</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 用于标记页面参数的注解。</span></span><br><span class="line"><span class="comment"> * 此注解已被弃用，请使用 &#x27;Autowired&#x27; 代替！</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> Alex [联系我。](mailto:zhilong.liu<span class="doctag">@aliyun</span>.com)</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@version</span> 1.0</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@since</span> 2016/11/22 18:01</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Target(AnnotationTarget.FIELD)</span> <span class="comment">// 表示该注解只能用于字段上</span></span><br><span class="line"><span class="meta">@kotlin</span>.<span class="keyword">annotation</span>.Retention(AnnotationRetention.BINARY) <span class="comment">// 表示该注解的生命周期为编译期</span></span><br><span class="line"><span class="meta">@Deprecated(<span class="string">&quot;&quot;</span>)</span> <span class="comment">// 表示该注解已被弃用</span></span><br><span class="line"><span class="keyword">annotation</span> <span class="keyword">class</span> <span class="title class_">Param</span>(</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 字段名称</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">val</span> name: String = <span class="string">&quot;&quot;</span>,</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 字段的描述信息</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">val</span> desc: String = <span class="string">&quot;No desc.&quot;</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>既已废弃，不浪费时间</p>
+<h5 id="Route"><a href="#Route" class="headerlink" title="Route"></a>Route</h5><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.alibaba.android.arouter.facade.<span class="keyword">annotation</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 标记页面可由路由器路由。</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> Alex [联系我。](mailto:zhilong.liu<span class="doctag">@aliyun</span>.com)</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@version</span> 1.0</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@since</span> 16/8/15 下午9:29</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.CLASS)</span> <span class="comment">// 表示该注解只能用于类上</span></span><br><span class="line"><span class="meta">@kotlin</span>.<span class="keyword">annotation</span>.Retention(AnnotationRetention.BINARY) <span class="comment">// 表示该注解的生命周期为编译期</span></span><br><span class="line"><span class="keyword">annotation</span> <span class="keyword">class</span> <span class="title class_">Route</span>(</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 路由的路径</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">val</span> path: String,</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 用于合并路由，组名必须使用常见单词!!!</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">val</span> group: String = <span class="string">&quot;&quot;</span>,</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 路由的名称，用于生成javadoc。</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">val</span> name: String = <span class="string">&quot;&quot;</span>,</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 额外的数据，可以由用户设置。</span></span><br><span class="line"><span class="comment">     * 注意：您应该使用整数数值表示开关，通过位进行标记。例如：10001010101010</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">val</span> extras: <span class="built_in">Int</span> = <span class="built_in">Int</span>.MIN_VALUE,</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 路由的优先级。</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">val</span> priority: <span class="built_in">Int</span> = -<span class="number">1</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>这个类定义了一个用于标记页面可由路由器路由的注解 <code>@Route</code>。该注解包含了五个元素，分别表示路由的路径、组名、名称、额外数据和优先级。</p>
+<p>创建一个页面类，并在该类上添加 <code>@Route</code> 注解，以标记这个页面可以被路由器路由。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.alibaba.android.arouter.facade.<span class="keyword">annotation</span>.Route</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用 @Route 注解标记这个页面</span></span><br><span class="line"><span class="meta">@Route(path = <span class="string">&quot;/example/activity&quot;</span>)</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ExampleActivity</span> : <span class="type">AppCompatActivity</span>() &#123;</span><br><span class="line">    <span class="comment">// 页面的代码...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在上面的示例中，我们创建了一个名为 <code>ExampleActivity</code> 的页面类，并使用 <code>@Route</code> 注解标记了这个页面的路由路径为 <code>&quot;/example/activity&quot;</code>。</p>
+<h4 id="enums-包含各种枚举类型的包"><a href="#enums-包含各种枚举类型的包" class="headerlink" title="enums 包含各种枚举类型的包"></a>enums 包含各种枚举类型的包</h4><h5 id="RouteType"><a href="#RouteType" class="headerlink" title="RouteType"></a>RouteType</h5><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.alibaba.android.arouter.facade.enums</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 路由类型的枚举。</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> Alex [联系我。](mailto:zhilong.liu<span class="doctag">@aliyun</span>.com)</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@version</span> 1.0</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@since</span> 16/8/23 22:33</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">enum</span> <span class="keyword">class</span> <span class="title class_">RouteType</span>(<span class="comment">// 未知类型的路由</span></span><br><span class="line">    <span class="keyword">var</span> id: <span class="built_in">Int</span>, <span class="keyword">var</span> className: String</span><br><span class="line">) &#123;</span><br><span class="line">    ACTIVITY(<span class="number">0</span>, <span class="string">&quot;android.app.Activity&quot;</span>),  <span class="comment">// Activity类型的路由</span></span><br><span class="line">    SERVICE(<span class="number">1</span>, <span class="string">&quot;android.app.Service&quot;</span>),  <span class="comment">// Service类型的路由</span></span><br><span class="line">    PROVIDER(<span class="number">2</span>, <span class="string">&quot;com.alibaba.android.arouter.facade.template.IProvider&quot;</span>),  <span class="comment">// Provider类型的路由</span></span><br><span class="line">    CONTENT_PROVIDER(-<span class="number">1</span>, <span class="string">&quot;android.app.ContentProvider&quot;</span>),  <span class="comment">// ContentProvider类型的路由</span></span><br><span class="line">    BOARDCAST(-<span class="number">1</span>, <span class="string">&quot;&quot;</span>),  <span class="comment">// Broadcast类型的路由</span></span><br><span class="line">    METHOD(-<span class="number">1</span>, <span class="string">&quot;&quot;</span>),  <span class="comment">// Method类型的路由</span></span><br><span class="line">    FRAGMENT(-<span class="number">1</span>, <span class="string">&quot;android.app.Fragment&quot;</span>),  <span class="comment">// Fragment类型的路由</span></span><br><span class="line">    UNKNOWN(-<span class="number">1</span>, <span class="string">&quot;Unknown route type&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">setId</span><span class="params">(id: <span class="type">Int</span>)</span></span>: RouteType &#123;</span><br><span class="line">        <span class="keyword">this</span>.id = id</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">setClassName</span><span class="params">(className: <span class="type">String</span>)</span></span>: RouteType &#123;</span><br><span class="line">        <span class="keyword">this</span>.className = className</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">companion</span> <span class="keyword">object</span> &#123;</span><br><span class="line">        <span class="function"><span class="keyword">fun</span> <span class="title">parse</span><span class="params">(name: <span class="type">String</span>)</span></span>: RouteType &#123;</span><br><span class="line">            <span class="keyword">for</span> (routeType <span class="keyword">in</span> values()) &#123;</span><br><span class="line">                <span class="keyword">if</span> (routeType.className == name) &#123;</span><br><span class="line">                    <span class="keyword">return</span> routeType</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> UNKNOWN</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="TypeKind"><a href="#TypeKind" class="headerlink" title="TypeKind"></a>TypeKind</h5><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.alibaba.android.arouter.facade.enums</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 字段类型的种类枚举。</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> Alex [联系我。](mailto:zhilong.liu<span class="doctag">@aliyun</span>.com)</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@version</span> 1.0</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@since</span> 2017-03-16 19:13:38</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">enum</span> <span class="keyword">class</span> <span class="title class_">TypeKind</span> &#123;</span><br><span class="line">    <span class="comment">// 基本类型</span></span><br><span class="line">    BOOLEAN,  <span class="comment">// 布尔类型</span></span><br><span class="line">    BYTE,  <span class="comment">// 字节类型</span></span><br><span class="line">    SHORT,  <span class="comment">// 短整型</span></span><br><span class="line">    INT,  <span class="comment">// 整型</span></span><br><span class="line">    LONG,  <span class="comment">// 长整型</span></span><br><span class="line">    CHAR,  <span class="comment">// 字符类型</span></span><br><span class="line">    FLOAT,  <span class="comment">// 单精度浮点型</span></span><br><span class="line">    DOUBLE,  <span class="comment">// 双精度浮点型</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 其他类型</span></span><br><span class="line">    STRING,  <span class="comment">// 字符串类型</span></span><br><span class="line">    SERIALIZABLE,  <span class="comment">// 可序列化类型</span></span><br><span class="line">    PARCELABLE,  <span class="comment">// Parcelable类型</span></span><br><span class="line">    OBJECT <span class="comment">// 对象类型</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="model-包含模型类的包"><a href="#model-包含模型类的包" class="headerlink" title="model 包含模型类的包"></a>model 包含模型类的包</h4><h5 id="RouteMeta"><a href="#RouteMeta" class="headerlink" title="RouteMeta"></a>RouteMeta</h5><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.alibaba.android.arouter.facade.model</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.alibaba.android.arouter.facade.<span class="keyword">annotation</span>.Autowired</span><br><span class="line"><span class="keyword">import</span> com.alibaba.android.arouter.facade.<span class="keyword">annotation</span>.Route</span><br><span class="line"><span class="keyword">import</span> com.miao.router.RouteType</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 包含基本路由信息的类。</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> Alex [联系我。](mailto:zhilong.liu<span class="doctag">@aliyun</span>.com)</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@version</span> 1.0</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@since</span> 16/8/24 09:45</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">RouteMeta</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> type: RouteType? = <span class="literal">null</span> <span class="comment">// 路由类型</span></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">set</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">var</span> rawType: javax.lang.model.element.Element? = <span class="literal">null</span> <span class="comment">// 路由的原始类型</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> destination : Class&lt;*&gt;? = <span class="literal">null</span> <span class="comment">// 目标类</span></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">set</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> path : String? = <span class="literal">null</span> <span class="comment">// 路由路径</span></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">set</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> group: String? = <span class="literal">null</span> <span class="comment">// 路由分组</span></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">set</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> priority = -<span class="number">1</span> <span class="comment">// 优先级，数值越小优先级越高</span></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">set</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> extra = <span class="number">0</span><span class="comment">// 额外数据</span></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">set</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> paramsType: Map&lt;String?, <span class="built_in">Int</span>?&gt;? = <span class="literal">null</span> <span class="comment">// 参数类型</span></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">set</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> name: String? = <span class="literal">null</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> injectConfig: Map&lt;String, Autowired&gt;? = <span class="literal">null</span> <span class="comment">// 缓存注入配置信息</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">constructor</span>() &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Type</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> route       路由</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> destination 目标类</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> type        类型</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">constructor</span>(</span><br><span class="line">        route: Route,</span><br><span class="line">        destination: Class&lt;*&gt;?,</span><br><span class="line">        type: RouteType?</span><br><span class="line">    ) : <span class="keyword">this</span>(</span><br><span class="line">        type,</span><br><span class="line">        <span class="literal">null</span>,</span><br><span class="line">        destination,</span><br><span class="line">        route.name(),</span><br><span class="line">        route.path(),</span><br><span class="line">        route.group(),</span><br><span class="line">        <span class="literal">null</span>,</span><br><span class="line">        route.priority(),</span><br><span class="line">        route.extras()</span><br><span class="line">    ) &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Type</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> route      路由</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> rawType    原始类型</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> type       类型</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> paramsType 参数类型</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">constructor</span>(</span><br><span class="line">        route: Route,</span><br><span class="line">        rawType: javax.lang.model.element.Element?,</span><br><span class="line">        type: RouteType?,</span><br><span class="line">        paramsType: Map&lt;String?, <span class="built_in">Int</span>?&gt;?</span><br><span class="line">    ) : <span class="keyword">this</span>(</span><br><span class="line">        type,</span><br><span class="line">        rawType,</span><br><span class="line">        <span class="literal">null</span>,</span><br><span class="line">        route.name(),</span><br><span class="line">        route.path(),</span><br><span class="line">        route.group(),</span><br><span class="line">        paramsType,</span><br><span class="line">        route.priority(),</span><br><span class="line">        route.extras()</span><br><span class="line">    ) &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Type</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> type        类型</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> rawType     原始类型</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> destination 目标类</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> path        路径</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> group       分组</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> paramsType  参数类型</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> priority    优先级</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> extra       额外数据</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">constructor</span>(</span><br><span class="line">        type: RouteType?,</span><br><span class="line">        rawType: javax.lang.model.element.Element?,</span><br><span class="line">        destination: Class&lt;*&gt;?,</span><br><span class="line">        name: String?,</span><br><span class="line">        path: String?,</span><br><span class="line">        group: String?,</span><br><span class="line">        paramsType: Map&lt;String?, <span class="built_in">Int</span>?&gt;?,</span><br><span class="line">        priority: <span class="built_in">Int</span>,</span><br><span class="line">        extra: <span class="built_in">Int</span></span><br><span class="line">    ) &#123;</span><br><span class="line">        <span class="keyword">this</span>.type = type</span><br><span class="line">        <span class="keyword">this</span>.name = name</span><br><span class="line">        <span class="keyword">this</span>.destination = destination</span><br><span class="line">        <span class="keyword">this</span>.rawType = rawType</span><br><span class="line">        <span class="keyword">this</span>.path = path</span><br><span class="line">        <span class="keyword">this</span>.group = group</span><br><span class="line">        <span class="keyword">this</span>.paramsType = paramsType</span><br><span class="line">        <span class="keyword">this</span>.priority = priority</span><br><span class="line">        <span class="keyword">this</span>.extra = extra</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">setParamsType</span><span class="params">(paramsType: <span class="type">Map</span>&lt;<span class="type">String</span>?, <span class="built_in">Int</span>?&gt;?)</span></span>: RouteMeta &#123;</span><br><span class="line">        <span class="keyword">this</span>.paramsType = paramsType</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">getRawType</span><span class="params">()</span></span>: javax.lang.model.element.Element? &#123;</span><br><span class="line">        <span class="keyword">return</span> rawType</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">setRawType</span><span class="params">(rawType: <span class="type">javax</span>.<span class="type">lang</span>.<span class="type">model</span>.<span class="type">element</span>.<span class="type">Element</span>?)</span></span>: RouteMeta &#123;</span><br><span class="line">        <span class="keyword">this</span>.rawType = rawType</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">setType</span><span class="params">(type: <span class="type">RouteType</span>?)</span></span>: RouteMeta &#123;</span><br><span class="line">        <span class="keyword">this</span>.type = type</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">setDestination</span><span class="params">(destination: <span class="type">Class</span>&lt;*&gt;?)</span></span>: RouteMeta &#123;</span><br><span class="line">        <span class="keyword">this</span>.destination = destination</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">setPath</span><span class="params">(path: <span class="type">String</span>?)</span></span>: RouteMeta &#123;</span><br><span class="line">        <span class="keyword">this</span>.path = path</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">setGroup</span><span class="params">(group: <span class="type">String</span>?)</span></span>: RouteMeta &#123;</span><br><span class="line">        <span class="keyword">this</span>.group = group</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">setPriority</span><span class="params">(priority: <span class="type">Int</span>)</span></span>: RouteMeta &#123;</span><br><span class="line">        <span class="keyword">this</span>.priority = priority</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">setExtra</span><span class="params">(extra: <span class="type">Int</span>)</span></span>: RouteMeta &#123;</span><br><span class="line">        <span class="keyword">this</span>.extra = extra</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">toString</span><span class="params">()</span></span>: String &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;RouteMeta&#123;&quot;</span> +</span><br><span class="line">                <span class="string">&quot;type=&quot;</span> + type +</span><br><span class="line">                <span class="string">&quot;, rawType=&quot;</span> + rawType +</span><br><span class="line">                <span class="string">&quot;, destination=&quot;</span> + destination +</span><br><span class="line">                <span class="string">&quot;, path=&#x27;&quot;</span> + path + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, group=&#x27;&quot;</span> + group + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, priority=&quot;</span> + priority +</span><br><span class="line">                <span class="string">&quot;, extra=&quot;</span> + extra +</span><br><span class="line">                <span class="string">&quot;, paramsType=&quot;</span> + paramsType +</span><br><span class="line">                <span class="string">&quot;, name=&#x27;&quot;</span> + name + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&#x27;&#125;&#x27;</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">companion</span> <span class="keyword">object</span> &#123;</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * For versions of &#x27;compiler&#x27; less than 1.0.7, contain 1.0.7</span></span><br><span class="line"><span class="comment">         *</span></span><br><span class="line"><span class="comment">         * <span class="doctag">@param</span> type        类型</span></span><br><span class="line"><span class="comment">         * <span class="doctag">@param</span> destination 目标类</span></span><br><span class="line"><span class="comment">         * <span class="doctag">@param</span> path        路径</span></span><br><span class="line"><span class="comment">         * <span class="doctag">@param</span> group       分组</span></span><br><span class="line"><span class="comment">         * <span class="doctag">@param</span> priority    优先级</span></span><br><span class="line"><span class="comment">         * <span class="doctag">@param</span> extra       额外数据</span></span><br><span class="line"><span class="comment">         * <span class="doctag">@return</span> this</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="function"><span class="keyword">fun</span> <span class="title">build</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">            type: <span class="type">RouteType</span>?,</span></span></span><br><span class="line"><span class="params"><span class="function">            destination: <span class="type">Class</span>&lt;*&gt;?,</span></span></span><br><span class="line"><span class="params"><span class="function">            path: <span class="type">String</span>?,</span></span></span><br><span class="line"><span class="params"><span class="function">            group: <span class="type">String</span>?,</span></span></span><br><span class="line"><span class="params"><span class="function">            priority: <span class="type">Int</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">            extra: <span class="type">Int</span></span></span></span><br><span class="line"><span class="params"><span class="function">        )</span></span>: RouteMeta &#123;</span><br><span class="line">            <span class="keyword">return</span> RouteMeta(type, <span class="literal">null</span>, destination, <span class="literal">null</span>, path, group, <span class="literal">null</span>, priority, extra)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * For versions of &#x27;compiler&#x27; greater than 1.0.7</span></span><br><span class="line"><span class="comment">         *</span></span><br><span class="line"><span class="comment">         * <span class="doctag">@param</span> type        类型</span></span><br><span class="line"><span class="comment">         * <span class="doctag">@param</span> destination 目标类</span></span><br><span class="line"><span class="comment">         * <span class="doctag">@param</span> path        路径</span></span><br><span class="line"><span class="comment">         * <span class="doctag">@param</span> group       分组</span></span><br><span class="line"><span class="comment">         * <span class="doctag">@param</span> paramsType  参数类型</span></span><br><span class="line"><span class="comment">         * <span class="doctag">@param</span> priority    优先级</span></span><br><span class="line"><span class="comment">         * <span class="doctag">@param</span> extra       额外数据</span></span><br><span class="line"><span class="comment">         * <span class="doctag">@return</span> this</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="function"><span class="keyword">fun</span> <span class="title">build</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">            type: <span class="type">RouteType</span>?,</span></span></span><br><span class="line"><span class="params"><span class="function">            destination: <span class="type">Class</span>&lt;*&gt;?,</span></span></span><br><span class="line"><span class="params"><span class="function">            path: <span class="type">String</span>?,</span></span></span><br><span class="line"><span class="params"><span class="function">            group: <span class="type">String</span>?,</span></span></span><br><span class="line"><span class="params"><span class="function">            paramsType: <span class="type">Map</span>&lt;<span class="type">String</span>?, <span class="built_in">Int</span>?&gt;?,</span></span></span><br><span class="line"><span class="params"><span class="function">            priority: <span class="type">Int</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">            extra: <span class="type">Int</span></span></span></span><br><span class="line"><span class="params"><span class="function">        )</span></span>: RouteMeta &#123;</span><br><span class="line">            <span class="keyword">return</span> RouteMeta(</span><br><span class="line">                type,</span><br><span class="line">                <span class="literal">null</span>,</span><br><span class="line">                destination,</span><br><span class="line">                <span class="literal">null</span>,</span><br><span class="line">                path,</span><br><span class="line">                group,</span><br><span class="line">                paramsType,</span><br><span class="line">                priority,</span><br><span class="line">                extra</span><br><span class="line">            )</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>private RouteType type</code>：表示路由的类型，可能是普通路由、自动注入、或者其他类型。<br><code>private Element rawType</code>：表示路由的原始类型的元素。<br><code>private Class&lt;?&gt; destination</code>：表示目标类，即路由到哪个页面。<br><code>private String path</code>：表示路由的路径，用于唯一标识一个路由。<br><code>private String group</code>：表示路由的分组，通常用于组织路由。<br><code>private int priority</code>：表示路由的优先级，数值越小表示优先级越高。<br><code>private int extra</code>：表示额外的数据，可以用于传递一些标记或开关。<br><code>private Map&lt;String, Integer&gt; paramsType</code>：表示参数类型的映射。<br><code>private String name</code>：表示路由的名称。</p>
+<p>RouteMeta 是 Route 原子信息与其构建类</p>
+<h5 id="TypeWrapper"><a href="#TypeWrapper" class="headerlink" title="TypeWrapper"></a>TypeWrapper</h5><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.alibaba.android.arouter.facade.model</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.ParameterizedType</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Type</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 用于获取目标对象的类型。</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &lt;T&gt; 泛型类型</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@since</span> 17/10/26 11:56:22</span></span><br><span class="line"><span class="comment">&lt;/T&gt; */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TypeWrapper</span>&lt;<span class="type">T</span>&gt; <span class="keyword">protected</span> <span class="keyword">constructor</span>() &#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取目标对象的类型。</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 目标对象的类型</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">val</span> type: Type <span class="comment">// 存储目标对象的类型信息</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">init</span> &#123;</span><br><span class="line">        <span class="keyword">val</span> superClass = javaClass.genericSuper<span class="keyword">class</span></span><br><span class="line">        <span class="title class_">type</span> =</span><br><span class="line">            (superClass <span class="keyword">as</span> ParameterizedType).actualTypeArguments[<span class="number">0</span>] <span class="comment">// 获取泛型类型参数</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过 Java 反射获取当前类的父类，然后从父类中获取泛型参数的类型信息，并将其赋值给 <code>type</code> 字段。这样，这个类就能够存储目标对象的泛型类型信息。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a>
+
+      
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2023/09/10/Android/ARouter/02-Arouter/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          从零开始写一个 ARouter - base 基础功能 与 core 核心功能
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2023/08/29/%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/Android-%E9%9F%B3%E8%A7%86%E9%A2%91%E6%9E%B6%E6%9E%84%E4%B8%93%E9%A1%B9/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Android 音视频屏幕旋转方案</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="sidebar">
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">Contents</strong>
+    
+      <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#router-annotation-%E8%B7%AF%E7%94%B1%E6%B3%A8%E8%A7%A3%E6%A8%A1%E5%9D%97"><span class="nav-number">1.</span> <span class="nav-text">router-annotation 路由注解模块</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#annotation-%E5%AD%98%E6%94%BE%E5%90%84%E7%A7%8D%E6%B3%A8%E8%A7%A3%E7%B1%BB%E7%9A%84%E5%8C%85"><span class="nav-number">1.1.</span> <span class="nav-text">annotation 存放各种注解类的包</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Autowired"><span class="nav-number">1.1.1.</span> <span class="nav-text">Autowired</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Interceptor"><span class="nav-number">1.1.2.</span> <span class="nav-text">Interceptor</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Param-%E5%BA%9F%E5%BC%83"><span class="nav-number">1.1.3.</span> <span class="nav-text">Param(废弃)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Route"><span class="nav-number">1.1.4.</span> <span class="nav-text">Route</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#enums-%E5%8C%85%E5%90%AB%E5%90%84%E7%A7%8D%E6%9E%9A%E4%B8%BE%E7%B1%BB%E5%9E%8B%E7%9A%84%E5%8C%85"><span class="nav-number">1.2.</span> <span class="nav-text">enums 包含各种枚举类型的包</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#RouteType"><span class="nav-number">1.2.1.</span> <span class="nav-text">RouteType</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#TypeKind"><span class="nav-number">1.2.2.</span> <span class="nav-text">TypeKind</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#model-%E5%8C%85%E5%90%AB%E6%A8%A1%E5%9E%8B%E7%B1%BB%E7%9A%84%E5%8C%85"><span class="nav-number">1.3.</span> <span class="nav-text">model 包含模型类的包</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#RouteMeta"><span class="nav-number">1.3.1.</span> <span class="nav-text">RouteMeta</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#TypeWrapper"><span class="nav-number">1.3.2.</span> <span class="nav-text">TypeWrapper</span></a></li></ol></li></ol></li></ol>
+    
+    </div>
+  </aside>
+</section>
+        
+      </div>
+
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    <footer id="footer" class="site-footer">
+  
+
+  <div class="clearfix container">
+      <div class="site-info">
+	      &copy; 2023 喵星科技报 All Rights Reserved.
+        
+            <span id="busuanzi_container_site_uv">
+              本站访客数<span id="busuanzi_value_site_uv"></span>人次  
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+          
+      </div>
+      <div class="site-credit">
+        Theme by <a href="https://github.com/CatJason" target="_blank">hipaper</a>
+      </div>
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var wrapdiv = document.getElementById("wrap");
+    var contentdiv = document.getElementById("content");
+
+    wrapdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+
+
+    <!-- headerblur min height -->
+    
+    
+</script>
+    
+<div style="display: none;">
+  <script src="https://s11.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+</div>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+<script src="/js/bootstrap.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+	</script>
+
+
+
+
+
+
+  </div>
+
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js" async=""></script>
+</body>
+</html>
