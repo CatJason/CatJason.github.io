@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Kotlin中的惰性操作容器——Sequence | 喵星科技报</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  
+  
+  
+  <meta name="description" content="Sequence序列Sequence 是Kotlin标准库提供的一种容器类型。它和Iterable一样具备对集合进行多步骤操作能力，但是却是采用了一种完全不同于Iterable的实现方式： 12345678val map &#x3D; (0..3).filter &amp;#123;    println(&quot;filter:$it&quot;)    it % 2 &#x3D;&#x3D; 0&amp;#125;.map &amp;#123;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kotlin中的惰性操作容器——Sequence">
+<meta property="og:url" content="http://example.com/2023/08/11/Kotlin/Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%E4%B8%AD%E7%9A%84%E6%83%B0%E6%80%A7%E6%93%8D%E4%BD%9C%E5%AE%B9%E5%99%A8%E2%80%94%E2%80%94Sequence/index.html">
+<meta property="og:site_name" content="喵星科技报">
+<meta property="og:description" content="Sequence序列Sequence 是Kotlin标准库提供的一种容器类型。它和Iterable一样具备对集合进行多步骤操作能力，但是却是采用了一种完全不同于Iterable的实现方式： 12345678val map &#x3D; (0..3).filter &amp;#123;    println(&quot;filter:$it&quot;)    it % 2 &#x3D;&#x3D; 0&amp;#125;.map &amp;#123;">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-f3db64c81524b0df40edf073b68f1ac9_1440w.webp">
+<meta property="og:image" content="https://pic1.zhimg.com/80/v2-27021cdfe12cadb333ac2f9c5991f8ec_1440w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-76965bb77961ce0d47ccef581ac2c2e9_1440w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-d8485553b786d4cb8def81a27cffd361_1440w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-e34ba780f0b283f6fc8b6a9fb52f5243_1440w.webp">
+<meta property="article:published_time" content="2023-08-10T23:18:54.000Z">
+<meta property="article:modified_time" content="2023-08-10T23:18:54.000Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pic2.zhimg.com/80/v2-f3db64c81524b0df40edf073b68f1ac9_1440w.webp">
+  
+    <link rel="alternate" href="/atom.xml" title="喵星科技报" type="application/atom+xml">
+  
+  <link rel="icon" href="/css/images/favicon.ico">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+    
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Yanone+Kaffeesatz%3A200%2C300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Oswald%3A300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+<script src="/js/jquery-3.1.1.min.js"></script>
+
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.css" >
+  <link rel="stylesheet" href="/css/fashion.css" >
+  <link rel="stylesheet" href="/css/glyphs.css" >
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<a target="_blank" rel="noopener" href="https://github.com/CatJason">
+<img decoding="async" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" loading="lazy" data-recalc-dims="1">
+</a>
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  
+
+
+<header id="allheader" class="site-header" role="banner" 
+   >
+  <div class="clearfix container">
+      <div class="site-branding">
+
+          <h1 class="site-title">
+            
+              <a href="/" title="喵星科技报" rel="home"> 喵星科技报 </a>
+            
+          </h1>
+          
+          
+            
+          <nav id="main-navigation" class="main-navigation" role="navigation">
+            <a class="nav-open">Menu</a>
+            <a class="nav-close">Close</a>
+
+            <div class="clearfix sf-menu">
+              <ul id="main-nav" class="menu sf-js-enabled sf-arrows"  style="touch-action: pan-y;">
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="/"> <a class="" href="/">Home</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="archives"> <a class="" href="/archives">Archives</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="categories"> <a class="" href="/categories">Categories</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="tags"> <a class="" href="/tags">Tags</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="about"> <a class="" href="/about">About</a> </li>
+                    
+              </ul>
+            </div>
+          </nav>
+
+      </div>
+  </div>
+</header>
+
+
+  <div id="container">
+    <div id="wrap">
+            
+      <div id="content" class="outer">
+        
+          <section id="main" style="float:none;"><article id="post-Kotlin/Kotlin 基础/Kotlin中的惰性操作容器——Sequence" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" class="article-title" itemprop="name">
+      Kotlin中的惰性操作容器——Sequence
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/11/Kotlin/Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%E4%B8%AD%E7%9A%84%E6%83%B0%E6%80%A7%E6%93%8D%E4%BD%9C%E5%AE%B9%E5%99%A8%E2%80%94%E2%80%94Sequence/" class="article-date">
+	  <time datetime="2023-08-10T23:18:54.000Z" itemprop="datePublished">August 11, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a>
+ 
+      
+	<span id="busuanzi_container_page_pv">
+	  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	</span>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="Sequence序列"><a href="#Sequence序列" class="headerlink" title="Sequence序列"></a>Sequence序列</h3><p>Sequence 是Kotlin标准库提供的一种容器类型。它和Iterable一样具备对集合进行多步骤操作能力，但是却是采用了一种完全不同于Iterable的实现方式：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">val map = (0..3).filter &#123;</span><br><span class="line">    println(&quot;filter:$it&quot;)</span><br><span class="line">    it % 2 == 0</span><br><span class="line">&#125;.map &#123;</span><br><span class="line">    println(&quot;map:$it&quot;)</span><br><span class="line">    it + 1</span><br><span class="line">&#125;</span><br><span class="line">println(map)</span><br></pre></td></tr></table></figure>
+
+<p>上面的代码用来演示Iterable进行连续操作的情况。它的输出如下：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">filter:0</span><br><span class="line">filter:1</span><br><span class="line">filter:2</span><br><span class="line">filter:3</span><br><span class="line">map:0</span><br><span class="line">map:2</span><br><span class="line">[1, 3]</span><br></pre></td></tr></table></figure>
+
+<p>像<code>map</code>和<code>filter</code>这些链式集合函数它们都会立即执行并创建中间临时集用来保存数据。当原始数据不多时，这并不会有什么影响。但是，当原始数据量非常大的时候。这就会变的非常低效。而此时，就可以借助<code>Sequence</code>提高效率。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">val sequence = (0..3).asSequence().filter &#123;</span><br><span class="line">    println(&quot;filter:$it&quot;)</span><br><span class="line">    it % 2 == 0</span><br><span class="line">&#125;.map &#123;</span><br><span class="line">    println(&quot;map:$it&quot;)</span><br><span class="line">    it + 1</span><br><span class="line">&#125;</span><br><span class="line">println(&quot;准备开始执行&quot;)</span><br><span class="line">println(sequence.toList())</span><br></pre></td></tr></table></figure>
+
+<p>上面的代码执行结果如下：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">准备开始执行</span><br><span class="line">filter:0</span><br><span class="line">map:0</span><br><span class="line">filter:1</span><br><span class="line">filter:2</span><br><span class="line">map:2</span><br><span class="line">filter:3</span><br><span class="line">[1, 3]</span><br></pre></td></tr></table></figure>
+
+<p>对比Iterable和Sequence：</p>
+<p>Iterable是即时的、Sequence是惰性的：前者会要求尽早的计算结果，因此在多步骤处理链的每一环都会有中间产物也就是新的集合产生；<strong>后者会尽可能的延迟计算结果，Sequence处理的中间函数不进行任何计算。相反，他们返回一个新Sequence的，用新的操作装饰前一个，所有的这些计算都只是在类似toList的终端操作期间进行。</strong></p>
+<p><img src="https://pic2.zhimg.com/80/v2-f3db64c81524b0df40edf073b68f1ac9_1440w.webp" alt="img"></p>
+<p>区分中间操作符和末端操作符的方式也很简单：<strong>如果操作符返回的是一个Sequence类型的数据，它就是中间操作符。</strong></p>
+<p>在操作的执行方式上也有所不同：Iterable每次都是在整个集合执行完操作后再进行下一步操作——采用第一个操作并将其应用于整个集合，然后移动到下一个操作，官方将其称呼为急切式或者按步骤执行（Eager&#x2F;step-by-step）；<strong>而Sequence则是逐个对每个元素执行所有操作。是一种惰性顺序——取第一个元素并应用所有操作，然后取下一个元素，依此类推。</strong>官方将其称呼为惰性式或者按元素执行（Lazy&#x2F;element-by-element)</p>
+<p>序列的惰性会带来一下几个优点：</p>
+<ul>
+<li>它们的操作按照元素的自然顺序进行；</li>
+<li>只做最少的操作；</li>
+<li>元素可以是无限多个；</li>
+<li>不需要在每一步都创建集合</li>
+</ul>
+<p><strong>Sequence可避免生成中间步骤的结果，从而提高了整个集合处理链的性能。但是，惰性性质也会带来一些运行开销。所以在使用时要权衡惰性开销和中间步骤开销，在Sequence和Iterable中选择更加合适的实现方式。</strong></p>
+<h3 id="执行的顺序"><a href="#执行的顺序" class="headerlink" title="执行的顺序"></a>执行的顺序</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">sequenceOf(1,2,3)</span><br><span class="line">    .filter &#123; print(&quot;F$it, &quot;); it % 2 == 1 &#125;</span><br><span class="line">    .map &#123; print(&quot;M$it, &quot;); it * 2 &#125;</span><br><span class="line">    .forEach &#123; print(&quot;E$it, &quot;) &#125; </span><br><span class="line">// Prints: F1, M1, E2, F2, F3, M3, E6,</span><br><span class="line"></span><br><span class="line">listOf(1,2,3)</span><br><span class="line">    .filter &#123; print(&quot;F$it, &quot;); it % 2 == 1 &#125;</span><br><span class="line">    .map &#123; print(&quot;M$it, &quot;); it * 2 &#125;</span><br><span class="line">    .forEach &#123; print(&quot;E$it, &quot;) &#125;</span><br><span class="line">// Prints: F1, F2, F3, M1, M3, E2, E6,</span><br></pre></td></tr></table></figure>
+
+<p>sequence的执行时按照元素进行的，依次对元素执行所有的操作，对一个元素而言，所有操作时依次全部执行的。而普通集合操作则是以操作步骤进行的，当所有的元素执行完当前操作后才会进入下一个操作。</p>
+<p><img src="https://pic1.zhimg.com/80/v2-27021cdfe12cadb333ac2f9c5991f8ec_1440w.webp" alt="img"></p>
+<h3 id="只做最少的操作"><a href="#只做最少的操作" class="headerlink" title="只做最少的操作"></a>只做最少的操作</h3><p>试想一下我们有一千万个数字，我们要经过几次变换取出20个，使用下面的代码对比一下序列和不同集合操作的性能：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">fun main()&#123;</span><br><span class="line">    val fFlow = FFlow()</span><br><span class="line">    fFlow.demoList()</span><br><span class="line">    fFlow.demoSequence()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">fun demoSequence() &#123;</span><br><span class="line">    val currentTimeMillis = System.currentTimeMillis()</span><br><span class="line">    val list =</span><br><span class="line">    (0..10000000).asSequence().map &#123; it * 2 &#125;.map &#123; it - 1 &#125;.take(20).toList()</span><br><span class="line">    println(&quot;demoSequence:$&#123;System.currentTimeMillis() - currentTimeMillis&#125;：$list&quot;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">fun demoList() &#123;</span><br><span class="line">    val currentTimeMillis = System.currentTimeMillis()</span><br><span class="line">    val list =</span><br><span class="line">    (0..10000000).map &#123; it * 2 &#125;.map &#123; it - 1 &#125;.take(20).toList()</span><br><span class="line">    println(&quot;demoList:$&#123;System.currentTimeMillis() - currentTimeMillis&#125;：$list&quot;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出的结果如下：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">demoSequence:20ms：[-1, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37]</span><br><span class="line">demoList:4106ms：[-1, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37]</span><br></pre></td></tr></table></figure>
+
+<p>这就是只执行最少操作的意思，序列按照元素顺序执行，当取够29个元素之后便会立即停止计算。而不同的集合则不同，没有中间操作的概念。它的每次操作都会对整个数组中的所有元素执行完才会进行下一个——也就是前两个map都要执行一千万次。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-76965bb77961ce0d47ccef581ac2c2e9_1440w.webp" alt="img"></p>
+<h3 id="序列可以是无限的"><a href="#序列可以是无限的" class="headerlink" title="序列可以是无限的"></a>序列可以是无限的</h3><p>看如下代码：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">var list = emptyArray&lt;Int&gt;()</span><br><span class="line">var  i = 0</span><br><span class="line">while(true)&#123;</span><br><span class="line">    list[i] = i++</span><br><span class="line">&#125;</span><br><span class="line">list.take(10)</span><br></pre></td></tr></table></figure>
+
+<p>很明显，这段代码是没法正常运行的，因为这里有一个死循环。我们也无法创建一个无限长度的集合。但是：因为序列式按步骤依照需求进行处理的，所哟我们可以创建无限序列：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">val noEnd = sequence &#123;</span><br><span class="line">    var i = 1</span><br><span class="line">    while (true) &#123;</span><br><span class="line">        yield(i)</span><br><span class="line">        i *= 2</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">noEnd.take(4).toList()</span><br><span class="line">//输出:[1, 2, 4, 8]</span><br></pre></td></tr></table></figure>
+
+<p>但是一定要注意，我们虽然可以这么写，但是务必不能真的让while一直循环。我们不能直接使用toList。必须提供一个能结束循环的操作符，也就是不能取出所有元素（无限个）——要么使用类似take的操作来限制它们的数量，要么使用不需要所有元素的终端操作，例如first, find, any, all, indexOf等。</p>
+<h3 id="序列不会在每个步骤创建集合"><a href="#序列不会在每个步骤创建集合" class="headerlink" title="序列不会在每个步骤创建集合"></a>序列不会在每个步骤创建集合</h3><p>普通的集合会在每次变换之后都会创建新的集合取存储所有变换后的元素。而每次创建集合和填入数据都会带来不小的性能开销。尤其是当我们处理大量或大量的集合时，性能问题会愈发凸显。而序列的按元素操作，则不会有这个问题。除非手动调用了终端操作符，否则不会生成新的集合。</p>
+<h3 id="Sequence的基本使用"><a href="#Sequence的基本使用" class="headerlink" title="Sequence的基本使用"></a>Sequence的基本使用</h3><p>Sequence序列的使用和普通的Iterable极其相似，实际上其内部也还是借助Iterable实现的。在研究它的内部实现原理之前，想从Sequence的创建和基本的序列操作来演示Sequence的基本用法。</p>
+<h3 id="序列的创建"><a href="#序列的创建" class="headerlink" title="序列的创建"></a>序列的创建</h3><p>创建Sequence的方式大概可以分为。分别是由元素创建、通过Iterable、借助函数以及由代码块创建。</p>
+<p>由元素创建：通过调用顶级函数<code>sequenceOf</code>实现：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">val ints = sequenceOf(1, 2, 3, 4, 5, 6, 7)</span><br><span class="line">val strings = sequenceOf(&quot;a&quot;,&quot;b&quot;,&quot;c&quot;,&quot;d&quot;,&quot;e&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>通过Iterable转化：借助Iterable的扩展函数<code>asSequence</code>实现：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">val ints = listOf(1, 2, 3, 4, 5, 6, 7).asSequence()</span><br><span class="line">val strings = listOf(&quot;a&quot;,&quot;b&quot;,&quot;c&quot;,&quot;d&quot;,&quot;e&quot;).asSequence()</span><br></pre></td></tr></table></figure>
+
+<p>通过generateSequence实现：该方法有三个：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">generateSequence(seedFunction: () -&gt; T?, nextFunction: (T) -&gt; T?): Sequence&lt;T&gt; </span><br><span class="line">generateSequence(seed: T?, nextFunction: (T) -&gt; T?): Sequence&lt;T&gt;</span><br><span class="line">generateSequence(nextFunction: () -&gt; T?): Sequence&lt;T&gt;</span><br></pre></td></tr></table></figure>
+
+<p>最终都是通过<code>GeneratorSequence</code>实现的，这里先不进行源码分析。只讨论使用方式：</p>
+<ul>
+<li>其中三个函数都有的形参nextFunction可以理解为元素生成器，序列里的元素都通过调用该函数生成，当它返回为null是，序列停止生成（所以，nextFunction必须要在某个情况下返回null，否则会因为序列元素是无限多个触发java.lang.OutOfMemoryError: Java heap space异常）。</li>
+<li>而另外两个的seedFunction和seed形参都是为了确定数据初始值的。区别在于一个直接指明，一个通过调用函数获取。</li>
+</ul>
+<p>分别用这三个函数生成0~100的序列，代码如下：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">val generateSequenceOne = generateSequence &#123;</span><br><span class="line">    if (i &lt; 100) &#123;</span><br><span class="line">        i++</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        null</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">val generateSequenceTwo = generateSequence(0) &#123;</span><br><span class="line">    if (it &lt; 100) &#123;</span><br><span class="line">        it+1//此处的it是上一个元素</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        null</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">val generateSequenceThree = generateSequence(&#123; 0 &#125;) &#123;</span><br><span class="line">    if (it &lt; 100) &#123;</span><br><span class="line">        it+1//此处的it是上一个元素</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        null</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由代码块生成：借助sequence(block: suspend SequenceScope.() -&gt; Unit)函数。改函数接受一个挂起函数，该函数会接受一个<code>SequenceScope</code>实例，这个实例无需我们创建（后面源码分析会讲到）。SequenceScope提供了<code>yield</code>和<code>yieldAll</code>方法复杂返回序列元素给调用者，并暂停序列的执行，直到使用者请求下一个元素。</p>
+<p>用该函数生成0~100的序列，代码如下：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">val ints = sequence &#123;</span><br><span class="line">    repeat(100) &#123;</span><br><span class="line">        yield(it)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="序列的操作"><a href="#序列的操作" class="headerlink" title="序列的操作"></a>序列的操作</h3><p>对序列的操作可以分为中间操作和末端操作两种。它们只要有一下另种区别：</p>
+<ul>
+<li>中间操作返回惰性生成的一个新的序列，而末端序列则为其他普通的数据类型；</li>
+<li>中间操作不会立刻执行代码，仅当执行了末端操作序列才会开始执行。</li>
+</ul>
+<p>常见的中间操作包括：map、fliter、first、last、take等；它们会序列提供数据变化过滤等增强功能基本上和kotlin提供的集合操作符有着相同的功能。</p>
+<p>常见的末端操作有：toList、toMutableList、sum、count等。它们在提供序列操作功能的同时，还会触发序列的运行。</p>
+<h3 id="Sequence源码分析"><a href="#Sequence源码分析" class="headerlink" title="Sequence源码分析"></a>Sequence源码分析</h3><p>上文对序列做了简单的入门介绍。接下来深入源码去了解一下Sequence的实现方式。</p>
+<h3 id="Sequence是什么？"><a href="#Sequence是什么？" class="headerlink" title="Sequence是什么？"></a>Sequence是什么？</h3><p>Kotlin对的定义Sequence很简单：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public interface Sequence &lt;out T&gt; &#123;</span><br><span class="line">    public operator fun iterator(): Iterator&lt;T&gt;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>就是一个接口，定义了一个返回Iterator的方法。接口本身只定义了Sequence具有返回一个迭代器的能力。具体的功能实现还是靠它的实现类完成。</p>
+<p>可以概括一些：<strong>序列就是一个具备提供了迭代器能力的类。</strong></p>
+<h3 id="序列的创建方式分析"><a href="#序列的创建方式分析" class="headerlink" title="序列的创建方式分析"></a>序列的创建方式分析</h3><p>结合上文中提到的序列的四种创建方式，我们依次分析一下它的创建流程。</p>
+<p>我们首先以比较常用的通过Iterable转化获取序列，它需要借助<code>asSequence</code>方法分析一下，使用<code>listOf(&quot;a&quot;,&quot;b&quot;,&quot;c&quot;,&quot;d&quot;,&quot;e&quot;).asSequence()</code>生成一个序列。调用链如下：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public fun &lt;T&gt; Iterable&lt;T&gt;.asSequence(): Sequence&lt;T&gt; &#123;</span><br><span class="line">    return Sequence &#123; this.iterator() &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public inline fun &lt;T&gt; Sequence(crossinline iterator: () -&gt; Iterator&lt;T&gt;): Sequence&lt;T&gt; = object : Sequence&lt;T&gt; &#123;</span><br><span class="line">    override fun iterator(): Iterator&lt;T&gt; = iterator()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>流程很简单，一个扩展函数加一个内联函数。最终通过匿名内部类的方式创建一个Sequence并返回。代码很好理解，实际上它的实现逻辑等同于下面的代码：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">val sequence = MySequence(listOf(&quot;a&quot;,&quot;b&quot;,&quot;c&quot;,&quot;d&quot;,&quot;e&quot;).iterator())</span><br><span class="line"></span><br><span class="line">class MySequence&lt;T&gt;(private val iterator:Iterator&lt;T&gt;):Sequence&lt;T&gt;&#123;</span><br><span class="line">    override fun iterator(): Iterator&lt;T&gt; &#123;</span><br><span class="line">        return iterator</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接着看一下通过调用顶级函数<code>sequenceOf</code>实现，以<code>sequenceOf(&quot;a&quot;,&quot;b&quot;,&quot;c&quot;,&quot;d&quot;,&quot;e&quot;)</code>为例，它的调用逻辑如下：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public fun &lt;T&gt; sequenceOf(vararg elements: T): Sequence&lt;T&gt; = if (elements.isEmpty()) emptySequence() else elements.asSequence()</span><br></pre></td></tr></table></figure>
+
+<p>可以看到依旧是借助asSequence实现的。</p>
+<p>接下来看一下代码块和generateSequence的实现方式，这两个方式会比较复杂一点，毕竟前面两个都是借助List进行转换，而List本身就能提供迭代器Iterator。后面两个明显需要提供新的迭代器。 首先看一下代码看的实现方式：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">val ints = sequence &#123;</span><br><span class="line">        repeat(100) &#123;</span><br><span class="line">            yield(it)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中sequence的调用逻辑如下：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">public fun &lt;T&gt; sequence(@BuilderInference block: suspend SequenceScope&lt;T&gt;.() -&gt; Unit): Sequence&lt;T&gt; = Sequence &#123; iterator(block) &#125;</span><br><span class="line"></span><br><span class="line">public fun &lt;T&gt; iterator(@BuilderInference block: suspend SequenceScope&lt;T&gt;.() -&gt; Unit): Iterator&lt;T&gt; &#123;</span><br><span class="line">    //创建迭代器</span><br><span class="line">    val iterator = SequenceBuilderIterator&lt;T&gt;()</span><br><span class="line">    iterator.nextStep = block.createCoroutineUnintercepted(receiver = iterator, completion = iterator)</span><br><span class="line">    return iterator</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public inline fun &lt;T&gt; Sequence(crossinline iterator: () -&gt; Iterator&lt;T&gt;): Sequence&lt;T&gt; = object : Sequence&lt;T&gt; &#123;</span><br><span class="line">    override fun iterator(): Iterator&lt;T&gt; = iterator()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以发现：该方法和asSequence一样最终也是通过匿名内部类的方式创建了一个Sequence。不过区别在于，该方法需要创建一个新的迭代器，也就是<code>SequenceBuilderIterator</code> 。同样以MySequence为例，它的创建流程等同于一下代码：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">fun mian()&#123;</span><br><span class="line">    create&lt;Int&gt; &#123; myblock() &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">suspend fun  SequenceScope&lt;Int&gt;.myblock()&#123;</span><br><span class="line">    repeat(100) &#123;</span><br><span class="line">        yield(it)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">fun &lt;Int&gt; create(block: suspend SequenceScope&lt;Int&gt;.() -&gt; Unit):Sequence&lt;Int&gt;&#123;</span><br><span class="line">    val iterator = SequenceBuilderIterator&lt;Int&gt;()</span><br><span class="line">    iterator.nextStep = block.createCoroutineUnintercepted(receiver = iterator, completion = iterator)</span><br><span class="line">    return MySequence(iterator)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当然，这是不可能实现的，因为SequenceBuilderIterator是被private修饰了，我们是无法直接访问的。这里强制写出来演示一下它的流程。</p>
+<p>最后看一下通过generateSequence方法创建序列的源码，一共有三个：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">public fun &lt;T : Any&gt; generateSequence(seedFunction: () -&gt; T?, nextFunction: (T) -&gt; T?): Sequence&lt;T&gt; =</span><br><span class="line">    GeneratorSequence(seedFunction, nextFunction)</span><br><span class="line"></span><br><span class="line">public fun &lt;T : Any&gt; generateSequence(seed: T?, nextFunction: (T) -&gt; T?): Sequence&lt;T&gt; =</span><br><span class="line">    if (seed == null)</span><br><span class="line">        EmptySequence</span><br><span class="line">    else</span><br><span class="line">        GeneratorSequence(&#123; seed &#125;, nextFunction)</span><br><span class="line"></span><br><span class="line">public fun &lt;T : Any&gt; generateSequence(nextFunction: () -&gt; T?): Sequence&lt;T&gt; &#123;</span><br><span class="line">    return GeneratorSequence(nextFunction, &#123; nextFunction() &#125;).constrainOnce()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最终都是创建了<code>GeneratorSequence</code>的一个实例并返回，而<code>GeneratorSequence</code>实现了<code>Sequence</code>接口并重写了<code>iterator()</code>方法：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">private class GeneratorSequence&lt;T : Any&gt;(private val getInitialValue: () -&gt; T?, private val getNextValue: (T) -&gt; T?) : Sequence&lt;T&gt; &#123;</span><br><span class="line">    override fun iterator(): Iterator&lt;T&gt; = object : Iterator&lt;T&gt; &#123;</span><br><span class="line">        var nextItem: T? = null</span><br><span class="line">        var nextState: Int = -2 // -2 for initial unknown, -1 for next unknown, 0 for done, 1 for continue</span><br><span class="line"></span><br><span class="line">        private fun calcNext() &#123;</span><br><span class="line">            nextItem = if (nextState == -2) getInitialValue() else getNextValue(nextItem!!)</span><br><span class="line">            nextState = if (nextItem == null) 0 else 1</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        override fun next(): T &#123;</span><br><span class="line">            if (nextState &lt; 0)</span><br><span class="line">                calcNext()</span><br><span class="line"></span><br><span class="line">            if (nextState == 0)</span><br><span class="line">                throw NoSuchElementException()</span><br><span class="line">            val result = nextItem as T</span><br><span class="line">            // Do not clean nextItem (to avoid keeping reference on yielded instance) -- need to keep state for getNextValue</span><br><span class="line">            nextState = -1</span><br><span class="line">            return result</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        override fun hasNext(): Boolean &#123;</span><br><span class="line">            if (nextState &lt; 0)</span><br><span class="line">                calcNext()</span><br><span class="line">            return nextState == 1</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>总结一下Sequence的创建大致可以分为三类：</p>
+<ul>
+<li>使用List自带的迭代器通过匿名的方式创建Sequence实例，<code>sequenceOf(&quot;a&quot;,&quot;b&quot;,&quot;c&quot;,&quot;d&quot;,&quot;e&quot;)</code>和<code>listOf(&quot;a&quot;,&quot;b&quot;,&quot;c&quot;,&quot;d&quot;,&quot;e&quot;).asSequence()</code>就是这种方式；</li>
+<li>创建新的<code>SequenceBuilderIterator</code>迭代器，并通过匿名的方式创建Sequence实例。例如使用代码块的创建方式。</li>
+<li>创建<code>GeneratorSequence</code>，通过重写iterator()方法，使用匿名的方式创建Iterator。GeneratorSequence方法就是采用的这种方式。</li>
+</ul>
+<p>看完创建方式，也没什么奇特的，就是一个提供迭代器的普通类。还是看不出是如何惰性执行操作的。接下来就分析一下惰性操作的原理。</p>
+<h3 id="序列的惰性原理"><a href="#序列的惰性原理" class="headerlink" title="序列的惰性原理"></a>序列的惰性原理</h3><p>以最常用的map操作符为例：普通的集合操作源码如下：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">public inline fun &lt;T, R&gt; Iterable&lt;T&gt;.map(transform: (T) -&gt; R): List&lt;R&gt; &#123;</span><br><span class="line">    //出啊年一个新的ArrayList，并调用mapTo方法</span><br><span class="line">    return mapTo(ArrayList&lt;R&gt;(collectionSizeOrDefault(10)), transform)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public inline fun &lt;T, R, C : MutableCollection&lt;in R&gt;&gt; Iterable&lt;T&gt;.mapTo(destination: C, transform: (T) -&gt; R): C &#123;</span><br><span class="line">    //遍历原始的集合，进行变换操作，然后将变换后的数据依次加入到新创建的集合</span><br><span class="line">    for (item in this)</span><br><span class="line">        destination.add(transform(item))</span><br><span class="line">    //返回新集合    </span><br><span class="line">    return destination</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到：当List.map被调用后，便会立即创建新的集合，然后遍历老数据并进行变换操作。最后返回一个新的数据。这印证了上面提到的普通集合的操作时按照步骤且会立刻执行的理论。</p>
+<p>接下来看一下序列的map方法，它的源码如下：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">public fun &lt;T, R&gt; Sequence&lt;T&gt;.map(transform: (T) -&gt; R): Sequence&lt;R&gt; &#123;</span><br><span class="line">    return TransformingSequence(this, transform)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">internal class TransformingSequence&lt;T, R&gt;</span><br><span class="line">constructor(private val sequence: Sequence&lt;T&gt;, private val transformer: (T) -&gt; R) : Sequence&lt;R&gt; &#123;</span><br><span class="line">    override fun iterator(): Iterator&lt;R&gt; = object : Iterator&lt;R&gt; &#123;</span><br><span class="line">          //注释一：TransformingSequence的iterator持有上一个序列的迭代器</span><br><span class="line">        val iterator = sequence.iterator()</span><br><span class="line">        override fun next(): R &#123;</span><br><span class="line">            //注释二：在开始执行迭代时，向上调用前一个序列的迭代器。</span><br><span class="line">            return transformer(iterator.next())</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        override fun hasNext(): Boolean &#123;</span><br><span class="line">            return iterator.hasNext()</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    internal fun &lt;E&gt; flatten(iterator: (R) -&gt; Iterator&lt;E&gt;): Sequence&lt;E&gt; &#123;</span><br><span class="line">        return FlatteningSequence&lt;T, R, E&gt;(sequence, transformer, iterator)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>代码并不复杂，它接收用户提供的变换函数和序列，然后创建了一个TransformingSequence并返回。TransformingSequence本身和上文中提到的序列没什么区别，唯一的区别在于它的迭代器：在通过next依次取数据的时候，并不是直接返回元素。而是先调用调用者提供的函数进行变换。返回变换后的数据——这也没什么新鲜的，和普通集合的map操作符和RxJava的Map都是同样的原理。</p>
+<p>但是，这里却又有点不一样。<strong>操作符里没有任何开启迭代的代码，它只是对序列以及迭代进行了嵌套处理，并不会开启迭代.如果用户不手动调用（后者间接调用）迭代器的next函数，序列就不会被执行</strong>——这就是惰性执行的机制的原理所在。</p>
+<p>而且，由于操作符返回的是一个Sequence类型的值，当你重复不断调用map时，例如下面的代码：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">(0..10).asSequence().map&#123;add(it)&#125;.map&#123;add(it)&#125;.map&#123;add(it)&#125;.toList()</span><br><span class="line"></span><br><span class="line">//等同于</span><br><span class="line"></span><br><span class="line">val sequence1 = (0..10).asSequence()</span><br><span class="line">val sequence2 = sequence1.map &#123; it+1 &#125;</span><br><span class="line">val sequence3 = sequence2.map &#123; it+1 &#125;</span><br><span class="line">sequence3.toList()</span><br></pre></td></tr></table></figure>
+
+<p>最终，序列sequence3的结构持有如下：sequence3-&gt; sequence2 -&gt; sequence1。而它们都有各自的迭代器。迭代器里都重写了各自的变换逻辑:</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">override fun next(): R &#123;</span><br><span class="line">    return transformer(iterator.next())</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//由于这里都是执行的+1操作，所以变换逻辑transformer可以认为等同于如下操作:</span><br><span class="line"></span><br><span class="line">override fun next(): R &#123;</span><br><span class="line">    return iterator.next()+1</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>而当我们通过<code>sequence3.toList</code>执行代码时，它的流程如下：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">public fun &lt;T&gt; Sequence&lt;T&gt;.toList(): List&lt;T&gt; &#123;</span><br><span class="line">    return this.toMutableList().optimizeReadOnlyList()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public fun &lt;T&gt; Sequence&lt;T&gt;.toMutableList(): MutableList&lt;T&gt; &#123;</span><br><span class="line">    //末端操作符，此处才会开始创建新的集合</span><br><span class="line">    return toCollection(ArrayList&lt;T&gt;())</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public fun &lt;T, C : MutableCollection&lt;in T&gt;&gt; Sequence&lt;T&gt;.toCollection(destination: C): C &#123;</span><br><span class="line">    //执行迭代器next操作</span><br><span class="line">    //当调用（末端操作符）走到这里时，便会和普通结合的操作符一样</span><br><span class="line">    //此时为新创建的集合赋值</span><br><span class="line">    for (item in this) &#123;</span><br><span class="line">        destination.add(item)</span><br><span class="line">    &#125;</span><br><span class="line">    return destination</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>经过几次扩展函数调用，最终在toCollection里开始执行迭代(Iterator的典型的操作)，也就是获取了sequence3的iterator实例，并不断通过next取出数据。而在上文中的TransformingSequence源码里可以看到，TransformingSequence会持有上一个迭代器的实例（代码注释一）。</p>
+<p>并且在迭代开始后，在进行transformer操作（也就是执行+1操作）前，会调用上一个迭代器的next方法进行迭代（代码注释二）。这样不断的迭代，最终，最终会调用到sequence1的next方法。再结合上文中的序列创建里的分析——sequence1里所持有的迭代器就是就是原始数据里的迭代器。</p>
+<p>那么当最终执行toList方法时，它会循环<code>sequence3.iterator</code>方法。而在每次循环内，都会首先执行sequence3所持有的sequence2.iterator的next方法。sequence2依次类推执行到sequence1的sequence1.iterator&#96;方法，最终执行到我们原始数组的迭代器next方法：</p>
+<p>整个流程如下：</p>
+<p><img src="https://pic2.zhimg.com/80/v2-d8485553b786d4cb8def81a27cffd361_1440w.webp" alt="img"></p>
+<p>原理就是这么简单：中间操作符通过序列嵌套，实现对迭代器iterator的嵌套。这样在进行迭代的时候，会依次调用各个iterator迭代器直到调用到原始集合数据里的迭代器开始并返回元素。而当元素返回时，会依次执行各个迭代器持有变换操作方法实现对数据的变换。</p>
+<p><img src="https://pic4.zhimg.com/80/v2-e34ba780f0b283f6fc8b6a9fb52f5243_1440w.webp" alt="img"></p>
+<p>而其他操作符，也是遵循这个基本的规则。无非就是增加一些其他的操作。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
+<li>序列通过中间操作符对迭代器进行嵌套和复写，以此实现按元素操作执行变换；</li>
+<li>中间操作符只负责根据需求创建并嵌套迭代器，并不负责开启迭代器。以此实现惰性操作且不产生临时集合；</li>
+<li>末端操作符负责开启迭代，按照嵌套顺序执行迭代操作。依次获取操作后的数据，并且会创建新的集合用来存储最终数据；</li>
+<li>序列不是万能的，因为要引入新的对象。在带来惰性和顺序执行的优势时，这些对象必然会带来性能开销。所以要依需求在集合和序列之间进行选择，使用合适的方式进行迭代。</li>
+</ul>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a>
+
+      
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2023/08/11/Kotlin/Kotlin%20%E5%8D%8F%E7%A8%8B/Kotlin%20%E7%9A%84%E5%8D%8F%E7%A8%8B%E6%9C%AC%E8%B4%A8%E5%88%B0%E5%BA%95%E4%BB%80%E4%B9%88/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Kotlin 的协程本质到底什么
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2023/08/11/Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/synchronized%20%E5%85%B3%E9%94%AE%E5%AD%97%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E5%BC%95%E5%85%A5%E9%94%81%E7%9A%84%E7%AB%9E%E4%BA%89/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">synchronized 关键字为什么会引入锁的竞争</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="sidebar">
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">Contents</strong>
+    
+      <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Sequence%E5%BA%8F%E5%88%97"><span class="nav-number">1.</span> <span class="nav-text">Sequence序列</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%A7%E8%A1%8C%E7%9A%84%E9%A1%BA%E5%BA%8F"><span class="nav-number">2.</span> <span class="nav-text">执行的顺序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AA%E5%81%9A%E6%9C%80%E5%B0%91%E7%9A%84%E6%93%8D%E4%BD%9C"><span class="nav-number">3.</span> <span class="nav-text">只做最少的操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%8F%E5%88%97%E5%8F%AF%E4%BB%A5%E6%98%AF%E6%97%A0%E9%99%90%E7%9A%84"><span class="nav-number">4.</span> <span class="nav-text">序列可以是无限的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%8F%E5%88%97%E4%B8%8D%E4%BC%9A%E5%9C%A8%E6%AF%8F%E4%B8%AA%E6%AD%A5%E9%AA%A4%E5%88%9B%E5%BB%BA%E9%9B%86%E5%90%88"><span class="nav-number">5.</span> <span class="nav-text">序列不会在每个步骤创建集合</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Sequence%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="nav-number">6.</span> <span class="nav-text">Sequence的基本使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%8F%E5%88%97%E7%9A%84%E5%88%9B%E5%BB%BA"><span class="nav-number">7.</span> <span class="nav-text">序列的创建</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%8F%E5%88%97%E7%9A%84%E6%93%8D%E4%BD%9C"><span class="nav-number">8.</span> <span class="nav-text">序列的操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Sequence%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-number">9.</span> <span class="nav-text">Sequence源码分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Sequence%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">10.</span> <span class="nav-text">Sequence是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%8F%E5%88%97%E7%9A%84%E5%88%9B%E5%BB%BA%E6%96%B9%E5%BC%8F%E5%88%86%E6%9E%90"><span class="nav-number">11.</span> <span class="nav-text">序列的创建方式分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%8F%E5%88%97%E7%9A%84%E6%83%B0%E6%80%A7%E5%8E%9F%E7%90%86"><span class="nav-number">12.</span> <span class="nav-text">序列的惰性原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">13.</span> <span class="nav-text">总结</span></a></li></ol>
+    
+    </div>
+  </aside>
+</section>
+        
+      </div>
+
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    <footer id="footer" class="site-footer">
+  
+
+  <div class="clearfix container">
+      <div class="site-info">
+	      &copy; 2024 喵星科技报 All Rights Reserved.
+        
+            <span id="busuanzi_container_site_uv">
+              本站访客数<span id="busuanzi_value_site_uv"></span>人次  
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+          
+      </div>
+      <div class="site-credit">
+        Theme by <a href="https://github.com/CatJason" target="_blank">hipaper</a>
+      </div>
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var wrapdiv = document.getElementById("wrap");
+    var contentdiv = document.getElementById("content");
+
+    wrapdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+
+
+    <!-- headerblur min height -->
+    
+    
+</script>
+    
+<div style="display: none;">
+  <script src="https://s11.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+</div>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+<script src="/js/bootstrap.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+	</script>
+
+
+
+
+
+
+  </div>
+
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js" async=""></script>
+</body>
+</html>
