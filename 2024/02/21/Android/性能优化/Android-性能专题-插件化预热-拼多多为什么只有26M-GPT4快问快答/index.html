@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Android 性能专题 - 插件化预热-拼多多为什么只有26M-GPT4快问快答 | 喵星科技报</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  
+  
+  
+  <meta name="description" content="什么是双亲委派机制双亲委派机制（Parent Delegation Model）是Java类加载器（ClassLoader）使用的一种特定模型，在这个模型中，类加载器在尝试加载类或资源时，会首先委托给其父类加载器进行加载，这个过程会一直递归下去，直到达到最顶层的启动类加载器（Bootstrap ClassLoader）。如果父类加载器可以完成类加载工作，就使用父类加载器的定义，如果父类加载器无法完">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android 性能专题 - 插件化预热-拼多多为什么只有26M-GPT4快问快答">
+<meta property="og:url" content="http://example.com/2024/02/21/Android/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Android-%E6%80%A7%E8%83%BD%E4%B8%93%E9%A2%98-%E6%8F%92%E4%BB%B6%E5%8C%96%E9%A2%84%E7%83%AD-%E6%8B%BC%E5%A4%9A%E5%A4%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E5%8F%AA%E6%9C%8926M-GPT4%E5%BF%AB%E9%97%AE%E5%BF%AB%E7%AD%94/index.html">
+<meta property="og:site_name" content="喵星科技报">
+<meta property="og:description" content="什么是双亲委派机制双亲委派机制（Parent Delegation Model）是Java类加载器（ClassLoader）使用的一种特定模型，在这个模型中，类加载器在尝试加载类或资源时，会首先委托给其父类加载器进行加载，这个过程会一直递归下去，直到达到最顶层的启动类加载器（Bootstrap ClassLoader）。如果父类加载器可以完成类加载工作，就使用父类加载器的定义，如果父类加载器无法完">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-02-20T17:52:23.080Z">
+<meta property="article:modified_time" content="2024-02-23T14:53:33.370Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="喵星科技报" type="application/atom+xml">
+  
+  <link rel="icon" href="/css/images/favicon.ico">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+    
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Yanone+Kaffeesatz%3A200%2C300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Oswald%3A300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+<script src="/js/jquery-3.1.1.min.js"></script>
+
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.css" >
+  <link rel="stylesheet" href="/css/fashion.css" >
+  <link rel="stylesheet" href="/css/glyphs.css" >
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<a target="_blank" rel="noopener" href="https://github.com/CatJason">
+<img decoding="async" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" loading="lazy" data-recalc-dims="1">
+</a>
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  
+
+
+<header id="allheader" class="site-header" role="banner" 
+   >
+  <div class="clearfix container">
+      <div class="site-branding">
+
+          <h1 class="site-title">
+            
+              <a href="/" title="喵星科技报" rel="home"> 喵星科技报 </a>
+            
+          </h1>
+          
+          
+            
+          <nav id="main-navigation" class="main-navigation" role="navigation">
+            <a class="nav-open">Menu</a>
+            <a class="nav-close">Close</a>
+
+            <div class="clearfix sf-menu">
+              <ul id="main-nav" class="menu sf-js-enabled sf-arrows"  style="touch-action: pan-y;">
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="/"> <a class="" href="/">Home</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="archives"> <a class="" href="/archives">Archives</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="categories"> <a class="" href="/categories">Categories</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="tags"> <a class="" href="/tags">Tags</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="about"> <a class="" href="/about">About</a> </li>
+                    
+              </ul>
+            </div>
+          </nav>
+
+      </div>
+  </div>
+</header>
+
+
+  <div id="container">
+    <div id="wrap">
+            
+      <div id="content" class="outer">
+        
+          <section id="main" style="float:none;"><article id="post-Android/性能优化/Android-性能专题-插件化预热-拼多多为什么只有26M-GPT4快问快答" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" class="article-title" itemprop="name">
+      Android 性能专题 - 插件化预热-拼多多为什么只有26M-GPT4快问快答
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2024/02/21/Android/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Android-%E6%80%A7%E8%83%BD%E4%B8%93%E9%A2%98-%E6%8F%92%E4%BB%B6%E5%8C%96%E9%A2%84%E7%83%AD-%E6%8B%BC%E5%A4%9A%E5%A4%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E5%8F%AA%E6%9C%8926M-GPT4%E5%BF%AB%E9%97%AE%E5%BF%AB%E7%AD%94/" class="article-date">
+	  <time datetime="2024-02-20T17:52:23.080Z" itemprop="datePublished">February 21, 2024</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a>
+ 
+      
+	<span id="busuanzi_container_page_pv">
+	  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	</span>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="什么是双亲委派机制"><a href="#什么是双亲委派机制" class="headerlink" title="什么是双亲委派机制"></a>什么是双亲委派机制</h1><p>双亲委派机制（Parent Delegation Model）是Java类加载器（ClassLoader）使用的一种特定模型，在这个模型中，类加载器在尝试加载类或资源时，会首先委托给其父类加载器进行加载，这个过程会一直递归下去，直到达到最顶层的启动类加载器（Bootstrap ClassLoader）。如果父类加载器可以完成类加载工作，就使用父类加载器的定义，如果父类加载器无法完成加载工作（即它搜索的路径中没有找到所需的类），子类加载器才会尝试自己去加载这个类。</p>
+<p>双亲委派机制的优点包括：</p>
+<ol>
+<li><p><strong>避免类的重复加载</strong>：由于在顶层开始尝试加载类，因此类在JVM中只会被加载一次，这样就保证了Java虚拟机中存在的类，都是由唯一的类加载器加载的，从而避免了类的多次加载。</p>
+</li>
+<li><p><strong>保护程序安全</strong>：通过给予Java核心库的加载工作委托给顶层的启动类加载器，保证了Java核心库的类型安全，防止核心API库被随意替换。用户自定义的类加载器不会去尝试加载这些Java核心类库，这样可以防止一些恶意代码替代了这些核心API，从而破坏JVM的安全性。</p>
+</li>
+<li><p><strong>促进正向的类加载工作流</strong>：这种委派模式促进了类加载器之间的协作，遵循了一种从顶层到底层的工作流，使得类加载过程更加清晰。</p>
+</li>
+</ol>
+<p>尽管双亲委派模型带来了上述好处，但在某些情况下，比如在一个Java程序中需要加载一些运行时生成的类，或者是从网络上下载的类，这时可能需要自定义类加载器，并打破双亲委派模型。在Java中，可以通过重写<code>ClassLoader</code>的<code>loadClass</code>方法来实现自定义的类加载逻辑，从而在必要时绕过双亲委派模型。</p>
+<h1 id="为什么可以避免类的重复加载"><a href="#为什么可以避免类的重复加载" class="headerlink" title="为什么可以避免类的重复加载"></a>为什么可以避免类的重复加载</h1><p>双亲委派模型可以避免类的重复加载主要是因为它采用了一种层次化的类加载方式，确保了每个类由一个确定的类加载器负责加载。具体来说，这种机制避免类重复加载的原理和机制包括以下几点：</p>
+<ol>
+<li><p><strong>层次化的类加载器结构</strong>：在Java中，类加载器通常有三层结构（启动类加载器、扩展类加载器、应用程序类加载器），加上可能的自定义类加载器。每个类加载器都有可能有自己的父加载器（除了启动类加载器，它是最顶层的加载器，没有父加载器）。当一个类加载器接收到类加载的请求时，它首先不会尝试自己去加载这个类，而是把这个请求委托给它的父加载器去执行，这样一层层向上直到启动类加载器。</p>
+</li>
+<li><p><strong>委托机制确保类的唯一性</strong>：因为加载请求最终会传递到启动类加载器，如果这个类能被启动类加载器加载，那么它就会由启动类加载器完成加载。如果启动类加载器加载不了，它会返回到下一级加载器尝试，依此类推，直到找到合适的加载器加载这个类。这样一来，无论是哪个类加载器加载的类，都确保了在JVM中的唯一性，因为同一个类在JVM中只会被加载一次。</p>
+</li>
+<li><p><strong>缓存机制</strong>：类加载器在加载类的过程中，会将加载过的类缓存起来。当再次请求加载这个类时，类加载器会首先检查这个类是否已经加载过了，如果已经加载，就直接从缓存中返回这个类的Class对象，而不会再次加载。这个缓存机制进一步保证了类的唯一性和避免重复加载。</p>
+</li>
+<li><p><strong>安全性考虑</strong>：双亲委派模型还有一个重要的安全考量。通过让启动类加载器（负责加载Java核心库的加载器）在加载类的最前线，可以避免核心API被恶意替换。因为用户自定义的类加载器无法直接加载核心API类，所以即使有类的全限定名相同，也不会影响到JVM内部的类实现，这样就避免了核心类库的污染和重复加载。</p>
+</li>
+</ol>
+<p>通过上述机制，双亲委派模型不仅避免了类的重复加载，而且还提升了Java程序的运行时安全性和稳定性。</p>
+<h1 id="向我解释启动类加载器、扩展类加载器、应用程序类加载器"><a href="#向我解释启动类加载器、扩展类加载器、应用程序类加载器" class="headerlink" title="向我解释启动类加载器、扩展类加载器、应用程序类加载器"></a>向我解释启动类加载器、扩展类加载器、应用程序类加载器</h1><p>Java虚拟机（JVM）使用类加载器（ClassLoader）来动态加载类文件到内存中。在JVM中，类加载器遵循双亲委派模型，并且主要分为三种类型：启动（Bootstrap）类加载器、扩展（Extension）类加载器、应用程序（Application）类加载器。它们的作用和层次结构如下：</p>
+<h2 id="启动类加载器（Bootstrap-ClassLoader）"><a href="#启动类加载器（Bootstrap-ClassLoader）" class="headerlink" title="启动类加载器（Bootstrap ClassLoader）"></a>启动类加载器（Bootstrap ClassLoader）</h2><ul>
+<li><strong>作用</strong>：这是Java类加载器层次结构中的最顶层加载器。它负责加载JVM基础核心类库，如<code>rt.jar</code>、<code>resources.jar</code>、<code>charsets.jar</code>以及类路径中指定的类。这些库位于JDK的<code>jre/lib</code>目录或者是<code>JAVA_HOME/lib</code>目录下。</li>
+<li><strong>实现</strong>：启动类加载器并不是Java实现的，而是由JVM自身的底层代码（如C&#x2F;C++）实现的。这意味着它不继承自<code>java.lang.ClassLoader</code>，不能被Java代码直接引用。</li>
+<li><strong>特点</strong>：由于其加载的是Java的核心类库，因此它不会被Java程序直接控制。它提供了Java运行时环境的基础类，保证了JVM的稳定性和安全性。</li>
+</ul>
+<h2 id="扩展类加载器（Extension-ClassLoader）"><a href="#扩展类加载器（Extension-ClassLoader）" class="headerlink" title="扩展类加载器（Extension ClassLoader）"></a>扩展类加载器（Extension ClassLoader）</h2><ul>
+<li><strong>作用</strong>：扩展类加载器负责加载Java的扩展库，即位于JDK的<code>jre/lib/ext</code>目录或者由系统属性<code>java.ext.dirs</code>指定位置的类库。这些库提供了标准Java类库之外的扩展功能。</li>
+<li><strong>实现</strong>：扩展类加载器是用Java实现的，并且它是<code>java.lang.ClassLoader</code>类的一个实例。在类加载器的层次结构中，它是启动类加载器的子加载器。</li>
+<li><strong>特点</strong>：扩展类加载器使得用户可以通过放置jar文件到<code>ext</code>目录来扩展JVM的功能，而不需要放到JVM核心类库目录中去。</li>
+</ul>
+<h2 id="应用程序类加载器（Application-ClassLoader）"><a href="#应用程序类加载器（Application-ClassLoader）" class="headerlink" title="应用程序类加载器（Application ClassLoader）"></a>应用程序类加载器（Application ClassLoader）</h2><ul>
+<li><strong>作用</strong>：应用程序类加载器负责加载用户类路径（Classpath）上的类库，这包括来自于<code>CLASSPATH</code>环境变量、<code>-classpath</code>或<code>-cp</code>命令行选项指定的所有类库。它是程序中默认的类加载器，通常用来加载我们自己写的类和第三方库。</li>
+<li><strong>实现</strong>：这个加载器也是用Java实现的，并且是<code>ClassLoader</code>的一个直接子类。在类加载器的层次结构中，它是扩展类加载器的子加载器。</li>
+<li><strong>特点</strong>：大部分应用程序中的类都是由这个加载器加载的。它保证了应用程序类是由用户定义的路径加载，而不是由JVM的内部路径决定。</li>
+</ul>
+<p>这三个类加载器共同协作，确保了Java应用程序在运行时可以动态加载类，同时保障了系统的安全性和类加载机制的高效性。</p>
+<h1 id="向我介绍什么是Android的插件化"><a href="#向我介绍什么是Android的插件化" class="headerlink" title="向我介绍什么是Android的插件化"></a>向我介绍什么是Android的插件化</h1><p>Android的插件化是一种在Android开发中实现模块化、动态加载和运行时集成第三方组件或模块的技术手段。它允许应用在不需要重新安装或更新整个应用的情况下，动态加载和卸载功能模块。这种技术为应用提供了极高的灵活性和扩展性，使得应用能够根据需要加载新功能或更新现有功能，同时减少了应用的初始下载大小。</p>
+<h2 id="Android插件化的关键特点"><a href="#Android插件化的关键特点" class="headerlink" title="Android插件化的关键特点"></a>Android插件化的关键特点</h2><ol>
+<li><strong>动态性</strong>：插件可以在应用运行时被动态加载和替换，无需重新安装或更新整个应用。</li>
+<li><strong>模块化</strong>：应用的不同功能可以被封装成独立的模块（插件），便于单独开发和管理。</li>
+<li><strong>减小体积</strong>：通过插件化，可以减少应用的初始下载大小，用户可以根据需要下载额外的功能模块。</li>
+<li><strong>更新灵活</strong>：可以单独更新某个功能模块而不影响整个应用，提高了更新的灵活性和效率。</li>
+</ol>
+<h2 id="实现机制"><a href="#实现机制" class="headerlink" title="实现机制"></a>实现机制</h2><p>Android插件化的实现通常涉及到以下几个关键技术点：</p>
+<ul>
+<li><strong>类加载器（ClassLoader）</strong>：利用Android的ClassLoader机制动态加载插件中的类。通过自定义ClassLoader实现类的加载，避免了插件和宿主应用之间的类冲突。</li>
+<li><strong>资源管理</strong>：动态加载插件中的资源（如布局、图片、字符串等），并确保宿主应用和插件能够正常使用这些资源。</li>
+<li><strong>四大组件激活</strong>：动态注册和管理插件中的四大组件（Activity、Service、BroadcastReceiver、ContentProvider），由于这些组件需要在AndroidManifest.xml中静态声明，插件化技术需要绕过这一限制，通过宿主代理或其他机制实现组件的动态激活。</li>
+<li><strong>上下文隔离</strong>：保证插件运行时的上下文（Context）环境与宿主应用隔离，避免相互干扰。</li>
+</ul>
+<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><ul>
+<li><strong>功能模块化</strong>：将应用的不同功能模块化，按需加载，减轻应用初始体积。</li>
+<li><strong>热更新</strong>：修复bug或更新应用的某部分功能而无需更新整个应用。</li>
+<li><strong>组件共享</strong>：实现跨应用的组件共享和复用。</li>
+</ul>
+<h2 id="挑战"><a href="#挑战" class="headerlink" title="挑战"></a>挑战</h2><p>尽管插件化为Android应用开发带来了诸多好处，但它也引入了一些挑战，包括复杂的实现机制、性能优化、资源管理、安全性问题等。因此，实现一个稳定、高效的插件化框架需要深入理解Android的底层机制和高级特性。</p>
+<h1 id="双亲委派机制在Android插件化中的作用"><a href="#双亲委派机制在Android插件化中的作用" class="headerlink" title="双亲委派机制在Android插件化中的作用"></a>双亲委派机制在Android插件化中的作用</h1><p>在Android插件化中，双亲委派机制扮演着至关重要的角色，主要体现在插件的加载和运行时隔离方面。由于Android基于Java开发，而Java的类加载器采用双亲委派模型，这对Android插件化的实现产生了直接影响。以下是双亲委派机制在Android插件化中作用的几个关键点：</p>
+<h2 id="确保类的唯一性"><a href="#确保类的唯一性" class="headerlink" title="确保类的唯一性"></a>确保类的唯一性</h2><p>双亲委派机制通过优先委托父加载器加载类的方式，确保了JVM中每个类的唯一性。在Android插件化框架中，这一点尤为重要，因为它可以防止插件中的类与宿主应用或其他插件中的类发生冲突。例如，如果插件和宿主应用都使用了同一个库的不同版本，双亲委派机制可以确保在同一个类加载器上下文中，这个库的类只被加载一次，从而避免版本冲突。</p>
+<h2 id="提高安全性"><a href="#提高安全性" class="headerlink" title="提高安全性"></a>提高安全性</h2><p>双亲委派机制通过限制类的加载来源，提高了应用的安全性。在插件化环境中，通过自定义类加载器加载插件，可以控制插件的权限，防止插件访问或修改宿主应用的私有数据。同时，由于双亲委派模型优先使用父加载器加载类，它还可以防止恶意代码通过插件覆盖或篡改系统类库。</p>
+<h2 id="实现运行时隔离"><a href="#实现运行时隔离" class="headerlink" title="实现运行时隔离"></a>实现运行时隔离</h2><p>在Android插件化中，通常需要实现插件之间以及插件与宿主之间的运行时隔离。双亲委派机制允许插件化框架通过自定义类加载器为每个插件创建独立的命名空间，从而实现隔离。这种隔离机制确保了插件可以独立运行，互不干扰，同时也方便了插件的管理和更新。</p>
+<h2 id="动态加载插件"><a href="#动态加载插件" class="headerlink" title="动态加载插件"></a>动态加载插件</h2><p>插件化框架通常需要动态加载和卸载插件，<strong>双亲委派机制使得这种动态性成为可能</strong>。通过使用自定义的类加载器加载插件，可以在运行时根据需要加载或替换插件，而不需要重新启动应用。这种机制不仅提高了应用的灵活性，也支持了热更新和模块化部署。</p>
+<h2 id="绕过双亲委派模型的挑战"><a href="#绕过双亲委派模型的挑战" class="headerlink" title="绕过双亲委派模型的挑战"></a>绕过双亲委派模型的挑战</h2><p>虽然双亲委派机制有诸多优点，但在实现Android插件化时，有时也需要绕过这种机制。例如，当插件需要使用不同版本的共享库时，可能需要设计复杂的类加载策略来加载正确的类版本，而不是由双亲委派机制自动选择。这就需要插件化框架能够灵活控制类加载过程，可能通过反射或者使用自定义类加载器来实现。</p>
+<p>总的来说，双亲委派机制为Android插件化提供了一个强大的基础，使得插件化框架能够高效、安全地管理和加载插件。但同时，它也带来了一定的挑战，需要开发者深入理解其工作原理，才能有效地利用这一机制实现高质量的插件化方案。</p>
+<h1 id="双亲委派机制如何使得这种动态性成为可能"><a href="#双亲委派机制如何使得这种动态性成为可能" class="headerlink" title="双亲委派机制如何使得这种动态性成为可能"></a>双亲委派机制如何使得这种动态性成为可能</h1><p>双亲委派机制本身是一种类加载机制，确保了类加载的有序性和安全性。在讨论它如何使得动态性成为可能时，我们主要关注的是这种机制如何被用于实现和优化Android插件化中的动态加载和动态更新功能。</p>
+<h2 id="实现动态加载"><a href="#实现动态加载" class="headerlink" title="实现动态加载"></a>实现动态加载</h2><p>在Android插件化中，动态加载指的是应用运行时按需加载外部或者附加的代码和资源，而不是在应用安装时就固定下来。双亲委派机制通过以下方式促进这种动态加载：</p>
+<ul>
+<li><strong>自定义类加载器</strong>：开发者可以通过创建自定义的类加载器来绕过双亲委派机制的一些限制，使得在应用运行时可以加载或替换插件。这些自定义类加载器可以直接或间接继承自<code>ClassLoader</code>类，通过重写<code>findClass</code>方法来实现对插件类的加载。</li>
+<li><strong>隔离和独立</strong>：自定义类加载器可以为每个插件创建独立的命名空间，这意味着即使多个插件包含相同的类名，它们也能够被独立加载和运行，互不干扰。这种隔离保证了插件之间的动态性和独立性。</li>
+</ul>
+<h2 id="支持动态更新"><a href="#支持动态更新" class="headerlink" title="支持动态更新"></a>支持动态更新</h2><p>动态更新是指在不重启应用的情况下更新应用的部分内容或功能。双亲委派机制在这方面的作用体现在：</p>
+<ul>
+<li><strong>类版本的控制</strong>：通过自定义类加载器，应用可以动态地卸载旧的插件类和加载新的插件类。这是因为Java虚拟机(JVM)允许同一个类可以被不同的类加载器加载，只要这些类加载器是不同的实例。因此，通过更新类加载器或者使用不同的类加载器实例，可以实现插件的动态更新。</li>
+<li><strong>资源的动态加载</strong>：除了代码之外，插件化还涉及到资源的动态加载，如图片、布局文件等。自定义类加载器也可以被用来加载这些资源，使得应用能够在运行时不仅更新代码，还可以更新资源。</li>
+</ul>
+<h2 id="如何绕过双亲委派机制"><a href="#如何绕过双亲委派机制" class="headerlink" title="如何绕过双亲委派机制"></a>如何绕过双亲委派机制</h2><p>虽然双亲委派机制的初衷是为了保证安全和一致性，但在插件化场景下，有时需要绕过这一机制以实现更高级的动态性。这通常通过以下方式实现：</p>
+<ul>
+<li><strong>反射和Hook技术</strong>：通过反射调用或修改Android内部的API行为，或者使用Hook技术，可以在不违背双亲委派原则的前提下，实现对类加载过程的控制和干预。</li>
+<li><strong>自定义类加载策略</strong>：通过实现自定义的类加载器，并在其中实现特定的加载策略，可以有选择性地加载或替换特定的类或资源，从而实现对双亲委派机制的有效绕过。</li>
+</ul>
+<p>总的来说，双亲委派机制在Android插件化中的作用并不直接关联到动态性的实现，而是通过自定义类加载器和策略，以及对这一机制的细致控制和适当绕过，使得动态加载和更新成为可能。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a>
+
+      
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2024/02/10/Android/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Android-Glide-%E4%B8%89%E7%A7%8D%E6%B1%A0%E5%AD%90/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Android Glide 三种池子</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="sidebar">
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">Contents</strong>
+    
+      <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE%E6%9C%BA%E5%88%B6"><span class="nav-number">1.</span> <span class="nav-text">什么是双亲委派机制</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E5%8F%AF%E4%BB%A5%E9%81%BF%E5%85%8D%E7%B1%BB%E7%9A%84%E9%87%8D%E5%A4%8D%E5%8A%A0%E8%BD%BD"><span class="nav-number">2.</span> <span class="nav-text">为什么可以避免类的重复加载</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%90%91%E6%88%91%E8%A7%A3%E9%87%8A%E5%90%AF%E5%8A%A8%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8%E3%80%81%E6%89%A9%E5%B1%95%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8%E3%80%81%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8"><span class="nav-number">3.</span> <span class="nav-text">向我解释启动类加载器、扩展类加载器、应用程序类加载器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8%EF%BC%88Bootstrap-ClassLoader%EF%BC%89"><span class="nav-number">3.1.</span> <span class="nav-text">启动类加载器（Bootstrap ClassLoader）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%A9%E5%B1%95%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8%EF%BC%88Extension-ClassLoader%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">扩展类加载器（Extension ClassLoader）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8%EF%BC%88Application-ClassLoader%EF%BC%89"><span class="nav-number">3.3.</span> <span class="nav-text">应用程序类加载器（Application ClassLoader）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%90%91%E6%88%91%E4%BB%8B%E7%BB%8D%E4%BB%80%E4%B9%88%E6%98%AFAndroid%E7%9A%84%E6%8F%92%E4%BB%B6%E5%8C%96"><span class="nav-number">4.</span> <span class="nav-text">向我介绍什么是Android的插件化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Android%E6%8F%92%E4%BB%B6%E5%8C%96%E7%9A%84%E5%85%B3%E9%94%AE%E7%89%B9%E7%82%B9"><span class="nav-number">4.1.</span> <span class="nav-text">Android插件化的关键特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E6%9C%BA%E5%88%B6"><span class="nav-number">4.2.</span> <span class="nav-text">实现机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">4.3.</span> <span class="nav-text">应用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8C%91%E6%88%98"><span class="nav-number">4.4.</span> <span class="nav-text">挑战</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE%E6%9C%BA%E5%88%B6%E5%9C%A8Android%E6%8F%92%E4%BB%B6%E5%8C%96%E4%B8%AD%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">双亲委派机制在Android插件化中的作用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A1%AE%E4%BF%9D%E7%B1%BB%E7%9A%84%E5%94%AF%E4%B8%80%E6%80%A7"><span class="nav-number">5.1.</span> <span class="nav-text">确保类的唯一性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8F%90%E9%AB%98%E5%AE%89%E5%85%A8%E6%80%A7"><span class="nav-number">5.2.</span> <span class="nav-text">提高安全性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E8%BF%90%E8%A1%8C%E6%97%B6%E9%9A%94%E7%A6%BB"><span class="nav-number">5.3.</span> <span class="nav-text">实现运行时隔离</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD%E6%8F%92%E4%BB%B6"><span class="nav-number">5.4.</span> <span class="nav-text">动态加载插件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%95%E8%BF%87%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE%E6%A8%A1%E5%9E%8B%E7%9A%84%E6%8C%91%E6%88%98"><span class="nav-number">5.5.</span> <span class="nav-text">绕过双亲委派模型的挑战</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE%E6%9C%BA%E5%88%B6%E5%A6%82%E4%BD%95%E4%BD%BF%E5%BE%97%E8%BF%99%E7%A7%8D%E5%8A%A8%E6%80%81%E6%80%A7%E6%88%90%E4%B8%BA%E5%8F%AF%E8%83%BD"><span class="nav-number">6.</span> <span class="nav-text">双亲委派机制如何使得这种动态性成为可能</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD"><span class="nav-number">6.1.</span> <span class="nav-text">实现动态加载</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%94%AF%E6%8C%81%E5%8A%A8%E6%80%81%E6%9B%B4%E6%96%B0"><span class="nav-number">6.2.</span> <span class="nav-text">支持动态更新</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E7%BB%95%E8%BF%87%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE%E6%9C%BA%E5%88%B6"><span class="nav-number">6.3.</span> <span class="nav-text">如何绕过双亲委派机制</span></a></li></ol></li></ol>
+    
+    </div>
+  </aside>
+</section>
+        
+      </div>
+
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    <footer id="footer" class="site-footer">
+  
+
+  <div class="clearfix container">
+      <div class="site-info">
+	      &copy; 2024 喵星科技报 All Rights Reserved.
+        
+            <span id="busuanzi_container_site_uv">
+              本站访客数<span id="busuanzi_value_site_uv"></span>人次  
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+          
+      </div>
+      <div class="site-credit">
+        Theme by <a href="https://github.com/CatJason" target="_blank">hipaper</a>
+      </div>
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var wrapdiv = document.getElementById("wrap");
+    var contentdiv = document.getElementById("content");
+
+    wrapdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+
+
+    <!-- headerblur min height -->
+    
+    
+</script>
+    
+<div style="display: none;">
+  <script src="https://s11.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+</div>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+<script src="/js/bootstrap.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+	</script>
+
+
+
+
+
+
+  </div>
+
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js" async=""></script>
+</body>
+</html>
