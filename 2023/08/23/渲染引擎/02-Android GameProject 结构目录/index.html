@@ -3,21 +3,21 @@
 <head>
   <meta charset="utf-8">
   
-  <title>渲染引擎开篇 | 喵星科技报</title>
+  <title>Android Game Project 项目结构 | 喵星科技报</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
   
   
   
-  <meta name="description" content="我亲爱的达瓦里氏，罗马不是一日建成的，但是终会有那一天">
+  <meta name="description" content="author: 朕小猫-GPT4 图片显示的是一个典型的Android项目目录结构，这个项目中集成了C++原生代码。以下是各个组件的结构和作用的简述：  src：项目代码的源目录。 androidTest：包含在Android设备或模拟器上运行的自动化测试。 java：存放Java测试文件。 com.jason.game：测试文件的Java包。 ExampleInstrumentedTest：示例">
 <meta property="og:type" content="article">
-<meta property="og:title" content="渲染引擎开篇">
-<meta property="og:url" content="http://example.com/2023/08/21/%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E%E5%BC%80%E7%AF%87/index.html">
+<meta property="og:title" content="Android Game Project 项目结构">
+<meta property="og:url" content="http://example.com/2023/08/23/%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02-Android%20GameProject%20%E7%BB%93%E6%9E%84%E7%9B%AE%E5%BD%95/index.html">
 <meta property="og:site_name" content="喵星科技报">
-<meta property="og:description" content="我亲爱的达瓦里氏，罗马不是一日建成的，但是终会有那一天">
+<meta property="og:description" content="author: 朕小猫-GPT4 图片显示的是一个典型的Android项目目录结构，这个项目中集成了C++原生代码。以下是各个组件的结构和作用的简述：  src：项目代码的源目录。 androidTest：包含在Android设备或模拟器上运行的自动化测试。 java：存放Java测试文件。 com.jason.game：测试文件的Java包。 ExampleInstrumentedTest：示例">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2023-08-21T07:16:52.000Z">
-<meta property="article:modified_time" content="2023-08-21T07:16:52.000Z">
+<meta property="article:published_time" content="2023-08-23T10:38:36.000Z">
+<meta property="article:modified_time" content="2024-03-07T16:22:25.895Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
   
@@ -109,7 +109,7 @@
             
       <div id="content" class="outer">
         
-          <section id="main" style="float:none;"><article id="post-渲染引擎/渲染引擎开篇" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+          <section id="main" style="float:none;"><article id="post-渲染引擎/02-Android GameProject 结构目录" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -117,7 +117,7 @@
         
   
     <h1 class="thumb" class="article-title" itemprop="name">
-      渲染引擎开篇
+      Android Game Project 项目结构
     </h1>
   
 
@@ -125,11 +125,14 @@
     
     <div class="article-meta">
       
-	<a href="/2023/08/21/%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E%E5%BC%80%E7%AF%87/" class="article-date">
-	  <time datetime="2023-08-21T07:16:52.000Z" itemprop="datePublished">August 21, 2023</time>
+	<a href="/2023/08/23/%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02-Android%20GameProject%20%E7%BB%93%E6%9E%84%E7%9B%AE%E5%BD%95/" class="article-date">
+	  <time datetime="2023-08-23T10:38:36.000Z" itemprop="datePublished">August 23, 2023</time>
 	</a>
 
-       
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/5-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">5 - 渲染引擎</a>, <a class="article-category-link" href="/categories/5-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/5-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">5.1 - 基础项目拆解</a>
+ 
       
 	<span id="busuanzi_container_page_pv">
 	  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
@@ -138,11 +141,68 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="我亲爱的达瓦里氏，罗马不是一日建成的，但是终会有那一天"><a href="#我亲爱的达瓦里氏，罗马不是一日建成的，但是终会有那一天" class="headerlink" title="我亲爱的达瓦里氏，罗马不是一日建成的，但是终会有那一天"></a>我亲爱的达瓦里氏，罗马不是一日建成的，但是终会有那一天</h1>
+        <p><strong>author: 朕小猫-GPT4</strong></p>
+<p>图片显示的是一个典型的Android项目目录结构，这个项目中集成了C++原生代码。以下是各个组件的结构和作用的简述：</p>
+<ul>
+<li><code>src</code>：项目代码的源目录。<ul>
+<li><code>androidTest</code>：包含在Android设备或模拟器上运行的自动化测试。<ul>
+<li><code>java</code>：存放Java测试文件。<ul>
+<li><code>com.jason.game</code>：测试文件的Java包。<ul>
+<li><code>ExampleInstrumentedTest</code>：示例的仪器化测试文件，可以测试与Android框架相关的Android特定代码。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>main</code>：包含应用核心代码和资源的主要源集。<ul>
+<li><code>assets</code>：存放应用可以通过AssetManager访问的原始资产文件的文件夹。<ul>
+<li><code>android_robot.png</code>：一个图像资产，可能用于应用的用户界面或游戏图形。</li>
+</ul>
+</li>
+<li><code>cpp</code>：C++源文件和原生代码的目录。<ul>
+<li><code>AndroidOut.cpp</code> 和 <code>AndroidOut.h</code>：C++源文件和头文件，可能用于原生代码中的日志或输出目的。</li>
+<li><code>CMakeLists.txt</code>：CMake配置文件，CMake是用于管理原生代码编译的构建系统。</li>
+<li><code>main.cpp</code>：主要的C++源文件，可能包含原生代码执行的入口点。</li>
+<li><code>Model.h</code>：很可能定义了一个数据模型或对象的头文件。</li>
+<li><code>Renderer.cpp</code> 和 <code>Renderer.h</code>：渲染相关的源文件和头文件，或许处理屏幕上图形的绘制。</li>
+<li><code>Shader.cpp</code> 和 <code>Shader.h</code>：与着色器程序相关的源文件和头文件，用于高级图形效果。</li>
+<li><code>TextureAsset.cpp</code> 和 <code>TextureAsset.h</code>：处理原生代码中纹理资产的源文件和头文件。</li>
+<li><code>Utility.cpp</code> 和 <code>Utility.h</code>：在原生代码库中使用的工具函数或类的源文件和头文件。</li>
+</ul>
+</li>
+<li><code>java</code>：Java源文件的文件夹。<ul>
+<li><code>com.jason.game</code>：应用的活动和其他组件的Java包。<ul>
+<li><code>MainActivity</code>：应用的主活动文件，通常是带有用户界面的Android应用的入口点。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>res</code>：存放Android框架使用的布局、字符串和图像等资源的目录。<ul>
+<li><code>AndroidManifest.xml</code>：声明应用组件、权限和其他基本元数据的清单文件。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>test</code>：包含项目的单元测试。<ul>
+<li><code>[unitTest]</code>：名字表明是单元测试文件的占位符或标记，用于测试代码的孤立部分。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>.gitignore</code>：Git的配置文件，指定在版本控制中忽略哪些文件或目录。</li>
+<li><code>build.gradle.kts</code>：用Kotlin脚本编写的Gradle构建系统的构建配置文件，指定依赖和构建设置。</li>
+<li><code>proguard-rules.pro</code>：ProGuard的配置文件，ProGuard是一个用于代码缩减和混淆的工具，以防止应用发布构建的反向工程。</li>
+</ul>
+<p>这个结构表明这是一个复杂的Android项目，它使用Java&#x2F;Kotlin来实现Android特定功能，并使用C++来处理性能密集型任务，可能用于游戏开发或计算密集型应用。 </p>
+
       
     </div>
     <footer class="entry-meta entry-footer">
       
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/5-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">5 - 渲染引擎</a>, <a class="article-category-link" href="/categories/5-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/5-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">5.1 - 基础项目拆解</a>
+
       
       
         
@@ -177,19 +237,19 @@
     
 <nav id="article-nav">
   
-    <a href="/2023/08/23/%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02-Android%20GameProject%20%E7%BB%93%E6%9E%84%E7%9B%AE%E5%BD%95/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2023/08/23/%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01-Android%20GameProject%20%E4%B8%AD%E6%9C%80%E5%9F%BA%E7%A1%80%E7%9A%84%20Renderer/" id="article-nav-newer" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          Android Game Project 项目结构
+          Android Game Project 核心 Renderer.cpp
         
       </div>
     </a>
   
   
-    <a href="/2023/08/15/Android/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Android-Bitmap-%E6%80%A7%E8%83%BD%E4%B8%93%E9%A2%98/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/2023/08/21/%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E%E5%BC%80%E7%AF%87/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">Android Bitmap 性能专题 - Bitmap 内存从申请到回收</div>
+      <div class="article-nav-title">渲染引擎开篇</div>
     </a>
   
 </nav>
@@ -203,7 +263,7 @@
     <div id="toc" class="toc-article">
     <strong class="toc-title">Contents</strong>
     
-      <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%88%91%E4%BA%B2%E7%88%B1%E7%9A%84%E8%BE%BE%E7%93%A6%E9%87%8C%E6%B0%8F%EF%BC%8C%E7%BD%97%E9%A9%AC%E4%B8%8D%E6%98%AF%E4%B8%80%E6%97%A5%E5%BB%BA%E6%88%90%E7%9A%84%EF%BC%8C%E4%BD%86%E6%98%AF%E7%BB%88%E4%BC%9A%E6%9C%89%E9%82%A3%E4%B8%80%E5%A4%A9"><span class="nav-number">1.</span> <span class="nav-text">我亲爱的达瓦里氏，罗马不是一日建成的，但是终会有那一天</span></a></li></ol>
+      <ol class="nav">None</ol>
     
     </div>
   </aside>
