@@ -9,15 +9,15 @@
   
   
   
-  <meta name="description" content="author: 朕小猫-GPT4 图片显示的是一个典型的Android项目目录结构，这个项目中集成了C++原生代码。以下是各个组件的结构和作用的简述：  src：项目代码的源目录。 androidTest：包含在Android设备或模拟器上运行的自动化测试。 java：存放Java测试文件。 com.jason.game：测试文件的Java包。 ExampleInstrumentedTest：示例">
+  <meta name="description" content="author: 朕小猫-GPT4 图片显示的是一个典型的Android项目目录结构，这个项目中集成了C++原生代码。以下是各个组件的结构和作用的简述：  src main assets android_robot.png 一个图像资产，可能用于应用的用户界面或游戏图形。   cpp AndroidOut.cpp 和 AndroidOut.h：C++源文件和头文件，可能用于原生代码中的日志或输出目的">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Android Game Project 项目结构">
 <meta property="og:url" content="http://example.com/2023/08/23/%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02-Android%20GameProject%20%E7%BB%93%E6%9E%84%E7%9B%AE%E5%BD%95/index.html">
 <meta property="og:site_name" content="喵星科技报">
-<meta property="og:description" content="author: 朕小猫-GPT4 图片显示的是一个典型的Android项目目录结构，这个项目中集成了C++原生代码。以下是各个组件的结构和作用的简述：  src：项目代码的源目录。 androidTest：包含在Android设备或模拟器上运行的自动化测试。 java：存放Java测试文件。 com.jason.game：测试文件的Java包。 ExampleInstrumentedTest：示例">
+<meta property="og:description" content="author: 朕小猫-GPT4 图片显示的是一个典型的Android项目目录结构，这个项目中集成了C++原生代码。以下是各个组件的结构和作用的简述：  src main assets android_robot.png 一个图像资产，可能用于应用的用户界面或游戏图形。   cpp AndroidOut.cpp 和 AndroidOut.h：C++源文件和头文件，可能用于原生代码中的日志或输出目的">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-08-23T10:38:36.000Z">
-<meta property="article:modified_time" content="2024-03-07T16:22:25.895Z">
+<meta property="article:modified_time" content="2024-03-07T16:35:06.170Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
   
@@ -144,23 +144,13 @@
         <p><strong>author: 朕小猫-GPT4</strong></p>
 <p>图片显示的是一个典型的Android项目目录结构，这个项目中集成了C++原生代码。以下是各个组件的结构和作用的简述：</p>
 <ul>
-<li><code>src</code>：项目代码的源目录。<ul>
-<li><code>androidTest</code>：包含在Android设备或模拟器上运行的自动化测试。<ul>
-<li><code>java</code>：存放Java测试文件。<ul>
-<li><code>com.jason.game</code>：测试文件的Java包。<ul>
-<li><code>ExampleInstrumentedTest</code>：示例的仪器化测试文件，可以测试与Android框架相关的Android特定代码。</li>
+<li><code>src</code><ul>
+<li><code>main</code><ul>
+<li><code>assets</code><ul>
+<li><code>android_robot.png</code> 一个图像资产，可能用于应用的用户界面或游戏图形。</li>
 </ul>
 </li>
-</ul>
-</li>
-</ul>
-</li>
-<li><code>main</code>：包含应用核心代码和资源的主要源集。<ul>
-<li><code>assets</code>：存放应用可以通过AssetManager访问的原始资产文件的文件夹。<ul>
-<li><code>android_robot.png</code>：一个图像资产，可能用于应用的用户界面或游戏图形。</li>
-</ul>
-</li>
-<li><code>cpp</code>：C++源文件和原生代码的目录。<ul>
+<li><code>cpp</code><ul>
 <li><code>AndroidOut.cpp</code> 和 <code>AndroidOut.h</code>：C++源文件和头文件，可能用于原生代码中的日志或输出目的。</li>
 <li><code>CMakeLists.txt</code>：CMake配置文件，CMake是用于管理原生代码编译的构建系统。</li>
 <li><code>main.cpp</code>：主要的C++源文件，可能包含原生代码执行的入口点。</li>
@@ -171,21 +161,17 @@
 <li><code>Utility.cpp</code> 和 <code>Utility.h</code>：在原生代码库中使用的工具函数或类的源文件和头文件。</li>
 </ul>
 </li>
-<li><code>java</code>：Java源文件的文件夹。<ul>
-<li><code>com.jason.game</code>：应用的活动和其他组件的Java包。<ul>
-<li><code>MainActivity</code>：应用的主活动文件，通常是带有用户界面的Android应用的入口点。</li>
+<li><code>java</code><ul>
+<li><code>com.jason.game</code><ul>
+<li><code>MainActivity</code></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><code>res</code>：存放Android框架使用的布局、字符串和图像等资源的目录。<ul>
-<li><code>AndroidManifest.xml</code>：声明应用组件、权限和其他基本元数据的清单文件。</li>
+<li><code>res</code>：<ul>
+<li><code>AndroidManifest.xml</code></li>
 </ul>
 </li>
-</ul>
-</li>
-<li><code>test</code>：包含项目的单元测试。<ul>
-<li><code>[unitTest]</code>：名字表明是单元测试文件的占位符或标记，用于测试代码的孤立部分。</li>
 </ul>
 </li>
 </ul>

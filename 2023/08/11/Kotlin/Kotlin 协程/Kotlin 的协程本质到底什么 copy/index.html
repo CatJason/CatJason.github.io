@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>协程核心概念的理解与应用(一)--翻译翻译什么是 CoroutineScope | 喵星科技报</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  
+  
+  
+  <meta name="description" content="作者：朕小猫与GPT4 Android 如何在一个非 LifecycleOwner 的类中使用协程在非LifecycleOwner的类中使用协程，你不能直接使用与生命周期相关的作用域，如lifecycleScope或viewModelScope。不过，你可以使用CoroutineScope来创建自己的作用域。使用CoroutineScope，你可以定义一个作用域，并指定一个Dispatcher来">
+<meta property="og:type" content="article">
+<meta property="og:title" content="协程核心概念的理解与应用(一)--翻译翻译什么是 CoroutineScope">
+<meta property="og:url" content="http://example.com/2023/08/11/Kotlin/Kotlin%20%E5%8D%8F%E7%A8%8B/Kotlin%20%E7%9A%84%E5%8D%8F%E7%A8%8B%E6%9C%AC%E8%B4%A8%E5%88%B0%E5%BA%95%E4%BB%80%E4%B9%88%20copy/index.html">
+<meta property="og:site_name" content="喵星科技报">
+<meta property="og:description" content="作者：朕小猫与GPT4 Android 如何在一个非 LifecycleOwner 的类中使用协程在非LifecycleOwner的类中使用协程，你不能直接使用与生命周期相关的作用域，如lifecycleScope或viewModelScope。不过，你可以使用CoroutineScope来创建自己的作用域。使用CoroutineScope，你可以定义一个作用域，并指定一个Dispatcher来">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://s21.ax1x.com/2024/03/09/pFymrC9.jpg">
+<meta property="article:published_time" content="2023-08-10T23:19:04.000Z">
+<meta property="article:modified_time" content="2024-03-09T18:12:13.654Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s21.ax1x.com/2024/03/09/pFymrC9.jpg">
+  
+    <link rel="alternate" href="/atom.xml" title="喵星科技报" type="application/atom+xml">
+  
+  <link rel="icon" href="/css/images/favicon.ico">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+    
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Yanone+Kaffeesatz%3A200%2C300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Oswald%3A300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+<script src="/js/jquery-3.1.1.min.js"></script>
+
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.css" >
+  <link rel="stylesheet" href="/css/fashion.css" >
+  <link rel="stylesheet" href="/css/glyphs.css" >
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<a target="_blank" rel="noopener" href="https://github.com/CatJason">
+<img decoding="async" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" loading="lazy" data-recalc-dims="1">
+</a>
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  
+
+
+<header id="allheader" class="site-header" role="banner" 
+   >
+  <div class="clearfix container">
+      <div class="site-branding">
+
+          <h1 class="site-title">
+            
+              <a href="/" title="喵星科技报" rel="home"> 喵星科技报 </a>
+            
+          </h1>
+          
+          
+            
+          <nav id="main-navigation" class="main-navigation" role="navigation">
+            <a class="nav-open">Menu</a>
+            <a class="nav-close">Close</a>
+
+            <div class="clearfix sf-menu">
+              <ul id="main-nav" class="menu sf-js-enabled sf-arrows"  style="touch-action: pan-y;">
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="/"> <a class="" href="/">Home</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="archives"> <a class="" href="/archives">Archives</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="categories"> <a class="" href="/categories">Categories</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="tags"> <a class="" href="/tags">Tags</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="about"> <a class="" href="/about">About</a> </li>
+                    
+              </ul>
+            </div>
+          </nav>
+
+      </div>
+  </div>
+</header>
+
+
+  <div id="container">
+    <div id="wrap">
+            
+      <div id="content" class="outer">
+        
+          <section id="main" style="float:none;"><article id="post-Kotlin/Kotlin 协程/Kotlin 的协程本质到底什么 copy" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" class="article-title" itemprop="name">
+      协程核心概念的理解与应用(一)--翻译翻译什么是 CoroutineScope
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/11/Kotlin/Kotlin%20%E5%8D%8F%E7%A8%8B/Kotlin%20%E7%9A%84%E5%8D%8F%E7%A8%8B%E6%9C%AC%E8%B4%A8%E5%88%B0%E5%BA%95%E4%BB%80%E4%B9%88%20copy/" class="article-date">
+	  <time datetime="2023-08-10T23:19:04.000Z" itemprop="datePublished">August 11, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a>
+ 
+      
+	<span id="busuanzi_container_page_pv">
+	  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	</span>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="https://s21.ax1x.com/2024/03/09/pFymrC9.jpg" alt="图片描述"></p>
+<p>作者：朕小猫与GPT4</p>
+<h1 id="Android-如何在一个非-LifecycleOwner-的类中使用协程"><a href="#Android-如何在一个非-LifecycleOwner-的类中使用协程" class="headerlink" title="Android 如何在一个非 LifecycleOwner 的类中使用协程"></a>Android 如何在一个非 LifecycleOwner 的类中使用协程</h1><p>在非<code>LifecycleOwner</code>的类中使用协程，你不能直接使用与生命周期相关的作用域，如<code>lifecycleScope</code>或<code>viewModelScope</code>。不过，你可以使用<code>CoroutineScope</code>来创建自己的作用域。使用<code>CoroutineScope</code>，你可以定义一个作用域，并指定一个<code>Dispatcher</code>来控制协程的执行线程。此外，你还需要手动管理协程的生命周期，以避免内存泄漏。</p>
+<p>以下是如何在非<code>LifecycleOwner</code>类中使用协程的一个基本示例：</p>
+<ol>
+<li><p><strong>定义协程作用域</strong>：首先，定义一个协程作用域，通常是类的成员变量。这个作用域应当与你希望协程执行的生命周期绑定。例如，如果你在一个普通类中工作，你可能需要在类被销毁时取消所有协程。</p>
+ <figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> kotlinx.coroutines.CoroutineScope</span><br><span class="line"><span class="keyword">import</span> kotlinx.coroutines.Dispatchers</span><br><span class="line"><span class="keyword">import</span> kotlinx.coroutines.Job</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyClass</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> job = Job()</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> coroutineScope = CoroutineScope(Dispatchers.Main + job)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>在协程作用域内启动协程</strong>：使用定义的协程作用域启动协程，执行异步操作。</p>
+ <figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> kotlinx.coroutines.launch</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyClass</span> &#123;</span><br><span class="line">    <span class="comment">// ...前面的代码</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">doSomething</span><span class="params">()</span></span> &#123;</span><br><span class="line">        coroutineScope.launch &#123;</span><br><span class="line">            <span class="comment">// 在这里执行协程代码</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>管理协程生命周期</strong>：为避免内存泄漏，确保在不需要协程运行时取消它们。如果你的类有一个明确的生命周期结束点（如自定义视图的<code>onDetachedFromWindow</code>或者一个对象的<code>close</code>方法），你应当在那里取消作用域中的所有协程。</p>
+ <figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">onDestroy</span><span class="params">()</span></span> &#123;</span><br><span class="line">    job.cancel() <span class="comment">// 取消与这个作用域相关的所有协程</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>通过以上步骤，你可以在不依赖于<code>LifecycleOwner</code>的情况下，安全地在任何类中使用协程。记住，手动管理协程的生命周期是避免内存泄漏的关键。</p>
+<h1 id="如何理解-CoroutineContext"><a href="#如何理解-CoroutineContext" class="headerlink" title="如何理解 CoroutineContext"></a>如何理解 CoroutineContext</h1><p><code>CoroutineContext</code>是Kotlin协程中用于持有协程相关配置的接口。它由一组元素组成，每个元素都实现了<code>CoroutineContext.Element</code>接口，并且通过一个唯一的<code>Key</code>进行标识。<code>CoroutineContext</code>的实现并不限于某些固定的子类，而是通过组合不同的<code>Element</code>实例来扩展其功能。这意味着<code>CoroutineContext</code>的“子类”实际上是指一系列标准库或自定义库中定义的实现了<code>CoroutineContext.Element</code>接口的类，这些类代表了不同的协程配置和特性。以下是一些常见的<code>CoroutineContext.Element</code>实现，它们在Kotlin协程的使用中扮演着关键角色：</p>
+<ol>
+<li><p><strong><code>Job</code></strong>: 控制协程的生命周期，允许启动、取消、和查询协程的状态。<code>Job</code>是协程工作的基本单位，可以被用来取消协程。</p>
+</li>
+<li><p><strong><code>CoroutineDispatcher</code></strong>: 决定协程在哪个线程或线程池上执行。<code>Dispatchers.Main</code>、<code>Dispatchers.IO</code>、和<code>Dispatchers.Default</code>是最常用的几种调度器。</p>
+</li>
+<li><p><strong><code>CoroutineName</code></strong>: 提供协程的名称，有助于调试。</p>
+</li>
+<li><p><strong><code>CoroutineExceptionHandler</code></strong>: 定义了协程如何处理未捕获的异常。可以用来全局或局部地处理异常。</p>
+</li>
+</ol>
+<p>除了上述提到的标准元素外，开发者还可以实现自定义的<code>CoroutineContext.Element</code>来扩展协程的功能。每个元素都可以通过其<code>Key</code>加入到<code>CoroutineContext</code>中，同时保证<code>CoroutineContext</code>中的每个<code>Key</code>都是唯一的。</p>
+<p>在实际应用中，这些元素可以通过<code>+</code>操作符组合在一起，形成一个包含多个配置的<code>CoroutineContext</code>，用于启动和管理协程。这种设计允许协程上下文在保持灵活性的同时，能够非常精确地控制协程的行为和环境。</p>
+<h1 id="协程的-号代表什么"><a href="#协程的-号代表什么" class="headerlink" title="协程的 + 号代表什么"></a>协程的 + 号代表什么</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Returns a context containing elements from this context and elements from  other [context].</span></span><br><span class="line"><span class="comment"> * The elements from this context with the same key as in the other one are dropped.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> operator fun <span class="title function_">plus</span><span class="params">(context: CoroutineContext)</span>: CoroutineContext =</span><br><span class="line">    <span class="keyword">if</span> (context === EmptyCoroutineContext) <span class="built_in">this</span> <span class="keyword">else</span> <span class="comment">// fast path -- avoid lambda creation</span></span><br><span class="line">        context.fold(<span class="built_in">this</span>) &#123; acc, element -&gt;</span><br><span class="line">            <span class="type">val</span> <span class="variable">removed</span> <span class="operator">=</span> acc.minusKey(element.key)</span><br><span class="line">            <span class="keyword">if</span> (removed === EmptyCoroutineContext) element <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">// make sure interceptor is always last in the context (and thus is fast to get when present)</span></span><br><span class="line">                <span class="type">val</span> <span class="variable">interceptor</span> <span class="operator">=</span> removed[ContinuationInterceptor]</span><br><span class="line">                <span class="keyword">if</span> (interceptor == <span class="literal">null</span>) CombinedContext(removed, element) <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="type">val</span> <span class="variable">left</span> <span class="operator">=</span> removed.minusKey(ContinuationInterceptor)</span><br><span class="line">                    <span class="keyword">if</span> (left === EmptyCoroutineContext) CombinedContext(element, interceptor) <span class="keyword">else</span></span><br><span class="line">                        CombinedContext(CombinedContext(left, element), interceptor)</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个<code>plus</code>函数是<code>CoroutineContext</code>的一个操作符函数，用于合并两个协程上下文（<code>CoroutineContext</code>），返回一个包含两者元素的新上下文。如果两个上下文中有相同键（<code>key</code>）的元素，那么原上下文（<code>this</code>）中的元素会被丢弃。这个函数的主要逻辑可以分解为几个关键步骤：</p>
+<ol>
+<li><p><strong>快速路径检查</strong>：如果要添加的上下文（<code>context</code>）是一个空的协程上下文（<code>EmptyCoroutineContext</code>），则直接返回当前上下文（<code>this</code>），因为没有新元素需要添加。</p>
+</li>
+<li><p><strong>遍历合并</strong>：使用<code>fold</code>方法遍历<code>context</code>中的每个元素。<code>fold</code>接收一个初始累加值（这里是<code>this</code>，即当前上下文）和一个操作函数。操作函数定义了如何将<code>context</code>中的元素合并到累加值中。</p>
+</li>
+<li><p><strong>去除相同键的元素</strong>：对于<code>context</code>中的每个元素，先从累加值（即目前合并的结果）中移除具有相同键的元素。这一步确保了如果有相同键的元素，那么<code>this</code>中的元素会被<code>context</code>中的元素替换。</p>
+</li>
+<li><p><strong>合并上下文</strong>：如果移除相同键元素后的上下文是空的（<code>EmptyCoroutineContext</code>），则只添加当前遍历到的元素。否则，检查是否存在<code>ContinuationInterceptor</code>元素（协程拦截器），因为拦截器应当始终位于上下文中的最后，以便快速获取。</p>
+</li>
+<li><p><strong>调整拦截器位置</strong>：如果存在<code>ContinuationInterceptor</code>，将其移动到合并后的上下文的最后。这涉及到在没有拦截器的剩余上下文中添加当前元素，然后再添加拦截器。</p>
+</li>
+<li><p><strong>返回新的合并上下文</strong>：最终返回包含了<code>this</code>和<code>context</code>元素（且<code>context</code>中的元素优先）的新上下文。如果存在<code>ContinuationInterceptor</code>，确保它位于最后。</p>
+</li>
+</ol>
+<p>简而言之，这个函数通过合并两个协程上下文并调整元素顺序，确保了新上下文中不会有重复的键，且<code>ContinuationInterceptor</code>（如果存在）总是位于最后，以优化性能。</p>
+<h1 id="如何理解其中的-CoroutineContext-与-key，为什么context中的元素优先，为什么如果存在ContinuationInterceptor，确保它位于最后。"><a href="#如何理解其中的-CoroutineContext-与-key，为什么context中的元素优先，为什么如果存在ContinuationInterceptor，确保它位于最后。" class="headerlink" title="如何理解其中的 CoroutineContext 与 key，为什么context中的元素优先，为什么如果存在ContinuationInterceptor，确保它位于最后。"></a>如何理解其中的 CoroutineContext 与 key，为什么context中的元素优先，为什么如果存在ContinuationInterceptor，确保它位于最后。</h1><p><code>CoroutineContext</code>在Kotlin协程中是一个关键概念，它是一组各种元素的集合，这些元素定义了协程的行为。每个元素都有一个<code>Key</code>，用于唯一标识该元素的类型，这样<code>CoroutineContext</code>就可以通过键值对的方式存储和检索协程的配置和状态信息。这里的“相同键（key）的元素”意味着两个元素属于同一类型，或者说执行相同的功能或角色。</p>
+<h3 id="CoroutineContext和-key"><a href="#CoroutineContext和-key" class="headerlink" title="CoroutineContext和 key"></a><code>CoroutineContext</code>和 key</h3><ul>
+<li><p>**<code>CoroutineContext</code><strong>：是一个集合，包含了控制协程行为的各种元素，例如调度器（<code>Dispatcher</code>）、协程名称、协程的异常处理器等。每个元素通过一个唯一的键（</strong><code>Key</code>**）来识别，键通常由元素类型本身提供。</p>
+</li>
+<li><p><strong>相同键的元素</strong>：如果两个<code>CoroutineContext</code>元素具有相同的键，它们被视为同一类型的配置或状态信息。在合并上下文时，不能有重复键的元素，否则会产生冲突。</p>
+</li>
+</ul>
+<h3 id="为什么context中的元素优先"><a href="#为什么context中的元素优先" class="headerlink" title="为什么context中的元素优先"></a>为什么<code>context</code>中的元素优先</h3><p>在合并两个<code>CoroutineContext</code>时，如果存在相同键的元素，<code>context</code>参数中的元素会替换当前上下文（<code>this</code>）中的元素。这个设计选择是基于函数式编程中常见的不可变性原则，以及配置更新的需求：新提供的配置（即<code>context</code>参数中的）被认为是最新的，应优先于旧的配置。这样，开发者可以灵活更新协程的行为，而无需担心旧上下文的状态。</p>
+<h3 id="为什么ContinuationInterceptor位于最后"><a href="#为什么ContinuationInterceptor位于最后" class="headerlink" title="为什么ContinuationInterceptor位于最后"></a>为什么<code>ContinuationInterceptor</code>位于最后</h3><p><code>ContinuationInterceptor</code>是<code>CoroutineContext</code>中的一个特殊元素，用于拦截协程的执行。它是协程调度器（如<code>Dispatchers.Main</code>）的基础，控制着协程的执行线程。将<code>ContinuationInterceptor</code>放在合并后的<code>CoroutineContext</code>的最后，是出于性能考虑：</p>
+<ul>
+<li><p><strong>快速访问</strong>：协程在执行时频繁查询<code>ContinuationInterceptor</code>以确定执行线程。将其置于上下文的末尾可以优化这一查询过程，因为在<code>CoroutineContext</code>的实现中，较后的元素可以更快地被访问到。</p>
+</li>
+<li><p><strong>避免冲突</strong>：确保<code>ContinuationInterceptor</code>总是最后一个被添加，意味着即使合并多个上下文，也能保证只有一个有效的调度器在最终的上下文中生效，这避免了多个调度器可能导致的潜在冲突。</p>
+</li>
+</ul>
+<p>综上所述，<code>CoroutineContext</code>及其键的概念允许协程行为的灵活配置和更新，而在合并上下文时优先考虑新的元素以及保持<code>ContinuationInterceptor</code>在最后，是出于更新优先级和性能优化的考虑。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a>
+
+      
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2023/08/11/Kotlin/Kotlin%20%E5%8D%8F%E7%A8%8B/Kotlin%20%E7%9A%84%E5%8D%8F%E7%A8%8B%E6%9C%AC%E8%B4%A8%E5%88%B0%E5%BA%95%E4%BB%80%E4%B9%88/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Kotlin 的协程本质到底什么
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2023/08/11/Kotlin/Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%E4%B8%AD%E7%9A%84%E6%83%B0%E6%80%A7%E6%93%8D%E4%BD%9C%E5%AE%B9%E5%99%A8%E2%80%94%E2%80%94Sequence/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Kotlin中的惰性操作容器——Sequence</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="sidebar">
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">Contents</strong>
+    
+      <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Android-%E5%A6%82%E4%BD%95%E5%9C%A8%E4%B8%80%E4%B8%AA%E9%9D%9E-LifecycleOwner-%E7%9A%84%E7%B1%BB%E4%B8%AD%E4%BD%BF%E7%94%A8%E5%8D%8F%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">Android 如何在一个非 LifecycleOwner 的类中使用协程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E7%90%86%E8%A7%A3-CoroutineContext"><span class="nav-number">2.</span> <span class="nav-text">如何理解 CoroutineContext</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8D%8F%E7%A8%8B%E7%9A%84-%E5%8F%B7%E4%BB%A3%E8%A1%A8%E4%BB%80%E4%B9%88"><span class="nav-number">3.</span> <span class="nav-text">协程的 + 号代表什么</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E7%90%86%E8%A7%A3%E5%85%B6%E4%B8%AD%E7%9A%84-CoroutineContext-%E4%B8%8E-key%EF%BC%8C%E4%B8%BA%E4%BB%80%E4%B9%88context%E4%B8%AD%E7%9A%84%E5%85%83%E7%B4%A0%E4%BC%98%E5%85%88%EF%BC%8C%E4%B8%BA%E4%BB%80%E4%B9%88%E5%A6%82%E6%9E%9C%E5%AD%98%E5%9C%A8ContinuationInterceptor%EF%BC%8C%E7%A1%AE%E4%BF%9D%E5%AE%83%E4%BD%8D%E4%BA%8E%E6%9C%80%E5%90%8E%E3%80%82"><span class="nav-number">4.</span> <span class="nav-text">如何理解其中的 CoroutineContext 与 key，为什么context中的元素优先，为什么如果存在ContinuationInterceptor，确保它位于最后。</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#CoroutineContext%E5%92%8C-key"><span class="nav-number">4.0.1.</span> <span class="nav-text">CoroutineContext和 key</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88context%E4%B8%AD%E7%9A%84%E5%85%83%E7%B4%A0%E4%BC%98%E5%85%88"><span class="nav-number">4.0.2.</span> <span class="nav-text">为什么context中的元素优先</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88ContinuationInterceptor%E4%BD%8D%E4%BA%8E%E6%9C%80%E5%90%8E"><span class="nav-number">4.0.3.</span> <span class="nav-text">为什么ContinuationInterceptor位于最后</span></a></li></ol></li></ol></li></ol>
+    
+    </div>
+  </aside>
+</section>
+        
+      </div>
+
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    <footer id="footer" class="site-footer">
+  
+
+  <div class="clearfix container">
+      <div class="site-info">
+	      &copy; 2024 喵星科技报 All Rights Reserved.
+        
+            <span id="busuanzi_container_site_uv">
+              本站访客数<span id="busuanzi_value_site_uv"></span>人次  
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+          
+      </div>
+      <div class="site-credit">
+        Theme by <a href="https://github.com/CatJason" target="_blank">hipaper</a>
+      </div>
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var wrapdiv = document.getElementById("wrap");
+    var contentdiv = document.getElementById("content");
+
+    wrapdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+
+
+    <!-- headerblur min height -->
+    
+    
+</script>
+    
+<div style="display: none;">
+  <script src="https://s11.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+</div>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+<script src="/js/bootstrap.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+	</script>
+
+
+
+
+
+
+  </div>
+
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js" async=""></script>
+</body>
+</html>

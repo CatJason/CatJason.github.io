@@ -107,6 +107,199 @@
         
           <section id="main">
   
+    <article id="post-Android/ARouter/06-Arouter"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2023/09/10/Android/ARouter/06-Arouter/">从零开始写一个 ARouter - launcher 启动器</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/09/10/Android/ARouter/06-Arouter/" class="article-date">
+	  <time datetime="2023-09-09T17:05:06.000Z" itemprop="datePublished">September 10, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <ul>
+<li>ARouter<ul>
+<li><p>router-annotation 路由注解模块</p>
+<ul>
+<li>src.main.java<ul>
+<li>com.alibaba.android.arouter<ul>
+<li>facade 提供注解和枚举的包<ul>
+<li>annotation 存放各种注解类的包<ul>
+<li>Autowired.java 自动注入的注解</li>
+<li>Interceptor.java 拦截器的注解</li>
+<li>Param.java(废弃) 参数注解: 被 Autowired 淘汰</li>
+<li>Route.java 路由信息注解</li>
+</ul>
+</li>
+<li>enums 包含各种枚举类型的包<ul>
+<li>RouteType.java 路由类型的枚举</li>
+<li>TypeKind.java 类型种类的枚举</li>
+</ul>
+</li>
+<li>model 包含模型类的包<ul>
+<li>RouteMeta.java 路由元信息的模型类</li>
+<li>TypeWrapper.java 存储目标对象的泛型类型信息的类</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>arouter-api ARouter框架的API模块</p>
+<ul>
+<li>src.main.java<ul>
+<li>com.alibaba.android.arouter<ul>
+<li>base 基础功能相关的包<ul>
+<li>UniqueKeyTreeMap.java 唯一键树形映射的类</li>
+</ul>
+</li>
+<li>core 核心功能相关的包<ul>
+<li>AutowiredLifecyleCallback.java(废弃) 自动注入生命周期回调的类</li>
+<li>AutowiredServiceImpl.java 自动注入服务的实现类</li>
+<li>InstrumentationHook.java(废弃) 仪表钩子的类</li>
+<li>InterceptorServiceImpl.java 拦截器服务的实现类</li>
+<li>LogisticsCenter.java 物流中心的类</li>
+<li>Warehouse.java 仓库的类</li>
+</ul>
+</li>
+<li>exception 异常相关的包<ul>
+<li>HandlerException.java 处理异常的类</li>
+<li>InitException.java 初始化异常的类</li>
+<li>NoRouteFoundException.java 未找到路由的异常类</li>
+</ul>
+</li>
+<li>facade 提供各种服务和回调的包<ul>
+<li>callback 回调相关的包<ul>
+<li>InterceptorCallback.java 拦截器回调的接口</li>
+<li>NavigationCallback.java 导航回调的接口</li>
+<li>NoRouteFoundException.java 未找到路由的异常接口</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>service 服务相关的包<ul>
+<li>AutowiredService.java 自动注入服务的接口</li>
+<li>ClassLoaderService.java 类加载器服务的接口</li>
+<li>DegradeService.java 降级服务的接口</li>
+<li>InterceptorService.java 拦截器服务的接口</li>
+<li>PathReplaceService.java 路径替换服务的接口</li>
+<li>PretreatmentService.java 预处理服务的接口</li>
+<li>SerializationService.java 序列化服务的接口</li>
+</ul>
+</li>
+<li>template 模板相关的包<ul>
+<li>IInterceptor.java 拦截器接口</li>
+<li>IInterceptorGroup.java 拦截器分组接口</li>
+<li>Ilogger.java 日志记录器接口</li>
+<li>IPolicy.java 策略接口</li>
+<li>IProvider.java 提供者接口</li>
+<li>IProviderGroup.java 提供者分组接口</li>
+<li>IRouteGroup.java 路由分组接口</li>
+<li>IRouteRoot.java 路由根接口</li>
+<li>Isyringe.java 注射器接口</li>
+<li>Postcard.java 路由信息封装类</li>
+</ul>
+</li>
+<li>launcher 启动器: 包含一些用于启动ARouter框架的类和线程管理相关的类。<ul>
+<li><a href="#_Arouter">_Arouter.java</a> ARouter框架的内部启动类，用于初始化ARouter。</li>
+<li><a href="#Arouter">Arouter.java</a> ARouter框架的启动类，用于初始化ARouter。</li>
+</ul>
+</li>
+<li>thread （线程）包含了与线程管理相关的类。<ul>
+<li><a href="#CancelableCountDownLatch">CancelableCountDownLatch.java</a> 可取消的倒计时计数器，用于线程同步。</li>
+<li><a href="#DefaultPoolExecutor">DefaultPoolExecutor.java</a> 默认的线程池执行器，用于执行异步任务。</li>
+<li><a href="#DefaultThreadFactory">DefaultThreadFactory.java</a> 默认线程工厂，用于创建线程。</li>
+</ul>
+</li>
+<li>utils 工具类。<ul>
+<li>ClassUtils.java 用于操作类的实用工具类。</li>
+<li>Consts.java 包含一些常量值的类。</li>
+<li>DefaultLogger.java 默认的日志记录器类。</li>
+<li>MapUtils.java 用于操作地图数据的实用工具类。</li>
+<li>PackageUtils.java 用于操作包信息的实用工具类。</li>
+<li>TextUtils.java 用于操作文本数据的实用工具类。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>arouter-compiler</p>
+<ul>
+<li>src.main.java<ul>
+<li>com.alibaba.android.arouter<ul>
+<li>compiler 编译相关的包<ul>
+<li>entity 实体类相关的包<ul>
+<li>RouteDoc.java 路由文档实体类</li>
+</ul>
+</li>
+<li>processor 处理器相关的包<ul>
+<li>AutowiredProcessor.java 自动注入处理器</li>
+<li>BaseProcessor.java 基础处理器</li>
+<li>InterceptorProcessor.java 拦截器处理器</li>
+<li>RouteProcessor.java 路由处理器</li>
+</ul>
+</li>
+<li>utils 工具类相关的包<ul>
+<li>Consts.java 常量类</li>
+<li>Logger.java 日志记录器类</li>
+<li>TypeUtils.java 类型工具类</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
     <article id="post-Android/ARouter/07-Arouter"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
@@ -671,23 +864,13 @@
         <p><strong>author: 朕小猫-GPT4</strong></p>
 <p>图片显示的是一个典型的Android项目目录结构，这个项目中集成了C++原生代码。以下是各个组件的结构和作用的简述：</p>
 <ul>
-<li><code>src</code>：项目代码的源目录。<ul>
-<li><code>androidTest</code>：包含在Android设备或模拟器上运行的自动化测试。<ul>
-<li><code>java</code>：存放Java测试文件。<ul>
-<li><code>com.jason.game</code>：测试文件的Java包。<ul>
-<li><code>ExampleInstrumentedTest</code>：示例的仪器化测试文件，可以测试与Android框架相关的Android特定代码。</li>
+<li><code>src</code><ul>
+<li><code>main</code><ul>
+<li><code>assets</code><ul>
+<li><code>android_robot.png</code> 一个图像资产，可能用于应用的用户界面或游戏图形。</li>
 </ul>
 </li>
-</ul>
-</li>
-</ul>
-</li>
-<li><code>main</code>：包含应用核心代码和资源的主要源集。<ul>
-<li><code>assets</code>：存放应用可以通过AssetManager访问的原始资产文件的文件夹。<ul>
-<li><code>android_robot.png</code>：一个图像资产，可能用于应用的用户界面或游戏图形。</li>
-</ul>
-</li>
-<li><code>cpp</code>：C++源文件和原生代码的目录。<ul>
+<li><code>cpp</code><ul>
 <li><code>AndroidOut.cpp</code> 和 <code>AndroidOut.h</code>：C++源文件和头文件，可能用于原生代码中的日志或输出目的。</li>
 <li><code>CMakeLists.txt</code>：CMake配置文件，CMake是用于管理原生代码编译的构建系统。</li>
 <li><code>main.cpp</code>：主要的C++源文件，可能包含原生代码执行的入口点。</li>
@@ -698,21 +881,17 @@
 <li><code>Utility.cpp</code> 和 <code>Utility.h</code>：在原生代码库中使用的工具函数或类的源文件和头文件。</li>
 </ul>
 </li>
-<li><code>java</code>：Java源文件的文件夹。<ul>
-<li><code>com.jason.game</code>：应用的活动和其他组件的Java包。<ul>
-<li><code>MainActivity</code>：应用的主活动文件，通常是带有用户界面的Android应用的入口点。</li>
+<li><code>java</code><ul>
+<li><code>com.jason.game</code><ul>
+<li><code>MainActivity</code></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><code>res</code>：存放Android框架使用的布局、字符串和图像等资源的目录。<ul>
-<li><code>AndroidManifest.xml</code>：声明应用组件、权限和其他基本元数据的清单文件。</li>
+<li><code>res</code>：<ul>
+<li><code>AndroidManifest.xml</code></li>
 </ul>
 </li>
-</ul>
-</li>
-<li><code>test</code>：包含项目的单元测试。<ul>
-<li><code>[unitTest]</code>：名字表明是单元测试文件的占位符或标记，用于测试代码的孤立部分。</li>
 </ul>
 </li>
 </ul>
@@ -729,6 +908,240 @@
       
 	<span class="ico-folder"></span>
     <a class="article-category-link" href="/categories/5-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">5 - 渲染引擎</a>, <a class="article-category-link" href="/categories/5-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/5-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">5.1 - 基础项目拆解</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-C++/C++第一课-万物皆地址"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2023/08/29/C++/C++%E7%AC%AC%E4%B8%80%E8%AF%BE-%E4%B8%87%E7%89%A9%E7%9A%86%E5%9C%B0%E5%9D%80/">C++ 第一课-万物皆地址</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/29/C++/C++%E7%AC%AC%E4%B8%80%E8%AF%BE-%E4%B8%87%E7%89%A9%E7%9A%86%E5%9C%B0%E5%9D%80/" class="article-date">
+	  <time datetime="2023-08-28T18:45:14.000Z" itemprop="datePublished">August 29, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/5-C/">5 - C++</a>, <a class="article-category-link" href="/categories/5-C/5-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">5.1 - C++理论基础</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>作者：朕小猫与GPT4</p>
+<h1 id="怎么理解C-万物皆地址"><a href="#怎么理解C-万物皆地址" class="headerlink" title="怎么理解C++万物皆地址"></a>怎么理解C++万物皆地址</h1><p>在 C++ 程序中，几乎所有元素（包括变量、对象、函数等）都可以通过它们的内存地址来引用或操作。这一点归根结底是因为 C++ 是一种底层的编程语言，它允许直接访问内存和底层硬件资源。这种能力带来了极高的灵活性和控制能力，但同时也要求程序员对程序的内存使用有深入的理解。下面是如何通过内存地址来引用或操作元素的几个方面：</p>
+<ol>
+<li><h2 id="变量和对象的内存地址："><a href="#变量和对象的内存地址：" class="headerlink" title="变量和对象的内存地址："></a><strong>变量和对象的内存地址</strong>：</h2><p>在 C++ 中，每个变量或对象都占据内存中的一个或多个连续位置。你可以使用 <code>&amp;</code> 操作符获得一个变量的内存地址，这个地址可以赋给一个指针变量。通过指针，你可以读取或修改存储在该地址的数据。这对于数组和自定义数据结构尤其有用，因为可以通过指针算术进行高效的遍历和访问。</p>
+</li>
+<li><h2 id="函数的地址："><a href="#函数的地址：" class="headerlink" title="函数的地址："></a><strong>函数的地址</strong>：</h2><p>C++ 允许获取函数的地址，并将其赋给函数指针。这使得程序可以在运行时决定调用哪个函数，提高了代码的灵活性和可重用性。函数指针广泛应用于回调机制、事件驱动编程和接口设计中。</p>
+</li>
+<li><h2 id="引用："><a href="#引用：" class="headerlink" title="引用："></a><strong>引用</strong>：</h2><p>C++ 的引用机制实际上是一种特殊的语法糖，它在内部使用地址来实现。引用允许你创建一个变量的别名，通过别名可以直接访问和修改原始变量，而无需显式解引用。这样不仅代码更加简洁，而且避免了指针可能带来的错误。</p>
+</li>
+<li><h2 id="动态内存分配："><a href="#动态内存分配：" class="headerlink" title="动态内存分配："></a><strong>动态内存分配</strong>：</h2><p>C++ 通过 <code>new</code> 和 <code>delete</code> 操作符提供了动态内存分配的能力。使用 <code>new</code> 分配的内存位于堆区，它会返回指向分配内存的指针。通过这个指针，程序可以在运行时动态地分配、访问和释放内存。</p>
+</li>
+</ol>
+<p>通过上述机制，C++ 程序可以精确地控制内存的使用方式，从而优化程序性能和资源管理。然而，这也意呀着程序员必须对指针、内存地址以及内存管理有充分的理解，才能有效地利用这些特性编写高效、安全的代码。</p>
+<p>编写教程时，目标是清晰、简洁且具有实用性。以下是一个关于“如何在 C++ 中使用指针和地址”教程的示例内容。这段内容旨在介绍初学者到 C++ 的指针和地址概念，帮助他们理解和运用“万物皆地址”的原则。</p>
+<hr>
+<h1 id="C-指针和地址入门"><a href="#C-指针和地址入门" class="headerlink" title="C++ 指针和地址入门"></a>C++ 指针和地址入门</h1><p>在 C++ 中，理解指针和地址是掌握语言的基石。本教程将引导你通过简单的步骤来理解和使用指针和地址。</p>
+<h2 id="1-理解地址"><a href="#1-理解地址" class="headerlink" title="1. 理解地址"></a>1. 理解地址</h2><p>在 C++ 中，每个变量都存储在内存的一个特定位置，这个位置可以通过地址来访问。你可以使用 <code>&amp;</code> 操作符来获取变量的地址。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> var = <span class="number">10</span>;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;变量的地址: &quot;</span> &lt;&lt; &amp;var &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这段代码会输出变量 <code>var</code> 的内存地址。</p>
+<h2 id="2-使用指针"><a href="#2-使用指针" class="headerlink" title="2. 使用指针"></a>2. 使用指针</h2><p>指针是存储另一个变量地址的变量。在 C++ 中，你可以使用 <code>*</code> 来声明指针。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> var = <span class="number">10</span>;</span><br><span class="line">    <span class="type">int</span> *ptr = &amp;var;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;ptr 指向的地址: &quot;</span> &lt;&lt; ptr &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;ptr 指向的地址上的值: &quot;</span> &lt;&lt; *ptr &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这个例子中，<code>ptr</code> 是一个指向 <code>var</code> 地址的指针。通过 <code>*ptr</code>，我们可以访问这个地址上的值。</p>
+<h2 id="3-指针的使用场景"><a href="#3-指针的使用场景" class="headerlink" title="3. 指针的使用场景"></a>3. 指针的使用场景</h2><p>指针在 C++ 中的应用非常广泛，包括：</p>
+<ul>
+<li><strong>动态内存管理</strong>：使用 <code>new</code> 和 <code>delete</code> 操作符分配和释放内存。</li>
+<li><strong>函数参数传递</strong>：通过传递指针或引用来修改函数外的变量。</li>
+<li><strong>构建复杂数据结构</strong>：如链表、树等。</li>
+</ul>
+<h2 id="4-练习：使用指针交换两个变量的值"><a href="#4-练习：使用指针交换两个变量的值" class="headerlink" title="4. 练习：使用指针交换两个变量的值"></a>4. 练习：使用指针交换两个变量的值</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">swap</span><span class="params">(<span class="type">int</span> *x, <span class="type">int</span> *y)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> temp = *x;</span><br><span class="line">    *x = *y;</span><br><span class="line">    *y = temp;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> a = <span class="number">5</span>, b = <span class="number">10</span>;</span><br><span class="line">    <span class="built_in">swap</span>(&amp;a, &amp;b);</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;a: &quot;</span> &lt;&lt; a &lt;&lt; <span class="string">&quot;, b: &quot;</span> &lt;&lt; b &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个练习演示了如何使用指针来交换两个变量的值。</p>
+<h1 id="C-通过地址修改值"><a href="#C-通过地址修改值" class="headerlink" title="C++ 通过地址修改值"></a>C++ 通过地址修改值</h1><p>在 C++ 中，通过地址修改值是指针操作的一个基本用途。指针是一种特殊的变量，其值为另一个变量的内存地址。<br>通过指针，你可以直接访问和修改它指向的内存位置上存储的数据。<br>这一过程涉及几个关键步骤：获取变量的地址、使用指针指向该地址、通过指针修改该地址上的值。<br>下面通过一个简单的示例来说明这一过程：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> value = <span class="number">10</span>;    <span class="comment">// 定义一个变量value并初始化为10</span></span><br><span class="line">    <span class="type">int</span> *ptr = &amp;value; <span class="comment">// 定义一个指针ptr，将其初始化为value的地址</span></span><br><span class="line"></span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;Original value: &quot;</span> &lt;&lt; value &lt;&lt; endl; <span class="comment">// 显示原始的value值</span></span><br><span class="line"></span><br><span class="line">    *ptr = <span class="number">20</span>; <span class="comment">// 通过指针ptr修改value的值</span></span><br><span class="line"></span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;Modified value: &quot;</span> &lt;&lt; value &lt;&lt; endl; <span class="comment">// 显示修改后的value值</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在上述代码中：</p>
+<ol>
+<li>我们首先定义了一个类型为 <code>int</code> 的变量 <code>value</code> 并初始化为 10。</li>
+<li>然后，我们定义了一个类型为 <code>int*</code> 的指针 <code>ptr</code> 并将其初始化为 <code>value</code> 的地址（<code>&amp;value</code>）。</li>
+<li>通过 <code>cout</code> 输出语句，我们可以看到 <code>value</code> 的原始值。</li>
+<li>接着，我们通过指针 <code>ptr</code> 来修改 <code>value</code> 的值。这里的 <code>*ptr = 20;</code> 表示将 <code>ptr</code> 指向的内存位置（即 <code>value</code> 的位置）上的数据修改为 20。<code>*ptr</code> 是解引用操作符的应用，它获取指针指向的内存地址上存储的值。</li>
+<li>最后，再次通过 <code>cout</code> 输出 <code>value</code> 的值，可以看到它已经被修改为 20。</li>
+</ol>
+<h1 id="函数传参的内存地址"><a href="#函数传参的内存地址" class="headerlink" title="函数传参的内存地址"></a>函数传参的内存地址</h1><p>在 C++ 中，理解函数传参的内存地址涉及到两个主要概念：按值传递（Pass by Value）和按引用传递（Pass by Reference）。理解这些概念有助于深入理解 C++ 如何在函数调用中处理参数的内存地址。</p>
+<h2 id="按值传递（Pass-by-Value）"><a href="#按值传递（Pass-by-Value）" class="headerlink" title="按值传递（Pass by Value）"></a>按值传递（Pass by Value）</h2><p>当函数参数是按值传递时，函数接收的是实参的一个副本。这意味着函数内部对参数所做的任何修改都不会影响到原始数据。在内存层面，这个过程涉及到将原始数据的值复制到新的内存地址中。这个新的地址是函数参数在函数调用栈上的局部地址。</p>
+<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ul>
+<li>保护了原始数据，避免了意外修改。</li>
+<li>对于基本数据类型，这种方式简单且效率较高。</li>
+</ul>
+<h3 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h3><ul>
+<li>对于大型结构或类实例，复制可能导致性能下降。</li>
+<li>无法在函数外部反映函数内部对数据的修改。</li>
+</ul>
+<h2 id="按引用传递（Pass-by-Reference）"><a href="#按引用传递（Pass-by-Reference）" class="headerlink" title="按引用传递（Pass by Reference）"></a>按引用传递（Pass by Reference）</h2><p>按引用传递意味着函数接收的是实参的引用（或者说是内存地址）。这样，函数内部对参数的任何修改都会直接影响到原始数据。在内存层面，这避免了数据的复制，函数参数直接使用了实参的地址。</p>
+<h3 id="优点-1"><a href="#优点-1" class="headerlink" title="优点"></a>优点</h3><ul>
+<li>可以直接修改原始数据。</li>
+<li>避免了大型数据结构的复制，提高了效率。</li>
+<li>可以通过返回多个结果值（通过修改传入的引用或指针参数）。</li>
+</ul>
+<h3 id="缺点-1"><a href="#缺点-1" class="headerlink" title="缺点"></a>缺点</h3><ul>
+<li>如果不希望修改原始数据，需要谨慎操作。</li>
+<li>使用不当可能导致错误或数据损坏。</li>
+</ul>
+<h3 id="举个例子"><a href="#举个例子" class="headerlink" title="举个例子"></a>举个例子</h3><p>假设我们有一个简单的函数，目的是修改一个整数的值。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 按值传递</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">addTenByValue</span><span class="params">(<span class="type">int</span> number)</span> </span>&#123;</span><br><span class="line">    number += <span class="number">10</span>;</span><br><span class="line">    <span class="comment">// 这里修改的是number的副本，外部的原始变量不受影响</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 按引用传递</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">addTenByReference</span><span class="params">(<span class="type">int</span> &amp;number)</span> </span>&#123;</span><br><span class="line">    number += <span class="number">10</span>;</span><br><span class="line">    <span class="comment">// 这里直接修改的是传入变量的值，外部的原始变量也会被修改</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这个例子中，<code>addTenByValue</code> 函数无法修改外部变量的值，因为它仅操作了参数的副本。而 <code>addTenByReference</code> 函数则直接操作了实参的内存地址，因此它能够修改外部变量的值。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/5-C/">5 - C++</a>, <a class="article-category-link" href="/categories/5-C/5-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">5.1 - C++理论基础</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-C++/C++函数指针与指针函数,C++11 新特性"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2023/08/29/C++/C++%E5%87%BD%E6%95%B0%E6%8C%87%E9%92%88%E4%B8%8E%E6%8C%87%E9%92%88%E5%87%BD%E6%95%B0,C++11%20%E6%96%B0%E7%89%B9%E6%80%A7/">C++ 函数指针与指针函数,C++11 新特性</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/29/C++/C++%E5%87%BD%E6%95%B0%E6%8C%87%E9%92%88%E4%B8%8E%E6%8C%87%E9%92%88%E5%87%BD%E6%95%B0,C++11%20%E6%96%B0%E7%89%B9%E6%80%A7/" class="article-date">
+	  <time datetime="2023-08-28T18:45:14.000Z" itemprop="datePublished">August 29, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/5-C/">5 - C++</a>, <a class="article-category-link" href="/categories/5-C/5-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">5.1 - C++理论基础</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>作者：朕小猫与GPT4</p>
+<h1 id="C-函数指针"><a href="#C-函数指针" class="headerlink" title="C++函数指针"></a>C++函数指针</h1><p>在 C++ 中，函数指针是指向函数的指针，允许通过指针调用函数。这种特性让程序在运行时能够选择要调用的函数，增加了代码的灵活性和动态性。理解函数指针对于高级编程技巧，如回调函数、命令模式等是非常重要的。</p>
+<h2 id="定义函数指针"><a href="#定义函数指针" class="headerlink" title="定义函数指针"></a>定义函数指针</h2><p>函数指针的定义需要指定函数的返回类型、指针名称以及函数参数的类型。定义函数指针的基本语法如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">返回类型 (*指针变量名)(参数类型列表);</span><br></pre></td></tr></table></figure>
+
+<p>例如，如果你有一个返回类型为 <code>int</code> 并接受两个 <code>int</code> 类型参数的函数，你可以这样定义一个指向该函数的指针：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">int</span> (*funcPtr)(<span class="type">int</span>, <span class="type">int</span>);</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用函数指针"><a href="#使用函数指针" class="headerlink" title="使用函数指针"></a>使用函数指针</h2><p>一旦定义了函数指针，就可以将其指向具有相应签名的任何函数，然后通过该指针调用函数。这里有一个使用函数指针的简单示例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义一个简单的函数</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">add</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> x + y;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 定义一个函数指针并使其指向add函数</span></span><br><span class="line">    <span class="built_in">int</span> (*funcPtr)(<span class="type">int</span>, <span class="type">int</span>) = add;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通过函数指针调用函数</span></span><br><span class="line">    <span class="type">int</span> sum = <span class="built_in">funcPtr</span>(<span class="number">2</span>, <span class="number">3</span>);</span><br><span class="line"></span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;The sum is: &quot;</span> &lt;&lt; sum &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="函数指针的用途"><a href="#函数指针的用途" class="headerlink" title="函数指针的用途"></a>函数指针的用途</h2><p>函数指针最常见的用途包括：</p>
+<ul>
+<li><strong>回调函数</strong>：允许库或框架调用在使用库的代码中定义的函数。</li>
+<li><strong>事件处理</strong>：在发生特定事件时动态决定调用哪个函数。</li>
+<li><strong>接口实现</strong>：通过函数指针数组或结构体实现类似于面向对象编程中接口或虚函数的功能。</li>
+<li><strong>命令模式</strong>：将操作封装为对象，允许存储、传递和调用操作。</li>
+</ul>
+<h2 id="高级话题"><a href="#高级话题" class="headerlink" title="高级话题"></a>高级话题</h2><p>随着 C++11 的引入，现代 C++ 更倾向于使用 std::function 和 lambda 表达式来替代裸函数指针，因为它们提供了更高的灵活性和更简洁的语法。例如，<code>std::function</code> 可以存储并调用任何可调用的实体，包括普通函数、lambda 表达式、以及其他具有 <code>operator()</code> 的对象。</p>
+<h1 id="举例子，说明函数指针使用的几种场景"><a href="#举例子，说明函数指针使用的几种场景" class="headerlink" title="举例子，说明函数指针使用的几种场景"></a>举例子，说明函数指针使用的几种场景</h1><p>函数指针在 C++ 中的应用非常广泛，提供了编程的灵活性和动态性。以下是几种典型场景，展示了函数指针的使用：</p>
+<h2 id="1-回调函数"><a href="#1-回调函数" class="headerlink" title="1. 回调函数"></a>1. 回调函数</h2><p>回调函数是由用户编写的，但由系统或库在适当的时候调用的函数。函数指针允许用户提供具体的回调函数实现，使得库或框架可以在运行时调用用户定义的代码。</p>
+<p><strong>示例：</strong> 设计一个简单的事件处理器，当发生某个事件时，调用用户提供的回调函数。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义回调函数类型</span></span><br><span class="line"><span class="keyword">using</span> Callback = <span class="built_in">void</span>(*)(<span class="type">int</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 事件处理器类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">EventProcessor</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">registerCallback</span><span class="params">(Callback cb)</span> </span>&#123;</span><br><span class="line">        callbacks.<span class="built_in">push_back</span>(cb);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">triggerEvent</span><span class="params">(<span class="type">int</span> eventData)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; cb : callbacks) &#123;</span><br><span class="line">            <span class="built_in">cb</span>(eventData); <span class="comment">// 调用回调函数</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    std::vector&lt;Callback&gt; callbacks; <span class="comment">// 回调函数列表</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 用户定义的回调函数</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">onEventTriggered</span><span class="params">(<span class="type">int</span> data)</span> </span>&#123;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Event triggered with data: &quot;</span> &lt;&lt; data &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    EventProcessor ep;</span><br><span class="line">    ep.<span class="built_in">registerCallback</span>(onEventTriggered); <span class="comment">// 注册回调函数</span></span><br><span class="line">    ep.<span class="built_in">triggerEvent</span>(<span class="number">42</span>); <span class="comment">// 触发事件，调用回调函数</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-函数指针数组"><a href="#2-函数指针数组" class="headerlink" title="2. 函数指针数组"></a>2. 函数指针数组</h2><p>函数指针数组可以存储指向不同函数的指针，使得程序可以基于运行时决策调用不同的函数。</p>
+<p><strong>示例：</strong> 创建一个简单的菜单系统，用户输入不同的选项执行不同的操作。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">function1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Executing Function 1&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">function2</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Executing Function 2&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">function3</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Executing Function 3&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">void</span>(*functions[<span class="number">3</span>])() = &#123;function1, function2, function3&#125;;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> choice;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Enter a choice (0-2): &quot;</span>;</span><br><span class="line">    std::cin &gt;&gt; choice;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (choice &gt;= <span class="number">0</span> &amp;&amp; choice &lt; <span class="number">3</span>) &#123;</span><br><span class="line">        (*functions[choice])(); <span class="comment">// 调用选中的函数</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        std::cout &lt;&lt; <span class="string">&quot;Invalid choice&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-接口实现和策略模式"><a href="#3-接口实现和策略模式" class="headerlink" title="3. 接口实现和策略模式"></a>3. 接口实现和策略模式</h2><p>通过函数指针，可以模拟面向对象编程中的接口或策略模式，允许在运行时选择不同的算法或行为。</p>
+<p><strong>示例：</strong> 设计一个简单的排序策略，用户可以选择不同的排序算法。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> SortAlgorithm = <span class="built_in">void</span>(*)(std::vector&lt;<span class="type">int</span>&gt;&amp;);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">ascendingSort</span><span class="params">(std::vector&lt;<span class="type">int</span>&gt;&amp; data)</span> </span>&#123;</span><br><span class="line">    std::<span class="built_in">sort</span>(data.<span class="built_in">begin</span>(), data.<span class="built_in">end</span>());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">descendingSort</span><span class="params">(std::vector&lt;<span class="type">int</span>&gt;&amp; data)</span> </span>&#123;</span><br><span class="line">    std::<span class="built_in">sort</span>(data.<span class="built_in">begin</span>(), data.<span class="built_in">end</span>(), std::<span class="built_in">greater</span>&lt;<span class="type">int</span>&gt;());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">sortData</span><span class="params">(std::vector&lt;<span class="type">int</span>&gt;&amp; data, SortAlgorithm algorithm)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">algorithm</span>(data); <span class="comment">// 使用指定的排序算法</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    std::vector&lt;<span class="type">int</span>&gt; data = &#123;<span class="number">4</span>, <span class="number">2</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">3</span>&#125;;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">sortData</span>(data, ascendingSort);</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> n : data) std::cout &lt;&lt; n &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">    std::cout &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">sortData</span>(data, descendingSort);</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> n : data) std::cout &lt;&lt; n &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">    std::cout &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这些示例展示了函数指针在回调、决策和策略选择等不同编程场景中的应用，证明了其为 C++ 编程带来的灵活性和动态性。</p>
+<h1 id="使用-std-function-和-lambda-表达式来替代裸函数指针，举例子"><a href="#使用-std-function-和-lambda-表达式来替代裸函数指针，举例子" class="headerlink" title="使用 std::function 和 lambda 表达式来替代裸函数指针，举例子"></a>使用 std::function 和 lambda 表达式来替代裸函数指针，举例子</h1><p><code>std::function</code> 和 lambda 表达式在 C++11 及之后的版本中提供了一种更加灵活和方便的方式来处理可调用对象。它们使得代码更加简洁且易于理解，特别是在需要函数作为参数或回调时。</p>
+<h2 id="Lambda-表达式"><a href="#Lambda-表达式" class="headerlink" title="Lambda 表达式"></a>Lambda 表达式</h2><p>Lambda 表达式提供了一种匿名函数的实现，允许你在需要函数对象的地方快速定义一个函数。Lambda 表达式的基本语法如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[捕获列表](参数列表) -&gt; 返回类型 &#123;</span><br><span class="line">    函数体</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用-std-function-和-Lambda-表达式"><a href="#使用-std-function-和-Lambda-表达式" class="headerlink" title="使用 std::function 和 Lambda 表达式"></a>使用 <code>std::function</code> 和 Lambda 表达式</h2><p><code>std::function</code> 是一个模板类，它可以用来存储任何可以调用的目标，如普通函数、Lambda 表达式、成员函数和函数对象。这提供了比裸函数指针更大的灵活性和功能。</p>
+<p>下面是一个示例，展示了如何使用 <code>std::function</code> 和 Lambda 表达式来替代裸函数指针：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;functional&gt;</span> <span class="comment">// 必须包含这个头文件</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义一个普通的函数</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">add</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> x + y;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 使用 std::function 存储普通函数</span></span><br><span class="line">    std::function&lt;<span class="type">int</span>(<span class="type">int</span>, <span class="type">int</span>)&gt; func = add;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;The sum using a normal function: &quot;</span> &lt;&lt; <span class="built_in">func</span>(<span class="number">2</span>, <span class="number">3</span>) &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 使用 std::function 存储 Lambda 表达式</span></span><br><span class="line">    std::function&lt;<span class="type">int</span>(<span class="type">int</span>, <span class="type">int</span>)&gt; lambdaFunc = [](<span class="type">int</span> x, <span class="type">int</span> y) -&gt; <span class="type">int</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> x + y;</span><br><span class="line">    &#125;;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;The sum using a lambda expression: &quot;</span> &lt;&lt; <span class="built_in">lambdaFunc</span>(<span class="number">2</span>, <span class="number">3</span>) &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这个示例中，我们首先定义了一个普通的函数 <code>add</code>。然后，我们创建了两个 <code>std::function</code> 对象，一个用来存储普通函数 <code>add</code>，另一个用来存储一个实现相同功能的 Lambda 表达式。通过这种方式，我们可以看到 <code>std::function</code> 和 Lambda 表达式如何提供了一种更加灵活的方式来处理可调用对象，而不必直接使用函数指针。</p>
+<h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><ul>
+<li><code>std::function</code> 可以存储任何类型的可调用对象，提供了极大的灵活性。</li>
+<li>Lambda 表达式使得定义和使用匿名函数变得简单，特别是在作为一次性使用函数或局部函数时非常有用。</li>
+<li>使用 <code>std::function</code> 和 Lambda 表达式可以使代码更加清晰和易于维护，特别是在复杂的项目中。</li>
+</ul>
+<p>通过这种方式，C++11 提供的这些特性让处理函数和回调等场景变得更加优雅和高效。</p>
+<h1 id="C-指针函数"><a href="#C-指针函数" class="headerlink" title="C ++ 指针函数"></a>C ++ 指针函数</h1><p>在 C++ 中，术语“指针函数”通常被误解或使用不当。实际上，人们通常是指返回指针的函数，或者简称为“函数返回指针”。这种类型的函数在使用时非常有用，尤其是当你需要从函数中返回动态分配的内存或数组、多级指针、或者指向不同数据结构的指针时。</p>
+<h2 id="定义返回指针的函数"><a href="#定义返回指针的函数" class="headerlink" title="定义返回指针的函数"></a>定义返回指针的函数</h2><p>要定义一个返回指针的函数，你需要在函数声明的返回类型前加上<code>*</code>来指明返回的是指针。这里有一个简单的例子，说明如何定义和使用返回指针的函数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义一个返回int指针的函数</span></span><br><span class="line"><span class="function"><span class="type">int</span>* <span class="title">getIntPtr</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span>* ptr = <span class="keyword">new</span> <span class="built_in">int</span>(<span class="number">10</span>); <span class="comment">// 动态分配内存</span></span><br><span class="line">    <span class="keyword">return</span> ptr; <span class="comment">// 返回指向int的指针</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span>* myPtr = <span class="built_in">getIntPtr</span>(); <span class="comment">// 调用函数，获取返回的指针</span></span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Value: &quot;</span> &lt;&lt; *myPtr &lt;&lt; std::endl; <span class="comment">// 使用指针访问值</span></span><br><span class="line">    <span class="keyword">delete</span> myPtr; <span class="comment">// 释放分配的内存</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这个例子中，<code>getIntPtr</code>函数分配了一个<code>int</code>类型的动态内存，并返回一个指向这块内存的指针。在<code>main</code>函数中，我们调用了<code>getIntPtr</code>，并使用返回的指针来访问和操作内存。最后，不要忘记使用<code>delete</code>释放动态分配的内存，以避免内存泄露。</p>
+<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><ul>
+<li>返回局部变量的地址是危险的，因为当函数执行完毕后，局部变量的存储空间会被回收，这样返回的指针会指向一个不再有效的内存区域，导致未定义行为。</li>
+<li>当你的函数返回指向动态分配内存的指针时，确保在适当的时候释放这些内存，以避免内存泄露。</li>
+<li>考虑使用智能指针（如<code>std::unique_ptr</code>或<code>std::shared_ptr</code>）来管理动态分配的内存，这样可以自动管理内存的生命周期，减少内存泄露的风险。</li>
+</ul>
+<p>返回指针的函数提供了一种灵活的方式来创建和管理动态资源，但同时也需要谨慎处理指针和内存管理相关的问题。</p>
+<h1 id="如何使用智能指针（如std-unique-ptr或std-shared-ptr）来管理动态分配的内存"><a href="#如何使用智能指针（如std-unique-ptr或std-shared-ptr）来管理动态分配的内存" class="headerlink" title="如何使用智能指针（如std::unique_ptr或std::shared_ptr）来管理动态分配的内存"></a>如何使用智能指针（如std::unique_ptr或std::shared_ptr）来管理动态分配的内存</h1><p>在 C++ 中，智能指针是一种模板类，用于自动管理动态分配的内存，确保资源在不再需要时被正确释放，从而避免内存泄露。C++11 引入了两种主要的智能指针类型：<code>std::unique_ptr</code> 和 <code>std::shared_ptr</code>，它们分别用于独占所有权和共享所有权的场景。</p>
+<h2 id="使用-std-unique-ptr"><a href="#使用-std-unique-ptr" class="headerlink" title="使用 std::unique_ptr"></a>使用 <code>std::unique_ptr</code></h2><p><code>std::unique_ptr</code> 是一种独占所有权的智能指针，保证同一时间只有一个 <code>std::unique_ptr</code> 指向特定的资源。当 <code>std::unique_ptr</code> 被销毁或被重新分配时，它指向的对象也会被自动删除。</p>
+<h3 id="基本用法："><a href="#基本用法：" class="headerlink" title="基本用法："></a><strong>基本用法：</strong></h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;memory&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyObject</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">MyObject</span>() &#123; std::cout &lt;&lt; <span class="string">&quot;MyObject created\n&quot;</span>; &#125;</span><br><span class="line">    ~<span class="built_in">MyObject</span>() &#123; std::cout &lt;&lt; <span class="string">&quot;MyObject destroyed\n&quot;</span>; &#125;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">myMethod</span><span class="params">()</span> </span>&#123; std::cout &lt;&lt; <span class="string">&quot;MyMethod called\n&quot;</span>; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    std::unique_ptr&lt;MyObject&gt; myUniquePtr = std::<span class="built_in">make_unique</span>&lt;MyObject&gt;();</span><br><span class="line">    myUniquePtr-&gt;<span class="built_in">myMethod</span>(); <span class="comment">// 使用-&gt;操作符调用成员函数</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 不需要手动删除对象，当unique_ptr离开作用域时，对象会被自动销毁</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用-std-shared-ptr"><a href="#使用-std-shared-ptr" class="headerlink" title="使用 std::shared_ptr"></a>使用 <code>std::shared_ptr</code></h2><p><code>std::shared_ptr</code> 是一种共享所有权的智能指针，允许多个 <code>std::shared_ptr</code> 实例指向同一个对象。内部使用引用计数来跟踪有多少个 <code>std::shared_ptr</code> 指向同一个资源，当最后一个这样的指针被销毁时，所指向的对象也会被删除。</p>
+<h3 id="基本用法：-1"><a href="#基本用法：-1" class="headerlink" title="基本用法："></a><strong>基本用法：</strong></h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;memory&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyObject</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">MyObject</span>() &#123; std::cout &lt;&lt; <span class="string">&quot;MyObject created\n&quot;</span>; &#125;</span><br><span class="line">    ~<span class="built_in">MyObject</span>() &#123; std::cout &lt;&lt; <span class="string">&quot;MyObject destroyed\n&quot;</span>; &#125;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">myMethod</span><span class="params">()</span> </span>&#123; std::cout &lt;&lt; <span class="string">&quot;MyMethod called\n&quot;</span>; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    std::shared_ptr&lt;MyObject&gt; mySharedPtr1 = std::<span class="built_in">make_shared</span>&lt;MyObject&gt;();</span><br><span class="line">    &#123;</span><br><span class="line">        std::shared_ptr&lt;MyObject&gt; mySharedPtr2 = mySharedPtr1; <span class="comment">// 共享所有权</span></span><br><span class="line">        mySharedPtr2-&gt;<span class="built_in">myMethod</span>();</span><br><span class="line">        <span class="comment">// 当mySharedPtr2离开作用域时，对象不会被销毁，因为mySharedPtr1仍然存在</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 只有当最后一个指向对象的shared_ptr（这里是mySharedPtr1）离开作用域时，对象才会被销毁</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="注意事项-1"><a href="#注意事项-1" class="headerlink" title="注意事项"></a>注意事项</h3><ul>
+<li>使用智能指针可以减少内存泄露的风险，但仍需要注意循环引用问题，尤其是在使用 <code>std::shared_ptr</code> 时。循环引用会阻止引用计数达到零，导致内存泄露。解决循环引用问题通常使用 <code>std::weak_ptr</code>。</li>
+<li><code>std::unique_ptr</code> 通过移动语义实现所有权的转移，不能被复制。</li>
+<li><code>std::shared_ptr</code> 适用于资源需要被多个所有者共享的情况，但增加了额外的开销（引用计数管理）。</li>
+</ul>
+<p>智能指针是现代 C++ 管理动态资源的首选方式，相比裸指针，它们提供了更安全、更简洁的资源管理机制。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/5-C/">5 - C++</a>, <a class="article-category-link" href="/categories/5-C/5-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">5.1 - C++理论基础</a>
 
       
       
@@ -926,7 +1339,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">29</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">5</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.0 - Java 多线程</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">15</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.1 - 播放器架构方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/5-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">5 - 渲染引擎</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/5-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/5-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">5.1 - 基础项目拆解</a><span class="category-list-count">2</span></li></ul></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">29</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">4</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">5</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.0 - Java 多线程</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">15</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.1 - 播放器架构方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/5-C/">5 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/5-C/5-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">5.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/5-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">5 - 渲染引擎</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/5-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/5-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">5.1 - 基础项目拆解</a><span class="category-list-count">2</span></li></ul></li></ul>
     </div>
   </div>
 
@@ -940,7 +1353,7 @@
     <h3 class="widget-title">Archives</h3>
 
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">44</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">47</span></li></ul>
     </div>
   </div>
 
