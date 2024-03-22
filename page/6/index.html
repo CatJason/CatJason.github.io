@@ -1154,6 +1154,85 @@
 <!-- Table of Contents -->
 
   
+    <article id="post-Android编译打包/Android aar 文件到底是什么"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2023/08/11/Android%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85/Android%20aar%20%E6%96%87%E4%BB%B6%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88/">Android aar 文件到底是什么</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/11/Android%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85/Android%20aar%20%E6%96%87%E4%BB%B6%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88/" class="article-date">
+	  <time datetime="2023-08-10T23:19:04.000Z" itemprop="datePublished">August 11, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a>, <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>作者: 朕小猫与GPT4</p>
+<h1 id="问题起源：怎么打包发布一个含有-C-文件的-Library"><a href="#问题起源：怎么打包发布一个含有-C-文件的-Library" class="headerlink" title="问题起源：怎么打包发布一个含有 C++ 文件的 Library"></a>问题起源：怎么打包发布一个含有 C++ 文件的 Library</h1><p>起因是 KOOM 2.2.1 Release 存在后台分析进程在部分机型失效，想自己发布一个适合自己项目的版本。</p>
+<h1 id="so文件可以被打包到最终的AAR文件中吗"><a href="#so文件可以被打包到最终的AAR文件中吗" class="headerlink" title=".so文件可以被打包到最终的AAR文件中吗"></a>.so文件可以被打包到最终的AAR文件中吗</h1><p>是的，<code>.so</code>文件可以并且通常被打包到最终的AAR（Android Archive）文件中。AAR文件是Android开发中用于分发Android库的标准格式，它包含了库所需的所有资源、编译后的代码以及其他文件，比如<code>.so</code>文件（本地库文件）。</p>
+<h3 id="打包-so文件到AAR中的步骤"><a href="#打包-so文件到AAR中的步骤" class="headerlink" title="打包.so文件到AAR中的步骤"></a>打包<code>.so</code>文件到AAR中的步骤</h3><ol>
+<li><p><strong>放置<code>.so</code>文件</strong>: 将你的<code>.so</code>文件放置在项目的<code>src/main/jniLibs/</code>目录下。按照不同的CPU架构，你可能需要创建相应的子目录，例如<code>armeabi-v7a</code>、<code>arm64-v8a</code>、<code>x86</code>等，然后将相应架构的<code>.so</code>文件放置在这些目录下。</p>
+</li>
+<li><p><strong>配置Gradle构建脚本</strong>: 确保你的<code>build.gradle</code>文件正确配置，这样Gradle在构建过程中就会自动将<code>jniLibs</code>目录下的<code>.so</code>文件包括到AAR包中。大多数情况下，这个过程是自动完成的，无需额外配置。</p>
+</li>
+</ol>
+<h3 id="示例目录结构"><a href="#示例目录结构" class="headerlink" title="示例目录结构"></a>示例目录结构</h3><figure class="highlight crystal"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">YourLibraryProject/</span><br><span class="line">├── src/</span><br><span class="line">│   └── main/</span><br><span class="line">│       ├── java/</span><br><span class="line">│       │   └── ... (your Java or Kotlin source files)</span><br><span class="line">│       ├── res/</span><br><span class="line">│       │   └── ... (your resources)</span><br><span class="line">│       └── jniLibs/</span><br><span class="line">│           ├── armeabi-v7a/</span><br><span class="line">│           │   └── libyourlibrary.so</span><br><span class="line">│           ├── arm64-v8a/</span><br><span class="line">│           │   └── libyourlibrary.so</span><br><span class="line">│           ├── x86/</span><br><span class="line">│           │   └── libyourlibrary.so</span><br><span class="line">│           └── x86_64/</span><br><span class="line">│               └── libyourlibrary.so</span><br></pre></td></tr></table></figure>
+
+<h3 id="构建AAR包"><a href="#构建AAR包" class="headerlink" title="构建AAR包"></a>构建AAR包</h3><p>当你构建你的库时（例如，通过运行<code>./gradlew assembleRelease</code>），Gradle会自动将<code>jniLibs</code>目录下的所有<code>.so</code>文件包括到生成的AAR文件中。这样，当其他开发者将你的AAR文件作为依赖项添加到他们的项目中时，这些<code>.so</code>文件就会被自动解压到正确的位置，供他们的应用使用。</p>
+<p>确保在发布你的库之前测试它，以确保<code>.so</code>文件被正确包含且可以按预期工作。这通常涉及到在包含不同CPU架构设备的模拟器或真实设备上运行和测试你的库。</p>
+<h1 id="aar-里可以有哪些文件"><a href="#aar-里可以有哪些文件" class="headerlink" title=".aar 里可以有哪些文件"></a>.aar 里可以有哪些文件</h1><p>一个AAR（Android Archive）文件是Android库项目的发布包格式，用于在开发者之间共享Android库。AAR文件包含了库所需要的所有内容，使其可以被其他的Android应用项目引用。以下是AAR文件通常包含的文件和目录：</p>
+<h3 id="必需的内容"><a href="#必需的内容" class="headerlink" title="必需的内容"></a>必需的内容</h3><ul>
+<li><code>classes.jar</code>：包含库的所有编译后的Java类（.class文件）。</li>
+<li><code>res/</code>：包含库所使用的所有资源文件，如布局（layouts）、字符串（strings）、图片（drawables）等。</li>
+<li><code>AndroidManifest.xml</code>：库的Android清单文件，描述了库的包名、所需权限、活动（activities）、服务（services）等。</li>
+</ul>
+<h3 id="可选的内容"><a href="#可选的内容" class="headerlink" title="可选的内容"></a>可选的内容</h3><ul>
+<li><code>R.txt</code>：包含库中所有资源的ID名称和类型的列表，这是为了在库被引用时帮助生成最终应用的R类。</li>
+<li><code>aidl/</code>：包含库所使用的所有AIDL（Android Interface Definition Language）文件，用于定义跨进程通信接口。</li>
+<li><code>assets/</code>：包含可以被库访问的原始文件，如文本、音频或视频文件。</li>
+<li><code>libs/*.jar</code>：包含库依赖的任何Java库的JAR文件。</li>
+<li><code>jni/</code> 或 <code>jniLibs/</code>：包含库依赖的本地库（如<code>.so</code>文件），这些文件根据不同的CPU架构可能存放在不同的子目录下，如<code>armeabi-v7a/</code>、<code>arm64-v8a/</code>等。</li>
+<li><code>proguard.txt</code>：包含用于代码混淆的ProGuard规则。</li>
+<li><code>lint.jar</code>：包含自定义lint检查规则的JAR，这些规则可以在使用库的项目中被lint程序使用。</li>
+<li><code>public.txt</code>：列出了库公开的资源ID，这些资源ID在库的使用者中是可见的。</li>
+<li><code>annotations.zip</code>：包含用于工具支持的注解，比如nullability注解等。</li>
+</ul>
+<h3 id="如何查看AAR文件内容"><a href="#如何查看AAR文件内容" class="headerlink" title="如何查看AAR文件内容"></a>如何查看AAR文件内容</h3><p>你可以通过解压AAR文件（它本质上是一个ZIP文件）来查看里面的内容。使用任何标准的压缩文件管理器，如WinRAR、7-Zip等，都可以打开AAR文件并浏览其中的内容。</p>
+<h3 id="使用AAR文件"><a href="#使用AAR文件" class="headerlink" title="使用AAR文件"></a>使用AAR文件</h3><p>当你将AAR文件作为依赖项添加到Android项目中时，项目构建系统（如Gradle）会自动处理并引入这些内容，包括解析资源、合并清单文件等，从而使库中的功能可用于应用程序。<br><a target="_blank" rel="noopener" href="https://imgse.com/i/pFy2w6J"><img src="https://s21.ax1x.com/2024/03/10/pFy2w6J.png" alt="aar文件分析.png"></a></p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a>, <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
     <article id="post-渲染引擎/渲染引擎开篇"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
@@ -1195,68 +1274,11 @@
 <!-- Table of Contents -->
 
   
-    <article id="post-网络通信/RESTful API"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2023/08/10/%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1/RESTful%20API/">RESTful API</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2023/08/10/%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1/RESTful%20API/" class="article-date">
-	  <time datetime="2023-08-09T22:07:50.000Z" itemprop="datePublished">August 10, 2023</time>
-	</a>
-
-       
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>当我们谈到RESTful API，”RESTful”是表示”Representational State Transfer”的缩写。它是一种设计和构建网络应用程序的架构风格，用于创建可伸缩、可维护和可扩展的Web服务。</p>
-<p>以下是RESTful API的一些关键概念：</p>
-<ol>
-<li><p>资源（Resource）：在RESTful API中，所有的事物都被视为资源。资源可以是具体的实体（例如用户、文章、订单等），也可以是抽象的概念（例如用户登录、搜索等）。</p>
-</li>
-<li><p>统一的接口（Uniform Interface）：RESTful API使用统一的接口进行资源的操作。这包括使用标准的HTTP方法（GET、POST、PUT、DELETE等）对资源进行操作，并使用URL来标识和定位资源。</p>
-</li>
-<li><p>状态无关（Stateless）：RESTful API是无状态的，每个请求都应该包含足够的信息来理解和处理请求，服务器不应该保存客户端的状态。客户端可以在每个请求中提供必要的信息来完成请求的处理。</p>
-</li>
-<li><p>资源的表示（Representation）：资源的表示指的是以某种格式（如JSON、XML等）将资源的状态传递给客户端。客户端可以通过获取资源的表示来了解和操作资源的状态。</p>
-</li>
-<li><p>超媒体驱动（HATEOAS）：RESTful API可以通过在资源的表示中提供超媒体链接，使客户端能够动态地发现和导航到相关资源。这样客户端可以根据链接进行进一步的操作，而无需事先了解所有可能的操作。</p>
-</li>
-</ol>
-<p>通过遵循RESTful API的原则，可以使API设计更加简洁、可读性高，并提供灵活性和可扩展性。RESTful API也更加符合Web的原生特性，易于理解和使用。</p>
-<p>在使用Retrofit或其他网络请求库时，通常会将RESTful API作为后端服务的接口，通过发送HTTP请求来与后端进行通信，获取、创建、更新或删除资源的数据。了解RESTful API的概念可以帮助你更好地理解和使用这些API。</p>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
 
 
   <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/5/">Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span>
+    <a class="extend prev" rel="prev" href="/page/5/">Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/7/">Next</a>
   </nav>
 
 </section>
@@ -1339,7 +1361,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">29</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">4</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">5</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.0 - Java 多线程</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">15</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.1 - 播放器架构方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/5-C/">5 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/5-C/5-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">5.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/5-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">5 - 渲染引擎</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/5-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/5-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">5.1 - 基础项目拆解</a><span class="category-list-count">2</span></li></ul></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">29</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">4</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">5</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.0 - Java 多线程</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">15</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.1 - 播放器架构方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/5-C/">5 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/5-C/5-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">5.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/5-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">5 - 渲染引擎</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/5-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/5-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">5.1 - 基础项目拆解</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">1</span></li></ul></li></ul>
     </div>
   </div>
 
@@ -1353,7 +1375,7 @@
     <h3 class="widget-title">Archives</h3>
 
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">47</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">48</span></li></ul>
     </div>
   </div>
 
