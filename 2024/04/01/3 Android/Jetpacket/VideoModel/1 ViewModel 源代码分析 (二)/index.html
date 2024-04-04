@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>ViewModel 源代码分析 (二) | 喵星科技报</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  
+  
+  
+  <meta name="description" content="viewmodel  CreationExtrasViewModel创建过程中传递额外参数的容器。  InitializerViewModelFactory                ViewModelProvider.Factory接口实现类，使用ViewModelInitializer来创建ViewModel实例。  InitializerViewModelFactoryBuilder">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ViewModel 源代码分析 (二)">
+<meta property="og:url" content="http://example.com/2024/04/01/3%20Android/Jetpacket/VideoModel/1%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%BA%8C)/index.html">
+<meta property="og:site_name" content="喵星科技报">
+<meta property="og:description" content="viewmodel  CreationExtrasViewModel创建过程中传递额外参数的容器。  InitializerViewModelFactory                ViewModelProvider.Factory接口实现类，使用ViewModelInitializer来创建ViewModel实例。  InitializerViewModelFactoryBuilder">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-03-31T17:32:52.573Z">
+<meta property="article:modified_time" content="2024-04-03T11:53:20.200Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="喵星科技报" type="application/atom+xml">
+  
+  <link rel="icon" href="/css/images/favicon.ico">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+    
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Yanone+Kaffeesatz%3A200%2C300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Oswald%3A300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+<script src="/js/jquery-3.1.1.min.js"></script>
+
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.css" >
+  <link rel="stylesheet" href="/css/fashion.css" >
+  <link rel="stylesheet" href="/css/glyphs.css" >
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<a target="_blank" rel="noopener" href="https://github.com/CatJason">
+<img decoding="async" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" loading="lazy" data-recalc-dims="1">
+</a>
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  
+
+
+<header id="allheader" class="site-header" role="banner" 
+   >
+  <div class="clearfix container">
+      <div class="site-branding">
+
+          <h1 class="site-title">
+            
+              <a href="/" title="喵星科技报" rel="home"> 喵星科技报 </a>
+            
+          </h1>
+          
+          
+            
+          <nav id="main-navigation" class="main-navigation" role="navigation">
+            <a class="nav-open">Menu</a>
+            <a class="nav-close">Close</a>
+
+            <div class="clearfix sf-menu">
+              <ul id="main-nav" class="menu sf-js-enabled sf-arrows"  style="touch-action: pan-y;">
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="/"> <a class="" href="/">Home</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="archives"> <a class="" href="/archives">Archives</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="categories"> <a class="" href="/categories">Categories</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="tags"> <a class="" href="/tags">Tags</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="about"> <a class="" href="/about">About</a> </li>
+                    
+              </ul>
+            </div>
+          </nav>
+
+      </div>
+  </div>
+</header>
+
+
+  <div id="container">
+    <div id="wrap">
+            
+      <div id="content" class="outer">
+        
+          <section id="main" style="float:none;"><article id="post-3 Android/Jetpacket/VideoModel/1 ViewModel 源代码分析 (二)" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" class="article-title" itemprop="name">
+      ViewModel 源代码分析 (二)
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/1%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%BA%8C)/" class="article-date">
+	  <time datetime="2024-03-31T17:32:52.573Z" itemprop="datePublished">April 1, 2024</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a>
+ 
+      
+	<span id="busuanzi_container_page_pv">
+	  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	</span>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <ul>
+<li><p>viewmodel</p>
+<ul>
+<li><p>CreationExtras<br>ViewModel创建过程中传递额外参数的容器。</p>
+</li>
+<li><p>InitializerViewModelFactory              </p>
+<p> ViewModelProvider.Factory接口实现类，使用ViewModelInitializer来创建ViewModel实例。</p>
+</li>
+<li><p>InitializerViewModelFactoryBuilder   </p>
+<p>用于构建InitializerViewModelFactory的工具，通常以DSL形式提供。</p>
+</li>
+<li><p>MutableCreationExtras                     </p>
+<p>可变版本的CreationExtras，允许添加或修改额外参数。</p>
+</li>
+<li><p>ViewModelFactoryDsl                       </p>
+<p>一个DSL（领域特定语言），用于更声明式地定义如何创建ViewModel。</p>
+</li>
+<li><p>ViewModelInitializer                         </p>
+<p>用于初始化ViewModel的类，通常与ViewModelFactoryDsl一起使用。</p>
+</li>
+<li><p>InitializerViewModelFactory            </p>
+<p>提供了使用InitializerViewModelFactory的Kotlin扩展。</p>
+</li>
+</ul>
+</li>
+<li><p>AndroidViewModel                                  </p>
+<p>AndroidViewModel是ViewModel的一个子类，它接受应用程序的Application作为上下文，这对于需要访问Application资源的ViewModel特别有用。</p>
+</li>
+<li><p>HasDefaultViewModelProviderFactory</p>
+<p>一个接口，标识一个类拥有默认的ViewModelProvider.Factory，用于创建ViewModel。</p>
+</li>
+<li><p>ViewModel</p>
+</li>
+<li><p>ViewModelLazy                                       </p>
+<p>一个提供懒加载ViewModel实例的工具类。</p>
+</li>
+<li><p>ViewModelProvider                                 </p>
+<p>用于获取ViewModel实例，确保配置更改时ViewModel可以持续使用。</p>
+</li>
+<li><p>ViewModelStore                                      </p>
+<p>用于保存ViewModel实例的类，以便它们可以跨配置更改持续存在。</p>
+</li>
+<li><p>ViewModelStoreOwner                          </p>
+<p>一个接口，标识一个类可以拥有ViewModelStore。</p>
+</li>
+<li><p>ViewTreeViewModelStoreOwner            </p>
+<p>用于从视图树中查找ViewModelStoreOwner的工具类。</p>
+</li>
+<li><p>ViewTreeViewModelKt                           </p>
+<p>提供了操作和查询视图树中ViewModel的Kotlin扩展</p>
+</li>
+</ul>
+<h1 id="ViewModelStore"><a href="#ViewModelStore" class="headerlink" title="ViewModelStore"></a>ViewModelStore</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> androidx.lifecycle;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.HashSet;</span><br><span class="line"><span class="keyword">import</span> java.util.Set;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ViewModelStore</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> HashMap&lt;String, ViewModel&gt; mMap = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">void</span> <span class="title function_">put</span><span class="params">(String key, ViewModel viewModel)</span> &#123;</span><br><span class="line">        <span class="type">ViewModel</span> <span class="variable">oldViewModel</span> <span class="operator">=</span> mMap.put(key, viewModel);</span><br><span class="line">        <span class="keyword">if</span> (oldViewModel != <span class="literal">null</span>) &#123;</span><br><span class="line">            oldViewModel.onCleared();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> ViewModel <span class="title function_">get</span><span class="params">(String key)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> mMap.get(key);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Set&lt;String&gt; <span class="title function_">keys</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">HashSet</span>&lt;&gt;(mMap.keySet());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     *  Clears internal storage and notifies ViewModels that they are no longer used.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title function_">clear</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (ViewModel vm : mMap.values()) &#123;</span><br><span class="line">            vm.clear();</span><br><span class="line">        &#125;</span><br><span class="line">        mMap.clear();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果有不想保存的数据可以在存储前调用 ViewModelStore  clear 函数</p>
+<h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2><h3 id="Activity或Fragment销毁时"><a href="#Activity或Fragment销毁时" class="headerlink" title="Activity或Fragment销毁时"></a>Activity或Fragment销毁时</h3><p>在Activity或Fragment的<code>onDestroy</code>方法中调用<code>ViewModelStore</code>的<code>clear</code>方法，可以确保所有关联的<code>ViewModel</code>能够及时清理资源。这是因为，在某些情况下（如用户明确退出Activity或Fragment），保留ViewModel不再有意义，应该清除所有资源以避免内存泄漏。</p>
+<h4 id="示例代码："><a href="#示例代码：" class="headerlink" title="示例代码："></a>示例代码：</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">javaCopy code</span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">onDestroy</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="built_in">super</span>.onDestroy();</span><br><span class="line">    <span class="keyword">if</span> (isFinishing()) &#123;</span><br><span class="line">        viewModelStore.clear();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里，<code>isFinishing()</code>用于检查Activity是否正在结束（用户退出或因其他原因被销毁），如果是，则清理ViewModelStore中的所有ViewModel。</p>
+<h3 id="在使用ViewModel时实现资源管理"><a href="#在使用ViewModel时实现资源管理" class="headerlink" title="在使用ViewModel时实现资源管理"></a>在使用ViewModel时实现资源管理</h3><p>如果你的应用程序具有复杂的业务逻辑，可能会创建多个ViewModel用于不同的数据处理和业务逻辑。在这种情况下，当确定某些ViewModel不再需要时，可以通过调用<code>clear</code>方法释放这些ViewModel占用的资源。</p>
+<h3 id="3-单元测试"><a href="#3-单元测试" class="headerlink" title="3. 单元测试"></a>3. 单元测试</h3><p>在进行单元测试时，特别是在测试涉及ViewModel生命周期的逻辑时，<code>clear</code>方法可以在测试完成后被调用来清理测试环境，保证每个测试运行的隔离性。</p>
+<h3 id="注意事项："><a href="#注意事项：" class="headerlink" title="注意事项："></a>注意事项：</h3><p>虽然<code>clear</code>方法的使用可以帮助管理资源，但需要谨慎使用，以避免在不适当的时机释放资源导致的应用崩溃或不稳定。通常，Android框架会自动处理ViewModel的生命周期，只有在特定情况下，如Activity或Fragment被销毁时，才需要手动调用<code>clear</code>方法。</p>
+<h1 id="ViewModelStoreOwner"><a href="#ViewModelStoreOwner" class="headerlink" title="ViewModelStoreOwner"></a>ViewModelStoreOwner</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> androidx.lifecycle;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> androidx.annotation.NonNull;</span><br><span class="line"></span><br><span class="line"><span class="meta">@SuppressWarnings(&quot;WeakerAccess&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">ViewModelStoreOwner</span> &#123;</span><br><span class="line">    <span class="meta">@NonNull</span></span><br><span class="line">    ViewModelStore <span class="title function_">getViewModelStore</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>我们来看一下到底谁是 ViewModelStoreOwner</p>
+<h2 id="ViewModelStoreOwner-ComponentActivity"><a href="#ViewModelStoreOwner-ComponentActivity" class="headerlink" title="ViewModelStoreOwner - ComponentActivity"></a>ViewModelStoreOwner - ComponentActivity</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@NonNull</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> ViewModelStore <span class="title function_">getViewModelStore</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (getApplication() == <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalStateException</span>(<span class="string">&quot;Your activity is not yet attached to the &quot;</span></span><br><span class="line">            + <span class="string">&quot;Application instance. You can&#x27;t request ViewModel before onCreate call.&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    ensureViewModelStore();</span><br><span class="line">    <span class="keyword">return</span> mViewModelStore;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="ViewModelStoreOwner-Fragment"><a href="#ViewModelStoreOwner-Fragment" class="headerlink" title="ViewModelStoreOwner - Fragment"></a>ViewModelStoreOwner - Fragment</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@NonNull</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> ViewModelStore <span class="title function_">getViewModelStore</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (mFragmentManager == <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalStateException</span>(<span class="string">&quot;Can&#x27;t access ViewModels from detached fragment&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (getMinimumMaxLifecycleState() == Lifecycle.State.INITIALIZED.ordinal()) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalStateException</span>(<span class="string">&quot;Calling getViewModelStore() before a Fragment &quot;</span></span><br><span class="line">            + <span class="string">&quot;reaches onCreate() when using setMaxLifecycle(INITIALIZED) is not &quot;</span></span><br><span class="line">            + <span class="string">&quot;supported&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> mFragmentManager.getViewModelStore(<span class="built_in">this</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="ViewTreeViewModelStoreOwner"><a href="#ViewTreeViewModelStoreOwner" class="headerlink" title="ViewTreeViewModelStoreOwner"></a>ViewTreeViewModelStoreOwner</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> androidx.lifecycle;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> android.view.View;</span><br><span class="line"><span class="keyword">import</span> android.view.ViewParent;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> androidx.annotation.NonNull;</span><br><span class="line"><span class="keyword">import</span> androidx.annotation.Nullable;</span><br><span class="line"><span class="keyword">import</span> androidx.lifecycle.viewmodel.R;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ViewTreeViewModelStoreOwner</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="title function_">ViewTreeViewModelStoreOwner</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// No instances</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">set</span><span class="params">(<span class="meta">@NonNull</span> View view, <span class="meta">@Nullable</span> ViewModelStoreOwner viewModelStoreOwner)</span> &#123;</span><br><span class="line">        view.setTag(R.id.view_tree_view_model_store_owner, viewModelStoreOwner);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Nullable</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> ViewModelStoreOwner <span class="title function_">get</span><span class="params">(<span class="meta">@NonNull</span> View view)</span> &#123;</span><br><span class="line">        <span class="type">ViewModelStoreOwner</span> <span class="variable">found</span> <span class="operator">=</span> (ViewModelStoreOwner) view.getTag(</span><br><span class="line">                R.id.view_tree_view_model_store_owner);</span><br><span class="line">        <span class="keyword">if</span> (found != <span class="literal">null</span>) <span class="keyword">return</span> found;</span><br><span class="line">        <span class="type">ViewParent</span> <span class="variable">parent</span> <span class="operator">=</span> view.getParent();</span><br><span class="line">        <span class="keyword">while</span> (found == <span class="literal">null</span> &amp;&amp; parent <span class="keyword">instanceof</span> View) &#123;</span><br><span class="line">            <span class="keyword">final</span> <span class="type">View</span> <span class="variable">parentView</span> <span class="operator">=</span> (View) parent;</span><br><span class="line">            found = (ViewModelStoreOwner) parentView.getTag(R.id.view_tree_view_model_store_owner);</span><br><span class="line">            parent = parentView.getParent();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> found;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h1 id="ViewTreeViewModelStoreOwner-与-ViewModelStoreOwner-有什么区别"><a href="#ViewTreeViewModelStoreOwner-与-ViewModelStoreOwner-有什么区别" class="headerlink" title="ViewTreeViewModelStoreOwner 与 ViewModelStoreOwner 有什么区别"></a>ViewTreeViewModelStoreOwner 与 ViewModelStoreOwner 有什么区别</h1><h2 id="ViewModelStoreOwner-1"><a href="#ViewModelStoreOwner-1" class="headerlink" title="ViewModelStoreOwner"></a>ViewModelStoreOwner</h2><ul>
+<li><strong>定义</strong>：<code>ViewModelStoreOwner</code>是一个接口，定义了可以拥有并管理<code>ViewModelStore</code>的类。<code>ViewModelStore</code>是一个容器，用于存储和管理<code>ViewModel</code>实例，确保它们能够跨配置更改（如屏幕旋转）生存下来。</li>
+<li><strong>用途</strong>：这个接口通常由Activity和Fragment实现，使它们能够持有<code>ViewModel</code>实例。通过这种方式，Activity或Fragment可以在内部管理其<code>ViewModels</code>的生命周期，确保在发生配置更改时，<code>ViewModels</code>不会被销毁并重新创建。</li>
+<li><strong>实现方式</strong>：在使用<code>ViewModel</code>时，开发者通常不需要直接实现<code>ViewModelStoreOwner</code>接口。例如，<code>AppCompatActivity</code>和<code>Fragment</code>已经实现了这个接口，提供了对<code>ViewModelStore</code>的访问。</li>
+</ul>
+<h2 id="ViewTreeViewModelStoreOwner-1"><a href="#ViewTreeViewModelStoreOwner-1" class="headerlink" title="ViewTreeViewModelStoreOwner"></a>ViewTreeViewModelStoreOwner</h2><ul>
+<li><strong>定义</strong>：<code>ViewTreeViewModelStoreOwner</code>是与Android视图树（View Tree）相关的工具类。它提供了静态方法来从视图树中查找<code>ViewModelStoreOwner</code>。这是通过在视图的<code>Tag</code>中设置和获取<code>ViewModelStoreOwner</code>实现的。</li>
+<li><strong>用途</strong>：<code>ViewTreeViewModelStoreOwner</code>的主要用途是在视图层级中找到最近的<code>ViewModelStoreOwner</code>。这对于自定义视图或视图组件特别有用，这些组件需要访问<code>ViewModel</code>但不直接与Activity或Fragment关联。</li>
+<li><strong>使用场景</strong>：当你有一个嵌套在深层视图层次结构中的自定义视图，并且这个视图需要访问<code>ViewModel</code>时，可以使用<code>ViewTreeViewModelStoreOwner.get(view)</code>来找到最近的<code>ViewModelStoreOwner</code>实例。这使得即使在复杂的视图结构中，自定义视图也能正确地管理和访问<code>ViewModel</code>实例。</li>
+</ul>
+<h2 id="区别"><a href="#区别" class="headerlink" title="区别"></a>区别</h2><ul>
+<li><strong>作用范围</strong>：<code>ViewModelStoreOwner</code>直接关联于可以持有<code>ViewModelStore</code>的实体（如Activity或Fragment），而<code>ViewTreeViewModelStoreOwner</code>是一个工具类，用于在视图树中查找这些实体。</li>
+<li><strong>使用上下文</strong>：<code>ViewModelStoreOwner</code>通常用于直接管理<code>ViewModels</code>的生命周期，特别是在Activity和Fragment中。<code>ViewTreeViewModelStoreOwner</code>则用于在视图层级中寻找<code>ViewModelStoreOwner</code>，便于自定义视图或组件访问<code>ViewModels</code>。</li>
+<li><strong>实现与调用</strong>：Activity和Fragment通常自动实现<code>ViewModelStoreOwner</code>接口。相反，<code>ViewTreeViewModelStoreOwner</code>提供了一种机制，允许在视图树中任意位置将视图与最近的<code>ViewModelStoreOwner</code>关联起来，而无需直接实现或管理<code>ViewModelStoreOwner</code>接口。</li>
+</ul>
+<p>简而言之，<code>ViewModelStoreOwner</code>关注于拥有和管理<code>ViewModelStore</code>的能力，而<code>ViewTreeViewModelStoreOwner</code>提供了一种查找视图树中最近的<code>ViewModelStoreOwner</code>的方法，使得在复杂的视图结构中的组件也能访问和使用<code>ViewModels</code>。</p>
+<h1 id="ViewModelStoreOwner-的-set-方法"><a href="#ViewModelStoreOwner-的-set-方法" class="headerlink" title="ViewModelStoreOwner 的 set 方法"></a>ViewModelStoreOwner 的 set 方法</h1><p>ViewModelStoreOwner 的 set 方法是什么时候被调用的，被添加到哪个 View 的 Tag 中？</p>
+<h2 id="androidx-activity-ComponentActivity-中的调用时机"><a href="#androidx-activity-ComponentActivity-中的调用时机" class="headerlink" title="androidx.activity.ComponentActivity 中的调用时机"></a>androidx.activity.ComponentActivity 中的调用时机</h2><p>androidx.activity.ComponentActivity#setContentView(android.view.View)</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setContentView</span><span class="params">(<span class="meta">@LayoutRes</span> <span class="type">int</span> layoutResID)</span> &#123;</span><br><span class="line">    initViewTreeOwners();</span><br><span class="line">    <span class="built_in">super</span>.setContentView(layoutResID);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setContentView</span><span class="params">(<span class="meta">@SuppressLint(&#123;&quot;UnknownNullness&quot;, &quot;MissingNullability&quot;&#125;)</span> View view)</span> &#123;</span><br><span class="line">    initViewTreeOwners();</span><br><span class="line">    <span class="built_in">super</span>.setContentView(view);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setContentView</span><span class="params">(<span class="meta">@SuppressLint(&#123;&quot;UnknownNullness&quot;, &quot;MissingNullability&quot;&#125;)</span> View view,</span></span><br><span class="line"><span class="params">        <span class="meta">@SuppressLint(&#123;&quot;UnknownNullness&quot;, &quot;MissingNullability&quot;&#125;)</span></span></span><br><span class="line"><span class="params">                ViewGroup.LayoutParams params)</span> &#123;</span><br><span class="line">    initViewTreeOwners();</span><br><span class="line">    <span class="built_in">super</span>.setContentView(view, params);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>androidx.activity.ComponentActivity#addContentView</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">addContentView</span><span class="params">(<span class="meta">@SuppressLint(&#123;&quot;UnknownNullness&quot;, &quot;MissingNullability&quot;&#125;)</span> View view,</span></span><br><span class="line"><span class="params">        <span class="meta">@SuppressLint(&#123;&quot;UnknownNullness&quot;, &quot;MissingNullability&quot;&#125;)</span></span></span><br><span class="line"><span class="params">                ViewGroup.LayoutParams params)</span> &#123;</span><br><span class="line">    initViewTreeOwners();</span><br><span class="line">    <span class="built_in">super</span>.addContentView(view, params);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h2 id="在-initViewTreeOwners-中调用-ViewModelStoreOwner-的-set"><a href="#在-initViewTreeOwners-中调用-ViewModelStoreOwner-的-set" class="headerlink" title="在 initViewTreeOwners 中调用 ViewModelStoreOwner 的 set"></a>在 initViewTreeOwners 中调用 ViewModelStoreOwner 的 set</h2><p>androidx.activity.ComponentActivity#initViewTreeOwners</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">initViewTreeOwners</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="comment">// Set the view tree owners before setting the content view so that the inflation process</span></span><br><span class="line">    <span class="comment">// and attach listeners will see them already present</span></span><br><span class="line">    ViewTreeLifecycleOwner.set(getWindow().getDecorView(), <span class="built_in">this</span>);</span><br><span class="line">    ViewTreeViewModelStoreOwner.set(getWindow().getDecorView(), <span class="built_in">this</span>);</span><br><span class="line">    ViewTreeSavedStateRegistryOwner.set(getWindow().getDecorView(), <span class="built_in">this</span>);</span><br><span class="line">    ViewTreeOnBackPressedDispatcherOwner.set(getWindow().getDecorView(), <span class="built_in">this</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里顺便提一下 ViewTreeLifecycleOwner，ViewTreeSavedStateRegistryOwner，ViewTreeOnBackPressedDispatcherOwner</p>
+<p>在Android Jetpack架构组件中，<code>ViewTreeLifecycleOwner</code>、<code>ViewTreeSavedStateRegistryOwner</code>和<code>ViewTreeOnBackPressedDispatcherOwner</code>是用于在视图树中传递和存储与生命周期、状态保存和返回按钮事件处理相关的对象的工具类。它们允许开发者在任何视图层级中访问与这些功能相关的对象，增强了组件化和模块化开发的灵活性。</p>
+<h3 id="ViewTreeLifecycleOwner"><a href="#ViewTreeLifecycleOwner" class="headerlink" title="ViewTreeLifecycleOwner"></a>ViewTreeLifecycleOwner</h3><p><code>ViewTreeLifecycleOwner</code>与<code>LifecycleOwner</code>接口相关，后者是一个类可以实现的接口，表示这个类有一个生命周期，比如Activity或Fragment。<code>ViewTreeLifecycleOwner</code>提供了静态方法来在视图树中设置和获取<code>LifecycleOwner</code>。这使得在视图树中的任何位置，都可以访问到与之相关联的<code>LifecycleOwner</code>，进而可以根据生命周期事件来管理资源，比如开始&#x2F;停止数据加载、绑定&#x2F;解绑资源等。</p>
+<h3 id="ViewTreeSavedStateRegistryOwner"><a href="#ViewTreeSavedStateRegistryOwner" class="headerlink" title="ViewTreeSavedStateRegistryOwner"></a>ViewTreeSavedStateRegistryOwner</h3><p><code>ViewTreeSavedStateRegistryOwner</code>与<code>SavedStateRegistryOwner</code>接口相关，后者管理和存储状态，以便在进程被杀后恢复状态。通过<code>ViewTreeSavedStateRegistryOwner</code>，开发者可以为视图树中的任何视图设置和获取与状态保存相关的<code>SavedStateRegistryOwner</code>。这使得即使是自定义视图也能够利用Android的状态保存机制，无需依赖于Activity或Fragment来保存和恢复状态。</p>
+<h3 id="ViewTreeOnBackPressedDispatcherOwner"><a href="#ViewTreeOnBackPressedDispatcherOwner" class="headerlink" title="ViewTreeOnBackPressedDispatcherOwner"></a>ViewTreeOnBackPressedDispatcherOwner</h3><p><code>ViewTreeOnBackPressedDispatcherOwner</code>与<code>OnBackPressedDispatcherOwner</code>接口相关，后者提供了一个组件化的方式来处理返回按钮事件。<code>ViewTreeOnBackPressedDispatcherOwner</code>允许开发者为视图树中的任何视图设置和获取<code>OnBackPressedDispatcherOwner</code>。这意味着在任何视图中，都可以独立处理返回按钮的点击事件，而不是仅限于在Activity中处理。这对于构建复杂的用户界面和处理嵌套的用户交互特别有用。</p>
+<h3 id="使用场景和好处"><a href="#使用场景和好处" class="headerlink" title="使用场景和好处"></a>使用场景和好处</h3><ul>
+<li><strong>组件化开发</strong>：这些工具类支持更加组件化的开发方式，视图或组件可以独立于Activity或Fragment使用这些架构组件。</li>
+<li><strong>灵活性和可重用性</strong>：使得自定义视图和组件更加灵活，易于重用，因为它们可以在不依赖特定Activity或Fragment的情况下，管理自己的生命周期、状态保存和返回按钮处理。</li>
+<li><strong>简化代码</strong>：简化了在自定义视图或深层嵌套的视图结构中访问这些功能的方式，避免了复杂的回调结构或过度依赖于上下文。</li>
+</ul>
+<p>综上所述，<code>ViewTreeLifecycleOwner</code>、<code>ViewTreeSavedStateRegistryOwner</code>和<code>ViewTreeOnBackPressedDispatcherOwner</code>为Android开发者提供了强大的工具，以更加灵活和模块化的方式处理生命周期管理、状态保存和返回按钮事件处理。</p>
+<h1 id="ViewTreeViewModelKt"><a href="#ViewTreeViewModelKt" class="headerlink" title="ViewTreeViewModelKt"></a>ViewTreeViewModelKt</h1><p>Google 也准备了一个 Kotlin 使用的扩展函数配合 ViewModelStoreOwner</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> androidx.lifecycle</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> android.view.View</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">fun</span> View.<span class="title">findViewTreeViewModelStoreOwner</span><span class="params">()</span></span>: ViewModelStoreOwner? =</span><br><span class="line">    ViewTreeViewModelStoreOwner.<span class="keyword">get</span>(<span class="keyword">this</span>)</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a>
+
+      
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/2%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%89)%20/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          ViewModel 源代码分析 (三)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/0%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%80)/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">ViewModel 源代码分析 (一)</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="sidebar">
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">Contents</strong>
+    
+      <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ViewModelStore"><span class="nav-number">1.</span> <span class="nav-text">ViewModelStore</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">1.1.</span> <span class="nav-text">使用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Activity%E6%88%96Fragment%E9%94%80%E6%AF%81%E6%97%B6"><span class="nav-number">1.1.1.</span> <span class="nav-text">Activity或Fragment销毁时</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81%EF%BC%9A"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">示例代码：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%A8%E4%BD%BF%E7%94%A8ViewModel%E6%97%B6%E5%AE%9E%E7%8E%B0%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86"><span class="nav-number">1.1.2.</span> <span class="nav-text">在使用ViewModel时实现资源管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95"><span class="nav-number">1.1.3.</span> <span class="nav-text">3. 单元测试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%EF%BC%9A"><span class="nav-number">1.1.4.</span> <span class="nav-text">注意事项：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ViewModelStoreOwner"><span class="nav-number">2.</span> <span class="nav-text">ViewModelStoreOwner</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ViewModelStoreOwner-ComponentActivity"><span class="nav-number">2.1.</span> <span class="nav-text">ViewModelStoreOwner - ComponentActivity</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ViewModelStoreOwner-Fragment"><span class="nav-number">2.2.</span> <span class="nav-text">ViewModelStoreOwner - Fragment</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ViewTreeViewModelStoreOwner"><span class="nav-number">3.</span> <span class="nav-text">ViewTreeViewModelStoreOwner</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ViewTreeViewModelStoreOwner-%E4%B8%8E-ViewModelStoreOwner-%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB"><span class="nav-number">4.</span> <span class="nav-text">ViewTreeViewModelStoreOwner 与 ViewModelStoreOwner 有什么区别</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ViewModelStoreOwner-1"><span class="nav-number">4.1.</span> <span class="nav-text">ViewModelStoreOwner</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ViewTreeViewModelStoreOwner-1"><span class="nav-number">4.2.</span> <span class="nav-text">ViewTreeViewModelStoreOwner</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8C%BA%E5%88%AB"><span class="nav-number">4.3.</span> <span class="nav-text">区别</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ViewModelStoreOwner-%E7%9A%84-set-%E6%96%B9%E6%B3%95"><span class="nav-number">5.</span> <span class="nav-text">ViewModelStoreOwner 的 set 方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#androidx-activity-ComponentActivity-%E4%B8%AD%E7%9A%84%E8%B0%83%E7%94%A8%E6%97%B6%E6%9C%BA"><span class="nav-number">5.1.</span> <span class="nav-text">androidx.activity.ComponentActivity 中的调用时机</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8-initViewTreeOwners-%E4%B8%AD%E8%B0%83%E7%94%A8-ViewModelStoreOwner-%E7%9A%84-set"><span class="nav-number">5.2.</span> <span class="nav-text">在 initViewTreeOwners 中调用 ViewModelStoreOwner 的 set</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ViewTreeLifecycleOwner"><span class="nav-number">5.2.1.</span> <span class="nav-text">ViewTreeLifecycleOwner</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ViewTreeSavedStateRegistryOwner"><span class="nav-number">5.2.2.</span> <span class="nav-text">ViewTreeSavedStateRegistryOwner</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ViewTreeOnBackPressedDispatcherOwner"><span class="nav-number">5.2.3.</span> <span class="nav-text">ViewTreeOnBackPressedDispatcherOwner</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF%E5%92%8C%E5%A5%BD%E5%A4%84"><span class="nav-number">5.2.4.</span> <span class="nav-text">使用场景和好处</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ViewTreeViewModelKt"><span class="nav-number">6.</span> <span class="nav-text">ViewTreeViewModelKt</span></a></li></ol>
+    
+    </div>
+  </aside>
+</section>
+        
+      </div>
+
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    <footer id="footer" class="site-footer">
+  
+
+  <div class="clearfix container">
+      <div class="site-info">
+	      &copy; 2024 喵星科技报 All Rights Reserved.
+        
+            <span id="busuanzi_container_site_uv">
+              本站访客数<span id="busuanzi_value_site_uv"></span>人次  
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+          
+      </div>
+      <div class="site-credit">
+        Theme by <a href="https://github.com/CatJason" target="_blank">hipaper</a>
+      </div>
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var wrapdiv = document.getElementById("wrap");
+    var contentdiv = document.getElementById("content");
+
+    wrapdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+
+
+    <!-- headerblur min height -->
+    
+    
+</script>
+    
+<div style="display: none;">
+  <script src="https://s11.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+</div>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+<script src="/js/bootstrap.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+	</script>
+
+
+
+
+
+
+  </div>
+
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js" async=""></script>
+</body>
+</html>

@@ -107,7 +107,7 @@
         
           <section id="main">
   
-    <article id="post-网络通信/RESTful API"  class="article article-type-post" itemscope itemprop="blogPost" >
+    <article id="post-4 架构方案设计/01 MVI/Android-音视频架构专项"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -115,7 +115,7 @@
         
   
     <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2023/08/10/%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1/RESTful%20API/">RESTful API</a>
+      <a class="article-title" href="/2023/08/29/4%20%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/01%20MVI/Android-%E9%9F%B3%E8%A7%86%E9%A2%91%E6%9E%B6%E6%9E%84%E4%B8%93%E9%A1%B9/">Android MVI GPT4 快问快答</a>
     </h1>
   
 
@@ -123,36 +123,852 @@
     
     <div class="article-meta">
       
-	<a href="/2023/08/10/%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1/RESTful%20API/" class="article-date">
-	  <time datetime="2023-08-09T22:07:50.000Z" itemprop="datePublished">August 10, 2023</time>
+	<a href="/2023/08/29/4%20%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/01%20MVI/Android-%E9%9F%B3%E8%A7%86%E9%A2%91%E6%9E%B6%E6%9E%84%E4%B8%93%E9%A1%B9/" class="article-date">
+	  <time datetime="2023-08-28T18:45:14.000Z" itemprop="datePublished">August 29, 2023</time>
 	</a>
 
-       
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a>, <a class="article-category-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a>
+ 
       
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>当我们谈到RESTful API，”RESTful”是表示”Representational State Transfer”的缩写。它是一种设计和构建网络应用程序的架构风格，用于创建可伸缩、可维护和可扩展的Web服务。</p>
-<p>以下是RESTful API的一些关键概念：</p>
-<ol>
-<li><p>资源（Resource）：在RESTful API中，所有的事物都被视为资源。资源可以是具体的实体（例如用户、文章、订单等），也可以是抽象的概念（例如用户登录、搜索等）。</p>
-</li>
-<li><p>统一的接口（Uniform Interface）：RESTful API使用统一的接口进行资源的操作。这包括使用标准的HTTP方法（GET、POST、PUT、DELETE等）对资源进行操作，并使用URL来标识和定位资源。</p>
-</li>
-<li><p>状态无关（Stateless）：RESTful API是无状态的，每个请求都应该包含足够的信息来理解和处理请求，服务器不应该保存客户端的状态。客户端可以在每个请求中提供必要的信息来完成请求的处理。</p>
-</li>
-<li><p>资源的表示（Representation）：资源的表示指的是以某种格式（如JSON、XML等）将资源的状态传递给客户端。客户端可以通过获取资源的表示来了解和操作资源的状态。</p>
-</li>
-<li><p>超媒体驱动（HATEOAS）：RESTful API可以通过在资源的表示中提供超媒体链接，使客户端能够动态地发现和导航到相关资源。这样客户端可以根据链接进行进一步的操作，而无需事先了解所有可能的操作。</p>
-</li>
-</ol>
-<p>通过遵循RESTful API的原则，可以使API设计更加简洁、可读性高，并提供灵活性和可扩展性。RESTful API也更加符合Web的原生特性，易于理解和使用。</p>
-<p>在使用Retrofit或其他网络请求库时，通常会将RESTful API作为后端服务的接口，通过发送HTTP请求来与后端进行通信，获取、创建、更新或删除资源的数据。了解RESTful API的概念可以帮助你更好地理解和使用这些API。</p>
+        <h1 id="MVI-层级架构"><a href="#MVI-层级架构" class="headerlink" title="MVI 层级架构"></a>MVI 层级架构</h1><ul>
+<li><strong>App</strong> 用于依赖注入 —— 可以访问所有层</li>
+<li><strong>Data</strong> 负责内部和外部存储 —— 可以访问 <strong>Domain</strong></li>
+<li><strong>Domain</strong> 负责仓库和用例 —— 不访问任何层 </li>
+<li><strong>Presentation</strong> 负责UI逻辑 —— 可以访问 <strong>Domain</strong></li>
+</ul>
+<h1 id="GPT-4-块问快答：究竟什么是-MVI"><a href="#GPT-4-块问快答：究竟什么是-MVI" class="headerlink" title="GPT 4 块问快答：究竟什么是 MVI"></a>GPT 4 块问快答：究竟什么是 MVI</h1><h2 id="为什么-Data-和-Presentation-可以访问领域层，举例子怎么访问的"><a href="#为什么-Data-和-Presentation-可以访问领域层，举例子怎么访问的" class="headerlink" title="为什么 Data 和 Presentation 可以访问领域层，举例子怎么访问的"></a>为什么 Data 和 Presentation 可以访问领域层，举例子怎么访问的</h2><p>在一个典型的分层架构中，每一层都有其独特的职责，而且这种架构通常允许某些层访问其他特定的层。在你提到的结构中，<code>App</code>、<code>Data</code>、<code>Domain</code>和<code>Presentation</code>层各自担负不同的角色，其中<code>Data</code>和<code>Presentation</code>层被允许访问<code>Domain</code>层，主要是因为<code>Domain</code>层包含了应用程序的核心业务逻辑和规则，是其他层依赖的基础。</p>
+<h3 id="Data-层访问-Domain-层"><a href="#Data-层访问-Domain-层" class="headerlink" title="Data 层访问 Domain 层"></a>Data 层访问 Domain 层</h3><ul>
+<li><strong>职责</strong>：<code>Data</code>层负责处理数据的存取，无论是来自内部存储（如SQLite数据库、内存缓存等）还是外部存储（如网络API、远程数据库等）。</li>
+<li><strong>访问方式</strong>：<code>Data</code>层访问<code>Domain</code>层通常是通过实现<code>Domain</code>层定义的仓库接口（Repository Interfaces）。这些仓库接口定义了应用程序需要的数据操作（如获取用户数据、保存订单等），而<code>Data</code>层实现这些接口，具体处理数据的存取逻辑。</li>
+</ul>
+<p><strong>示例</strong>：<br>假设在<code>Domain</code>层有一个<code>UserRepository</code>接口，它定义了获取用户信息的方法。<code>Data</code>层将实现这个接口，通过网络API或本地数据库获取用户信息。</p>
+<h3 id="Presentation-层访问-Domain-层"><a href="#Presentation-层访问-Domain-层" class="headerlink" title="Presentation 层访问 Domain 层"></a>Presentation 层访问 Domain 层</h3><ul>
+<li><strong>职责</strong>：<code>Presentation</code>层负责处理所有与用户界面（UI）相关的逻辑，如显示数据、响应用户操作等。</li>
+<li><strong>访问方式</strong>：<code>Presentation</code>层通过使用<code>Domain</code>层中定义的用例（Use Cases）或服务（Services）来获取所需的数据或执行特定的业务逻辑。用例封装了特定的业务逻辑操作，为<code>Presentation</code>层提供了清晰、简洁的API。</li>
+</ul>
+<p><strong>示例</strong>：<br>如果有一个显示用户个人信息的界面，<code>Presentation</code>层的一个ViewModel或Presenter可能会调用一个<code>GetUserProfile</code>用例（从<code>Domain</code>层获取），该用例封装了获取用户个人信息的业务逻辑。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>通过允许<code>Data</code>和<code>Presentation</code>层访问<code>Domain</code>层，可以确保应用程序的核心业务逻辑集中管理，并且易于测试和维护。同时，这种结构还有助于解耦，使得数据源的更改或UI的修改不会直接影响到业务逻辑的实现，从而提高了应用程序的灵活性和可维护性。</p>
+<h2 id="给出-GetUserProfile-代码例子"><a href="#给出-GetUserProfile-代码例子" class="headerlink" title="给出 GetUserProfile 代码例子"></a>给出 GetUserProfile 代码例子</h2><p>为了提供一个<code>GetUserProfile</code>的示例，我们将遵循典型的分层架构中的<code>Domain</code>、<code>Data</code>和<code>Presentation</code>层的交互方式。这个例子将使用Kotlin语言，因为它是在Android开发中常用的语言，同时也适用于Kotlin多平台移动（KMM）项目。</p>
+<h3 id="Domain-层"><a href="#Domain-层" class="headerlink" title="Domain 层"></a>Domain 层</h3><p>在<code>Domain</code>层，我们定义一个用例（Use Case）<code>GetUserProfile</code>，它是业务逻辑的一部分。这个用例会从仓库（Repository）中获取用户的个人信息。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Domain层 - 定义用例</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">GetUserProfile</span>(<span class="keyword">private</span> <span class="keyword">val</span> userRepository: UserRepository) &#123;</span><br><span class="line">    <span class="keyword">suspend</span> <span class="function"><span class="keyword">fun</span> <span class="title">execute</span><span class="params">(userId: <span class="type">String</span>)</span></span>: UserProfile &#123;</span><br><span class="line">        <span class="keyword">return</span> userRepository.getUserProfile(userId)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Domain层 - 定义仓库接口</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">UserRepository</span> &#123;</span><br><span class="line">    <span class="keyword">suspend</span> <span class="function"><span class="keyword">fun</span> <span class="title">getUserProfile</span><span class="params">(userId: <span class="type">String</span>)</span></span>: UserProfile</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 用户个人信息的数据模型</span></span><br><span class="line"><span class="keyword">data</span> <span class="keyword">class</span> <span class="title class_">UserProfile</span>(<span class="keyword">val</span> userId: String, <span class="keyword">val</span> name: String, <span class="keyword">val</span> email: String)</span><br></pre></td></tr></table></figure>
+
+<h3 id="Data-层"><a href="#Data-层" class="headerlink" title="Data 层"></a>Data 层</h3><p>在<code>Data</code>层，我们实现了<code>Domain</code>层定义的<code>UserRepository</code>接口，提供了获取用户个人信息的实际逻辑。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Data层 - 仓库实现</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">UserRepositoryImpl</span> : <span class="type">UserRepository</span> &#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">suspend</span> <span class="function"><span class="keyword">fun</span> <span class="title">getUserProfile</span><span class="params">(userId: <span class="type">String</span>)</span></span>: UserProfile &#123;</span><br><span class="line">        <span class="comment">// 假设这里是从网络或本地数据库获取数据</span></span><br><span class="line">        <span class="keyword">return</span> UserProfile(userId, <span class="string">&quot;John Doe&quot;</span>, <span class="string">&quot;johndoe@example.com&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Presentation-层"><a href="#Presentation-层" class="headerlink" title="Presentation 层"></a>Presentation 层</h3><p>在<code>Presentation</code>层，我们使用<code>GetUserProfile</code>用例来获取用户个人信息，并展示到UI上。这里以一个简单的ViewModel为例。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Presentation层 - ViewModel</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">UserProfileViewModel</span>(<span class="keyword">private</span> <span class="keyword">val</span> getUserProfile: GetUserProfile) : ViewModel() &#123;</span><br><span class="line">    <span class="comment">// LiveData用于观察数据变化，更新UI</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> _userProfile = MutableLiveData&lt;UserProfile&gt;()</span><br><span class="line">    <span class="keyword">val</span> userProfile: LiveData&lt;UserProfile&gt; = _userProfile</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">loadUserProfile</span><span class="params">(userId: <span class="type">String</span>)</span></span> &#123;</span><br><span class="line">        viewModelScope.launch &#123;</span><br><span class="line">            _userProfile.value = getUserProfile.execute(userId)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>这个例子演示了在一个分层架构中，如何通过<code>Domain</code>层的用例来协调<code>Data</code>层和<code>Presentation</code>层的交互。<code>Domain</code>层定义了业务逻辑和接口，<code>Data</code>层实现了数据获取的逻辑，而<code>Presentation</code>层负责调用这些逻辑并更新UI。这种分层的方式有助于保持代码的清晰和可维护性。</p>
+<h2 id="描述一下，数据在几个层之间的传递，从起始到结束"><a href="#描述一下，数据在几个层之间的传递，从起始到结束" class="headerlink" title="描述一下，数据在几个层之间的传递，从起始到结束"></a>描述一下，数据在几个层之间的传递，从起始到结束</h2><p>数据在分层架构中的传递通常遵循一个定义良好的流程，确保应用的各个组成部分职责明确、解耦合，同时促进模块间的协作。以下是一个典型的从起始到结束的数据传递流程，以一个简化的用户个人信息获取功能为例，该功能遵循<code>Presentation</code>、<code>Domain</code>和<code>Data</code>层的架构模式：</p>
+<h3 id="1-用户界面触发"><a href="#1-用户界面触发" class="headerlink" title="1. 用户界面触发"></a>1. 用户界面触发</h3><ul>
+<li><strong>起始点</strong>：用户在应用的界面上执行一个动作（比如点击一个按钮），请求查看个人信息。</li>
+<li><strong>处理</strong>：这个动作被<code>Presentation</code>层的一个组件（例如，一个ViewModel或Activity）捕获。</li>
+</ul>
+<h3 id="2-Presentation-层处理"><a href="#2-Presentation-层处理" class="headerlink" title="2. Presentation 层处理"></a>2. Presentation 层处理</h3><ul>
+<li><code>Presentation</code>层的组件调用<code>Domain</code>层定义的用例（Use Case），比如<code>GetUserProfile</code>，来获取用户的个人信息。这个调用通常是异步的，以避免阻塞UI线程。</li>
+<li>ViewModel通过用例接口，向<code>Domain</code>层表达获取数据的需求。</li>
+</ul>
+<h3 id="3-Domain-层中转"><a href="#3-Domain-层中转" class="headerlink" title="3. Domain 层中转"></a>3. Domain 层中转</h3><ul>
+<li><code>Domain</code>层的<code>GetUserProfile</code>用例接收到请求，并将其转发给相应的<code>UserRepository</code>接口。此时，<code>GetUserProfile</code>仅知道需要调用仓库接口来获取数据，但不关心数据的具体来源。</li>
+<li><code>Domain</code>层起到了定义业务规则和操作流程的角色，但本身不处理数据的存取。</li>
+</ul>
+<h3 id="4-Data-层响应"><a href="#4-Data-层响应" class="headerlink" title="4. Data 层响应"></a>4. Data 层响应</h3><ul>
+<li><code>Data</code>层中，具体实现了<code>UserRepository</code>接口的类（如<code>UserRepositoryImpl</code>）负责处理数据的实际获取操作。这可能涉及访问网络API、查询本地数据库或读取缓存等操作。</li>
+<li>一旦数据被成功获取，它会被封装成一个模型（如<code>UserProfile</code>），并返回给调用者——在这个例子中是<code>Domain</code>层的<code>GetUserProfile</code>用例。</li>
+</ul>
+<h3 id="5-数据回流到Presentation层"><a href="#5-数据回流到Presentation层" class="headerlink" title="5. 数据回流到Presentation层"></a>5. 数据回流到Presentation层</h3><ul>
+<li><code>GetUserProfile</code>用例收到<code>Data</code>层提供的用户信息后，将这些信息返回给最初请求它的<code>Presentation</code>层的组件。</li>
+<li><code>Presentation</code>层的ViewModel接收到这些数据后，更新UI绑定的数据模型，通常是通过LiveData或类似机制。</li>
+</ul>
+<h3 id="6-UI更新显示数据"><a href="#6-UI更新显示数据" class="headerlink" title="6. UI更新显示数据"></a>6. UI更新显示数据</h3><ul>
+<li>最后，随着ViewModel中LiveData（或其他观察者模式实现）的更新，UI监听这些变化，并据此刷新显示，向用户展示最新获取的用户个人信息。</li>
+</ul>
+<h3 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h3><p>这个过程展示了数据从用户触发获取请求，通过应用的各层传递，并最终显示回用户界面的完整流程。每一层都有其特定的职责：<code>Presentation</code>层管理UI逻辑和用户交互，<code>Domain</code>层定义业务规则和数据获取的抽象接口，而<code>Data</code>层负责具体的数据存取逻辑。这种分层架构不仅有助于保持代码的组织性和可维护性，还促进了各模块间的清晰分离和互操作性。</p>
+<h2 id="解释-Domain-层如何定义业务规则"><a href="#解释-Domain-层如何定义业务规则" class="headerlink" title="解释 Domain 层如何定义业务规则"></a>解释 Domain 层如何定义业务规则</h2><p><code>Domain</code>层在分层架构中扮演着核心角色，它定义了应用程序的业务规则和逻辑。这一层是独立于用户界面（UI）和数据存储机制的，意味着它不应该依赖于任何特定的框架或库，以便于业务逻辑能够在不同的环境中重用和测试。<code>Domain</code>层的设计主要关注于应用程序的“什么”和“为什么”，而不是“怎么做”。</p>
+<h3 id="业务规则的定义"><a href="#业务规则的定义" class="headerlink" title="业务规则的定义"></a>业务规则的定义</h3><p>业务规则是指那些定义企业如何运作、决策应如何做出、业务流程应如何管理的规则。在软件开发中，这些规则转化为可以执行的代码，用于指导应用程序的行为。业务规则包括但不限于：</p>
+<ul>
+<li><strong>实体（Entities）</strong>：代表业务概念的对象，如用户、订单等，以及这些对象的属性和行为。</li>
+<li><strong>用例（Use Cases）或服务（Services）</strong>：封装了应用程序的核心功能，每个用例代表一个或多个业务操作，如“获取用户信息”、“创建订单”等。</li>
+<li><strong>值对象（Value Objects）</strong>：描述了业务中的值和它们的属性，但没有唯一标识符（与实体不同）。</li>
+<li><strong>仓库接口（Repository Interfaces）</strong>：定义了如何访问外部数据源（如数据库或远程服务）的抽象接口，但不实现具体的数据访问逻辑。</li>
+</ul>
+<h3 id="Domain层的职责"><a href="#Domain层的职责" class="headerlink" title="Domain层的职责"></a><code>Domain</code>层的职责</h3><ul>
+<li><strong>封装业务逻辑</strong>：<code>Domain</code>层包含应用程序的业务逻辑，确保业务操作的正确性、有效性和连贯性。</li>
+<li><strong>定义业务模型</strong>：通过实体和值对象定义业务领域内的数据模型和它们之间的关系。</li>
+<li><strong>业务决策的实现</strong>：实现业务决策逻辑，如验证规则、计算和数据转换等。</li>
+<li><strong>保持独立性</strong>：<code>Domain</code>层的设计应确保它不依赖于特定的UI实现或数据存储策略，使得业务逻辑可以在不同的应用场景下重用。</li>
+</ul>
+<h3 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h3><p>假设有一个在线商店应用，其<code>Domain</code>层可能包含如下定义：</p>
+<ul>
+<li><strong>实体</strong>：<code>Product</code>（产品）、<code>Customer</code>（客户）、<code>Order</code>（订单）。</li>
+<li><strong>用例</strong>：<code>PlaceOrder</code>（下订单）、<code>CancelOrder</code>（取消订单）、<code>UpdateCustomerProfile</code>（更新客户资料）。</li>
+<li><strong>值对象</strong>：<code>Address</code>（地址）、<code>Money</code>（货币）。</li>
+<li><strong>仓库接口</strong>：<code>OrderRepository</code>（提供对订单数据的访问）、<code>CustomerRepository</code>（提供对客户数据的访问）。</li>
+</ul>
+<p>在这个例子中，<code>Domain</code>层定义了在线商店运作的基本规则和逻辑，如何处理订单、如何管理客户信息，以及如何执行业务决策，所有这些都与特定的UI实现或数据持久化机制无关。</p>
+<p>总结，<code>Domain</code>层的设计是为了确保应用程序的核心业务逻辑得到清晰定义、良好封装，从而易于维护和测试，同时提高了代码的可重用性。</p>
+<h2 id="解释-Domain-层定义了基本规则和逻辑，与特定的-UI-实现或数据持久化机制无关"><a href="#解释-Domain-层定义了基本规则和逻辑，与特定的-UI-实现或数据持久化机制无关" class="headerlink" title="解释 Domain 层定义了基本规则和逻辑，与特定的 UI 实现或数据持久化机制无关"></a>解释 Domain 层定义了基本规则和逻辑，与特定的 UI 实现或数据持久化机制无关</h2><p><code>Domain</code>层在软件架构中的作用是封装和实现应用程序的核心业务逻辑，独立于用户界面（UI）和数据持久化（数据库等）的具体实现。这种设计方法使得业务逻辑更加模块化、清晰，并且易于测试和维护。在在线商店的例子中，<code>Domain</code>层定义的业务规则和逻辑涉及以下几个关键方面：</p>
+<h3 id="如何处理订单"><a href="#如何处理订单" class="headerlink" title="如何处理订单"></a>如何处理订单</h3><p>在<code>Domain</code>层中，处理订单的逻辑包括订单的创建、验证、支付、取消等步骤。这些操作反映了订单生命周期中的各个阶段，每个阶段都基于业务规则来执行。例如，订单支付前需要验证订单详情和客户支付信息的有效性；订单一旦支付成功，就不能随意取消，除非满足特定的退款条件。</p>
+<h3 id="如何管理客户信息"><a href="#如何管理客户信息" class="headerlink" title="如何管理客户信息"></a>如何管理客户信息</h3><p>客户信息管理包括客户注册、信息更新、历史订单查询等功能。<code>Domain</code>层通过定义客户实体（<code>Customer</code>）和相关的业务操作（如<code>UpdateCustomerProfile</code>）来实现这一点。这些操作确保了客户信息的一致性和安全性，例如，客户密码需要加密存储，客户信息更新需要验证客户的身份。</p>
+<h3 id="如何执行业务决策"><a href="#如何执行业务决策" class="headerlink" title="如何执行业务决策"></a>如何执行业务决策</h3><p>业务决策涉及到基于特定条件执行的逻辑选择，比如根据库存量决定是否接受订单、根据客户购买历史提供个性化推荐等。这些决策通常通过<code>Domain</code>层中的业务规则来实现，业务规则可能包括各种验证逻辑、计算公式和决策树。</p>
+<h3 id="与UI和数据持久化机制的独立性"><a href="#与UI和数据持久化机制的独立性" class="headerlink" title="与UI和数据持久化机制的独立性"></a>与UI和数据持久化机制的独立性</h3><p><code>Domain</code>层的设计目的是保持对UI层和数据持久化层的独立性。这意味着，不管UI如何变化（无论是移动应用、Web页面还是桌面应用），<code>Domain</code>层的业务逻辑不需要做出改变。同样，数据存储的细节（是使用SQL数据库、NoSQL数据库还是云服务）对<code>Domain</code>层也是透明的。这一层只通过抽象的接口（如<code>Repository</code>接口）与数据交互，具体的实现细节由<code>Data</code>层负责。</p>
+<p>通过将业务逻辑集中在<code>Domain</code>层，应用程序的核心功能和规则得到了清晰的定义和封装，这不仅有助于减少不同层之间的耦合，还使得业务逻辑更容易理解、测试和维护。此外，这种架构设计还增加了应用程序的灵活性，使得未来对应用程序的扩展和修改变得更加容易。</p>
+<h2 id="抽出-domain-层的意义是什么"><a href="#抽出-domain-层的意义是什么" class="headerlink" title="抽出 domain 层的意义是什么"></a>抽出 domain 层的意义是什么</h2><p>抽出<code>Domain</code>层在软件架构中的意义主要体现在以下几个方面：</p>
+<h3 id="1-业务逻辑集中化"><a href="#1-业务逻辑集中化" class="headerlink" title="1. 业务逻辑集中化"></a>1. 业务逻辑集中化</h3><p>将业务逻辑集中在<code>Domain</code>层，有助于明确应用程序的核心功能和规则，使得这些逻辑独立于其他层（如表示层和数据持久化层）的实现。这种集中化有助于保持业务规则的一致性，确保业务操作遵循同一套逻辑，无论是通过何种途径执行。</p>
+<h3 id="2-提高可维护性"><a href="#2-提高可维护性" class="headerlink" title="2. 提高可维护性"></a>2. 提高可维护性</h3><p>通过将业务逻辑与数据访问代码（<code>Data</code>层）和用户界面代码（<code>Presentation</code>层）分离，开发人员可以更容易地理解、修改和扩展业务规则。当业务需求发生变化时，通常只需要修改<code>Domain</code>层的代码，而无需触及到其他层的实现，这大大降低了维护成本和复杂性。</p>
+<h3 id="3-增强可测试性"><a href="#3-增强可测试性" class="headerlink" title="3. 增强可测试性"></a>3. 增强可测试性</h3><p>独立的<code>Domain</code>层使得业务逻辑的单元测试变得更加直接和简单。因为业务逻辑与外部的界面显示和数据存取逻辑解耦，测试可以集中在业务规则的正确性上，而不必担心UI或数据库的具体实现。这有助于提高测试覆盖率和发现潜在的业务逻辑错误。</p>
+<h3 id="4-促进技术栈灵活性"><a href="#4-促进技术栈灵活性" class="headerlink" title="4. 促进技术栈灵活性"></a>4. 促进技术栈灵活性</h3><p>由于<code>Domain</code>层独立于具体的技术实现，因此可以在不影响业务逻辑的前提下更换表示层框架或数据持久化技术。例如，可以从一个数据库系统迁移到另一个，或者在不同的前端技术（如Web、移动应用）之间共享相同的业务逻辑。</p>
+<h3 id="5-便于多团队协作"><a href="#5-便于多团队协作" class="headerlink" title="5. 便于多团队协作"></a>5. 便于多团队协作</h3><p>在大型项目中，不同的团队可以负责不同的应用层，例如一个团队专注于<code>Domain</code>层的业务逻辑开发，而另一个团队专注于用户界面的实现。这种分工有助于提高开发效率，因为团队可以并行工作，而且减少了彼此工作的直接依赖。</p>
+<h3 id="6-支持多种应用场景"><a href="#6-支持多种应用场景" class="headerlink" title="6. 支持多种应用场景"></a>6. 支持多种应用场景</h3><p><code>Domain</code>层的业务逻辑可以被不同的应用场景重用，比如同一个业务逻辑既能服务于Web应用，也能服务于移动应用或桌面应用。这种重用性可以显著降低开发和维护新平台应用的成本和时间。</p>
+<p>总之，抽出<code>Domain</code>层是实现软件架构清晰分层、提高代码质量和维护性的重要策略，它有助于构建更加健壯、灵活和可持续发展的软件系统。</p>
+<h1 id="这样做为什么可以只需要修改Domain层的代码，而无需触及到其他层的实现"><a href="#这样做为什么可以只需要修改Domain层的代码，而无需触及到其他层的实现" class="headerlink" title="这样做为什么可以只需要修改Domain层的代码，而无需触及到其他层的实现"></a>这样做为什么可以只需要修改Domain层的代码，而无需触及到其他层的实现</h1><p>当业务需求发生变化时，通常只需要修改<code>Domain</code>层的代码而无需触及到其他层的实现，这个原理主要是基于软件设计中的分层架构和关注点分离的原则。让我们来详细解释一下为什么这样做是可行的：</p>
+<h3 id="分层架构"><a href="#分层架构" class="headerlink" title="分层架构"></a>分层架构</h3><p>在一个典型的分层架构中，软件被划分为几个层次，每个层次负责处理不同的任务。这些层次通常包括：</p>
+<ul>
+<li><strong>表示层（Presentation Layer）</strong>：负责用户界面和用户交云的处理。</li>
+<li><strong>领域层（Domain Layer）</strong>：包含业务逻辑和业务规则。</li>
+<li><strong>数据访问层（Data Access Layer）</strong>：负责数据持久化和数据检索。</li>
+</ul>
+<h3 id="关注点分离"><a href="#关注点分离" class="headerlink" title="关注点分离"></a>关注点分离</h3><p>分层架构实现了关注点分离（Separation of Concerns, SoC）的原则，即不同的层次关注不同的方面。通过这种方式，每一层都可以独立于其他层变化，只要它们之间的接口保持不变。</p>
+<h3 id="对于业务逻辑的变化"><a href="#对于业务逻辑的变化" class="headerlink" title="对于业务逻辑的变化"></a>对于业务逻辑的变化</h3><ul>
+<li><strong>业务逻辑变化通常发生在Domain层</strong>：因为<code>Domain</code>层封装了应用程序的核心业务规则和逻辑。当业务需求变化时，这些变化几乎总是直接影响到业务规则和逻辑，而这些都是<code>Domain</code>层的职责范畴。</li>
+<li><strong>表示层和数据访问层的独立性</strong>：由于表示层主要负责界面显示和用户交互，数据访问层主要负责数据的持久化和检索，这两层的工作与业务逻辑的具体内容相对独立。它们通过定义良好的接口与<code>Domain</code>层交互，只要这些接口不变，业务逻辑的变更就不会直接影响到它们。</li>
+<li><strong>接口作为契约</strong>：<code>Domain</code>层通过接口与其他层进行交互。当业务需求变化导致<code>Domain</code>层的逻辑变化时，只要接口保持不变，表示层和数据访问层就无需变化。即使接口需要变化，现代编程语言和框架提供的抽象和封装机制也能最小化这种变化的影响。</li>
+</ul>
+<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><p>假设一个电子商务应用，其中有一个计算订单总价的业务逻辑。如果业务规定更改了订单的折扣计算方式，这个变化直接关系到订单总价的计算规则，这是<code>Domain</code>层的一部分。只需修改<code>Domain</code>层中计算总价的代码即可。只要<code>Domain</code>层对外提供的计算总价的接口不变，表示层（可能显示总价的界面）和数据访问层（可能存储订单详情的数据库操作）就不需要任何改动。</p>
+<h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3><p>因此，将业务逻辑封装在<code>Domain</code>层，确保了应用程序在面对业务需求变化时，可以局部化修改影响，减少了需要修改的代码量，从而降低了维护成本和复杂性。这种设计使得软件系统更加灵活和可维护，更容易适应和响应业务变化。</p>
+<h2 id="给出代码例子"><a href="#给出代码例子" class="headerlink" title="给出代码例子"></a>给出代码例子</h2><p>让我们通过一个简化的代码示例来说明当业务需求发生变化时，通常只需要修改<code>Domain</code>层的代码而无需触及到其他层的实现。考虑一个电子商务应用，其中包含一个功能：计算订单总价。我们将展示<code>Domain</code>层、<code>Data</code>层和<code>Presentation</code>层的简化代码，并展示当业务规则（例如，订单折扣规则）变化时，如何只修改<code>Domain</code>层代码来应对这一变化。</p>
+<h3 id="初始实现"><a href="#初始实现" class="headerlink" title="初始实现"></a>初始实现</h3><h4 id="Domain层"><a href="#Domain层" class="headerlink" title="Domain层"></a>Domain层</h4><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Domain层 - 定义业务逻辑接口</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">OrderService</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">calculateTotalPrice</span><span class="params">(items: <span class="type">List</span>&lt;<span class="type">OrderItem</span>&gt;)</span></span>: <span class="built_in">Double</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Domain层 - 实现</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">OrderServiceImpl</span> : <span class="type">OrderService</span> &#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">calculateTotalPrice</span><span class="params">(items: <span class="type">List</span>&lt;<span class="type">OrderItem</span>&gt;)</span></span>: <span class="built_in">Double</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> items.sumOf &#123; it.price * it.quantity &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">data</span> <span class="keyword">class</span> <span class="title class_">OrderItem</span>(<span class="keyword">val</span> price: <span class="built_in">Double</span>, <span class="keyword">val</span> quantity: <span class="built_in">Int</span>)</span><br></pre></td></tr></table></figure>
+
+<h4 id="Data层"><a href="#Data层" class="headerlink" title="Data层"></a>Data层</h4><p>假设数据层处理订单数据的存储和检索，但与计算总价无关，因此在此示例中略过。</p>
+<h4 id="Presentation层"><a href="#Presentation层" class="headerlink" title="Presentation层"></a>Presentation层</h4><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Presentation层 - 使用Domain层的服务展示总价</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">OrderViewModel</span>(<span class="keyword">private</span> <span class="keyword">val</span> orderService: OrderService) &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">displayTotalPrice</span><span class="params">(items: <span class="type">List</span>&lt;<span class="type">OrderItem</span>&gt;)</span></span> &#123;</span><br><span class="line">        <span class="keyword">val</span> totalPrice = orderService.calculateTotalPrice(items)</span><br><span class="line">        println(<span class="string">&quot;Total Price: <span class="variable">$totalPrice</span>&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="业务需求变化"><a href="#业务需求变化" class="headerlink" title="业务需求变化"></a>业务需求变化</h3><p>假设业务需求变化，现在需要对订单总价应用10%的折扣。</p>
+<h4 id="修改Domain层"><a href="#修改Domain层" class="headerlink" title="修改Domain层"></a>修改Domain层</h4><p>我们只需要在<code>Domain</code>层中修改<code>OrderServiceImpl</code>的实现来反映这一变化：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Domain层 - 修改后的实现</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">OrderServiceImpl</span> : <span class="type">OrderService</span> &#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">calculateTotalPrice</span><span class="params">(items: <span class="type">List</span>&lt;<span class="type">OrderItem</span>&gt;)</span></span>: <span class="built_in">Double</span> &#123;</span><br><span class="line">        <span class="keyword">val</span> originalTotal = items.sumOf &#123; it.price * it.quantity &#125;</span><br><span class="line">        <span class="keyword">val</span> discount = originalTotal * <span class="number">0.1</span> <span class="comment">// 应用10%的折扣</span></span><br><span class="line">        <span class="keyword">return</span> originalTotal - discount</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这个修改中，我们没有触及<code>Presentation</code>层或<code>Data</code>层的代码。<code>Presentation</code>层仍然以相同的方式调用<code>Domain</code>层的<code>calculateTotalPrice</code>方法，而<code>Data</code>层（假设它负责数据的持久化）也不需要变化，因为它与订单价格的计算逻辑无关。</p>
+<h3 id="结论-1"><a href="#结论-1" class="headerlink" title="结论"></a>结论</h3><p>通过这个简化的例子，我们可以看到，当业务规则变化（如订单折扣规则）时，只需修改<code>Domain</code>层中的业务逻辑实现。<code>Presentation</code>层和<code>Data</code>层不需要修改，因为它们与<code>Domain</code>层通过抽象的接口进行交互，这个接口（在本例中是<code>OrderService.calculateTotalPrice</code>）保持不变。这种设计使得应用程序能够灵活应对业务需求的变化，同时最小化了修改的影响范围，提高了代码的可维护性。</p>
 
       
     </div>
     <footer class="entry-meta entry-footer">
       
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a>, <a class="article-category-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-4 架构方案设计/02 播放器架构方案设计/Android-音视频架构专项"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2023/08/29/4%20%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/02%20%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/Android-%E9%9F%B3%E8%A7%86%E9%A2%91%E6%9E%B6%E6%9E%84%E4%B8%93%E9%A1%B9/">Android 音视频屏幕旋转方案</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/29/4%20%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/02%20%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/Android-%E9%9F%B3%E8%A7%86%E9%A2%91%E6%9E%B6%E6%9E%84%E4%B8%93%E9%A1%B9/" class="article-date">
+	  <time datetime="2023-08-28T18:45:14.000Z" itemprop="datePublished">August 29, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a>, <a class="article-category-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.1 - 播放器架构方案设计</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>在Android平台上，实现音视频播放过程中的屏幕旋转涉及到以下几个方面：界面布局的调整、Activity的生命周期管理、保存和恢复播放状态、以及处理屏幕旋转时可能引发的音视频播放问题。以下是一个基本的音视频屏幕旋转方案的步骤：</p>
+<h4 id="布局调整"><a href="#布局调整" class="headerlink" title="布局调整"></a>布局调整</h4><p>在<code>res</code>文件夹中创建不同方向的布局文件，例如<code>layout/activity_main.xml</code>和<code>layout-land/activity_main.xml</code>分别表示竖屏和横屏时的布局。在这些布局文件中，你可以调整控件的摆放位置以适应不同方向的屏幕。</p>
+<h4 id="Activity的生命周期管理"><a href="#Activity的生命周期管理" class="headerlink" title="Activity的生命周期管理"></a>Activity的生命周期管理</h4><p>当屏幕发生旋转时，Activity会经历重新创建的过程。确保你的Activity正确处理生命周期事件，特别是<code>onCreate</code>、<code>onSaveInstanceState</code>和<code>onRestoreInstanceState</code>等方法。</p>
+<h4 id="保存和恢复播放状态"><a href="#保存和恢复播放状态" class="headerlink" title="保存和恢复播放状态"></a>保存和恢复播放状态</h4><p>在<code>onSaveInstanceState</code>方法中保存当前的播放状态，例如播放位置、播放状态（播放、暂停等），以及其他相关信息。然后在<code>onCreate</code>和<code>onRestoreInstanceState</code>方法中恢复这些状态。</p>
+<h4 id="处理屏幕旋转可能引发的问题"><a href="#处理屏幕旋转可能引发的问题" class="headerlink" title="处理屏幕旋转可能引发的问题"></a>处理屏幕旋转可能引发的问题</h4><p>屏幕旋转可能会导致播放器重新创建或重置，从而影响播放状态。你需要在Activity重新创建时恢复播放状态，并确保播放器不会中断或重置播放进度。</p>
+<h4 id="使用ViewModel来保存播放状态（可选）"><a href="#使用ViewModel来保存播放状态（可选）" class="headerlink" title="使用ViewModel来保存播放状态（可选）"></a>使用ViewModel来保存播放状态（可选）</h4><p>使用ViewModel可以更方便地在屏幕旋转时保持数据。ViewModel会在Activity重新创建时保持其状态，因此你可以将播放状态等数据存储在ViewModel中，以确保不会丢失。</p>
+<h4 id="锁定屏幕方向（可选）"><a href="#锁定屏幕方向（可选）" class="headerlink" title="锁定屏幕方向（可选）"></a>锁定屏幕方向（可选）</h4><p>如果你希望在播放音视频时固定屏幕方向，可以在AndroidManifest.xml中的相应Activity中使用<code>android:screenOrientation</code>属性来指定所需的屏幕方向（如<code>portrait</code>或<code>landscape</code>）。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>总之，处理音视频播放过程中的屏幕旋转需要综合考虑界面布局、生命周期管理、数据保存和恢复等方面的问题。合理使用布局文件、Activity生命周期方法、ViewModel等工具，可以帮助你实现稳定且用户友好的音视频播放体验。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a>, <a class="article-category-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.1 - 播放器架构方案设计</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-6 Android编译打包/Android aar 文件到底是什么"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2023/08/11/6%20Android%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85/Android%20aar%20%E6%96%87%E4%BB%B6%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88/">Android aar 文件到底是什么</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/11/6%20Android%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85/Android%20aar%20%E6%96%87%E4%BB%B6%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88/" class="article-date">
+	  <time datetime="2023-08-10T23:19:04.000Z" itemprop="datePublished">August 11, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a>, <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>作者: 朕小猫与GPT4</p>
+<h1 id="问题起源：怎么打包发布一个含有-C-文件的-Library"><a href="#问题起源：怎么打包发布一个含有-C-文件的-Library" class="headerlink" title="问题起源：怎么打包发布一个含有 C++ 文件的 Library"></a>问题起源：怎么打包发布一个含有 C++ 文件的 Library</h1><p>起因是 KOOM 2.2.1 Release 存在后台分析进程在部分机型失效，想自己发布一个适合自己项目的版本。</p>
+<h1 id="so文件可以被打包到最终的AAR文件中吗"><a href="#so文件可以被打包到最终的AAR文件中吗" class="headerlink" title=".so文件可以被打包到最终的AAR文件中吗"></a>.so文件可以被打包到最终的AAR文件中吗</h1><p>是的，<code>.so</code>文件可以并且通常被打包到最终的AAR（Android Archive）文件中。AAR文件是Android开发中用于分发Android库的标准格式，它包含了库所需的所有资源、编译后的代码以及其他文件，比如<code>.so</code>文件（本地库文件）。</p>
+<h3 id="打包-so文件到AAR中的步骤"><a href="#打包-so文件到AAR中的步骤" class="headerlink" title="打包.so文件到AAR中的步骤"></a>打包<code>.so</code>文件到AAR中的步骤</h3><ol>
+<li><p><strong>放置<code>.so</code>文件</strong>: 将你的<code>.so</code>文件放置在项目的<code>src/main/jniLibs/</code>目录下。按照不同的CPU架构，你可能需要创建相应的子目录，例如<code>armeabi-v7a</code>、<code>arm64-v8a</code>、<code>x86</code>等，然后将相应架构的<code>.so</code>文件放置在这些目录下。</p>
+</li>
+<li><p><strong>配置Gradle构建脚本</strong>: 确保你的<code>build.gradle</code>文件正确配置，这样Gradle在构建过程中就会自动将<code>jniLibs</code>目录下的<code>.so</code>文件包括到AAR包中。大多数情况下，这个过程是自动完成的，无需额外配置。</p>
+</li>
+</ol>
+<h3 id="示例目录结构"><a href="#示例目录结构" class="headerlink" title="示例目录结构"></a>示例目录结构</h3><figure class="highlight crystal"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">YourLibraryProject/</span><br><span class="line">├── src/</span><br><span class="line">│   └── main/</span><br><span class="line">│       ├── java/</span><br><span class="line">│       │   └── ... (your Java or Kotlin source files)</span><br><span class="line">│       ├── res/</span><br><span class="line">│       │   └── ... (your resources)</span><br><span class="line">│       └── jniLibs/</span><br><span class="line">│           ├── armeabi-v7a/</span><br><span class="line">│           │   └── libyourlibrary.so</span><br><span class="line">│           ├── arm64-v8a/</span><br><span class="line">│           │   └── libyourlibrary.so</span><br><span class="line">│           ├── x86/</span><br><span class="line">│           │   └── libyourlibrary.so</span><br><span class="line">│           └── x86_64/</span><br><span class="line">│               └── libyourlibrary.so</span><br></pre></td></tr></table></figure>
+
+<h3 id="构建AAR包"><a href="#构建AAR包" class="headerlink" title="构建AAR包"></a>构建AAR包</h3><p>当你构建你的库时（例如，通过运行<code>./gradlew assembleRelease</code>），Gradle会自动将<code>jniLibs</code>目录下的所有<code>.so</code>文件包括到生成的AAR文件中。这样，当其他开发者将你的AAR文件作为依赖项添加到他们的项目中时，这些<code>.so</code>文件就会被自动解压到正确的位置，供他们的应用使用。</p>
+<p>确保在发布你的库之前测试它，以确保<code>.so</code>文件被正确包含且可以按预期工作。这通常涉及到在包含不同CPU架构设备的模拟器或真实设备上运行和测试你的库。</p>
+<h1 id="aar-里可以有哪些文件"><a href="#aar-里可以有哪些文件" class="headerlink" title=".aar 里可以有哪些文件"></a>.aar 里可以有哪些文件</h1><p>一个AAR（Android Archive）文件是Android库项目的发布包格式，用于在开发者之间共享Android库。AAR文件包含了库所需要的所有内容，使其可以被其他的Android应用项目引用。以下是AAR文件通常包含的文件和目录：</p>
+<h3 id="必需的内容"><a href="#必需的内容" class="headerlink" title="必需的内容"></a>必需的内容</h3><ul>
+<li><code>classes.jar</code>：包含库的所有编译后的Java类（.class文件）。</li>
+<li><code>res/</code>：包含库所使用的所有资源文件，如布局（layouts）、字符串（strings）、图片（drawables）等。</li>
+<li><code>AndroidManifest.xml</code>：库的Android清单文件，描述了库的包名、所需权限、活动（activities）、服务（services）等。</li>
+</ul>
+<h3 id="可选的内容"><a href="#可选的内容" class="headerlink" title="可选的内容"></a>可选的内容</h3><ul>
+<li><code>R.txt</code>：包含库中所有资源的ID名称和类型的列表，这是为了在库被引用时帮助生成最终应用的R类。</li>
+<li><code>aidl/</code>：包含库所使用的所有AIDL（Android Interface Definition Language）文件，用于定义跨进程通信接口。</li>
+<li><code>assets/</code>：包含可以被库访问的原始文件，如文本、音频或视频文件。</li>
+<li><code>libs/*.jar</code>：包含库依赖的任何Java库的JAR文件。</li>
+<li><code>jni/</code> 或 <code>jniLibs/</code>：包含库依赖的本地库（如<code>.so</code>文件），这些文件根据不同的CPU架构可能存放在不同的子目录下，如<code>armeabi-v7a/</code>、<code>arm64-v8a/</code>等。</li>
+<li><code>proguard.txt</code>：包含用于代码混淆的ProGuard规则。</li>
+<li><code>lint.jar</code>：包含自定义lint检查规则的JAR，这些规则可以在使用库的项目中被lint程序使用。</li>
+<li><code>public.txt</code>：列出了库公开的资源ID，这些资源ID在库的使用者中是可见的。</li>
+<li><code>annotations.zip</code>：包含用于工具支持的注解，比如nullability注解等。</li>
+</ul>
+<h3 id="如何查看AAR文件内容"><a href="#如何查看AAR文件内容" class="headerlink" title="如何查看AAR文件内容"></a>如何查看AAR文件内容</h3><p>你可以通过解压AAR文件（它本质上是一个ZIP文件）来查看里面的内容。使用任何标准的压缩文件管理器，如WinRAR、7-Zip等，都可以打开AAR文件并浏览其中的内容。</p>
+<h3 id="使用AAR文件"><a href="#使用AAR文件" class="headerlink" title="使用AAR文件"></a>使用AAR文件</h3><p>当你将AAR文件作为依赖项添加到Android项目中时，项目构建系统（如Gradle）会自动处理并引入这些内容，包括解析资源、合并清单文件等，从而使库中的功能可用于应用程序。<br><a target="_blank" rel="noopener" href="https://imgse.com/i/pFy2w6J"><img src="https://s21.ax1x.com/2024/03/10/pFy2w6J.png" alt="aar文件分析.png"></a></p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a>, <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-7复杂代码模版/UI绘制模版/TextView-layout_constrainedWidth-属性"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2024/03/22/7%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/UI%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/TextView-layout_constrainedWidth-%E5%B1%9E%E6%80%A7/">TextView layout_constrainedWidth 属性</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2024/03/22/7%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/UI%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/TextView-layout_constrainedWidth-%E5%B1%9E%E6%80%A7/" class="article-date">
+	  <time datetime="2024-03-22T13:47:30.611Z" itemprop="datePublished">March 22, 2024</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a>, <a class="article-category-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><code>layout_constrainedWidth</code>是<code>ConstraintLayout</code>中的一个属性，用于在处理宽度约束时提供更多的灵活性和控制。当你使用<code>ConstraintLayout</code>构建复杂的布局时，可能会遇到某些视图在其内容过长时需要被约束宽度的情况，以避免它们超出屏幕边界或影响其他视图的布局。<code>layout_constrainedWidth</code>属性就是为了解决这类问题而设计的。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">androidx.constraintlayout.widget.ConstraintLayout</span> 		         <span class="attr">xmlns:android</span>=<span class="string">&quot;http://schemas.android.com/apk/res/android&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:app</span>=<span class="string">&quot;http://schemas.android.com/apk/res-auto&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_width</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_height</span>=<span class="string">&quot;match_parent&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">TextView</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:id</span>=<span class="string">&quot;@+id/textView&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">&quot;wrap_content&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">&quot;wrap_content&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constrainedWidth</span>=<span class="string">&quot;true&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintStart_toStartOf</span>=<span class="string">&quot;parent&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintEnd_toStartOf</span>=<span class="string">&quot;@id/buttonView&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintTop_toTopOf</span>=<span class="string">&quot;parent&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintHorizontal_chainStyle</span>=<span class="string">&quot;packed&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintHorizontal_bias</span>=<span class="string">&quot;0&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:text</span>=<span class="string">&quot;长文本示例长文本示例长文本示例长文本示例长文本示例长文本示例长文本示例长文本示例长文本示例&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">Button</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:id</span>=<span class="string">&quot;@+id/buttonView&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">&quot;wrap_content&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">&quot;wrap_content&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintStart_toEndOf</span>=<span class="string">&quot;@id/textView&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintEnd_toEndOf</span>=<span class="string">&quot;parent&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintTop_toTopOf</span>=<span class="string">&quot;parent&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintHorizontal_chainStyle</span>=<span class="string">&quot;packed&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintHorizontal_bias</span>=<span class="string">&quot;0&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:text</span>=<span class="string">&quot;按钮&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">androidx.constraintlayout.widget.ConstraintLayout</span>&gt;</span></span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a>, <a class="article-category-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-5 C++/C++第一课-万物皆地址"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2023/08/29/5%20C++/C++%E7%AC%AC%E4%B8%80%E8%AF%BE-%E4%B8%87%E7%89%A9%E7%9A%86%E5%9C%B0%E5%9D%80/">C++ 第一课-万物皆地址</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/29/5%20C++/C++%E7%AC%AC%E4%B8%80%E8%AF%BE-%E4%B8%87%E7%89%A9%E7%9A%86%E5%9C%B0%E5%9D%80/" class="article-date">
+	  <time datetime="2023-08-28T18:45:14.000Z" itemprop="datePublished">August 29, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/8-C/">8 - C++</a>, <a class="article-category-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>作者：朕小猫与GPT4</p>
+<h1 id="怎么理解C-万物皆地址"><a href="#怎么理解C-万物皆地址" class="headerlink" title="怎么理解C++万物皆地址"></a>怎么理解C++万物皆地址</h1><p>在 C++ 程序中，几乎所有元素（包括变量、对象、函数等）都可以通过它们的内存地址来引用或操作。这一点归根结底是因为 C++ 是一种底层的编程语言，它允许直接访问内存和底层硬件资源。这种能力带来了极高的灵活性和控制能力，但同时也要求程序员对程序的内存使用有深入的理解。下面是如何通过内存地址来引用或操作元素的几个方面：</p>
+<ol>
+<li><h2 id="变量和对象的内存地址："><a href="#变量和对象的内存地址：" class="headerlink" title="变量和对象的内存地址："></a><strong>变量和对象的内存地址</strong>：</h2><p>在 C++ 中，每个变量或对象都占据内存中的一个或多个连续位置。你可以使用 <code>&amp;</code> 操作符获得一个变量的内存地址，这个地址可以赋给一个指针变量。通过指针，你可以读取或修改存储在该地址的数据。这对于数组和自定义数据结构尤其有用，因为可以通过指针算术进行高效的遍历和访问。</p>
+</li>
+<li><h2 id="函数的地址："><a href="#函数的地址：" class="headerlink" title="函数的地址："></a><strong>函数的地址</strong>：</h2><p>C++ 允许获取函数的地址，并将其赋给函数指针。这使得程序可以在运行时决定调用哪个函数，提高了代码的灵活性和可重用性。函数指针广泛应用于回调机制、事件驱动编程和接口设计中。</p>
+</li>
+<li><h2 id="引用："><a href="#引用：" class="headerlink" title="引用："></a><strong>引用</strong>：</h2><p>C++ 的引用机制实际上是一种特殊的语法糖，它在内部使用地址来实现。引用允许你创建一个变量的别名，通过别名可以直接访问和修改原始变量，而无需显式解引用。这样不仅代码更加简洁，而且避免了指针可能带来的错误。</p>
+</li>
+<li><h2 id="动态内存分配："><a href="#动态内存分配：" class="headerlink" title="动态内存分配："></a><strong>动态内存分配</strong>：</h2><p>C++ 通过 <code>new</code> 和 <code>delete</code> 操作符提供了动态内存分配的能力。使用 <code>new</code> 分配的内存位于堆区，它会返回指向分配内存的指针。通过这个指针，程序可以在运行时动态地分配、访问和释放内存。</p>
+</li>
+</ol>
+<p>通过上述机制，C++ 程序可以精确地控制内存的使用方式，从而优化程序性能和资源管理。然而，这也意呀着程序员必须对指针、内存地址以及内存管理有充分的理解，才能有效地利用这些特性编写高效、安全的代码。</p>
+<p>编写教程时，目标是清晰、简洁且具有实用性。以下是一个关于“如何在 C++ 中使用指针和地址”教程的示例内容。这段内容旨在介绍初学者到 C++ 的指针和地址概念，帮助他们理解和运用“万物皆地址”的原则。</p>
+<hr>
+<h1 id="C-指针和地址入门"><a href="#C-指针和地址入门" class="headerlink" title="C++ 指针和地址入门"></a>C++ 指针和地址入门</h1><p>在 C++ 中，理解指针和地址是掌握语言的基石。本教程将引导你通过简单的步骤来理解和使用指针和地址。</p>
+<h2 id="1-理解地址"><a href="#1-理解地址" class="headerlink" title="1. 理解地址"></a>1. 理解地址</h2><p>在 C++ 中，每个变量都存储在内存的一个特定位置，这个位置可以通过地址来访问。你可以使用 <code>&amp;</code> 操作符来获取变量的地址。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> var = <span class="number">10</span>;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;变量的地址: &quot;</span> &lt;&lt; &amp;var &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这段代码会输出变量 <code>var</code> 的内存地址。</p>
+<h2 id="2-使用指针"><a href="#2-使用指针" class="headerlink" title="2. 使用指针"></a>2. 使用指针</h2><p>指针是存储另一个变量地址的变量。在 C++ 中，你可以使用 <code>*</code> 来声明指针。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> var = <span class="number">10</span>;</span><br><span class="line">    <span class="type">int</span> *ptr = &amp;var;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;ptr 指向的地址: &quot;</span> &lt;&lt; ptr &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;ptr 指向的地址上的值: &quot;</span> &lt;&lt; *ptr &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这个例子中，<code>ptr</code> 是一个指向 <code>var</code> 地址的指针。通过 <code>*ptr</code>，我们可以访问这个地址上的值。</p>
+<h2 id="3-指针的使用场景"><a href="#3-指针的使用场景" class="headerlink" title="3. 指针的使用场景"></a>3. 指针的使用场景</h2><p>指针在 C++ 中的应用非常广泛，包括：</p>
+<ul>
+<li><strong>动态内存管理</strong>：使用 <code>new</code> 和 <code>delete</code> 操作符分配和释放内存。</li>
+<li><strong>函数参数传递</strong>：通过传递指针或引用来修改函数外的变量。</li>
+<li><strong>构建复杂数据结构</strong>：如链表、树等。</li>
+</ul>
+<h2 id="4-练习：使用指针交换两个变量的值"><a href="#4-练习：使用指针交换两个变量的值" class="headerlink" title="4. 练习：使用指针交换两个变量的值"></a>4. 练习：使用指针交换两个变量的值</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">swap</span><span class="params">(<span class="type">int</span> *x, <span class="type">int</span> *y)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> temp = *x;</span><br><span class="line">    *x = *y;</span><br><span class="line">    *y = temp;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> a = <span class="number">5</span>, b = <span class="number">10</span>;</span><br><span class="line">    <span class="built_in">swap</span>(&amp;a, &amp;b);</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;a: &quot;</span> &lt;&lt; a &lt;&lt; <span class="string">&quot;, b: &quot;</span> &lt;&lt; b &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个练习演示了如何使用指针来交换两个变量的值。</p>
+<h1 id="C-通过地址修改值"><a href="#C-通过地址修改值" class="headerlink" title="C++ 通过地址修改值"></a>C++ 通过地址修改值</h1><p>在 C++ 中，通过地址修改值是指针操作的一个基本用途。指针是一种特殊的变量，其值为另一个变量的内存地址。<br>通过指针，你可以直接访问和修改它指向的内存位置上存储的数据。<br>这一过程涉及几个关键步骤：获取变量的地址、使用指针指向该地址、通过指针修改该地址上的值。<br>下面通过一个简单的示例来说明这一过程：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> value = <span class="number">10</span>;    <span class="comment">// 定义一个变量value并初始化为10</span></span><br><span class="line">    <span class="type">int</span> *ptr = &amp;value; <span class="comment">// 定义一个指针ptr，将其初始化为value的地址</span></span><br><span class="line"></span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;Original value: &quot;</span> &lt;&lt; value &lt;&lt; endl; <span class="comment">// 显示原始的value值</span></span><br><span class="line"></span><br><span class="line">    *ptr = <span class="number">20</span>; <span class="comment">// 通过指针ptr修改value的值</span></span><br><span class="line"></span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;Modified value: &quot;</span> &lt;&lt; value &lt;&lt; endl; <span class="comment">// 显示修改后的value值</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在上述代码中：</p>
+<ol>
+<li>我们首先定义了一个类型为 <code>int</code> 的变量 <code>value</code> 并初始化为 10。</li>
+<li>然后，我们定义了一个类型为 <code>int*</code> 的指针 <code>ptr</code> 并将其初始化为 <code>value</code> 的地址（<code>&amp;value</code>）。</li>
+<li>通过 <code>cout</code> 输出语句，我们可以看到 <code>value</code> 的原始值。</li>
+<li>接着，我们通过指针 <code>ptr</code> 来修改 <code>value</code> 的值。这里的 <code>*ptr = 20;</code> 表示将 <code>ptr</code> 指向的内存位置（即 <code>value</code> 的位置）上的数据修改为 20。<code>*ptr</code> 是解引用操作符的应用，它获取指针指向的内存地址上存储的值。</li>
+<li>最后，再次通过 <code>cout</code> 输出 <code>value</code> 的值，可以看到它已经被修改为 20。</li>
+</ol>
+<h1 id="函数传参的内存地址"><a href="#函数传参的内存地址" class="headerlink" title="函数传参的内存地址"></a>函数传参的内存地址</h1><p>在 C++ 中，理解函数传参的内存地址涉及到两个主要概念：按值传递（Pass by Value）和按引用传递（Pass by Reference）。理解这些概念有助于深入理解 C++ 如何在函数调用中处理参数的内存地址。</p>
+<h2 id="按值传递（Pass-by-Value）"><a href="#按值传递（Pass-by-Value）" class="headerlink" title="按值传递（Pass by Value）"></a>按值传递（Pass by Value）</h2><p>当函数参数是按值传递时，函数接收的是实参的一个副本。这意味着函数内部对参数所做的任何修改都不会影响到原始数据。在内存层面，这个过程涉及到将原始数据的值复制到新的内存地址中。这个新的地址是函数参数在函数调用栈上的局部地址。</p>
+<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ul>
+<li>保护了原始数据，避免了意外修改。</li>
+<li>对于基本数据类型，这种方式简单且效率较高。</li>
+</ul>
+<h3 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h3><ul>
+<li>对于大型结构或类实例，复制可能导致性能下降。</li>
+<li>无法在函数外部反映函数内部对数据的修改。</li>
+</ul>
+<h2 id="按引用传递（Pass-by-Reference）"><a href="#按引用传递（Pass-by-Reference）" class="headerlink" title="按引用传递（Pass by Reference）"></a>按引用传递（Pass by Reference）</h2><p>按引用传递意味着函数接收的是实参的引用（或者说是内存地址）。这样，函数内部对参数的任何修改都会直接影响到原始数据。在内存层面，这避免了数据的复制，函数参数直接使用了实参的地址。</p>
+<h3 id="优点-1"><a href="#优点-1" class="headerlink" title="优点"></a>优点</h3><ul>
+<li>可以直接修改原始数据。</li>
+<li>避免了大型数据结构的复制，提高了效率。</li>
+<li>可以通过返回多个结果值（通过修改传入的引用或指针参数）。</li>
+</ul>
+<h3 id="缺点-1"><a href="#缺点-1" class="headerlink" title="缺点"></a>缺点</h3><ul>
+<li>如果不希望修改原始数据，需要谨慎操作。</li>
+<li>使用不当可能导致错误或数据损坏。</li>
+</ul>
+<h3 id="举个例子"><a href="#举个例子" class="headerlink" title="举个例子"></a>举个例子</h3><p>假设我们有一个简单的函数，目的是修改一个整数的值。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 按值传递</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">addTenByValue</span><span class="params">(<span class="type">int</span> number)</span> </span>&#123;</span><br><span class="line">    number += <span class="number">10</span>;</span><br><span class="line">    <span class="comment">// 这里修改的是number的副本，外部的原始变量不受影响</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 按引用传递</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">addTenByReference</span><span class="params">(<span class="type">int</span> &amp;number)</span> </span>&#123;</span><br><span class="line">    number += <span class="number">10</span>;</span><br><span class="line">    <span class="comment">// 这里直接修改的是传入变量的值，外部的原始变量也会被修改</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这个例子中，<code>addTenByValue</code> 函数无法修改外部变量的值，因为它仅操作了参数的副本。而 <code>addTenByReference</code> 函数则直接操作了实参的内存地址，因此它能够修改外部变量的值。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/8-C/">8 - C++</a>, <a class="article-category-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-8渲染引擎/01 Android GameProject 中最基础的 Renderer"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01%20Android%20GameProject%20%E4%B8%AD%E6%9C%80%E5%9F%BA%E7%A1%80%E7%9A%84%20Renderer/">Android Game Project 核心 Renderer.cpp</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01%20Android%20GameProject%20%E4%B8%AD%E6%9C%80%E5%9F%BA%E7%A1%80%E7%9A%84%20Renderer/" class="article-date">
+	  <time datetime="2023-08-23T10:38:36.000Z" itemprop="datePublished">August 23, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a>, <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="Renderer-类图组成："><a href="#Renderer-类图组成：" class="headerlink" title="Renderer 类图组成："></a>Renderer 类图组成：</h3><ul>
+<li><p><strong>类名</strong>：Renderer</p>
+</li>
+<li><p><strong>属性</strong></p>
+<ul>
+<li><strong>EGLDisplay display_</strong>: 用于OpenGL ES渲染的显示设备。它是一个与本地显示系统相关联的EGL显示连接。</li>
+<li><strong>EGLSurface surface_</strong>: OpenGL ES渲染的表面。这是一个EGL表面，代表可以渲染OpenGL ES图形的绘图目标。</li>
+<li><strong>EGLContext context_</strong>: OpenGL ES渲染的上下文。它是一个封装了OpenGL ES状态机的EGL渲染上下文。</li>
+<li><strong>int width_</strong>: 渲染表面的宽度，以像素为单位。</li>
+<li><strong>int height_</strong>: 渲染表面的高度，以像素为单位。</li>
+<li><strong>bool shaderNeedsNewProjectionMatrix_</strong>: 一个标志，指示是否需要为着色器生成新的投影矩阵。当渲染表面的大小改变时，这个标志会被设置为<code>true</code>。</li>
+<li><strong>std::unique_ptr<Shader> shader_</Shader></strong>: 指向当前使用的<code>Shader</code>对象的智能指针。<code>Shader</code>对象用于编译、链接和使用顶点和片段着色器。</li>
+<li><strong>std::vector<Model> models_</Model></strong>: 包含所有要渲染的模型的容器。每个<code>Model</code>对象包含顶点数据、索引数据和纹理数据。</li>
+</ul>
+<h3 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h3><ul>
+<li><strong>析构函数 <code>~Renderer()</code></strong>: 清理<code>Renderer</code>对象，包括释放EGL资源（如显示设备、渲染表面和上下文）。</li>
+<li><strong>void render()</strong>: 执行渲染循环的一次迭代。这包括更新渲染状态、绘制模型和交换渲染表面的缓冲区。</li>
+<li><strong>void initRenderer()</strong>: 初始化渲染器，包括设置EGL上下文、选择EGL配置、创建渲染表面和上下文、初始化OpenGL ES状态和加载着色器。</li>
+<li><strong>void updateRenderArea()</strong>: 更新渲染区域的大小。如果渲染表面的大小发生变化，此方法更新<code>width_</code>和<code>height_</code>属性，并标记需要为着色器生成新的投影矩阵。</li>
+<li><strong>void createModels()</strong>: 创建演示模型。这个方法加载模型的顶点、索引和纹理数据，然后将模型添加到<code>models_</code>容器中。</li>
+<li><strong>void handleInput()</strong>: 处理输入事件，如触摸和按键。这个方法从Android的输入事件队列中读取事件，并根据需要响应这些事件。</li>
+</ul>
+</li>
+<li><p><strong>关联和依赖关系</strong>：</p>
+<ul>
+<li>依赖于<code>Shader</code>类：由于<code>shader_</code>属性和在<code>initRenderer()</code>方法中对<code>Shader</code>的调用。</li>
+<li>依赖于<code>Vertex</code>和<code>Index</code>类型：在<code>createModels()</code>方法中使用这些类型来创建模型。</li>
+<li>依赖于<code>TextureAsset</code>类：在<code>createModels()</code>方法中加载纹理资源。</li>
+<li>使用了标准库中的类型，如<code>std::vector</code>、<code>std::unique_ptr</code>。</li>
+</ul>
+</li>
+</ul>
+<p>这个类图还可以展示<code>Renderer</code>类如何与Android的本地应用粘合层（native_app_glue）和OpenGL ES 3.0交互，特别是如何处理EGL上下文、表面创建和渲染循环。</p>
+<p>下面是一个简化的类图表示，重点在于<code>Renderer</code>类及其直接关系：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[<span class="meta">Renderer</span>] --|&gt; [EGLDisplay]</span><br><span class="line">[<span class="meta">Renderer</span>] --|&gt; [EGLSurface]</span><br><span class="line">[<span class="meta">Renderer</span>] --|&gt; [EGLContext]</span><br><span class="line">[<span class="meta">Renderer</span>] ---&gt; [Shader]</span><br><span class="line">[<span class="meta">Renderer</span>] --* [Model]</span><br><span class="line">[<span class="meta">Model</span>] --* [Vertex]</span><br><span class="line">[<span class="meta">Model</span>] --* [Index]</span><br><span class="line">[<span class="meta">Model</span>] ---&gt; [TextureAsset]</span><br></pre></td></tr></table></figure>
+
+<p>说明：</p>
+<ul>
+<li><code>--|&gt;</code> 表示拥有或创建关系。</li>
+<li><code>---&gt;</code> 表示依赖关系。</li>
+<li><code>--*</code> 表示包含或集合关系。</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br><span class="line">357</span><br><span class="line">358</span><br><span class="line">359</span><br><span class="line">360</span><br><span class="line">361</span><br><span class="line">362</span><br><span class="line">363</span><br><span class="line">364</span><br><span class="line">365</span><br><span class="line">366</span><br><span class="line">367</span><br><span class="line">368</span><br><span class="line">369</span><br><span class="line">370</span><br><span class="line">371</span><br><span class="line">372</span><br><span class="line">373</span><br><span class="line">374</span><br><span class="line">375</span><br><span class="line">376</span><br><span class="line">377</span><br><span class="line">378</span><br><span class="line">379</span><br><span class="line">380</span><br><span class="line">381</span><br><span class="line">382</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;Renderer.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;game-activity/native_app_glue/android_native_app_glue.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;GLES3/gl3.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;memory&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;android/imagedecoder.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;AndroidOut.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;Shader.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;Utility.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;TextureAsset.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 宏定义，执行glGetString并将结果输出到logcat</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PRINT_GL_STRING(s) &#123;aout &lt;&lt; #s<span class="string">&quot;: &quot;</span>&lt;&lt; glGetString(s) &lt;&lt; std::endl;&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 宏定义，如果glGetString返回一个空格分隔的列表，则将每个元素打印在新行上</span></span><br><span class="line"><span class="comment">/*!</span></span><br><span class="line"><span class="comment"> * @brief if glGetString returns a space separated list of elements, prints each one on a new line</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * This works by creating an istringstream of the input c-style string. Then that is used to create</span></span><br><span class="line"><span class="comment"> * a vector -- each element of the vector is a new element in the input string. Finally a foreach</span></span><br><span class="line"><span class="comment"> * loop consumes this and outputs it to logcat using @a aout</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PRINT_GL_STRING_AS_LIST(s) &#123; \</span></span><br><span class="line"><span class="meta">std::istringstream extensionStream((const char *) glGetString(s));\</span></span><br><span class="line"><span class="meta">std::vector<span class="string">&lt;std::string&gt;</span> extensionList(\</span></span><br><span class="line"><span class="meta">        std::istream_iterator<span class="string">&lt;std::string&gt;</span>&#123;extensionStream&#125;,\</span></span><br><span class="line"><span class="meta">        std::istream_iterator<span class="string">&lt;std::string&gt;</span>());\</span></span><br><span class="line"><span class="meta">aout &lt;&lt; #s<span class="string">&quot;:\n&quot;</span>;\</span></span><br><span class="line"><span class="meta">for (auto&amp; extension: extensionList) &#123;\</span></span><br><span class="line"><span class="meta">    aout &lt;&lt; extension &lt;&lt; <span class="string">&quot;\n&quot;</span>;\</span></span><br><span class="line"><span class="meta">&#125;\</span></span><br><span class="line"><span class="meta">aout &lt;&lt; std::endl;\</span></span><br><span class="line"><span class="meta">&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义一种颜色，玉米花蓝色。可以直接发送给glClearColor函数。</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CORNFLOWER_BLUE 100 / 255.f, 149 / 255.f, 237 / 255.f, 1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 顶点着色器和片段着色器的代码，通常这些会从资源文件中加载</span></span><br><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="type">char</span> *vertex = <span class="string">R&quot;vertex(#version 300 es</span></span><br><span class="line"><span class="string">in vec3 inPosition;</span></span><br><span class="line"><span class="string">in vec2 inUV;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">out vec2 fragUV;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">uniform mat4 uProjection;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">void main() &#123;</span></span><br><span class="line"><span class="string">    fragUV = inUV;</span></span><br><span class="line"><span class="string">    gl_Position = uProjection * vec4(inPosition, 1.0);</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">)vertex&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="type">char</span> *fragment = <span class="string">R&quot;fragment(#version 300 es</span></span><br><span class="line"><span class="string">precision mediump float;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">in vec2 fragUV;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">uniform sampler2D uTexture;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">out vec4 outColor;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">void main() &#123;</span></span><br><span class="line"><span class="string">    outColor = texture(uTexture, fragUV);</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">)fragment&quot;</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 投影矩阵的半高度，这将给你一个从-2到2的高度为4的可渲染区域</span></span><br><span class="line"><span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">float</span> kProjectionHalfHeight = <span class="number">2.f</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 投影矩阵的近平面距离。由于这是一个正交投影矩阵，负值便于排序（避免在0处的z-fighting）</span></span><br><span class="line"><span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">float</span> kProjectionNearPlane = <span class="number">-1.f</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 投影矩阵的远平面距离。与近平面等距的设置便于处理。</span></span><br><span class="line"><span class="comment">/*!</span></span><br><span class="line"><span class="comment"> * The far plane distance for the projection matrix. Since this is an orthographic porjection</span></span><br><span class="line"><span class="comment"> * matrix, it&#x27;s convenient to have the far plane equidistant from 0 as the near plane.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">float</span> kProjectionFarPlane = <span class="number">1.f</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Renderer析构函数，处理EGL上下文的清理工作。</span></span><br><span class="line">Renderer::~<span class="built_in">Renderer</span>() &#123;</span><br><span class="line">    <span class="keyword">if</span> (display_ != EGL_NO_DISPLAY) &#123;</span><br><span class="line">        <span class="built_in">eglMakeCurrent</span>(display_, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);</span><br><span class="line">        <span class="keyword">if</span> (context_ != EGL_NO_CONTEXT) &#123;</span><br><span class="line">            <span class="built_in">eglDestroyContext</span>(display_, context_);</span><br><span class="line">            context_ = EGL_NO_CONTEXT;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (surface_ != EGL_NO_SURFACE) &#123;</span><br><span class="line">            <span class="built_in">eglDestroySurface</span>(display_, surface_);</span><br><span class="line">            surface_ = EGL_NO_SURFACE;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">eglTerminate</span>(display_);</span><br><span class="line">        display_ = EGL_NO_DISPLAY;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 渲染函数，包括渲染过程中的各种状态更新和绘制调用。</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Renderer::render</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// Check to see if the surface has changed size. This is _necessary_ to do every frame when</span></span><br><span class="line">    <span class="comment">// using immersive mode as you&#x27;ll get no other notification that your renderable area has</span></span><br><span class="line">    <span class="comment">// changed.</span></span><br><span class="line">    <span class="built_in">updateRenderArea</span>();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// When the renderable area changes, the projection matrix has to also be updated. This is true</span></span><br><span class="line">    <span class="comment">// even if you change from the sample orthographic projection matrix as your aspect ratio has</span></span><br><span class="line">    <span class="comment">// likely changed.</span></span><br><span class="line">    <span class="keyword">if</span> (shaderNeedsNewProjectionMatrix_) &#123;</span><br><span class="line">        <span class="comment">// a placeholder projection matrix allocated on the stack. Column-major memory layout</span></span><br><span class="line">        <span class="type">float</span> projectionMatrix[<span class="number">16</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// build an orthographic projection matrix for 2d rendering</span></span><br><span class="line">        Utility::<span class="built_in">buildOrthographicMatrix</span>(</span><br><span class="line">                projectionMatrix,</span><br><span class="line">                kProjectionHalfHeight,</span><br><span class="line">                <span class="built_in">float</span>(width_) / height_,</span><br><span class="line">                kProjectionNearPlane,</span><br><span class="line">                kProjectionFarPlane);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// send the matrix to the shader</span></span><br><span class="line">        <span class="comment">// Note: the shader must be active for this to work. Since we only have one shader for this</span></span><br><span class="line">        <span class="comment">// demo, we can assume that it&#x27;s active.</span></span><br><span class="line">        shader_-&gt;<span class="built_in">setProjectionMatrix</span>(projectionMatrix);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// make sure the matrix isn&#x27;t generated every frame</span></span><br><span class="line">        shaderNeedsNewProjectionMatrix_ = <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// clear the color buffer</span></span><br><span class="line">    <span class="built_in">glClear</span>(GL_COLOR_BUFFER_BIT);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Render all the models. There&#x27;s no depth testing in this sample so they&#x27;re accepted in the</span></span><br><span class="line">    <span class="comment">// order provided. But the sample EGL setup requests a 24 bit depth buffer so you could</span></span><br><span class="line">    <span class="comment">// configure it at the end of initRenderer</span></span><br><span class="line">    <span class="keyword">if</span> (!models_.<span class="built_in">empty</span>()) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">const</span> <span class="keyword">auto</span> &amp;model: models_) &#123;</span><br><span class="line">            shader_-&gt;<span class="built_in">drawModel</span>(model);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Present the rendered image. This is an implicit glFlush.</span></span><br><span class="line">    <span class="keyword">auto</span> swapResult = <span class="built_in">eglSwapBuffers</span>(display_, surface_);</span><br><span class="line">    <span class="built_in">assert</span>(swapResult == EGL_TRUE);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 初始化渲染器，设置EGL上下文和OpenGL状态。</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Renderer::initRenderer</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// Choose your render attributes</span></span><br><span class="line">    <span class="keyword">constexpr</span></span><br><span class="line">    EGLint attribs[] = &#123;</span><br><span class="line">            EGL_RENDERABLE_TYPE, EGL_OPENGL_ES3_BIT,</span><br><span class="line">            EGL_SURFACE_TYPE, EGL_WINDOW_BIT,</span><br><span class="line">            EGL_BLUE_SIZE, <span class="number">8</span>,</span><br><span class="line">            EGL_GREEN_SIZE, <span class="number">8</span>,</span><br><span class="line">            EGL_RED_SIZE, <span class="number">8</span>,</span><br><span class="line">            EGL_DEPTH_SIZE, <span class="number">24</span>,</span><br><span class="line">            EGL_NONE</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// The default display is probably what you want on Android</span></span><br><span class="line">    <span class="keyword">auto</span> display = <span class="built_in">eglGetDisplay</span>(EGL_DEFAULT_DISPLAY);</span><br><span class="line">    <span class="built_in">eglInitialize</span>(display, <span class="literal">nullptr</span>, <span class="literal">nullptr</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// figure out how many configs there are</span></span><br><span class="line">    EGLint numConfigs;</span><br><span class="line">    <span class="built_in">eglChooseConfig</span>(display, attribs, <span class="literal">nullptr</span>, <span class="number">0</span>, &amp;numConfigs);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// get the list of configurations</span></span><br><span class="line">    std::unique_ptr &lt; EGLConfig[] &gt; <span class="built_in">supportedConfigs</span>(<span class="keyword">new</span> EGLConfig[numConfigs]);</span><br><span class="line">    <span class="built_in">eglChooseConfig</span>(display, attribs, supportedConfigs.<span class="built_in">get</span>(), numConfigs, &amp;numConfigs);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Find a config we like.</span></span><br><span class="line">    <span class="comment">// Could likely just grab the first if we don&#x27;t care about anything else in the config.</span></span><br><span class="line">    <span class="comment">// Otherwise hook in your own heuristic</span></span><br><span class="line">    <span class="keyword">auto</span> config = *std::<span class="built_in">find_if</span>(</span><br><span class="line">            supportedConfigs.<span class="built_in">get</span>(),</span><br><span class="line">            supportedConfigs.<span class="built_in">get</span>() + numConfigs,</span><br><span class="line">            [&amp;display](<span class="type">const</span> EGLConfig &amp;config) &#123;</span><br><span class="line">                EGLint red, green, blue, depth;</span><br><span class="line">                <span class="keyword">if</span> (<span class="built_in">eglGetConfigAttrib</span>(display, config, EGL_RED_SIZE, &amp;red)</span><br><span class="line">                    &amp;&amp; <span class="built_in">eglGetConfigAttrib</span>(display, config, EGL_GREEN_SIZE, &amp;green)</span><br><span class="line">                    &amp;&amp; <span class="built_in">eglGetConfigAttrib</span>(display, config, EGL_BLUE_SIZE, &amp;blue)</span><br><span class="line">                    &amp;&amp; <span class="built_in">eglGetConfigAttrib</span>(display, config, EGL_DEPTH_SIZE, &amp;depth)) &#123;</span><br><span class="line"></span><br><span class="line">                    aout &lt;&lt; <span class="string">&quot;Found config with &quot;</span> &lt;&lt; red &lt;&lt; <span class="string">&quot;, &quot;</span> &lt;&lt; green &lt;&lt; <span class="string">&quot;, &quot;</span> &lt;&lt; blue &lt;&lt; <span class="string">&quot;, &quot;</span></span><br><span class="line">                         &lt;&lt; depth &lt;&lt; std::endl;</span><br><span class="line">                    <span class="keyword">return</span> red == <span class="number">8</span> &amp;&amp; green == <span class="number">8</span> &amp;&amp; blue == <span class="number">8</span> &amp;&amp; depth == <span class="number">24</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line">    aout &lt;&lt; <span class="string">&quot;Found &quot;</span> &lt;&lt; numConfigs &lt;&lt; <span class="string">&quot; configs&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">    aout &lt;&lt; <span class="string">&quot;Chose &quot;</span> &lt;&lt; config &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// create the proper window surface</span></span><br><span class="line">    EGLint format;</span><br><span class="line">    <span class="built_in">eglGetConfigAttrib</span>(display, config, EGL_NATIVE_VISUAL_ID, &amp;format);</span><br><span class="line">    EGLSurface surface = <span class="built_in">eglCreateWindowSurface</span>(display, config, app_-&gt;window, <span class="literal">nullptr</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Create a GLES 3 context</span></span><br><span class="line">    EGLint contextAttribs[] = &#123;EGL_CONTEXT_CLIENT_VERSION, <span class="number">3</span>, EGL_NONE&#125;;</span><br><span class="line">    EGLContext context = <span class="built_in">eglCreateContext</span>(display, config, <span class="literal">nullptr</span>, contextAttribs);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// get some window metrics</span></span><br><span class="line">    <span class="keyword">auto</span> madeCurrent = <span class="built_in">eglMakeCurrent</span>(display, surface, surface, context);</span><br><span class="line">    <span class="built_in">assert</span>(madeCurrent);</span><br><span class="line"></span><br><span class="line">    display_ = display;</span><br><span class="line">    surface_ = surface;</span><br><span class="line">    context_ = context;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// make width and height invalid so it gets updated the first frame in @a updateRenderArea()</span></span><br><span class="line">    width_ = <span class="number">-1</span>;</span><br><span class="line">    height_ = <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">PRINT_GL_STRING</span>(GL_VENDOR);</span><br><span class="line">    <span class="built_in">PRINT_GL_STRING</span>(GL_RENDERER);</span><br><span class="line">    <span class="built_in">PRINT_GL_STRING</span>(GL_VERSION);</span><br><span class="line">    <span class="built_in">PRINT_GL_STRING_AS_LIST</span>(GL_EXTENSIONS);</span><br><span class="line"></span><br><span class="line">    shader_ = std::<span class="built_in">unique_ptr</span>&lt;Shader&gt;(</span><br><span class="line">            Shader::<span class="built_in">loadShader</span>(vertex, fragment, <span class="string">&quot;inPosition&quot;</span>, <span class="string">&quot;inUV&quot;</span>, <span class="string">&quot;uProjection&quot;</span>));</span><br><span class="line">    <span class="built_in">assert</span>(shader_);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Note: there&#x27;s only one shader in this demo, so I&#x27;ll activate it here. For a more complex game</span></span><br><span class="line">    <span class="comment">// you&#x27;ll want to track the active shader and activate/deactivate it as necessary</span></span><br><span class="line">    shader_-&gt;<span class="built_in">activate</span>();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// setup any other gl related global states</span></span><br><span class="line">    <span class="built_in">glClearColor</span>(CORNFLOWER_BLUE);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// enable alpha globally for now, you probably don&#x27;t want to do this in a game</span></span><br><span class="line">    <span class="built_in">glEnable</span>(GL_BLEND);</span><br><span class="line">    <span class="built_in">glBlendFunc</span>(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// get some demo models into memory</span></span><br><span class="line">    <span class="built_in">createModels</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 更新渲染区域的大小，如果有变化，则更新视口和投影矩阵。</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Renderer::updateRenderArea</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    EGLint width;</span><br><span class="line">    <span class="built_in">eglQuerySurface</span>(display_, surface_, EGL_WIDTH, &amp;width);</span><br><span class="line"></span><br><span class="line">    EGLint height;</span><br><span class="line">    <span class="built_in">eglQuerySurface</span>(display_, surface_, EGL_HEIGHT, &amp;height);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (width != width_ || height != height_) &#123;</span><br><span class="line">        width_ = width;</span><br><span class="line">        height_ = height;</span><br><span class="line">        <span class="built_in">glViewport</span>(<span class="number">0</span>, <span class="number">0</span>, width, height);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// make sure that we lazily recreate the projection matrix before we render</span></span><br><span class="line">        shaderNeedsNewProjectionMatrix_ = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建演示模型的函数。</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * @brief Create any demo models we want for this demo.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Renderer::createModels</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * This is a square:</span></span><br><span class="line"><span class="comment">     * 0 --- 1</span></span><br><span class="line"><span class="comment">     * | \   |</span></span><br><span class="line"><span class="comment">     * |  \  |</span></span><br><span class="line"><span class="comment">     * |   \ |</span></span><br><span class="line"><span class="comment">     * 3 --- 2</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    std::vector &lt;Vertex&gt; vertices = &#123;</span><br><span class="line">            <span class="built_in">Vertex</span>(Vector3&#123;<span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>&#125;, Vector2&#123;<span class="number">0</span>, <span class="number">0</span>&#125;), <span class="comment">// 0</span></span><br><span class="line">            <span class="built_in">Vertex</span>(Vector3&#123;<span class="number">-1</span>, <span class="number">1</span>, <span class="number">0</span>&#125;, Vector2&#123;<span class="number">1</span>, <span class="number">0</span>&#125;), <span class="comment">// 1</span></span><br><span class="line">            <span class="built_in">Vertex</span>(Vector3&#123;<span class="number">-1</span>, <span class="number">-1</span>, <span class="number">0</span>&#125;, Vector2&#123;<span class="number">1</span>, <span class="number">1</span>&#125;), <span class="comment">// 2</span></span><br><span class="line">            <span class="built_in">Vertex</span>(Vector3&#123;<span class="number">1</span>, <span class="number">-1</span>, <span class="number">0</span>&#125;, Vector2&#123;<span class="number">0</span>, <span class="number">1</span>&#125;) <span class="comment">// 3</span></span><br><span class="line">    &#125;;</span><br><span class="line">    std::vector &lt;Index&gt; indices = &#123;</span><br><span class="line">            <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">3</span></span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// loads an image and assigns it to the square.</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">// Note: there is no texture management in this sample, so if you reuse an image be careful not</span></span><br><span class="line">    <span class="comment">// to load it repeatedly. Since you get a shared_ptr you can safely reuse it in many models.</span></span><br><span class="line">    <span class="keyword">auto</span> assetManager = app_-&gt;activity-&gt;assetManager;</span><br><span class="line">    <span class="keyword">auto</span> spAndroidRobotTexture = TextureAsset::<span class="built_in">loadAsset</span>(assetManager, <span class="string">&quot;android_robot.png&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Create a model and put it in the back of the render list.</span></span><br><span class="line">    models_.<span class="built_in">emplace_back</span>(vertices, indices, spAndroidRobotTexture);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 处理输入事件的函数，如触摸和按键事件。</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Renderer::handleInput</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// handle all queued inputs</span></span><br><span class="line">    <span class="keyword">auto</span> *inputBuffer = <span class="built_in">android_app_swap_input_buffers</span>(app_);</span><br><span class="line">    <span class="keyword">if</span> (!inputBuffer) &#123;</span><br><span class="line">        <span class="comment">// no inputs yet.</span></span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// handle motion events (motionEventsCounts can be 0).</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span> i = <span class="number">0</span>; i &lt; inputBuffer-&gt;motionEventsCount; i++) &#123;</span><br><span class="line">        <span class="keyword">auto</span> &amp;motionEvent = inputBuffer-&gt;motionEvents[i];</span><br><span class="line">        <span class="keyword">auto</span> action = motionEvent.action;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Find the pointer index, mask and bitshift to turn it into a readable value.</span></span><br><span class="line">        <span class="keyword">auto</span> pointerIndex = (action &amp; AMOTION_EVENT_ACTION_POINTER_INDEX_MASK)</span><br><span class="line">                &gt;&gt; AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;</span><br><span class="line">        aout &lt;&lt; <span class="string">&quot;Pointer(s): &quot;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// get the x and y position of this event if it is not ACTION_MOVE.</span></span><br><span class="line">        <span class="keyword">auto</span> &amp;pointer = motionEvent.pointers[pointerIndex];</span><br><span class="line">        <span class="keyword">auto</span> x = <span class="built_in">GameActivityPointerAxes_getX</span>(&amp;pointer);</span><br><span class="line">        <span class="keyword">auto</span> y = <span class="built_in">GameActivityPointerAxes_getY</span>(&amp;pointer);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// determine the action type and process the event accordingly.</span></span><br><span class="line">        <span class="keyword">switch</span> (action &amp; AMOTION_EVENT_ACTION_MASK) &#123;</span><br><span class="line">            <span class="keyword">case</span> AMOTION_EVENT_ACTION_DOWN:</span><br><span class="line">            <span class="keyword">case</span> AMOTION_EVENT_ACTION_POINTER_DOWN:</span><br><span class="line">                aout &lt;&lt; <span class="string">&quot;(&quot;</span> &lt;&lt; pointer.id &lt;&lt; <span class="string">&quot;, &quot;</span> &lt;&lt; x &lt;&lt; <span class="string">&quot;, &quot;</span> &lt;&lt; y &lt;&lt; <span class="string">&quot;) &quot;</span></span><br><span class="line">                     &lt;&lt; <span class="string">&quot;Pointer Down&quot;</span>;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">case</span> AMOTION_EVENT_ACTION_CANCEL:</span><br><span class="line">                <span class="comment">// treat the CANCEL as an UP event: doing nothing in the app, except</span></span><br><span class="line">                <span class="comment">// removing the pointer from the cache if pointers are locally saved.</span></span><br><span class="line">                <span class="comment">// code pass through on purpose.</span></span><br><span class="line">            <span class="keyword">case</span> AMOTION_EVENT_ACTION_UP:</span><br><span class="line">            <span class="keyword">case</span> AMOTION_EVENT_ACTION_POINTER_UP:</span><br><span class="line">                aout &lt;&lt; <span class="string">&quot;(&quot;</span> &lt;&lt; pointer.id &lt;&lt; <span class="string">&quot;, &quot;</span> &lt;&lt; x &lt;&lt; <span class="string">&quot;, &quot;</span> &lt;&lt; y &lt;&lt; <span class="string">&quot;) &quot;</span></span><br><span class="line">                     &lt;&lt; <span class="string">&quot;Pointer Up&quot;</span>;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">case</span> AMOTION_EVENT_ACTION_MOVE:</span><br><span class="line">                <span class="comment">// There is no pointer index for ACTION_MOVE, only a snapshot of</span></span><br><span class="line">                <span class="comment">// all active pointers; app needs to cache previous active pointers</span></span><br><span class="line">                <span class="comment">// to figure out which ones are actually moved.</span></span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">auto</span> index = <span class="number">0</span>; index &lt; motionEvent.pointerCount; index++) &#123;</span><br><span class="line">                    pointer = motionEvent.pointers[index];</span><br><span class="line">                    x = <span class="built_in">GameActivityPointerAxes_getX</span>(&amp;pointer);</span><br><span class="line">                    y = <span class="built_in">GameActivityPointerAxes_getY</span>(&amp;pointer);</span><br><span class="line">                    aout &lt;&lt; <span class="string">&quot;(&quot;</span> &lt;&lt; pointer.id &lt;&lt; <span class="string">&quot;, &quot;</span> &lt;&lt; x &lt;&lt; <span class="string">&quot;, &quot;</span> &lt;&lt; y &lt;&lt; <span class="string">&quot;)&quot;</span>;</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">if</span> (index != (motionEvent.pointerCount - <span class="number">1</span>)) aout &lt;&lt; <span class="string">&quot;,&quot;</span>;</span><br><span class="line">                    aout &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                aout &lt;&lt; <span class="string">&quot;Pointer Move&quot;</span>;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">                aout &lt;&lt; <span class="string">&quot;Unknown MotionEvent Action: &quot;</span> &lt;&lt; action;</span><br><span class="line">        &#125;</span><br><span class="line">        aout &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// clear the motion input count in this buffer for main thread to re-use.</span></span><br><span class="line">    <span class="built_in">android_app_clear_motion_events</span>(inputBuffer);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// handle input key events.</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span> i = <span class="number">0</span>; i &lt; inputBuffer-&gt;keyEventsCount; i++) &#123;</span><br><span class="line">        <span class="keyword">auto</span> &amp;keyEvent = inputBuffer-&gt;keyEvents[i];</span><br><span class="line">        aout &lt;&lt; <span class="string">&quot;Key: &quot;</span> &lt;&lt; keyEvent.keyCode &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">        <span class="keyword">switch</span> (keyEvent.action) &#123;</span><br><span class="line">            <span class="keyword">case</span> AKEY_EVENT_ACTION_DOWN:</span><br><span class="line">                aout &lt;&lt; <span class="string">&quot;Key Down&quot;</span>;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> AKEY_EVENT_ACTION_UP:</span><br><span class="line">                aout &lt;&lt; <span class="string">&quot;Key Up&quot;</span>;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> AKEY_EVENT_ACTION_MULTIPLE:</span><br><span class="line">                <span class="comment">// Deprecated since Android API level 29.</span></span><br><span class="line">                aout &lt;&lt; <span class="string">&quot;Multiple Key Actions&quot;</span>;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">                aout &lt;&lt; <span class="string">&quot;Unknown KeyEvent Action: &quot;</span> &lt;&lt; keyEvent.action;</span><br><span class="line">        &#125;</span><br><span class="line">        aout &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// clear the key input count too.</span></span><br><span class="line">    <span class="built_in">android_app_clear_key_events</span>(inputBuffer);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a>, <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-8渲染引擎/OpenGL ES 3.0/01 OpenGL ES 3.0 开发（一）：绘制一个三角形"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/OpenGL%20ES%203.0/01%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E7%BB%98%E5%88%B6%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/">OpenGL ES 3.0 开发（一）：绘制一个三角形</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/OpenGL%20ES%203.0/01%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E7%BB%98%E5%88%B6%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/" class="article-date">
+	  <time datetime="2023-08-23T10:38:36.000Z" itemprop="datePublished">August 23, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a>, <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+
+          
+          <div class="entry-summary">
+          转载与二次编辑非公开文章
+
+        
+          <p class="article-more-link">
+            <a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/OpenGL%20ES%203.0/01%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E7%BB%98%E5%88%B6%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/#more">Continue Reading →</a>
+          </p>
+        </div>
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a>, <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-5 C++/C++函数指针与指针函数,C++11 新特性"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2023/08/29/5%20C++/C++%E5%87%BD%E6%95%B0%E6%8C%87%E9%92%88%E4%B8%8E%E6%8C%87%E9%92%88%E5%87%BD%E6%95%B0,C++11%20%E6%96%B0%E7%89%B9%E6%80%A7/">C++ 函数指针与指针函数,C++11 新特性</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/29/5%20C++/C++%E5%87%BD%E6%95%B0%E6%8C%87%E9%92%88%E4%B8%8E%E6%8C%87%E9%92%88%E5%87%BD%E6%95%B0,C++11%20%E6%96%B0%E7%89%B9%E6%80%A7/" class="article-date">
+	  <time datetime="2023-08-28T18:45:14.000Z" itemprop="datePublished">August 29, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/8-C/">8 - C++</a>, <a class="article-category-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>作者：朕小猫与GPT4</p>
+<h1 id="C-函数指针"><a href="#C-函数指针" class="headerlink" title="C++函数指针"></a>C++函数指针</h1><p>在 C++ 中，函数指针是指向函数的指针，允许通过指针调用函数。这种特性让程序在运行时能够选择要调用的函数，增加了代码的灵活性和动态性。理解函数指针对于高级编程技巧，如回调函数、命令模式等是非常重要的。</p>
+<h2 id="定义函数指针"><a href="#定义函数指针" class="headerlink" title="定义函数指针"></a>定义函数指针</h2><p>函数指针的定义需要指定函数的返回类型、指针名称以及函数参数的类型。定义函数指针的基本语法如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">返回类型 (*指针变量名)(参数类型列表);</span><br></pre></td></tr></table></figure>
+
+<p>例如，如果你有一个返回类型为 <code>int</code> 并接受两个 <code>int</code> 类型参数的函数，你可以这样定义一个指向该函数的指针：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">int</span> (*funcPtr)(<span class="type">int</span>, <span class="type">int</span>);</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用函数指针"><a href="#使用函数指针" class="headerlink" title="使用函数指针"></a>使用函数指针</h2><p>一旦定义了函数指针，就可以将其指向具有相应签名的任何函数，然后通过该指针调用函数。这里有一个使用函数指针的简单示例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义一个简单的函数</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">add</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> x + y;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 定义一个函数指针并使其指向add函数</span></span><br><span class="line">    <span class="built_in">int</span> (*funcPtr)(<span class="type">int</span>, <span class="type">int</span>) = add;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通过函数指针调用函数</span></span><br><span class="line">    <span class="type">int</span> sum = <span class="built_in">funcPtr</span>(<span class="number">2</span>, <span class="number">3</span>);</span><br><span class="line"></span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;The sum is: &quot;</span> &lt;&lt; sum &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="函数指针的用途"><a href="#函数指针的用途" class="headerlink" title="函数指针的用途"></a>函数指针的用途</h2><p>函数指针最常见的用途包括：</p>
+<ul>
+<li><strong>回调函数</strong>：允许库或框架调用在使用库的代码中定义的函数。</li>
+<li><strong>事件处理</strong>：在发生特定事件时动态决定调用哪个函数。</li>
+<li><strong>接口实现</strong>：通过函数指针数组或结构体实现类似于面向对象编程中接口或虚函数的功能。</li>
+<li><strong>命令模式</strong>：将操作封装为对象，允许存储、传递和调用操作。</li>
+</ul>
+<h2 id="高级话题"><a href="#高级话题" class="headerlink" title="高级话题"></a>高级话题</h2><p>随着 C++11 的引入，现代 C++ 更倾向于使用 std::function 和 lambda 表达式来替代裸函数指针，因为它们提供了更高的灵活性和更简洁的语法。例如，<code>std::function</code> 可以存储并调用任何可调用的实体，包括普通函数、lambda 表达式、以及其他具有 <code>operator()</code> 的对象。</p>
+<h1 id="举例子，说明函数指针使用的几种场景"><a href="#举例子，说明函数指针使用的几种场景" class="headerlink" title="举例子，说明函数指针使用的几种场景"></a>举例子，说明函数指针使用的几种场景</h1><p>函数指针在 C++ 中的应用非常广泛，提供了编程的灵活性和动态性。以下是几种典型场景，展示了函数指针的使用：</p>
+<h2 id="1-回调函数"><a href="#1-回调函数" class="headerlink" title="1. 回调函数"></a>1. 回调函数</h2><p>回调函数是由用户编写的，但由系统或库在适当的时候调用的函数。函数指针允许用户提供具体的回调函数实现，使得库或框架可以在运行时调用用户定义的代码。</p>
+<p><strong>示例：</strong> 设计一个简单的事件处理器，当发生某个事件时，调用用户提供的回调函数。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义回调函数类型</span></span><br><span class="line"><span class="keyword">using</span> Callback = <span class="built_in">void</span>(*)(<span class="type">int</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 事件处理器类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">EventProcessor</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">registerCallback</span><span class="params">(Callback cb)</span> </span>&#123;</span><br><span class="line">        callbacks.<span class="built_in">push_back</span>(cb);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">triggerEvent</span><span class="params">(<span class="type">int</span> eventData)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; cb : callbacks) &#123;</span><br><span class="line">            <span class="built_in">cb</span>(eventData); <span class="comment">// 调用回调函数</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    std::vector&lt;Callback&gt; callbacks; <span class="comment">// 回调函数列表</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 用户定义的回调函数</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">onEventTriggered</span><span class="params">(<span class="type">int</span> data)</span> </span>&#123;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Event triggered with data: &quot;</span> &lt;&lt; data &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    EventProcessor ep;</span><br><span class="line">    ep.<span class="built_in">registerCallback</span>(onEventTriggered); <span class="comment">// 注册回调函数</span></span><br><span class="line">    ep.<span class="built_in">triggerEvent</span>(<span class="number">42</span>); <span class="comment">// 触发事件，调用回调函数</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-函数指针数组"><a href="#2-函数指针数组" class="headerlink" title="2. 函数指针数组"></a>2. 函数指针数组</h2><p>函数指针数组可以存储指向不同函数的指针，使得程序可以基于运行时决策调用不同的函数。</p>
+<p><strong>示例：</strong> 创建一个简单的菜单系统，用户输入不同的选项执行不同的操作。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">function1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Executing Function 1&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">function2</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Executing Function 2&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">function3</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Executing Function 3&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">void</span>(*functions[<span class="number">3</span>])() = &#123;function1, function2, function3&#125;;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> choice;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Enter a choice (0-2): &quot;</span>;</span><br><span class="line">    std::cin &gt;&gt; choice;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (choice &gt;= <span class="number">0</span> &amp;&amp; choice &lt; <span class="number">3</span>) &#123;</span><br><span class="line">        (*functions[choice])(); <span class="comment">// 调用选中的函数</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        std::cout &lt;&lt; <span class="string">&quot;Invalid choice&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-接口实现和策略模式"><a href="#3-接口实现和策略模式" class="headerlink" title="3. 接口实现和策略模式"></a>3. 接口实现和策略模式</h2><p>通过函数指针，可以模拟面向对象编程中的接口或策略模式，允许在运行时选择不同的算法或行为。</p>
+<p><strong>示例：</strong> 设计一个简单的排序策略，用户可以选择不同的排序算法。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> SortAlgorithm = <span class="built_in">void</span>(*)(std::vector&lt;<span class="type">int</span>&gt;&amp;);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">ascendingSort</span><span class="params">(std::vector&lt;<span class="type">int</span>&gt;&amp; data)</span> </span>&#123;</span><br><span class="line">    std::<span class="built_in">sort</span>(data.<span class="built_in">begin</span>(), data.<span class="built_in">end</span>());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">descendingSort</span><span class="params">(std::vector&lt;<span class="type">int</span>&gt;&amp; data)</span> </span>&#123;</span><br><span class="line">    std::<span class="built_in">sort</span>(data.<span class="built_in">begin</span>(), data.<span class="built_in">end</span>(), std::<span class="built_in">greater</span>&lt;<span class="type">int</span>&gt;());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">sortData</span><span class="params">(std::vector&lt;<span class="type">int</span>&gt;&amp; data, SortAlgorithm algorithm)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">algorithm</span>(data); <span class="comment">// 使用指定的排序算法</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    std::vector&lt;<span class="type">int</span>&gt; data = &#123;<span class="number">4</span>, <span class="number">2</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">3</span>&#125;;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">sortData</span>(data, ascendingSort);</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> n : data) std::cout &lt;&lt; n &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">    std::cout &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">sortData</span>(data, descendingSort);</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> n : data) std::cout &lt;&lt; n &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">    std::cout &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这些示例展示了函数指针在回调、决策和策略选择等不同编程场景中的应用，证明了其为 C++ 编程带来的灵活性和动态性。</p>
+<h1 id="使用-std-function-和-lambda-表达式来替代裸函数指针，举例子"><a href="#使用-std-function-和-lambda-表达式来替代裸函数指针，举例子" class="headerlink" title="使用 std::function 和 lambda 表达式来替代裸函数指针，举例子"></a>使用 std::function 和 lambda 表达式来替代裸函数指针，举例子</h1><p><code>std::function</code> 和 lambda 表达式在 C++11 及之后的版本中提供了一种更加灵活和方便的方式来处理可调用对象。它们使得代码更加简洁且易于理解，特别是在需要函数作为参数或回调时。</p>
+<h2 id="Lambda-表达式"><a href="#Lambda-表达式" class="headerlink" title="Lambda 表达式"></a>Lambda 表达式</h2><p>Lambda 表达式提供了一种匿名函数的实现，允许你在需要函数对象的地方快速定义一个函数。Lambda 表达式的基本语法如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[捕获列表](参数列表) -&gt; 返回类型 &#123;</span><br><span class="line">    函数体</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用-std-function-和-Lambda-表达式"><a href="#使用-std-function-和-Lambda-表达式" class="headerlink" title="使用 std::function 和 Lambda 表达式"></a>使用 <code>std::function</code> 和 Lambda 表达式</h2><p><code>std::function</code> 是一个模板类，它可以用来存储任何可以调用的目标，如普通函数、Lambda 表达式、成员函数和函数对象。这提供了比裸函数指针更大的灵活性和功能。</p>
+<p>下面是一个示例，展示了如何使用 <code>std::function</code> 和 Lambda 表达式来替代裸函数指针：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;functional&gt;</span> <span class="comment">// 必须包含这个头文件</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义一个普通的函数</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">add</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> x + y;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 使用 std::function 存储普通函数</span></span><br><span class="line">    std::function&lt;<span class="type">int</span>(<span class="type">int</span>, <span class="type">int</span>)&gt; func = add;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;The sum using a normal function: &quot;</span> &lt;&lt; <span class="built_in">func</span>(<span class="number">2</span>, <span class="number">3</span>) &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 使用 std::function 存储 Lambda 表达式</span></span><br><span class="line">    std::function&lt;<span class="type">int</span>(<span class="type">int</span>, <span class="type">int</span>)&gt; lambdaFunc = [](<span class="type">int</span> x, <span class="type">int</span> y) -&gt; <span class="type">int</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> x + y;</span><br><span class="line">    &#125;;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;The sum using a lambda expression: &quot;</span> &lt;&lt; <span class="built_in">lambdaFunc</span>(<span class="number">2</span>, <span class="number">3</span>) &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这个示例中，我们首先定义了一个普通的函数 <code>add</code>。然后，我们创建了两个 <code>std::function</code> 对象，一个用来存储普通函数 <code>add</code>，另一个用来存储一个实现相同功能的 Lambda 表达式。通过这种方式，我们可以看到 <code>std::function</code> 和 Lambda 表达式如何提供了一种更加灵活的方式来处理可调用对象，而不必直接使用函数指针。</p>
+<h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><ul>
+<li><code>std::function</code> 可以存储任何类型的可调用对象，提供了极大的灵活性。</li>
+<li>Lambda 表达式使得定义和使用匿名函数变得简单，特别是在作为一次性使用函数或局部函数时非常有用。</li>
+<li>使用 <code>std::function</code> 和 Lambda 表达式可以使代码更加清晰和易于维护，特别是在复杂的项目中。</li>
+</ul>
+<p>通过这种方式，C++11 提供的这些特性让处理函数和回调等场景变得更加优雅和高效。</p>
+<h1 id="C-指针函数"><a href="#C-指针函数" class="headerlink" title="C ++ 指针函数"></a>C ++ 指针函数</h1><p>在 C++ 中，术语“指针函数”通常被误解或使用不当。实际上，人们通常是指返回指针的函数，或者简称为“函数返回指针”。这种类型的函数在使用时非常有用，尤其是当你需要从函数中返回动态分配的内存或数组、多级指针、或者指向不同数据结构的指针时。</p>
+<h2 id="定义返回指针的函数"><a href="#定义返回指针的函数" class="headerlink" title="定义返回指针的函数"></a>定义返回指针的函数</h2><p>要定义一个返回指针的函数，你需要在函数声明的返回类型前加上<code>*</code>来指明返回的是指针。这里有一个简单的例子，说明如何定义和使用返回指针的函数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义一个返回int指针的函数</span></span><br><span class="line"><span class="function"><span class="type">int</span>* <span class="title">getIntPtr</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span>* ptr = <span class="keyword">new</span> <span class="built_in">int</span>(<span class="number">10</span>); <span class="comment">// 动态分配内存</span></span><br><span class="line">    <span class="keyword">return</span> ptr; <span class="comment">// 返回指向int的指针</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span>* myPtr = <span class="built_in">getIntPtr</span>(); <span class="comment">// 调用函数，获取返回的指针</span></span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Value: &quot;</span> &lt;&lt; *myPtr &lt;&lt; std::endl; <span class="comment">// 使用指针访问值</span></span><br><span class="line">    <span class="keyword">delete</span> myPtr; <span class="comment">// 释放分配的内存</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这个例子中，<code>getIntPtr</code>函数分配了一个<code>int</code>类型的动态内存，并返回一个指向这块内存的指针。在<code>main</code>函数中，我们调用了<code>getIntPtr</code>，并使用返回的指针来访问和操作内存。最后，不要忘记使用<code>delete</code>释放动态分配的内存，以避免内存泄露。</p>
+<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><ul>
+<li>返回局部变量的地址是危险的，因为当函数执行完毕后，局部变量的存储空间会被回收，这样返回的指针会指向一个不再有效的内存区域，导致未定义行为。</li>
+<li>当你的函数返回指向动态分配内存的指针时，确保在适当的时候释放这些内存，以避免内存泄露。</li>
+<li>考虑使用智能指针（如<code>std::unique_ptr</code>或<code>std::shared_ptr</code>）来管理动态分配的内存，这样可以自动管理内存的生命周期，减少内存泄露的风险。</li>
+</ul>
+<p>返回指针的函数提供了一种灵活的方式来创建和管理动态资源，但同时也需要谨慎处理指针和内存管理相关的问题。</p>
+<h1 id="如何使用智能指针（如std-unique-ptr或std-shared-ptr）来管理动态分配的内存"><a href="#如何使用智能指针（如std-unique-ptr或std-shared-ptr）来管理动态分配的内存" class="headerlink" title="如何使用智能指针（如std::unique_ptr或std::shared_ptr）来管理动态分配的内存"></a>如何使用智能指针（如std::unique_ptr或std::shared_ptr）来管理动态分配的内存</h1><p>在 C++ 中，智能指针是一种模板类，用于自动管理动态分配的内存，确保资源在不再需要时被正确释放，从而避免内存泄露。C++11 引入了两种主要的智能指针类型：<code>std::unique_ptr</code> 和 <code>std::shared_ptr</code>，它们分别用于独占所有权和共享所有权的场景。</p>
+<h2 id="使用-std-unique-ptr"><a href="#使用-std-unique-ptr" class="headerlink" title="使用 std::unique_ptr"></a>使用 <code>std::unique_ptr</code></h2><p><code>std::unique_ptr</code> 是一种独占所有权的智能指针，保证同一时间只有一个 <code>std::unique_ptr</code> 指向特定的资源。当 <code>std::unique_ptr</code> 被销毁或被重新分配时，它指向的对象也会被自动删除。</p>
+<h3 id="基本用法："><a href="#基本用法：" class="headerlink" title="基本用法："></a><strong>基本用法：</strong></h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;memory&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyObject</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">MyObject</span>() &#123; std::cout &lt;&lt; <span class="string">&quot;MyObject created\n&quot;</span>; &#125;</span><br><span class="line">    ~<span class="built_in">MyObject</span>() &#123; std::cout &lt;&lt; <span class="string">&quot;MyObject destroyed\n&quot;</span>; &#125;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">myMethod</span><span class="params">()</span> </span>&#123; std::cout &lt;&lt; <span class="string">&quot;MyMethod called\n&quot;</span>; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    std::unique_ptr&lt;MyObject&gt; myUniquePtr = std::<span class="built_in">make_unique</span>&lt;MyObject&gt;();</span><br><span class="line">    myUniquePtr-&gt;<span class="built_in">myMethod</span>(); <span class="comment">// 使用-&gt;操作符调用成员函数</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 不需要手动删除对象，当unique_ptr离开作用域时，对象会被自动销毁</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用-std-shared-ptr"><a href="#使用-std-shared-ptr" class="headerlink" title="使用 std::shared_ptr"></a>使用 <code>std::shared_ptr</code></h2><p><code>std::shared_ptr</code> 是一种共享所有权的智能指针，允许多个 <code>std::shared_ptr</code> 实例指向同一个对象。内部使用引用计数来跟踪有多少个 <code>std::shared_ptr</code> 指向同一个资源，当最后一个这样的指针被销毁时，所指向的对象也会被删除。</p>
+<h3 id="基本用法：-1"><a href="#基本用法：-1" class="headerlink" title="基本用法："></a><strong>基本用法：</strong></h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;memory&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyObject</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">MyObject</span>() &#123; std::cout &lt;&lt; <span class="string">&quot;MyObject created\n&quot;</span>; &#125;</span><br><span class="line">    ~<span class="built_in">MyObject</span>() &#123; std::cout &lt;&lt; <span class="string">&quot;MyObject destroyed\n&quot;</span>; &#125;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">myMethod</span><span class="params">()</span> </span>&#123; std::cout &lt;&lt; <span class="string">&quot;MyMethod called\n&quot;</span>; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    std::shared_ptr&lt;MyObject&gt; mySharedPtr1 = std::<span class="built_in">make_shared</span>&lt;MyObject&gt;();</span><br><span class="line">    &#123;</span><br><span class="line">        std::shared_ptr&lt;MyObject&gt; mySharedPtr2 = mySharedPtr1; <span class="comment">// 共享所有权</span></span><br><span class="line">        mySharedPtr2-&gt;<span class="built_in">myMethod</span>();</span><br><span class="line">        <span class="comment">// 当mySharedPtr2离开作用域时，对象不会被销毁，因为mySharedPtr1仍然存在</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 只有当最后一个指向对象的shared_ptr（这里是mySharedPtr1）离开作用域时，对象才会被销毁</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="注意事项-1"><a href="#注意事项-1" class="headerlink" title="注意事项"></a>注意事项</h3><ul>
+<li>使用智能指针可以减少内存泄露的风险，但仍需要注意循环引用问题，尤其是在使用 <code>std::shared_ptr</code> 时。循环引用会阻止引用计数达到零，导致内存泄露。解决循环引用问题通常使用 <code>std::weak_ptr</code>。</li>
+<li><code>std::unique_ptr</code> 通过移动语义实现所有权的转移，不能被复制。</li>
+<li><code>std::shared_ptr</code> 适用于资源需要被多个所有者共享的情况，但增加了额外的开销（引用计数管理）。</li>
+</ul>
+<p>智能指针是现代 C++ 管理动态资源的首选方式，相比裸指针，它们提供了更安全、更简洁的资源管理机制。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/8-C/">8 - C++</a>, <a class="article-category-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-8渲染引擎/02 Android GameProject 结构目录"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02%20Android%20GameProject%20%E7%BB%93%E6%9E%84%E7%9B%AE%E5%BD%95/">Android Game Project 项目结构</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02%20Android%20GameProject%20%E7%BB%93%E6%9E%84%E7%9B%AE%E5%BD%95/" class="article-date">
+	  <time datetime="2023-08-23T10:38:36.000Z" itemprop="datePublished">August 23, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a>, <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><strong>author: 朕小猫-GPT4</strong></p>
+<p>图片显示的是一个典型的Android项目目录结构，这个项目中集成了C++原生代码。以下是各个组件的结构和作用的简述：</p>
+<ul>
+<li><code>src</code><ul>
+<li><code>main</code><ul>
+<li><code>assets</code><ul>
+<li><code>android_robot.png</code> 一个图像资产，可能用于应用的用户界面或游戏图形。</li>
+</ul>
+</li>
+<li><code>cpp</code><ul>
+<li><code>AndroidOut.cpp</code> 和 <code>AndroidOut.h</code>：C++源文件和头文件，可能用于原生代码中的日志或输出目的。</li>
+<li><code>CMakeLists.txt</code>：CMake配置文件，CMake是用于管理原生代码编译的构建系统。</li>
+<li><code>main.cpp</code>：主要的C++源文件，可能包含原生代码执行的入口点。</li>
+<li><code>Model.h</code>：很可能定义了一个数据模型或对象的头文件。</li>
+<li><code>Renderer.cpp</code> 和 <code>Renderer.h</code>：渲染相关的源文件和头文件，或许处理屏幕上图形的绘制。</li>
+<li><code>Shader.cpp</code> 和 <code>Shader.h</code>：与着色器程序相关的源文件和头文件，用于高级图形效果。</li>
+<li><code>TextureAsset.cpp</code> 和 <code>TextureAsset.h</code>：处理原生代码中纹理资产的源文件和头文件。</li>
+<li><code>Utility.cpp</code> 和 <code>Utility.h</code>：在原生代码库中使用的工具函数或类的源文件和头文件。</li>
+</ul>
+</li>
+<li><code>java</code><ul>
+<li><code>com.jason.game</code><ul>
+<li><code>MainActivity</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>res</code>：<ul>
+<li><code>AndroidManifest.xml</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>.gitignore</code>：Git的配置文件，指定在版本控制中忽略哪些文件或目录。</li>
+<li><code>build.gradle.kts</code>：用Kotlin脚本编写的Gradle构建系统的构建配置文件，指定依赖和构建设置。</li>
+<li><code>proguard-rules.pro</code>：ProGuard的配置文件，ProGuard是一个用于代码缩减和混淆的工具，以防止应用发布构建的反向工程。</li>
+</ul>
+<p>这个结构表明这是一个复杂的Android项目，它使用Java&#x2F;Kotlin来实现Android特定功能，并使用C++来处理性能密集型任务，可能用于游戏开发或计算密集型应用。 </p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a>, <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-8渲染引擎/OpenGL ES 3.0/02 OpenGL ES 3.0 开发（二）：纹理映射"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/OpenGL%20ES%203.0/02%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E7%BA%B9%E7%90%86%E6%98%A0%E5%B0%84/">OpenGL ES 3.0 开发（二）：纹理映射</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/OpenGL%20ES%203.0/02%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E7%BA%B9%E7%90%86%E6%98%A0%E5%B0%84/" class="article-date">
+	  <time datetime="2023-08-23T10:38:36.000Z" itemprop="datePublished">August 23, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a>, <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+
+          
+          <div class="entry-summary">
+          转载与二次编辑非公开文章
+
+        
+          <p class="article-more-link">
+            <a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/OpenGL%20ES%203.0/02%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E7%BA%B9%E7%90%86%E6%98%A0%E5%B0%84/#more">Continue Reading →</a>
+          </p>
+        </div>
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a>, <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a>
+
       
       
     </footer>
@@ -168,7 +984,7 @@
 
   <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/6/">Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span>
+    <a class="extend prev" rel="prev" href="/page/6/">Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/8/">Next</a>
   </nav>
 
 </section>
@@ -251,7 +1067,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">29</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">4</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">5</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.0 - Java 多线程</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">15</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.1 - 播放器架构方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/5-C/">5 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/5-C/5-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">5.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/5-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">5 - 渲染引擎</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/5-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/5-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">5.1 - 基础项目拆解</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">1</span></li></ul></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">4</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/10-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">10 - 计算机网络</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">5</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.0 - Java 多线程</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">18</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.1 - 播放器架构方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -265,7 +1081,7 @@
     <h3 class="widget-title">Archives</h3>
 
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">48</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">March 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">58</span></li></ul>
     </div>
   </div>
 
@@ -285,7 +1101,55 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2024/02/21/Android/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Android-%E6%80%A7%E8%83%BD%E4%B8%93%E9%A2%98-%E6%8F%92%E4%BB%B6%E5%8C%96%E9%A2%84%E7%83%AD-%E6%8B%BC%E5%A4%9A%E5%A4%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E5%8F%AA%E6%9C%8926M-GPT4%E5%BF%AB%E9%97%AE%E5%BF%AB%E7%AD%94/">Android 性能专题 - 插件化预热-拼多多为什么只有26M-GPT4快问快答</a></h6>
+              <h6 style="margin: 0;"><a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/0%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%80)/">ViewModel 源代码分析 (一)</a></h6>
+              <span>April 1, 2024</span>
+            </div>
+
+          </li>
+        
+          <li class="clearfix">
+
+            
+              <div class="widget-entry-summary" style="margin: 0;">
+            
+
+              <h6 style="margin: 0;"><a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/2%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%89)%20/">ViewModel 源代码分析 (三)</a></h6>
+              <span>April 1, 2024</span>
+            </div>
+
+          </li>
+        
+          <li class="clearfix">
+
+            
+              <div class="widget-entry-summary" style="margin: 0;">
+            
+
+              <h6 style="margin: 0;"><a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/1%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%BA%8C)/">ViewModel 源代码分析 (二)</a></h6>
+              <span>April 1, 2024</span>
+            </div>
+
+          </li>
+        
+          <li class="clearfix">
+
+            
+              <div class="widget-entry-summary" style="margin: 0;">
+            
+
+              <h6 style="margin: 0;"><a href="/2024/03/22/7%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/UI%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/TextView-layout_constrainedWidth-%E5%B1%9E%E6%80%A7/">TextView layout_constrainedWidth 属性</a></h6>
+              <span>March 22, 2024</span>
+            </div>
+
+          </li>
+        
+          <li class="clearfix">
+
+            
+              <div class="widget-entry-summary" style="margin: 0;">
+            
+
+              <h6 style="margin: 0;"><a href="/2024/02/21/3%20Android/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Android-%E6%80%A7%E8%83%BD%E4%B8%93%E9%A2%98-%E6%8F%92%E4%BB%B6%E5%8C%96%E9%A2%84%E7%83%AD-%E6%8B%BC%E5%A4%9A%E5%A4%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E5%8F%AA%E6%9C%8926M-GPT4%E5%BF%AB%E9%97%AE%E5%BF%AB%E7%AD%94/">Android 性能专题 - 插件化预热-拼多多为什么只有26M-GPT4快问快答</a></h6>
               <span>February 21, 2024</span>
             </div>
 
@@ -297,56 +1161,8 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2024/02/10/Android/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Android-Glide-%E4%B8%89%E7%A7%8D%E6%B1%A0%E5%AD%90/">Android Glide 三种池子</a></h6>
+              <h6 style="margin: 0;"><a href="/2024/02/10/3%20Android/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Android-Glide-%E4%B8%89%E7%A7%8D%E6%B1%A0%E5%AD%90/">Android Glide 三种池子</a></h6>
               <span>February 10, 2024</span>
-            </div>
-
-          </li>
-        
-          <li class="clearfix">
-
-            
-              <div class="widget-entry-summary" style="margin: 0;">
-            
-
-              <h6 style="margin: 0;"><a href="/2023/09/10/Android/ARouter/01-ARouter/">从零开始写一个 ARouter - router-annotation 路由注解模块</a></h6>
-              <span>September 10, 2023</span>
-            </div>
-
-          </li>
-        
-          <li class="clearfix">
-
-            
-              <div class="widget-entry-summary" style="margin: 0;">
-            
-
-              <h6 style="margin: 0;"><a href="/2023/09/10/Android/ARouter/02-Arouter/">从零开始写一个 ARouter - base 基础功能 与 core 核心功能</a></h6>
-              <span>September 10, 2023</span>
-            </div>
-
-          </li>
-        
-          <li class="clearfix">
-
-            
-              <div class="widget-entry-summary" style="margin: 0;">
-            
-
-              <h6 style="margin: 0;"><a href="/2023/09/10/Android/ARouter/03-Arouter/">从零开始写一个 ARouter - exception 异常与 callback 回调</a></h6>
-              <span>September 10, 2023</span>
-            </div>
-
-          </li>
-        
-          <li class="clearfix">
-
-            
-              <div class="widget-entry-summary" style="margin: 0;">
-            
-
-              <h6 style="margin: 0;"><a href="/2023/09/10/Android/ARouter/04-Arouter/">从零开始写一个 ARouter - service 服务</a></h6>
-              <span>September 10, 2023</span>
             </div>
 
           </li>

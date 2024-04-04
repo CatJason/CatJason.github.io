@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Android MVI GPT4 快问快答 | 喵星科技报</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  
+  
+  
+  <meta name="description" content="MVI 层级架构 App 用于依赖注入 —— 可以访问所有层 Data 负责内部和外部存储 —— 可以访问 Domain Domain 负责仓库和用例 —— 不访问任何层  Presentation 负责UI逻辑 —— 可以访问 Domain  GPT 4 块问快答：究竟什么是 MVI为什么 Data 和 Presentation 可以访问领域层，举例子怎么访问的在一个典型的分层架构中，每一层都有">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android MVI GPT4 快问快答">
+<meta property="og:url" content="http://example.com/2023/08/29/4%20%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/01%20MVI/Android-%E9%9F%B3%E8%A7%86%E9%A2%91%E6%9E%B6%E6%9E%84%E4%B8%93%E9%A1%B9/index.html">
+<meta property="og:site_name" content="喵星科技报">
+<meta property="og:description" content="MVI 层级架构 App 用于依赖注入 —— 可以访问所有层 Data 负责内部和外部存储 —— 可以访问 Domain Domain 负责仓库和用例 —— 不访问任何层  Presentation 负责UI逻辑 —— 可以访问 Domain  GPT 4 块问快答：究竟什么是 MVI为什么 Data 和 Presentation 可以访问领域层，举例子怎么访问的在一个典型的分层架构中，每一层都有">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-08-28T18:45:14.000Z">
+<meta property="article:modified_time" content="2024-03-31T15:09:41.832Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="喵星科技报" type="application/atom+xml">
+  
+  <link rel="icon" href="/css/images/favicon.ico">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+    
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Yanone+Kaffeesatz%3A200%2C300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Oswald%3A300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+<script src="/js/jquery-3.1.1.min.js"></script>
+
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.css" >
+  <link rel="stylesheet" href="/css/fashion.css" >
+  <link rel="stylesheet" href="/css/glyphs.css" >
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<a target="_blank" rel="noopener" href="https://github.com/CatJason">
+<img decoding="async" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" loading="lazy" data-recalc-dims="1">
+</a>
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  
+
+
+<header id="allheader" class="site-header" role="banner" 
+   >
+  <div class="clearfix container">
+      <div class="site-branding">
+
+          <h1 class="site-title">
+            
+              <a href="/" title="喵星科技报" rel="home"> 喵星科技报 </a>
+            
+          </h1>
+          
+          
+            
+          <nav id="main-navigation" class="main-navigation" role="navigation">
+            <a class="nav-open">Menu</a>
+            <a class="nav-close">Close</a>
+
+            <div class="clearfix sf-menu">
+              <ul id="main-nav" class="menu sf-js-enabled sf-arrows"  style="touch-action: pan-y;">
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="/"> <a class="" href="/">Home</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="archives"> <a class="" href="/archives">Archives</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="categories"> <a class="" href="/categories">Categories</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="tags"> <a class="" href="/tags">Tags</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="about"> <a class="" href="/about">About</a> </li>
+                    
+              </ul>
+            </div>
+          </nav>
+
+      </div>
+  </div>
+</header>
+
+
+  <div id="container">
+    <div id="wrap">
+            
+      <div id="content" class="outer">
+        
+          <section id="main" style="float:none;"><article id="post-4 架构方案设计/01 MVI/Android-音视频架构专项" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" class="article-title" itemprop="name">
+      Android MVI GPT4 快问快答
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/29/4%20%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/01%20MVI/Android-%E9%9F%B3%E8%A7%86%E9%A2%91%E6%9E%B6%E6%9E%84%E4%B8%93%E9%A1%B9/" class="article-date">
+	  <time datetime="2023-08-28T18:45:14.000Z" itemprop="datePublished">August 29, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a>, <a class="article-category-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a>
+ 
+      
+	<span id="busuanzi_container_page_pv">
+	  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	</span>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="MVI-层级架构"><a href="#MVI-层级架构" class="headerlink" title="MVI 层级架构"></a>MVI 层级架构</h1><ul>
+<li><strong>App</strong> 用于依赖注入 —— 可以访问所有层</li>
+<li><strong>Data</strong> 负责内部和外部存储 —— 可以访问 <strong>Domain</strong></li>
+<li><strong>Domain</strong> 负责仓库和用例 —— 不访问任何层 </li>
+<li><strong>Presentation</strong> 负责UI逻辑 —— 可以访问 <strong>Domain</strong></li>
+</ul>
+<h1 id="GPT-4-块问快答：究竟什么是-MVI"><a href="#GPT-4-块问快答：究竟什么是-MVI" class="headerlink" title="GPT 4 块问快答：究竟什么是 MVI"></a>GPT 4 块问快答：究竟什么是 MVI</h1><h2 id="为什么-Data-和-Presentation-可以访问领域层，举例子怎么访问的"><a href="#为什么-Data-和-Presentation-可以访问领域层，举例子怎么访问的" class="headerlink" title="为什么 Data 和 Presentation 可以访问领域层，举例子怎么访问的"></a>为什么 Data 和 Presentation 可以访问领域层，举例子怎么访问的</h2><p>在一个典型的分层架构中，每一层都有其独特的职责，而且这种架构通常允许某些层访问其他特定的层。在你提到的结构中，<code>App</code>、<code>Data</code>、<code>Domain</code>和<code>Presentation</code>层各自担负不同的角色，其中<code>Data</code>和<code>Presentation</code>层被允许访问<code>Domain</code>层，主要是因为<code>Domain</code>层包含了应用程序的核心业务逻辑和规则，是其他层依赖的基础。</p>
+<h3 id="Data-层访问-Domain-层"><a href="#Data-层访问-Domain-层" class="headerlink" title="Data 层访问 Domain 层"></a>Data 层访问 Domain 层</h3><ul>
+<li><strong>职责</strong>：<code>Data</code>层负责处理数据的存取，无论是来自内部存储（如SQLite数据库、内存缓存等）还是外部存储（如网络API、远程数据库等）。</li>
+<li><strong>访问方式</strong>：<code>Data</code>层访问<code>Domain</code>层通常是通过实现<code>Domain</code>层定义的仓库接口（Repository Interfaces）。这些仓库接口定义了应用程序需要的数据操作（如获取用户数据、保存订单等），而<code>Data</code>层实现这些接口，具体处理数据的存取逻辑。</li>
+</ul>
+<p><strong>示例</strong>：<br>假设在<code>Domain</code>层有一个<code>UserRepository</code>接口，它定义了获取用户信息的方法。<code>Data</code>层将实现这个接口，通过网络API或本地数据库获取用户信息。</p>
+<h3 id="Presentation-层访问-Domain-层"><a href="#Presentation-层访问-Domain-层" class="headerlink" title="Presentation 层访问 Domain 层"></a>Presentation 层访问 Domain 层</h3><ul>
+<li><strong>职责</strong>：<code>Presentation</code>层负责处理所有与用户界面（UI）相关的逻辑，如显示数据、响应用户操作等。</li>
+<li><strong>访问方式</strong>：<code>Presentation</code>层通过使用<code>Domain</code>层中定义的用例（Use Cases）或服务（Services）来获取所需的数据或执行特定的业务逻辑。用例封装了特定的业务逻辑操作，为<code>Presentation</code>层提供了清晰、简洁的API。</li>
+</ul>
+<p><strong>示例</strong>：<br>如果有一个显示用户个人信息的界面，<code>Presentation</code>层的一个ViewModel或Presenter可能会调用一个<code>GetUserProfile</code>用例（从<code>Domain</code>层获取），该用例封装了获取用户个人信息的业务逻辑。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>通过允许<code>Data</code>和<code>Presentation</code>层访问<code>Domain</code>层，可以确保应用程序的核心业务逻辑集中管理，并且易于测试和维护。同时，这种结构还有助于解耦，使得数据源的更改或UI的修改不会直接影响到业务逻辑的实现，从而提高了应用程序的灵活性和可维护性。</p>
+<h2 id="给出-GetUserProfile-代码例子"><a href="#给出-GetUserProfile-代码例子" class="headerlink" title="给出 GetUserProfile 代码例子"></a>给出 GetUserProfile 代码例子</h2><p>为了提供一个<code>GetUserProfile</code>的示例，我们将遵循典型的分层架构中的<code>Domain</code>、<code>Data</code>和<code>Presentation</code>层的交互方式。这个例子将使用Kotlin语言，因为它是在Android开发中常用的语言，同时也适用于Kotlin多平台移动（KMM）项目。</p>
+<h3 id="Domain-层"><a href="#Domain-层" class="headerlink" title="Domain 层"></a>Domain 层</h3><p>在<code>Domain</code>层，我们定义一个用例（Use Case）<code>GetUserProfile</code>，它是业务逻辑的一部分。这个用例会从仓库（Repository）中获取用户的个人信息。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Domain层 - 定义用例</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">GetUserProfile</span>(<span class="keyword">private</span> <span class="keyword">val</span> userRepository: UserRepository) &#123;</span><br><span class="line">    <span class="keyword">suspend</span> <span class="function"><span class="keyword">fun</span> <span class="title">execute</span><span class="params">(userId: <span class="type">String</span>)</span></span>: UserProfile &#123;</span><br><span class="line">        <span class="keyword">return</span> userRepository.getUserProfile(userId)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Domain层 - 定义仓库接口</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">UserRepository</span> &#123;</span><br><span class="line">    <span class="keyword">suspend</span> <span class="function"><span class="keyword">fun</span> <span class="title">getUserProfile</span><span class="params">(userId: <span class="type">String</span>)</span></span>: UserProfile</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 用户个人信息的数据模型</span></span><br><span class="line"><span class="keyword">data</span> <span class="keyword">class</span> <span class="title class_">UserProfile</span>(<span class="keyword">val</span> userId: String, <span class="keyword">val</span> name: String, <span class="keyword">val</span> email: String)</span><br></pre></td></tr></table></figure>
+
+<h3 id="Data-层"><a href="#Data-层" class="headerlink" title="Data 层"></a>Data 层</h3><p>在<code>Data</code>层，我们实现了<code>Domain</code>层定义的<code>UserRepository</code>接口，提供了获取用户个人信息的实际逻辑。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Data层 - 仓库实现</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">UserRepositoryImpl</span> : <span class="type">UserRepository</span> &#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">suspend</span> <span class="function"><span class="keyword">fun</span> <span class="title">getUserProfile</span><span class="params">(userId: <span class="type">String</span>)</span></span>: UserProfile &#123;</span><br><span class="line">        <span class="comment">// 假设这里是从网络或本地数据库获取数据</span></span><br><span class="line">        <span class="keyword">return</span> UserProfile(userId, <span class="string">&quot;John Doe&quot;</span>, <span class="string">&quot;johndoe@example.com&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Presentation-层"><a href="#Presentation-层" class="headerlink" title="Presentation 层"></a>Presentation 层</h3><p>在<code>Presentation</code>层，我们使用<code>GetUserProfile</code>用例来获取用户个人信息，并展示到UI上。这里以一个简单的ViewModel为例。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Presentation层 - ViewModel</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">UserProfileViewModel</span>(<span class="keyword">private</span> <span class="keyword">val</span> getUserProfile: GetUserProfile) : ViewModel() &#123;</span><br><span class="line">    <span class="comment">// LiveData用于观察数据变化，更新UI</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> _userProfile = MutableLiveData&lt;UserProfile&gt;()</span><br><span class="line">    <span class="keyword">val</span> userProfile: LiveData&lt;UserProfile&gt; = _userProfile</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">loadUserProfile</span><span class="params">(userId: <span class="type">String</span>)</span></span> &#123;</span><br><span class="line">        viewModelScope.launch &#123;</span><br><span class="line">            _userProfile.value = getUserProfile.execute(userId)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>这个例子演示了在一个分层架构中，如何通过<code>Domain</code>层的用例来协调<code>Data</code>层和<code>Presentation</code>层的交互。<code>Domain</code>层定义了业务逻辑和接口，<code>Data</code>层实现了数据获取的逻辑，而<code>Presentation</code>层负责调用这些逻辑并更新UI。这种分层的方式有助于保持代码的清晰和可维护性。</p>
+<h2 id="描述一下，数据在几个层之间的传递，从起始到结束"><a href="#描述一下，数据在几个层之间的传递，从起始到结束" class="headerlink" title="描述一下，数据在几个层之间的传递，从起始到结束"></a>描述一下，数据在几个层之间的传递，从起始到结束</h2><p>数据在分层架构中的传递通常遵循一个定义良好的流程，确保应用的各个组成部分职责明确、解耦合，同时促进模块间的协作。以下是一个典型的从起始到结束的数据传递流程，以一个简化的用户个人信息获取功能为例，该功能遵循<code>Presentation</code>、<code>Domain</code>和<code>Data</code>层的架构模式：</p>
+<h3 id="1-用户界面触发"><a href="#1-用户界面触发" class="headerlink" title="1. 用户界面触发"></a>1. 用户界面触发</h3><ul>
+<li><strong>起始点</strong>：用户在应用的界面上执行一个动作（比如点击一个按钮），请求查看个人信息。</li>
+<li><strong>处理</strong>：这个动作被<code>Presentation</code>层的一个组件（例如，一个ViewModel或Activity）捕获。</li>
+</ul>
+<h3 id="2-Presentation-层处理"><a href="#2-Presentation-层处理" class="headerlink" title="2. Presentation 层处理"></a>2. Presentation 层处理</h3><ul>
+<li><code>Presentation</code>层的组件调用<code>Domain</code>层定义的用例（Use Case），比如<code>GetUserProfile</code>，来获取用户的个人信息。这个调用通常是异步的，以避免阻塞UI线程。</li>
+<li>ViewModel通过用例接口，向<code>Domain</code>层表达获取数据的需求。</li>
+</ul>
+<h3 id="3-Domain-层中转"><a href="#3-Domain-层中转" class="headerlink" title="3. Domain 层中转"></a>3. Domain 层中转</h3><ul>
+<li><code>Domain</code>层的<code>GetUserProfile</code>用例接收到请求，并将其转发给相应的<code>UserRepository</code>接口。此时，<code>GetUserProfile</code>仅知道需要调用仓库接口来获取数据，但不关心数据的具体来源。</li>
+<li><code>Domain</code>层起到了定义业务规则和操作流程的角色，但本身不处理数据的存取。</li>
+</ul>
+<h3 id="4-Data-层响应"><a href="#4-Data-层响应" class="headerlink" title="4. Data 层响应"></a>4. Data 层响应</h3><ul>
+<li><code>Data</code>层中，具体实现了<code>UserRepository</code>接口的类（如<code>UserRepositoryImpl</code>）负责处理数据的实际获取操作。这可能涉及访问网络API、查询本地数据库或读取缓存等操作。</li>
+<li>一旦数据被成功获取，它会被封装成一个模型（如<code>UserProfile</code>），并返回给调用者——在这个例子中是<code>Domain</code>层的<code>GetUserProfile</code>用例。</li>
+</ul>
+<h3 id="5-数据回流到Presentation层"><a href="#5-数据回流到Presentation层" class="headerlink" title="5. 数据回流到Presentation层"></a>5. 数据回流到Presentation层</h3><ul>
+<li><code>GetUserProfile</code>用例收到<code>Data</code>层提供的用户信息后，将这些信息返回给最初请求它的<code>Presentation</code>层的组件。</li>
+<li><code>Presentation</code>层的ViewModel接收到这些数据后，更新UI绑定的数据模型，通常是通过LiveData或类似机制。</li>
+</ul>
+<h3 id="6-UI更新显示数据"><a href="#6-UI更新显示数据" class="headerlink" title="6. UI更新显示数据"></a>6. UI更新显示数据</h3><ul>
+<li>最后，随着ViewModel中LiveData（或其他观察者模式实现）的更新，UI监听这些变化，并据此刷新显示，向用户展示最新获取的用户个人信息。</li>
+</ul>
+<h3 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h3><p>这个过程展示了数据从用户触发获取请求，通过应用的各层传递，并最终显示回用户界面的完整流程。每一层都有其特定的职责：<code>Presentation</code>层管理UI逻辑和用户交互，<code>Domain</code>层定义业务规则和数据获取的抽象接口，而<code>Data</code>层负责具体的数据存取逻辑。这种分层架构不仅有助于保持代码的组织性和可维护性，还促进了各模块间的清晰分离和互操作性。</p>
+<h2 id="解释-Domain-层如何定义业务规则"><a href="#解释-Domain-层如何定义业务规则" class="headerlink" title="解释 Domain 层如何定义业务规则"></a>解释 Domain 层如何定义业务规则</h2><p><code>Domain</code>层在分层架构中扮演着核心角色，它定义了应用程序的业务规则和逻辑。这一层是独立于用户界面（UI）和数据存储机制的，意味着它不应该依赖于任何特定的框架或库，以便于业务逻辑能够在不同的环境中重用和测试。<code>Domain</code>层的设计主要关注于应用程序的“什么”和“为什么”，而不是“怎么做”。</p>
+<h3 id="业务规则的定义"><a href="#业务规则的定义" class="headerlink" title="业务规则的定义"></a>业务规则的定义</h3><p>业务规则是指那些定义企业如何运作、决策应如何做出、业务流程应如何管理的规则。在软件开发中，这些规则转化为可以执行的代码，用于指导应用程序的行为。业务规则包括但不限于：</p>
+<ul>
+<li><strong>实体（Entities）</strong>：代表业务概念的对象，如用户、订单等，以及这些对象的属性和行为。</li>
+<li><strong>用例（Use Cases）或服务（Services）</strong>：封装了应用程序的核心功能，每个用例代表一个或多个业务操作，如“获取用户信息”、“创建订单”等。</li>
+<li><strong>值对象（Value Objects）</strong>：描述了业务中的值和它们的属性，但没有唯一标识符（与实体不同）。</li>
+<li><strong>仓库接口（Repository Interfaces）</strong>：定义了如何访问外部数据源（如数据库或远程服务）的抽象接口，但不实现具体的数据访问逻辑。</li>
+</ul>
+<h3 id="Domain层的职责"><a href="#Domain层的职责" class="headerlink" title="Domain层的职责"></a><code>Domain</code>层的职责</h3><ul>
+<li><strong>封装业务逻辑</strong>：<code>Domain</code>层包含应用程序的业务逻辑，确保业务操作的正确性、有效性和连贯性。</li>
+<li><strong>定义业务模型</strong>：通过实体和值对象定义业务领域内的数据模型和它们之间的关系。</li>
+<li><strong>业务决策的实现</strong>：实现业务决策逻辑，如验证规则、计算和数据转换等。</li>
+<li><strong>保持独立性</strong>：<code>Domain</code>层的设计应确保它不依赖于特定的UI实现或数据存储策略，使得业务逻辑可以在不同的应用场景下重用。</li>
+</ul>
+<h3 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h3><p>假设有一个在线商店应用，其<code>Domain</code>层可能包含如下定义：</p>
+<ul>
+<li><strong>实体</strong>：<code>Product</code>（产品）、<code>Customer</code>（客户）、<code>Order</code>（订单）。</li>
+<li><strong>用例</strong>：<code>PlaceOrder</code>（下订单）、<code>CancelOrder</code>（取消订单）、<code>UpdateCustomerProfile</code>（更新客户资料）。</li>
+<li><strong>值对象</strong>：<code>Address</code>（地址）、<code>Money</code>（货币）。</li>
+<li><strong>仓库接口</strong>：<code>OrderRepository</code>（提供对订单数据的访问）、<code>CustomerRepository</code>（提供对客户数据的访问）。</li>
+</ul>
+<p>在这个例子中，<code>Domain</code>层定义了在线商店运作的基本规则和逻辑，如何处理订单、如何管理客户信息，以及如何执行业务决策，所有这些都与特定的UI实现或数据持久化机制无关。</p>
+<p>总结，<code>Domain</code>层的设计是为了确保应用程序的核心业务逻辑得到清晰定义、良好封装，从而易于维护和测试，同时提高了代码的可重用性。</p>
+<h2 id="解释-Domain-层定义了基本规则和逻辑，与特定的-UI-实现或数据持久化机制无关"><a href="#解释-Domain-层定义了基本规则和逻辑，与特定的-UI-实现或数据持久化机制无关" class="headerlink" title="解释 Domain 层定义了基本规则和逻辑，与特定的 UI 实现或数据持久化机制无关"></a>解释 Domain 层定义了基本规则和逻辑，与特定的 UI 实现或数据持久化机制无关</h2><p><code>Domain</code>层在软件架构中的作用是封装和实现应用程序的核心业务逻辑，独立于用户界面（UI）和数据持久化（数据库等）的具体实现。这种设计方法使得业务逻辑更加模块化、清晰，并且易于测试和维护。在在线商店的例子中，<code>Domain</code>层定义的业务规则和逻辑涉及以下几个关键方面：</p>
+<h3 id="如何处理订单"><a href="#如何处理订单" class="headerlink" title="如何处理订单"></a>如何处理订单</h3><p>在<code>Domain</code>层中，处理订单的逻辑包括订单的创建、验证、支付、取消等步骤。这些操作反映了订单生命周期中的各个阶段，每个阶段都基于业务规则来执行。例如，订单支付前需要验证订单详情和客户支付信息的有效性；订单一旦支付成功，就不能随意取消，除非满足特定的退款条件。</p>
+<h3 id="如何管理客户信息"><a href="#如何管理客户信息" class="headerlink" title="如何管理客户信息"></a>如何管理客户信息</h3><p>客户信息管理包括客户注册、信息更新、历史订单查询等功能。<code>Domain</code>层通过定义客户实体（<code>Customer</code>）和相关的业务操作（如<code>UpdateCustomerProfile</code>）来实现这一点。这些操作确保了客户信息的一致性和安全性，例如，客户密码需要加密存储，客户信息更新需要验证客户的身份。</p>
+<h3 id="如何执行业务决策"><a href="#如何执行业务决策" class="headerlink" title="如何执行业务决策"></a>如何执行业务决策</h3><p>业务决策涉及到基于特定条件执行的逻辑选择，比如根据库存量决定是否接受订单、根据客户购买历史提供个性化推荐等。这些决策通常通过<code>Domain</code>层中的业务规则来实现，业务规则可能包括各种验证逻辑、计算公式和决策树。</p>
+<h3 id="与UI和数据持久化机制的独立性"><a href="#与UI和数据持久化机制的独立性" class="headerlink" title="与UI和数据持久化机制的独立性"></a>与UI和数据持久化机制的独立性</h3><p><code>Domain</code>层的设计目的是保持对UI层和数据持久化层的独立性。这意味着，不管UI如何变化（无论是移动应用、Web页面还是桌面应用），<code>Domain</code>层的业务逻辑不需要做出改变。同样，数据存储的细节（是使用SQL数据库、NoSQL数据库还是云服务）对<code>Domain</code>层也是透明的。这一层只通过抽象的接口（如<code>Repository</code>接口）与数据交互，具体的实现细节由<code>Data</code>层负责。</p>
+<p>通过将业务逻辑集中在<code>Domain</code>层，应用程序的核心功能和规则得到了清晰的定义和封装，这不仅有助于减少不同层之间的耦合，还使得业务逻辑更容易理解、测试和维护。此外，这种架构设计还增加了应用程序的灵活性，使得未来对应用程序的扩展和修改变得更加容易。</p>
+<h2 id="抽出-domain-层的意义是什么"><a href="#抽出-domain-层的意义是什么" class="headerlink" title="抽出 domain 层的意义是什么"></a>抽出 domain 层的意义是什么</h2><p>抽出<code>Domain</code>层在软件架构中的意义主要体现在以下几个方面：</p>
+<h3 id="1-业务逻辑集中化"><a href="#1-业务逻辑集中化" class="headerlink" title="1. 业务逻辑集中化"></a>1. 业务逻辑集中化</h3><p>将业务逻辑集中在<code>Domain</code>层，有助于明确应用程序的核心功能和规则，使得这些逻辑独立于其他层（如表示层和数据持久化层）的实现。这种集中化有助于保持业务规则的一致性，确保业务操作遵循同一套逻辑，无论是通过何种途径执行。</p>
+<h3 id="2-提高可维护性"><a href="#2-提高可维护性" class="headerlink" title="2. 提高可维护性"></a>2. 提高可维护性</h3><p>通过将业务逻辑与数据访问代码（<code>Data</code>层）和用户界面代码（<code>Presentation</code>层）分离，开发人员可以更容易地理解、修改和扩展业务规则。当业务需求发生变化时，通常只需要修改<code>Domain</code>层的代码，而无需触及到其他层的实现，这大大降低了维护成本和复杂性。</p>
+<h3 id="3-增强可测试性"><a href="#3-增强可测试性" class="headerlink" title="3. 增强可测试性"></a>3. 增强可测试性</h3><p>独立的<code>Domain</code>层使得业务逻辑的单元测试变得更加直接和简单。因为业务逻辑与外部的界面显示和数据存取逻辑解耦，测试可以集中在业务规则的正确性上，而不必担心UI或数据库的具体实现。这有助于提高测试覆盖率和发现潜在的业务逻辑错误。</p>
+<h3 id="4-促进技术栈灵活性"><a href="#4-促进技术栈灵活性" class="headerlink" title="4. 促进技术栈灵活性"></a>4. 促进技术栈灵活性</h3><p>由于<code>Domain</code>层独立于具体的技术实现，因此可以在不影响业务逻辑的前提下更换表示层框架或数据持久化技术。例如，可以从一个数据库系统迁移到另一个，或者在不同的前端技术（如Web、移动应用）之间共享相同的业务逻辑。</p>
+<h3 id="5-便于多团队协作"><a href="#5-便于多团队协作" class="headerlink" title="5. 便于多团队协作"></a>5. 便于多团队协作</h3><p>在大型项目中，不同的团队可以负责不同的应用层，例如一个团队专注于<code>Domain</code>层的业务逻辑开发，而另一个团队专注于用户界面的实现。这种分工有助于提高开发效率，因为团队可以并行工作，而且减少了彼此工作的直接依赖。</p>
+<h3 id="6-支持多种应用场景"><a href="#6-支持多种应用场景" class="headerlink" title="6. 支持多种应用场景"></a>6. 支持多种应用场景</h3><p><code>Domain</code>层的业务逻辑可以被不同的应用场景重用，比如同一个业务逻辑既能服务于Web应用，也能服务于移动应用或桌面应用。这种重用性可以显著降低开发和维护新平台应用的成本和时间。</p>
+<p>总之，抽出<code>Domain</code>层是实现软件架构清晰分层、提高代码质量和维护性的重要策略，它有助于构建更加健壯、灵活和可持续发展的软件系统。</p>
+<h1 id="这样做为什么可以只需要修改Domain层的代码，而无需触及到其他层的实现"><a href="#这样做为什么可以只需要修改Domain层的代码，而无需触及到其他层的实现" class="headerlink" title="这样做为什么可以只需要修改Domain层的代码，而无需触及到其他层的实现"></a>这样做为什么可以只需要修改Domain层的代码，而无需触及到其他层的实现</h1><p>当业务需求发生变化时，通常只需要修改<code>Domain</code>层的代码而无需触及到其他层的实现，这个原理主要是基于软件设计中的分层架构和关注点分离的原则。让我们来详细解释一下为什么这样做是可行的：</p>
+<h3 id="分层架构"><a href="#分层架构" class="headerlink" title="分层架构"></a>分层架构</h3><p>在一个典型的分层架构中，软件被划分为几个层次，每个层次负责处理不同的任务。这些层次通常包括：</p>
+<ul>
+<li><strong>表示层（Presentation Layer）</strong>：负责用户界面和用户交云的处理。</li>
+<li><strong>领域层（Domain Layer）</strong>：包含业务逻辑和业务规则。</li>
+<li><strong>数据访问层（Data Access Layer）</strong>：负责数据持久化和数据检索。</li>
+</ul>
+<h3 id="关注点分离"><a href="#关注点分离" class="headerlink" title="关注点分离"></a>关注点分离</h3><p>分层架构实现了关注点分离（Separation of Concerns, SoC）的原则，即不同的层次关注不同的方面。通过这种方式，每一层都可以独立于其他层变化，只要它们之间的接口保持不变。</p>
+<h3 id="对于业务逻辑的变化"><a href="#对于业务逻辑的变化" class="headerlink" title="对于业务逻辑的变化"></a>对于业务逻辑的变化</h3><ul>
+<li><strong>业务逻辑变化通常发生在Domain层</strong>：因为<code>Domain</code>层封装了应用程序的核心业务规则和逻辑。当业务需求变化时，这些变化几乎总是直接影响到业务规则和逻辑，而这些都是<code>Domain</code>层的职责范畴。</li>
+<li><strong>表示层和数据访问层的独立性</strong>：由于表示层主要负责界面显示和用户交互，数据访问层主要负责数据的持久化和检索，这两层的工作与业务逻辑的具体内容相对独立。它们通过定义良好的接口与<code>Domain</code>层交互，只要这些接口不变，业务逻辑的变更就不会直接影响到它们。</li>
+<li><strong>接口作为契约</strong>：<code>Domain</code>层通过接口与其他层进行交互。当业务需求变化导致<code>Domain</code>层的逻辑变化时，只要接口保持不变，表示层和数据访问层就无需变化。即使接口需要变化，现代编程语言和框架提供的抽象和封装机制也能最小化这种变化的影响。</li>
+</ul>
+<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><p>假设一个电子商务应用，其中有一个计算订单总价的业务逻辑。如果业务规定更改了订单的折扣计算方式，这个变化直接关系到订单总价的计算规则，这是<code>Domain</code>层的一部分。只需修改<code>Domain</code>层中计算总价的代码即可。只要<code>Domain</code>层对外提供的计算总价的接口不变，表示层（可能显示总价的界面）和数据访问层（可能存储订单详情的数据库操作）就不需要任何改动。</p>
+<h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3><p>因此，将业务逻辑封装在<code>Domain</code>层，确保了应用程序在面对业务需求变化时，可以局部化修改影响，减少了需要修改的代码量，从而降低了维护成本和复杂性。这种设计使得软件系统更加灵活和可维护，更容易适应和响应业务变化。</p>
+<h2 id="给出代码例子"><a href="#给出代码例子" class="headerlink" title="给出代码例子"></a>给出代码例子</h2><p>让我们通过一个简化的代码示例来说明当业务需求发生变化时，通常只需要修改<code>Domain</code>层的代码而无需触及到其他层的实现。考虑一个电子商务应用，其中包含一个功能：计算订单总价。我们将展示<code>Domain</code>层、<code>Data</code>层和<code>Presentation</code>层的简化代码，并展示当业务规则（例如，订单折扣规则）变化时，如何只修改<code>Domain</code>层代码来应对这一变化。</p>
+<h3 id="初始实现"><a href="#初始实现" class="headerlink" title="初始实现"></a>初始实现</h3><h4 id="Domain层"><a href="#Domain层" class="headerlink" title="Domain层"></a>Domain层</h4><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Domain层 - 定义业务逻辑接口</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">OrderService</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">calculateTotalPrice</span><span class="params">(items: <span class="type">List</span>&lt;<span class="type">OrderItem</span>&gt;)</span></span>: <span class="built_in">Double</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Domain层 - 实现</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">OrderServiceImpl</span> : <span class="type">OrderService</span> &#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">calculateTotalPrice</span><span class="params">(items: <span class="type">List</span>&lt;<span class="type">OrderItem</span>&gt;)</span></span>: <span class="built_in">Double</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> items.sumOf &#123; it.price * it.quantity &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">data</span> <span class="keyword">class</span> <span class="title class_">OrderItem</span>(<span class="keyword">val</span> price: <span class="built_in">Double</span>, <span class="keyword">val</span> quantity: <span class="built_in">Int</span>)</span><br></pre></td></tr></table></figure>
+
+<h4 id="Data层"><a href="#Data层" class="headerlink" title="Data层"></a>Data层</h4><p>假设数据层处理订单数据的存储和检索，但与计算总价无关，因此在此示例中略过。</p>
+<h4 id="Presentation层"><a href="#Presentation层" class="headerlink" title="Presentation层"></a>Presentation层</h4><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Presentation层 - 使用Domain层的服务展示总价</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">OrderViewModel</span>(<span class="keyword">private</span> <span class="keyword">val</span> orderService: OrderService) &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">displayTotalPrice</span><span class="params">(items: <span class="type">List</span>&lt;<span class="type">OrderItem</span>&gt;)</span></span> &#123;</span><br><span class="line">        <span class="keyword">val</span> totalPrice = orderService.calculateTotalPrice(items)</span><br><span class="line">        println(<span class="string">&quot;Total Price: <span class="variable">$totalPrice</span>&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="业务需求变化"><a href="#业务需求变化" class="headerlink" title="业务需求变化"></a>业务需求变化</h3><p>假设业务需求变化，现在需要对订单总价应用10%的折扣。</p>
+<h4 id="修改Domain层"><a href="#修改Domain层" class="headerlink" title="修改Domain层"></a>修改Domain层</h4><p>我们只需要在<code>Domain</code>层中修改<code>OrderServiceImpl</code>的实现来反映这一变化：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Domain层 - 修改后的实现</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">OrderServiceImpl</span> : <span class="type">OrderService</span> &#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">calculateTotalPrice</span><span class="params">(items: <span class="type">List</span>&lt;<span class="type">OrderItem</span>&gt;)</span></span>: <span class="built_in">Double</span> &#123;</span><br><span class="line">        <span class="keyword">val</span> originalTotal = items.sumOf &#123; it.price * it.quantity &#125;</span><br><span class="line">        <span class="keyword">val</span> discount = originalTotal * <span class="number">0.1</span> <span class="comment">// 应用10%的折扣</span></span><br><span class="line">        <span class="keyword">return</span> originalTotal - discount</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这个修改中，我们没有触及<code>Presentation</code>层或<code>Data</code>层的代码。<code>Presentation</code>层仍然以相同的方式调用<code>Domain</code>层的<code>calculateTotalPrice</code>方法，而<code>Data</code>层（假设它负责数据的持久化）也不需要变化，因为它与订单价格的计算逻辑无关。</p>
+<h3 id="结论-1"><a href="#结论-1" class="headerlink" title="结论"></a>结论</h3><p>通过这个简化的例子，我们可以看到，当业务规则变化（如订单折扣规则）时，只需修改<code>Domain</code>层中的业务逻辑实现。<code>Presentation</code>层和<code>Data</code>层不需要修改，因为它们与<code>Domain</code>层通过抽象的接口进行交互，这个接口（在本例中是<code>OrderService.calculateTotalPrice</code>）保持不变。这种设计使得应用程序能够灵活应对业务需求的变化，同时最小化了修改的影响范围，提高了代码的可维护性。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a>, <a class="article-category-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a>
+
+      
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2023/08/29/5%20C++/C++%E7%AC%AC%E4%B8%80%E8%AF%BE-%E4%B8%87%E7%89%A9%E7%9A%86%E5%9C%B0%E5%9D%80/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          C++ 第一课-万物皆地址
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2023/08/29/4%20%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/02%20%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/Android-%E9%9F%B3%E8%A7%86%E9%A2%91%E6%9E%B6%E6%9E%84%E4%B8%93%E9%A1%B9/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Android 音视频屏幕旋转方案</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="sidebar">
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">Contents</strong>
+    
+      <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#MVI-%E5%B1%82%E7%BA%A7%E6%9E%B6%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">MVI 层级架构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GPT-4-%E5%9D%97%E9%97%AE%E5%BF%AB%E7%AD%94%EF%BC%9A%E7%A9%B6%E7%AB%9F%E4%BB%80%E4%B9%88%E6%98%AF-MVI"><span class="nav-number">2.</span> <span class="nav-text">GPT 4 块问快答：究竟什么是 MVI</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88-Data-%E5%92%8C-Presentation-%E5%8F%AF%E4%BB%A5%E8%AE%BF%E9%97%AE%E9%A2%86%E5%9F%9F%E5%B1%82%EF%BC%8C%E4%B8%BE%E4%BE%8B%E5%AD%90%E6%80%8E%E4%B9%88%E8%AE%BF%E9%97%AE%E7%9A%84"><span class="nav-number">2.1.</span> <span class="nav-text">为什么 Data 和 Presentation 可以访问领域层，举例子怎么访问的</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Data-%E5%B1%82%E8%AE%BF%E9%97%AE-Domain-%E5%B1%82"><span class="nav-number">2.1.1.</span> <span class="nav-text">Data 层访问 Domain 层</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Presentation-%E5%B1%82%E8%AE%BF%E9%97%AE-Domain-%E5%B1%82"><span class="nav-number">2.1.2.</span> <span class="nav-text">Presentation 层访问 Domain 层</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">2.1.3.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%99%E5%87%BA-GetUserProfile-%E4%BB%A3%E7%A0%81%E4%BE%8B%E5%AD%90"><span class="nav-number">2.2.</span> <span class="nav-text">给出 GetUserProfile 代码例子</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Domain-%E5%B1%82"><span class="nav-number">2.2.1.</span> <span class="nav-text">Domain 层</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Data-%E5%B1%82"><span class="nav-number">2.2.2.</span> <span class="nav-text">Data 层</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Presentation-%E5%B1%82"><span class="nav-number">2.2.3.</span> <span class="nav-text">Presentation 层</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number">2.2.4.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8F%8F%E8%BF%B0%E4%B8%80%E4%B8%8B%EF%BC%8C%E6%95%B0%E6%8D%AE%E5%9C%A8%E5%87%A0%E4%B8%AA%E5%B1%82%E4%B9%8B%E9%97%B4%E7%9A%84%E4%BC%A0%E9%80%92%EF%BC%8C%E4%BB%8E%E8%B5%B7%E5%A7%8B%E5%88%B0%E7%BB%93%E6%9D%9F"><span class="nav-number">2.3.</span> <span class="nav-text">描述一下，数据在几个层之间的传递，从起始到结束</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%94%A8%E6%88%B7%E7%95%8C%E9%9D%A2%E8%A7%A6%E5%8F%91"><span class="nav-number">2.3.1.</span> <span class="nav-text">1. 用户界面触发</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Presentation-%E5%B1%82%E5%A4%84%E7%90%86"><span class="nav-number">2.3.2.</span> <span class="nav-text">2. Presentation 层处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Domain-%E5%B1%82%E4%B8%AD%E8%BD%AC"><span class="nav-number">2.3.3.</span> <span class="nav-text">3. Domain 层中转</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-Data-%E5%B1%82%E5%93%8D%E5%BA%94"><span class="nav-number">2.3.4.</span> <span class="nav-text">4. Data 层响应</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E6%95%B0%E6%8D%AE%E5%9B%9E%E6%B5%81%E5%88%B0Presentation%E5%B1%82"><span class="nav-number">2.3.5.</span> <span class="nav-text">5. 数据回流到Presentation层</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-UI%E6%9B%B4%E6%96%B0%E6%98%BE%E7%A4%BA%E6%95%B0%E6%8D%AE"><span class="nav-number">2.3.6.</span> <span class="nav-text">6. UI更新显示数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93-1"><span class="nav-number">2.3.7.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%A3%E9%87%8A-Domain-%E5%B1%82%E5%A6%82%E4%BD%95%E5%AE%9A%E4%B9%89%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99"><span class="nav-number">2.4.</span> <span class="nav-text">解释 Domain 层如何定义业务规则</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-number">2.4.1.</span> <span class="nav-text">业务规则的定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Domain%E5%B1%82%E7%9A%84%E8%81%8C%E8%B4%A3"><span class="nav-number">2.4.2.</span> <span class="nav-text">Domain层的职责</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BE%E4%BE%8B"><span class="nav-number">2.4.3.</span> <span class="nav-text">举例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%A3%E9%87%8A-Domain-%E5%B1%82%E5%AE%9A%E4%B9%89%E4%BA%86%E5%9F%BA%E6%9C%AC%E8%A7%84%E5%88%99%E5%92%8C%E9%80%BB%E8%BE%91%EF%BC%8C%E4%B8%8E%E7%89%B9%E5%AE%9A%E7%9A%84-UI-%E5%AE%9E%E7%8E%B0%E6%88%96%E6%95%B0%E6%8D%AE%E6%8C%81%E4%B9%85%E5%8C%96%E6%9C%BA%E5%88%B6%E6%97%A0%E5%85%B3"><span class="nav-number">2.5.</span> <span class="nav-text">解释 Domain 层定义了基本规则和逻辑，与特定的 UI 实现或数据持久化机制无关</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%A4%84%E7%90%86%E8%AE%A2%E5%8D%95"><span class="nav-number">2.5.1.</span> <span class="nav-text">如何处理订单</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E7%AE%A1%E7%90%86%E5%AE%A2%E6%88%B7%E4%BF%A1%E6%81%AF"><span class="nav-number">2.5.2.</span> <span class="nav-text">如何管理客户信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E4%B8%9A%E5%8A%A1%E5%86%B3%E7%AD%96"><span class="nav-number">2.5.3.</span> <span class="nav-text">如何执行业务决策</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8EUI%E5%92%8C%E6%95%B0%E6%8D%AE%E6%8C%81%E4%B9%85%E5%8C%96%E6%9C%BA%E5%88%B6%E7%9A%84%E7%8B%AC%E7%AB%8B%E6%80%A7"><span class="nav-number">2.5.4.</span> <span class="nav-text">与UI和数据持久化机制的独立性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8A%BD%E5%87%BA-domain-%E5%B1%82%E7%9A%84%E6%84%8F%E4%B9%89%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">2.6.</span> <span class="nav-text">抽出 domain 层的意义是什么</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%B8%9A%E5%8A%A1%E9%80%BB%E8%BE%91%E9%9B%86%E4%B8%AD%E5%8C%96"><span class="nav-number">2.6.1.</span> <span class="nav-text">1. 业务逻辑集中化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%8F%90%E9%AB%98%E5%8F%AF%E7%BB%B4%E6%8A%A4%E6%80%A7"><span class="nav-number">2.6.2.</span> <span class="nav-text">2. 提高可维护性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%A2%9E%E5%BC%BA%E5%8F%AF%E6%B5%8B%E8%AF%95%E6%80%A7"><span class="nav-number">2.6.3.</span> <span class="nav-text">3. 增强可测试性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E4%BF%83%E8%BF%9B%E6%8A%80%E6%9C%AF%E6%A0%88%E7%81%B5%E6%B4%BB%E6%80%A7"><span class="nav-number">2.6.4.</span> <span class="nav-text">4. 促进技术栈灵活性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E4%BE%BF%E4%BA%8E%E5%A4%9A%E5%9B%A2%E9%98%9F%E5%8D%8F%E4%BD%9C"><span class="nav-number">2.6.5.</span> <span class="nav-text">5. 便于多团队协作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E6%94%AF%E6%8C%81%E5%A4%9A%E7%A7%8D%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">2.6.6.</span> <span class="nav-text">6. 支持多种应用场景</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%99%E6%A0%B7%E5%81%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E5%8F%AF%E4%BB%A5%E5%8F%AA%E9%9C%80%E8%A6%81%E4%BF%AE%E6%94%B9Domain%E5%B1%82%E7%9A%84%E4%BB%A3%E7%A0%81%EF%BC%8C%E8%80%8C%E6%97%A0%E9%9C%80%E8%A7%A6%E5%8F%8A%E5%88%B0%E5%85%B6%E4%BB%96%E5%B1%82%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.</span> <span class="nav-text">这样做为什么可以只需要修改Domain层的代码，而无需触及到其他层的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84"><span class="nav-number">3.0.1.</span> <span class="nav-text">分层架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E6%B3%A8%E7%82%B9%E5%88%86%E7%A6%BB"><span class="nav-number">3.0.2.</span> <span class="nav-text">关注点分离</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%B9%E4%BA%8E%E4%B8%9A%E5%8A%A1%E9%80%BB%E8%BE%91%E7%9A%84%E5%8F%98%E5%8C%96"><span class="nav-number">3.0.3.</span> <span class="nav-text">对于业务逻辑的变化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E4%BE%8B"><span class="nav-number">3.0.4.</span> <span class="nav-text">实例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E8%AE%BA"><span class="nav-number">3.0.5.</span> <span class="nav-text">结论</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%99%E5%87%BA%E4%BB%A3%E7%A0%81%E4%BE%8B%E5%AD%90"><span class="nav-number">3.1.</span> <span class="nav-text">给出代码例子</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.1.1.</span> <span class="nav-text">初始实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Domain%E5%B1%82"><span class="nav-number">3.1.1.1.</span> <span class="nav-text">Domain层</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Data%E5%B1%82"><span class="nav-number">3.1.1.2.</span> <span class="nav-text">Data层</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Presentation%E5%B1%82"><span class="nav-number">3.1.1.3.</span> <span class="nav-text">Presentation层</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%9A%E5%8A%A1%E9%9C%80%E6%B1%82%E5%8F%98%E5%8C%96"><span class="nav-number">3.1.2.</span> <span class="nav-text">业务需求变化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9Domain%E5%B1%82"><span class="nav-number">3.1.2.1.</span> <span class="nav-text">修改Domain层</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E8%AE%BA-1"><span class="nav-number">3.1.3.</span> <span class="nav-text">结论</span></a></li></ol></li></ol></li></ol>
+    
+    </div>
+  </aside>
+</section>
+        
+      </div>
+
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    <footer id="footer" class="site-footer">
+  
+
+  <div class="clearfix container">
+      <div class="site-info">
+	      &copy; 2024 喵星科技报 All Rights Reserved.
+        
+            <span id="busuanzi_container_site_uv">
+              本站访客数<span id="busuanzi_value_site_uv"></span>人次  
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+          
+      </div>
+      <div class="site-credit">
+        Theme by <a href="https://github.com/CatJason" target="_blank">hipaper</a>
+      </div>
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var wrapdiv = document.getElementById("wrap");
+    var contentdiv = document.getElementById("content");
+
+    wrapdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+
+
+    <!-- headerblur min height -->
+    
+    
+</script>
+    
+<div style="display: none;">
+  <script src="https://s11.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+</div>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+<script src="/js/bootstrap.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+	</script>
+
+
+
+
+
+
+  </div>
+
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js" async=""></script>
+</body>
+</html>

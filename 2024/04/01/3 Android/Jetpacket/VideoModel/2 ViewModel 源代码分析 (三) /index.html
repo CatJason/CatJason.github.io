@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>ViewModel 源代码分析 (三) | 喵星科技报</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  
+  
+  
+  <meta name="description" content="viewmodel  CreationExtrasViewModel创建过程中传递额外参数的容器。  InitializerViewModelFactory                ViewModelProvider.Factory接口实现类，使用ViewModelInitializer来创建ViewModel实例。  InitializerViewModelFactoryBuilder">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ViewModel 源代码分析 (三)">
+<meta property="og:url" content="http://example.com/2024/04/01/3%20Android/Jetpacket/VideoModel/2%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%89)%20/index.html">
+<meta property="og:site_name" content="喵星科技报">
+<meta property="og:description" content="viewmodel  CreationExtrasViewModel创建过程中传递额外参数的容器。  InitializerViewModelFactory                ViewModelProvider.Factory接口实现类，使用ViewModelInitializer来创建ViewModel实例。  InitializerViewModelFactoryBuilder">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-03-31T17:32:52.573Z">
+<meta property="article:modified_time" content="2024-04-03T12:07:54.691Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="喵星科技报" type="application/atom+xml">
+  
+  <link rel="icon" href="/css/images/favicon.ico">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+    
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Yanone+Kaffeesatz%3A200%2C300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Oswald%3A300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+<script src="/js/jquery-3.1.1.min.js"></script>
+
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.css" >
+  <link rel="stylesheet" href="/css/fashion.css" >
+  <link rel="stylesheet" href="/css/glyphs.css" >
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<a target="_blank" rel="noopener" href="https://github.com/CatJason">
+<img decoding="async" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" loading="lazy" data-recalc-dims="1">
+</a>
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  
+
+
+<header id="allheader" class="site-header" role="banner" 
+   >
+  <div class="clearfix container">
+      <div class="site-branding">
+
+          <h1 class="site-title">
+            
+              <a href="/" title="喵星科技报" rel="home"> 喵星科技报 </a>
+            
+          </h1>
+          
+          
+            
+          <nav id="main-navigation" class="main-navigation" role="navigation">
+            <a class="nav-open">Menu</a>
+            <a class="nav-close">Close</a>
+
+            <div class="clearfix sf-menu">
+              <ul id="main-nav" class="menu sf-js-enabled sf-arrows"  style="touch-action: pan-y;">
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="/"> <a class="" href="/">Home</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="archives"> <a class="" href="/archives">Archives</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="categories"> <a class="" href="/categories">Categories</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="tags"> <a class="" href="/tags">Tags</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="about"> <a class="" href="/about">About</a> </li>
+                    
+              </ul>
+            </div>
+          </nav>
+
+      </div>
+  </div>
+</header>
+
+
+  <div id="container">
+    <div id="wrap">
+            
+      <div id="content" class="outer">
+        
+          <section id="main" style="float:none;"><article id="post-3 Android/Jetpacket/VideoModel/2 ViewModel 源代码分析 (三) " style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" class="article-title" itemprop="name">
+      ViewModel 源代码分析 (三)
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/2%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%89)%20/" class="article-date">
+	  <time datetime="2024-03-31T17:32:52.573Z" itemprop="datePublished">April 1, 2024</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a>
+ 
+      
+	<span id="busuanzi_container_page_pv">
+	  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	</span>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <ul>
+<li><p>viewmodel</p>
+<ul>
+<li><p>CreationExtras<br>ViewModel创建过程中传递额外参数的容器。</p>
+</li>
+<li><p>InitializerViewModelFactory              </p>
+<p> ViewModelProvider.Factory接口实现类，使用ViewModelInitializer来创建ViewModel实例。</p>
+</li>
+<li><p>InitializerViewModelFactoryBuilder   </p>
+<p>用于构建InitializerViewModelFactory的工具，通常以DSL形式提供。</p>
+</li>
+<li><p>MutableCreationExtras                     </p>
+<p>可变版本的CreationExtras，允许添加或修改额外参数。</p>
+</li>
+<li><p>ViewModelFactoryDsl                       </p>
+<p>一个DSL（领域特定语言），用于更声明式地定义如何创建ViewModel。</p>
+</li>
+<li><p>ViewModelInitializer                         </p>
+<p>用于初始化ViewModel的类，通常与ViewModelFactoryDsl一起使用。</p>
+</li>
+<li><p>InitializerViewModelFactory            </p>
+<p>提供了使用InitializerViewModelFactory的Kotlin扩展。</p>
+</li>
+</ul>
+</li>
+<li><p>AndroidViewModel                                  </p>
+<p>AndroidViewModel是ViewModel的一个子类，它接受应用程序的Application作为上下文，这对于需要访问Application资源的ViewModel特别有用。</p>
+</li>
+<li><p>HasDefaultViewModelProviderFactory</p>
+<p>一个接口，标识一个类拥有默认的ViewModelProvider.Factory，用于创建ViewModel。</p>
+</li>
+<li><p>ViewModel</p>
+</li>
+<li><p>ViewModelLazy                                       </p>
+<p>一个提供懒加载ViewModel实例的工具类。</p>
+</li>
+<li><p>ViewModelProvider                                 </p>
+<p>用于获取ViewModel实例，确保配置更改时ViewModel可以持续使用。</p>
+</li>
+<li><p>ViewModelStore                                      </p>
+<p>用于保存ViewModel实例的类，以便它们可以跨配置更改持续存在。</p>
+</li>
+<li><p>ViewModelStoreOwner                          </p>
+<p>一个接口，标识一个类可以拥有ViewModelStore。</p>
+</li>
+<li><p>ViewTreeViewModelStoreOwner            </p>
+<p>用于从视图树中查找ViewModelStoreOwner的工具类。</p>
+</li>
+<li><p>ViewTreeViewModelKt                           </p>
+<p>提供了操作和查询视图树中ViewModel的Kotlin扩展</p>
+</li>
+</ul>
+<h1 id="页面旋转的时候-ViewModelStore-到底被谁持有了"><a href="#页面旋转的时候-ViewModelStore-到底被谁持有了" class="headerlink" title="页面旋转的时候 ViewModelStore 到底被谁持有了"></a>页面旋转的时候 ViewModelStore 到底被谁持有了</h1><h2 id="ViewModelStore"><a href="#ViewModelStore" class="headerlink" title="ViewModelStore"></a>ViewModelStore</h2><h2 id="Activity-的销毁"><a href="#Activity-的销毁" class="headerlink" title="Activity 的销毁"></a>Activity 的销毁</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** Core implementation of activity destroy call. */</span></span><br><span class="line"><span class="keyword">void</span> <span class="title function_">performDestroyActivity</span><span class="params">(ActivityClientRecord r, <span class="type">boolean</span> finishing,</span></span><br><span class="line"><span class="params">        <span class="type">int</span> configChanges, <span class="type">boolean</span> getNonConfigInstance, String reason)</span> &#123;</span><br><span class="line">    Class&lt;? <span class="keyword">extends</span> <span class="title class_">Activity</span>&gt; activityClass = <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">if</span> (localLOGV) Slog.v(TAG, <span class="string">&quot;Performing finish of &quot;</span> + r);</span><br><span class="line">    activityClass = r.activity.getClass();</span><br><span class="line">    r.activity.mConfigChangeFlags |= configChanges;</span><br><span class="line">    <span class="keyword">if</span> (finishing) &#123;</span><br><span class="line">        r.activity.mFinished = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    performPauseActivityIfNeeded(r, <span class="string">&quot;destroy&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!r.stopped) &#123;</span><br><span class="line">        callActivityOnStop(r, <span class="literal">false</span> <span class="comment">/* saveState */</span>, <span class="string">&quot;destroy&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (getNonConfigInstance) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            r.lastNonConfigurationInstances = r.activity.retainNonConfigurationInstances();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!mInstrumentation.onException(r.activity, e)) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(<span class="string">&quot;Unable to retain activity &quot;</span></span><br><span class="line">                        + r.intent.getComponent().toShortString() + <span class="string">&quot;: &quot;</span> + e.toString(), e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        r.activity.mCalled = <span class="literal">false</span>;</span><br><span class="line">        mInstrumentation.callActivityOnDestroy(r.activity);</span><br><span class="line">        <span class="keyword">if</span> (!r.activity.mCalled) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">SuperNotCalledException</span>(<span class="string">&quot;Activity &quot;</span> + safeToComponentShortString(r.intent)</span><br><span class="line">                    + <span class="string">&quot; did not call through to super.onDestroy()&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (r.window != <span class="literal">null</span>) &#123;</span><br><span class="line">            r.window.closeAllPanels();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (SuperNotCalledException e) &#123;</span><br><span class="line">        <span class="keyword">throw</span> e;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!mInstrumentation.onException(r.activity, e)) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(<span class="string">&quot;Unable to destroy activity &quot;</span></span><br><span class="line">                    + safeToComponentShortString(r.intent) + <span class="string">&quot;: &quot;</span> + e.toString(), e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    r.setState(ON_DESTROY);</span><br><span class="line">    mLastReportedWindowingMode.remove(r.activity.getActivityToken());</span><br><span class="line">    schedulePurgeIdler();</span><br><span class="line">    <span class="keyword">synchronized</span> (<span class="built_in">this</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (mSplashScreenGlobal != <span class="literal">null</span>) &#123;</span><br><span class="line">            mSplashScreenGlobal.tokenDestroyed(r.token);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// updatePendingActivityConfiguration() reads from mActivities to update</span></span><br><span class="line">    <span class="comment">// ActivityClientRecord which runs in a different thread. Protect modifications to</span></span><br><span class="line">    <span class="comment">// mActivities to avoid race.</span></span><br><span class="line">    <span class="keyword">synchronized</span> (mResourcesManager) &#123;</span><br><span class="line">        mActivities.remove(r.token);</span><br><span class="line">    &#125;</span><br><span class="line">    StrictMode.decrementExpectedActivityCount(activityClass);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="关键代码"><a href="#关键代码" class="headerlink" title="关键代码"></a>关键代码</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (getNonConfigInstance) &#123;</span><br><span class="line">           <span class="keyword">try</span> &#123;</span><br><span class="line">               r.lastNonConfigurationInstances = r.activity.retainNonConfigurationInstances();</span><br><span class="line">           &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">               <span class="keyword">if</span> (!mInstrumentation.onException(r.activity, e)) &#123;</span><br><span class="line">                   <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(<span class="string">&quot;Unable to retain activity &quot;</span></span><br><span class="line">                           + r.intent.getComponent().toShortString() + <span class="string">&quot;: &quot;</span> + e.toString(), e);</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="android-app-Activity"><a href="#android-app-Activity" class="headerlink" title="android.app.Activity"></a>android.app.Activity</h2><h3 id="retainNonConfigurationInstances"><a href="#retainNonConfigurationInstances" class="headerlink" title="retainNonConfigurationInstances"></a>retainNonConfigurationInstances</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">NonConfigurationInstances <span class="title function_">retainNonConfigurationInstances</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">Object</span> <span class="variable">activity</span> <span class="operator">=</span> onRetainNonConfigurationInstance();</span><br><span class="line">    HashMap&lt;String, Object&gt; children = onRetainNonConfigurationChildInstances();</span><br><span class="line">    <span class="type">FragmentManagerNonConfig</span> <span class="variable">fragments</span> <span class="operator">=</span> mFragments.retainNestedNonConfig();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// We&#x27;re already stopped but we&#x27;ve been asked to retain.</span></span><br><span class="line">    <span class="comment">// Our fragments are taken care of but we need to mark the loaders for retention.</span></span><br><span class="line">    <span class="comment">// In order to do this correctly we need to restart the loaders first before</span></span><br><span class="line">    <span class="comment">// handing them off to the next activity.</span></span><br><span class="line">    mFragments.doLoaderStart();</span><br><span class="line">    mFragments.doLoaderStop(<span class="literal">true</span>);</span><br><span class="line">    ArrayMap&lt;String, LoaderManager&gt; loaders = mFragments.retainLoaderNonConfig();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (activity == <span class="literal">null</span> &amp;&amp; children == <span class="literal">null</span> &amp;&amp; fragments == <span class="literal">null</span> &amp;&amp; loaders == <span class="literal">null</span></span><br><span class="line">            &amp;&amp; mVoiceInteractor == <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">NonConfigurationInstances</span> <span class="variable">nci</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">NonConfigurationInstances</span>();</span><br><span class="line">    nci.activity = activity;</span><br><span class="line">    nci.children = children;</span><br><span class="line">    nci.fragments = fragments;</span><br><span class="line">    nci.loaders = loaders;</span><br><span class="line">    <span class="keyword">if</span> (mVoiceInteractor != <span class="literal">null</span>) &#123;</span><br><span class="line">        mVoiceInteractor.retainInstance();</span><br><span class="line">        nci.voiceInteractor = mVoiceInteractor;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> nci;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="onRetainNonConfigurationInstance"><a href="#onRetainNonConfigurationInstance" class="headerlink" title="onRetainNonConfigurationInstance"></a>onRetainNonConfigurationInstance</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> Object <span class="title function_">onRetainNonConfigurationInstance</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="onRetainNonConfigurationChildInstances"><a href="#onRetainNonConfigurationChildInstances" class="headerlink" title="onRetainNonConfigurationChildInstances"></a>onRetainNonConfigurationChildInstances</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Nullable</span></span><br><span class="line">HashMap&lt;String,Object&gt; <span class="title function_">onRetainNonConfigurationChildInstances</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="androidx-activity-ComponentActivity"><a href="#androidx-activity-ComponentActivity" class="headerlink" title="androidx.activity.ComponentActivity"></a>androidx.activity.ComponentActivity</h2><h3 id="onRetainNonConfigurationInstance-1"><a href="#onRetainNonConfigurationInstance-1" class="headerlink" title="onRetainNonConfigurationInstance"></a>onRetainNonConfigurationInstance</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Retain all appropriate non-config state.  You can NOT</span></span><br><span class="line"><span class="comment"> * override this yourself!  Use a &#123;<span class="doctag">@link</span> androidx.lifecycle.ViewModel&#125; if you want to</span></span><br><span class="line"><span class="comment"> * retain your own non config state.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="meta">@Nullable</span></span><br><span class="line"><span class="meta">@SuppressWarnings(&quot;deprecation&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> Object <span class="title function_">onRetainNonConfigurationInstance</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="comment">// Maintain backward compatibility.</span></span><br><span class="line">    <span class="type">Object</span> <span class="variable">custom</span> <span class="operator">=</span> onRetainCustomNonConfigurationInstance();</span><br><span class="line"></span><br><span class="line">    <span class="type">ViewModelStore</span> <span class="variable">viewModelStore</span> <span class="operator">=</span> mViewModelStore;</span><br><span class="line">    <span class="keyword">if</span> (viewModelStore == <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="comment">// No one called getViewModelStore(), so see if there was an existing</span></span><br><span class="line">        <span class="comment">// ViewModelStore from our last NonConfigurationInstance</span></span><br><span class="line">        <span class="type">NonConfigurationInstances</span> <span class="variable">nc</span> <span class="operator">=</span></span><br><span class="line">                (NonConfigurationInstances) getLastNonConfigurationInstance();</span><br><span class="line">        <span class="keyword">if</span> (nc != <span class="literal">null</span>) &#123;</span><br><span class="line">            viewModelStore = nc.viewModelStore;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (viewModelStore == <span class="literal">null</span> &amp;&amp; custom == <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">NonConfigurationInstances</span> <span class="variable">nci</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">NonConfigurationInstances</span>();</span><br><span class="line">    nci.custom = custom;</span><br><span class="line">    nci.viewModelStore = viewModelStore;</span><br><span class="line">    <span class="keyword">return</span> nci;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="关键代码-1"><a href="#关键代码-1" class="headerlink" title="关键代码"></a>关键代码</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">NonConfigurationInstances</span> <span class="variable">nci</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">NonConfigurationInstances</span>();</span><br><span class="line">nci.custom = custom;</span><br><span class="line">nci.viewModelStore = viewModelStore;</span><br></pre></td></tr></table></figure>
+
+<p>androidx.activity.ComponentActivity 中实现了 onRetainNonConfigurationInstance</p>
+<p>ViewModelStore 被保存到了 NonConfigurationInstances.viewModelStore 中</p>
+<p>NonConfigurationInstances 又被 ActivityClientRecord 持有</p>
+<h2 id="android-app-ActivityThread-ActivityClientRecord-源代码"><a href="#android-app-ActivityThread-ActivityClientRecord-源代码" class="headerlink" title="android.app.ActivityThread.ActivityClientRecord 源代码"></a>android.app.ActivityThread.ActivityClientRecord 源代码</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">ActivityClientRecord</span> &#123;</span><br><span class="line">    <span class="meta">@UnsupportedAppUsage</span></span><br><span class="line">    <span class="keyword">public</span> IBinder token;</span><br><span class="line">    <span class="keyword">public</span> IBinder assistToken;</span><br><span class="line">    <span class="comment">// A reusable token for other purposes, e.g. content capture, translation. It shouldn&#x27;t be</span></span><br><span class="line">    <span class="comment">// used without security checks</span></span><br><span class="line">    <span class="keyword">public</span> IBinder shareableActivityToken;</span><br><span class="line">    <span class="comment">// The token of the initial TaskFragment that embedded this activity. Do not rely on it</span></span><br><span class="line">    <span class="comment">// after creation because the activity could be reparented.</span></span><br><span class="line">    <span class="meta">@Nullable</span> <span class="keyword">public</span> IBinder mInitialTaskFragmentToken;</span><br><span class="line">    <span class="type">int</span> ident;</span><br><span class="line">    <span class="meta">@UnsupportedAppUsage</span></span><br><span class="line">    Intent intent;</span><br><span class="line">    String referrer;</span><br><span class="line">    IVoiceInteractor voiceInteractor;</span><br><span class="line">    Bundle state;</span><br><span class="line">    PersistableBundle persistentState;</span><br><span class="line">    <span class="meta">@UnsupportedAppUsage</span></span><br><span class="line">    Activity activity;</span><br><span class="line">    Window window;</span><br><span class="line">    Activity parent;</span><br><span class="line">    String embeddedID;</span><br><span class="line">    Activity.NonConfigurationInstances lastNonConfigurationInstances;</span><br><span class="line">    <span class="comment">// TODO(lifecycler): Use mLifecycleState instead.</span></span><br><span class="line">    <span class="meta">@UnsupportedAppUsage</span></span><br><span class="line">    <span class="type">boolean</span> paused;</span><br><span class="line">    <span class="meta">@UnsupportedAppUsage</span></span><br><span class="line">    <span class="type">boolean</span> stopped;</span><br><span class="line">    <span class="type">boolean</span> hideForNow;</span><br><span class="line">    Configuration createdConfig;</span><br><span class="line">    Configuration overrideConfig;</span><br><span class="line">    <span class="comment">// Used for consolidating configs before sending on to Activity.</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">Configuration</span> <span class="variable">tmpConfig</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Configuration</span>();</span><br><span class="line">    <span class="comment">// Callback used for updating activity override config and camera compat control state.</span></span><br><span class="line">    ViewRootImpl.ActivityConfigCallback activityConfigCallback;</span><br><span class="line">    ActivityClientRecord nextIdle;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Indicates whether this activity is currently the topmost resumed one in the system.</span></span><br><span class="line">    <span class="comment">// This holds the last reported value from server.</span></span><br><span class="line">    <span class="type">boolean</span> isTopResumedActivity;</span><br><span class="line">    <span class="comment">// This holds the value last sent to the activity. This is needed, because an update from</span></span><br><span class="line">    <span class="comment">// server may come at random time, but we always need to report changes between ON_RESUME</span></span><br><span class="line">    <span class="comment">// and ON_PAUSE to the app.</span></span><br><span class="line">    <span class="type">boolean</span> lastReportedTopResumedState;</span><br><span class="line"></span><br><span class="line">    ProfilerInfo profilerInfo;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@UnsupportedAppUsage</span></span><br><span class="line">    ActivityInfo activityInfo;</span><br><span class="line">    <span class="meta">@UnsupportedAppUsage</span></span><br><span class="line">    CompatibilityInfo compatInfo;</span><br><span class="line">    <span class="meta">@UnsupportedAppUsage</span></span><br><span class="line">    <span class="keyword">public</span> LoadedApk packageInfo;</span><br><span class="line"></span><br><span class="line">    List&lt;ResultInfo&gt; pendingResults;</span><br><span class="line">    List&lt;ReferrerIntent&gt; pendingIntents;</span><br><span class="line"></span><br><span class="line">    <span class="type">boolean</span> startsNotResumed;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> <span class="type">boolean</span> isForward;</span><br><span class="line">    <span class="type">int</span> pendingConfigChanges;</span><br><span class="line">    <span class="comment">// Whether we are in the process of performing on user leaving.</span></span><br><span class="line">    <span class="type">boolean</span> mIsUserLeaving;</span><br><span class="line"></span><br><span class="line">    Window mPendingRemoveWindow;</span><br><span class="line">    WindowManager mPendingRemoveWindowManager;</span><br><span class="line">    <span class="meta">@UnsupportedAppUsage</span></span><br><span class="line">    <span class="type">boolean</span> mPreserveWindow;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** The options for scene transition. */</span></span><br><span class="line">    ActivityOptions mActivityOptions;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** Whether this activiy was launched from a bubble. */</span></span><br><span class="line">    <span class="type">boolean</span> mLaunchedFromBubble;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@LifecycleState</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> <span class="variable">mLifecycleState</span> <span class="operator">=</span> PRE_ON_CREATE;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> SizeConfigurationBuckets mSizeConfigurations;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@VisibleForTesting</span></span><br><span class="line">    <span class="meta">@UnsupportedAppUsage(maxTargetSdk = Build.VERSION_CODES.P, trackingBug = 115609023)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ActivityClientRecord</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.isForward = <span class="literal">false</span>;</span><br><span class="line">        init();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ActivityClientRecord</span><span class="params">(IBinder token, Intent intent, <span class="type">int</span> ident,</span></span><br><span class="line"><span class="params">            ActivityInfo info, Configuration overrideConfig, CompatibilityInfo compatInfo,</span></span><br><span class="line"><span class="params">            String referrer, IVoiceInteractor voiceInteractor, Bundle state,</span></span><br><span class="line"><span class="params">            PersistableBundle persistentState, List&lt;ResultInfo&gt; pendingResults,</span></span><br><span class="line"><span class="params">            List&lt;ReferrerIntent&gt; pendingNewIntents, ActivityOptions activityOptions,</span></span><br><span class="line"><span class="params">            <span class="type">boolean</span> isForward, ProfilerInfo profilerInfo, ClientTransactionHandler client,</span></span><br><span class="line"><span class="params">            IBinder assistToken, IBinder shareableActivityToken, <span class="type">boolean</span> launchedFromBubble,</span></span><br><span class="line"><span class="params">            IBinder initialTaskFragmentToken)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.token = token;</span><br><span class="line">        <span class="built_in">this</span>.assistToken = assistToken;</span><br><span class="line">        <span class="built_in">this</span>.shareableActivityToken = shareableActivityToken;</span><br><span class="line">        <span class="built_in">this</span>.ident = ident;</span><br><span class="line">        <span class="built_in">this</span>.intent = intent;</span><br><span class="line">        <span class="built_in">this</span>.referrer = referrer;</span><br><span class="line">        <span class="built_in">this</span>.voiceInteractor = voiceInteractor;</span><br><span class="line">        <span class="built_in">this</span>.activityInfo = info;</span><br><span class="line">        <span class="built_in">this</span>.compatInfo = compatInfo;</span><br><span class="line">        <span class="built_in">this</span>.state = state;</span><br><span class="line">        <span class="built_in">this</span>.persistentState = persistentState;</span><br><span class="line">        <span class="built_in">this</span>.pendingResults = pendingResults;</span><br><span class="line">        <span class="built_in">this</span>.pendingIntents = pendingNewIntents;</span><br><span class="line">        <span class="built_in">this</span>.isForward = isForward;</span><br><span class="line">        <span class="built_in">this</span>.profilerInfo = profilerInfo;</span><br><span class="line">        <span class="built_in">this</span>.overrideConfig = overrideConfig;</span><br><span class="line">        <span class="built_in">this</span>.packageInfo = client.getPackageInfoNoCheck(activityInfo.applicationInfo,</span><br><span class="line">                compatInfo);</span><br><span class="line">        mActivityOptions = activityOptions;</span><br><span class="line">        mLaunchedFromBubble = launchedFromBubble;</span><br><span class="line">        mInitialTaskFragmentToken = initialTaskFragmentToken;</span><br><span class="line">        init();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** Common initializer for all constructors. */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">init</span><span class="params">()</span> &#123;</span><br><span class="line">        parent = <span class="literal">null</span>;</span><br><span class="line">        embeddedID = <span class="literal">null</span>;</span><br><span class="line">        paused = <span class="literal">false</span>;</span><br><span class="line">        stopped = <span class="literal">false</span>;</span><br><span class="line">        hideForNow = <span class="literal">false</span>;</span><br><span class="line">        nextIdle = <span class="literal">null</span>;</span><br><span class="line">        activityConfigCallback = <span class="keyword">new</span> <span class="title class_">ViewRootImpl</span>.ActivityConfigCallback() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onConfigurationChanged</span><span class="params">(Configuration overrideConfig,</span></span><br><span class="line"><span class="params">                    <span class="type">int</span> newDisplayId)</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (activity == <span class="literal">null</span>) &#123;</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalStateException</span>(</span><br><span class="line">                            <span class="string">&quot;Received config update for non-existing activity&quot;</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                activity.mMainThread.handleActivityConfigurationChanged(</span><br><span class="line">                        ActivityClientRecord.<span class="built_in">this</span>, overrideConfig, newDisplayId);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">requestCompatCameraControl</span><span class="params">(<span class="type">boolean</span> showControl,</span></span><br><span class="line"><span class="params">                    <span class="type">boolean</span> transformationApplied, ICompatCameraControlCallback callback)</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (activity == <span class="literal">null</span>) &#123;</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalStateException</span>(</span><br><span class="line">                            <span class="string">&quot;Received camera compat control update for non-existing activity&quot;</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                ActivityClient.getInstance().requestCompatCameraControl(</span><br><span class="line">                        activity.getResources(), token, showControl, transformationApplied,</span><br><span class="line">                        callback);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** Get the current lifecycle state. */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getLifecycleState</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> mLifecycleState;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** Update the current lifecycle state for internal bookkeeping. */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setState</span><span class="params">(<span class="meta">@LifecycleState</span> <span class="type">int</span> newLifecycleState)</span> &#123;</span><br><span class="line">        mLifecycleState = newLifecycleState;</span><br><span class="line">        <span class="keyword">switch</span> (mLifecycleState) &#123;</span><br><span class="line">            <span class="keyword">case</span> ON_CREATE:</span><br><span class="line">                paused = <span class="literal">true</span>;</span><br><span class="line">                stopped = <span class="literal">true</span>;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> ON_START:</span><br><span class="line">                paused = <span class="literal">true</span>;</span><br><span class="line">                stopped = <span class="literal">false</span>;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> ON_RESUME:</span><br><span class="line">                paused = <span class="literal">false</span>;</span><br><span class="line">                stopped = <span class="literal">false</span>;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> ON_PAUSE:</span><br><span class="line">                paused = <span class="literal">true</span>;</span><br><span class="line">                stopped = <span class="literal">false</span>;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> ON_STOP:</span><br><span class="line">                paused = <span class="literal">true</span>;</span><br><span class="line">                stopped = <span class="literal">true</span>;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">boolean</span> <span class="title function_">isPreHoneycomb</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> activity != <span class="literal">null</span> &amp;&amp; activity.getApplicationInfo().targetSdkVersion</span><br><span class="line">                &lt; android.os.Build.VERSION_CODES.HONEYCOMB;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">boolean</span> <span class="title function_">isPreP</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> activity != <span class="literal">null</span> &amp;&amp; activity.getApplicationInfo().targetSdkVersion</span><br><span class="line">                &lt; android.os.Build.VERSION_CODES.P;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">isPersistable</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> activityInfo.persistableMode == ActivityInfo.PERSIST_ACROSS_REBOOTS;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">isVisibleFromServer</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> activity != <span class="literal">null</span> &amp;&amp; activity.mVisibleFromServer;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">ComponentName</span> <span class="variable">componentName</span> <span class="operator">=</span> intent != <span class="literal">null</span> ? intent.getComponent() : <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;ActivityRecord&#123;&quot;</span></span><br><span class="line">            + Integer.toHexString(System.identityHashCode(<span class="built_in">this</span>))</span><br><span class="line">            + <span class="string">&quot; token=&quot;</span> + token + <span class="string">&quot; &quot;</span> + (componentName == <span class="literal">null</span></span><br><span class="line">                    ? <span class="string">&quot;no component name&quot;</span> : componentName.toShortString())</span><br><span class="line">            + <span class="string">&quot;&#125;&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getStateString</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">StringBuilder</span> <span class="variable">sb</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>();</span><br><span class="line">        sb.append(<span class="string">&quot;ActivityClientRecord&#123;&quot;</span>);</span><br><span class="line">        sb.append(<span class="string">&quot;paused=&quot;</span>).append(paused);</span><br><span class="line">        sb.append(<span class="string">&quot;, stopped=&quot;</span>).append(stopped);</span><br><span class="line">        sb.append(<span class="string">&quot;, hideForNow=&quot;</span>).append(hideForNow);</span><br><span class="line">        sb.append(<span class="string">&quot;, startsNotResumed=&quot;</span>).append(startsNotResumed);</span><br><span class="line">        sb.append(<span class="string">&quot;, isForward=&quot;</span>).append(isForward);</span><br><span class="line">        sb.append(<span class="string">&quot;, pendingConfigChanges=&quot;</span>).append(pendingConfigChanges);</span><br><span class="line">        sb.append(<span class="string">&quot;, preserveWindow=&quot;</span>).append(mPreserveWindow);</span><br><span class="line">        <span class="keyword">if</span> (activity != <span class="literal">null</span>) &#123;</span><br><span class="line">            sb.append(<span class="string">&quot;, Activity&#123;&quot;</span>);</span><br><span class="line">            sb.append(<span class="string">&quot;resumed=&quot;</span>).append(activity.mResumed);</span><br><span class="line">            sb.append(<span class="string">&quot;, stopped=&quot;</span>).append(activity.mStopped);</span><br><span class="line">            sb.append(<span class="string">&quot;, finished=&quot;</span>).append(activity.isFinishing());</span><br><span class="line">            sb.append(<span class="string">&quot;, destroyed=&quot;</span>).append(activity.isDestroyed());</span><br><span class="line">            sb.append(<span class="string">&quot;, startedActivity=&quot;</span>).append(activity.mStartedActivity);</span><br><span class="line">            sb.append(<span class="string">&quot;, changingConfigurations=&quot;</span>).append(activity.mChangingConfigurations);</span><br><span class="line">            sb.append(<span class="string">&quot;&#125;&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        sb.append(<span class="string">&quot;&#125;&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> sb.toString();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>ActivityClientRecord</code>是Android系统内部使用的一个类，主要存在于<code>ActivityThread</code>中，用于管理和跟踪Activity的状态信息。这个类作为Activity实例状态的容器，承载了Activity的生命周期状态、Intent信息、窗口和其他与Activity实例相关的配置信息。<code>ActivityClientRecord</code>是<code>ActivityThread</code>处理Activity生命周期事件时的关键数据结构，它帮助<code>ActivityThread</code>高效地管理Activity的创建、启动、恢复、暂停、停止以及销毁过程。</p>
+<h3 id="主要职责"><a href="#主要职责" class="headerlink" title="主要职责"></a>主要职责</h3><ul>
+<li><p><strong>生命周期管理</strong>：<code>ActivityClientRecord</code>存储了Activity的生命周期状态，例如是否处于暂停状态、是否已经创建等，这对于<code>ActivityThread</code>正确处理Activity生命周期事件至关重要。</p>
+</li>
+<li><p><strong>配置管理</strong>：它还包含了与Activity实例相关的配置信息，如屏幕方向、主题等，这些信息对于Activity在不同配置下正确表现自己非常重要。</p>
+</li>
+<li><p><strong>Intent处理</strong>：<code>ActivityClientRecord</code>包含了启动Activity所用的Intent，这个Intent携带了从其他组件传递给Activity的数据。</p>
+</li>
+<li><p><strong>窗口管理</strong>：它还管理着Activity的窗口信息，包括用于描绘Activity UI的窗口。这对于在屏幕上正确渲染Activity视图非常关键。</p>
+</li>
+</ul>
+<h3 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h3><p>当一个新的Activity被启动时，<code>ActivityThread</code>会接收到一个来自AMS（Activity Manager Service）的请求，此请求包含了创建或启动Activity所需的所有信息，包括Intent和Activity的配置信息。<code>ActivityThread</code>随后会创建一个新的<code>ActivityClientRecord</code>实例，用来存储这些信息，并根据这些信息处理Activity的创建和启动过程。</p>
+<p>在Activity的生命周期中，<code>ActivityThread</code>会根据接收到的来自AMS的指令，更新<code>ActivityClientRecord</code>的状态，并据此调用Activity的相应生命周期方法，如<code>onCreate</code>、<code>onStart</code>、<code>onResume</code>、<code>onPause</code>、<code>onStop</code>和<code>onDestroy</code>。</p>
+<h3 id="重要性"><a href="#重要性" class="headerlink" title="重要性"></a>重要性</h3><p>虽然<code>ActivityClientRecord</code>是一个内部类，不面向普通开发者，但了解它的存在和作用有助于深入理解Android的Activity管理机制。它是<code>ActivityThread</code>和AMS协同工作、高效管理Activity生命周期的关键数据结构，确保了Activity可以在正确的时间执行正确的操作，从而为用户提供流畅的应用体验。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a>
+
+      
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/1%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%BA%8C)/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">ViewModel 源代码分析 (二)</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="sidebar">
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">Contents</strong>
+    
+      <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%A1%B5%E9%9D%A2%E6%97%8B%E8%BD%AC%E7%9A%84%E6%97%B6%E5%80%99-ViewModelStore-%E5%88%B0%E5%BA%95%E8%A2%AB%E8%B0%81%E6%8C%81%E6%9C%89%E4%BA%86"><span class="nav-number">1.</span> <span class="nav-text">页面旋转的时候 ViewModelStore 到底被谁持有了</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ViewModelStore"><span class="nav-number">1.1.</span> <span class="nav-text">ViewModelStore</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Activity-%E7%9A%84%E9%94%80%E6%AF%81"><span class="nav-number">1.2.</span> <span class="nav-text">Activity 的销毁</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%B3%E9%94%AE%E4%BB%A3%E7%A0%81"><span class="nav-number">1.2.0.1.</span> <span class="nav-text">关键代码</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#android-app-Activity"><span class="nav-number">1.3.</span> <span class="nav-text">android.app.Activity</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#retainNonConfigurationInstances"><span class="nav-number">1.3.1.</span> <span class="nav-text">retainNonConfigurationInstances</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#onRetainNonConfigurationInstance"><span class="nav-number">1.3.2.</span> <span class="nav-text">onRetainNonConfigurationInstance</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#onRetainNonConfigurationChildInstances"><span class="nav-number">1.3.3.</span> <span class="nav-text">onRetainNonConfigurationChildInstances</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#androidx-activity-ComponentActivity"><span class="nav-number">1.4.</span> <span class="nav-text">androidx.activity.ComponentActivity</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#onRetainNonConfigurationInstance-1"><span class="nav-number">1.4.1.</span> <span class="nav-text">onRetainNonConfigurationInstance</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%B3%E9%94%AE%E4%BB%A3%E7%A0%81-1"><span class="nav-number">1.4.1.1.</span> <span class="nav-text">关键代码</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#android-app-ActivityThread-ActivityClientRecord-%E6%BA%90%E4%BB%A3%E7%A0%81"><span class="nav-number">1.5.</span> <span class="nav-text">android.app.ActivityThread.ActivityClientRecord 源代码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E8%81%8C%E8%B4%A3"><span class="nav-number">1.5.1.</span> <span class="nav-text">主要职责</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-number">1.5.2.</span> <span class="nav-text">工作原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8D%E8%A6%81%E6%80%A7"><span class="nav-number">1.5.3.</span> <span class="nav-text">重要性</span></a></li></ol></li></ol></li></ol>
+    
+    </div>
+  </aside>
+</section>
+        
+      </div>
+
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    <footer id="footer" class="site-footer">
+  
+
+  <div class="clearfix container">
+      <div class="site-info">
+	      &copy; 2024 喵星科技报 All Rights Reserved.
+        
+            <span id="busuanzi_container_site_uv">
+              本站访客数<span id="busuanzi_value_site_uv"></span>人次  
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+          
+      </div>
+      <div class="site-credit">
+        Theme by <a href="https://github.com/CatJason" target="_blank">hipaper</a>
+      </div>
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var wrapdiv = document.getElementById("wrap");
+    var contentdiv = document.getElementById("content");
+
+    wrapdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+
+
+    <!-- headerblur min height -->
+    
+    
+</script>
+    
+<div style="display: none;">
+  <script src="https://s11.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+</div>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+<script src="/js/bootstrap.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+	</script>
+
+
+
+
+
+
+  </div>
+
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js" async=""></script>
+</body>
+</html>

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>ViewModel 源代码分析 (一) | 喵星科技报</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  
+  
+  
+  <meta name="description" content="viewmodel  CreationExtrasViewModel创建过程中传递额外参数的容器。  InitializerViewModelFactory                ViewModelProvider.Factory接口实现类，使用ViewModelInitializer来创建ViewModel实例。  InitializerViewModelFactoryBuilder">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ViewModel 源代码分析 (一)">
+<meta property="og:url" content="http://example.com/2024/04/01/3%20Android/Jetpacket/VideoModel/0%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%80)/index.html">
+<meta property="og:site_name" content="喵星科技报">
+<meta property="og:description" content="viewmodel  CreationExtrasViewModel创建过程中传递额外参数的容器。  InitializerViewModelFactory                ViewModelProvider.Factory接口实现类，使用ViewModelInitializer来创建ViewModel实例。  InitializerViewModelFactoryBuilder">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-03-31T17:32:52.573Z">
+<meta property="article:modified_time" content="2024-04-03T11:40:25.760Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="喵星科技报" type="application/atom+xml">
+  
+  <link rel="icon" href="/css/images/favicon.ico">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+    
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Yanone+Kaffeesatz%3A200%2C300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Oswald%3A300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+<script src="/js/jquery-3.1.1.min.js"></script>
+
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.css" >
+  <link rel="stylesheet" href="/css/fashion.css" >
+  <link rel="stylesheet" href="/css/glyphs.css" >
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<a target="_blank" rel="noopener" href="https://github.com/CatJason">
+<img decoding="async" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" loading="lazy" data-recalc-dims="1">
+</a>
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  
+
+
+<header id="allheader" class="site-header" role="banner" 
+   >
+  <div class="clearfix container">
+      <div class="site-branding">
+
+          <h1 class="site-title">
+            
+              <a href="/" title="喵星科技报" rel="home"> 喵星科技报 </a>
+            
+          </h1>
+          
+          
+            
+          <nav id="main-navigation" class="main-navigation" role="navigation">
+            <a class="nav-open">Menu</a>
+            <a class="nav-close">Close</a>
+
+            <div class="clearfix sf-menu">
+              <ul id="main-nav" class="menu sf-js-enabled sf-arrows"  style="touch-action: pan-y;">
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="/"> <a class="" href="/">Home</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="archives"> <a class="" href="/archives">Archives</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="categories"> <a class="" href="/categories">Categories</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="tags"> <a class="" href="/tags">Tags</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="about"> <a class="" href="/about">About</a> </li>
+                    
+              </ul>
+            </div>
+          </nav>
+
+      </div>
+  </div>
+</header>
+
+
+  <div id="container">
+    <div id="wrap">
+            
+      <div id="content" class="outer">
+        
+          <section id="main" style="float:none;"><article id="post-3 Android/Jetpacket/VideoModel/0 ViewModel 源代码分析 (一)" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" class="article-title" itemprop="name">
+      ViewModel 源代码分析 (一)
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/0%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%80)/" class="article-date">
+	  <time datetime="2024-03-31T17:32:52.573Z" itemprop="datePublished">April 1, 2024</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a>
+ 
+      
+	<span id="busuanzi_container_page_pv">
+	  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	</span>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <ul>
+<li><p>viewmodel</p>
+<ul>
+<li><p>CreationExtras<br>ViewModel创建过程中传递额外参数的容器。</p>
+</li>
+<li><p>InitializerViewModelFactory              </p>
+<p> ViewModelProvider.Factory接口实现类，使用ViewModelInitializer来创建ViewModel实例。</p>
+</li>
+<li><p>InitializerViewModelFactoryBuilder   </p>
+<p>用于构建InitializerViewModelFactory的工具，通常以DSL形式提供。</p>
+</li>
+<li><p>MutableCreationExtras                     </p>
+<p>可变版本的CreationExtras，允许添加或修改额外参数。</p>
+</li>
+<li><p>ViewModelFactoryDsl                       </p>
+<p>一个DSL（领域特定语言），用于更声明式地定义如何创建ViewModel。</p>
+</li>
+<li><p>ViewModelInitializer                         </p>
+<p>用于初始化ViewModel的类，通常与ViewModelFactoryDsl一起使用。</p>
+</li>
+<li><p>InitializerViewModelFactory            </p>
+<p>提供了使用InitializerViewModelFactory的Kotlin扩展。</p>
+</li>
+</ul>
+</li>
+<li><p>AndroidViewModel                                  </p>
+<p>AndroidViewModel是ViewModel的一个子类，它接受应用程序的Application作为上下文，这对于需要访问Application资源的ViewModel特别有用。</p>
+</li>
+<li><p>HasDefaultViewModelProviderFactory</p>
+<p>一个接口，标识一个类拥有默认的ViewModelProvider.Factory，用于创建ViewModel。</p>
+</li>
+<li><p>ViewModel</p>
+</li>
+<li><p>ViewModelLazy                                       </p>
+<p>一个提供懒加载ViewModel实例的工具类。</p>
+</li>
+<li><p>ViewModelProvider                                 </p>
+<p>用于获取ViewModel实例，确保配置更改时ViewModel可以持续使用。</p>
+</li>
+<li><p>ViewModelStore                                      </p>
+<p>用于保存ViewModel实例的类，以便它们可以跨配置更改持续存在。</p>
+</li>
+<li><p>ViewModelStoreOwner                          </p>
+<p>一个接口，标识一个类可以拥有ViewModelStore。</p>
+</li>
+<li><p>ViewTreeViewModelStoreOwner            </p>
+<p>用于从视图树中查找ViewModelStoreOwner的工具类。</p>
+</li>
+<li><p>ViewTreeViewModelKt                           </p>
+<p>提供了操作和查询视图树中ViewModel的Kotlin扩展</p>
+</li>
+</ul>
+<h1 id="CreationExtras-与-MutableCreationExtra"><a href="#CreationExtras-与-MutableCreationExtra" class="headerlink" title="CreationExtras 与 MutableCreationExtra"></a>CreationExtras 与 MutableCreationExtra</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> androidx.lifecycle.viewmodel</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">CreationExtras</span> internal <span class="title function_">constructor</span><span class="params">()</span> &#123;</span><br><span class="line">    internal val map: MutableMap&lt;Key&lt;*&gt;, Any?&gt; = mutableMapOf()</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Key</span>&lt;T&gt;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">abstract</span> operator fun &lt;T&gt; get(key: Key&lt;T&gt;): T?</span><br><span class="line">  </span><br><span class="line">    object Empty : CreationExtras() &#123;</span><br><span class="line">        override fun &lt;T&gt; get(key: Key&lt;T&gt;): T? = <span class="literal">null</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * [CreationExtras]的可变实现</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> initialExtras 将被填充到结果MutableCreationExtras中的额外信息</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MutableCreationExtras</span>(initialExtras: CreationExtras = Empty) : CreationExtras() &#123;</span><br><span class="line"></span><br><span class="line">    init &#123;</span><br><span class="line">        map.putAll(initialExtras.map)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 将给定的[key]与[t]关联</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> operator fun &lt;T&gt; set(key: Key&lt;T&gt;, t: T) &#123;</span><br><span class="line">        map[key] = t</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> override fun &lt;T&gt; get(key: Key&lt;T&gt;): T? &#123;</span><br><span class="line">        <span class="meta">@Suppress(&quot;UNCHECKED_CAST&quot;)</span></span><br><span class="line">        <span class="keyword">return</span> map[key] as T?</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h1 id="fun-viewModelFactory-和-InitializerViewModelFactoryBuilder"><a href="#fun-viewModelFactory-和-InitializerViewModelFactoryBuilder" class="headerlink" title="fun viewModelFactory 和 InitializerViewModelFactoryBuilder"></a>fun viewModelFactory 和 InitializerViewModelFactoryBuilder</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> androidx.lifecycle.viewmodel</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> androidx.lifecycle.ViewModel</span><br><span class="line"><span class="keyword">import</span> androidx.lifecycle.ViewModelProvider</span><br><span class="line"><span class="keyword">import</span> kotlin.reflect.KClass</span><br><span class="line"></span><br><span class="line"><span class="meta">@DslMarker</span></span><br><span class="line"><span class="keyword">public</span> annotation <span class="keyword">class</span> <span class="title class_">ViewModelFactoryDsl</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> inline fun <span class="title function_">viewModelFactory</span><span class="params">(</span></span><br><span class="line"><span class="params">    builder: InitializerViewModelFactoryBuilder.()</span> -&gt; Unit</span><br><span class="line">): ViewModelProvider.Factory = InitializerViewModelFactoryBuilder().apply(builder).build()</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 用于构建新的[ViewModelProvider.Factory]的DSL。</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@ViewModelFactoryDsl</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">InitializerViewModelFactoryBuilder</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">val</span> <span class="variable">initializers</span> <span class="operator">=</span> mutableListOf&lt;ViewModelInitializer&lt;*&gt;&gt;()</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 为给定的ViewModel类添加初始化器。</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> clazz 与初始化器关联的类。</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> initializer 用于创建ViewModel类实例的lambda表达式</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    fun &lt;T : ViewModel&gt; addInitializer(clazz: KClass&lt;T&gt;, initializer: CreationExtras.() -&gt; T) &#123;</span><br><span class="line">        initializers.add(ViewModelInitializer(clazz.java, initializer))</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    fun <span class="title function_">build</span><span class="params">()</span>: ViewModelProvider.Factory =</span><br><span class="line">        InitializerViewModelFactory(*initializers.toTypedArray())</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">inline fun &lt;reified VM : ViewModel&gt; InitializerViewModelFactoryBuilder.initializer(</span><br><span class="line">    noinline initializer: CreationExtras.() -&gt; VM</span><br><span class="line">) &#123;</span><br><span class="line">    addInitializer(VM::class, initializer)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ViewModelInitializer</span>&lt;T : ViewModel&gt;(</span><br><span class="line">    internal val clazz: Class&lt;T&gt;,</span><br><span class="line">    internal val initializer: CreationExtras.() -&gt; T,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">internal <span class="keyword">class</span> <span class="title class_">InitializerViewModelFactory</span>(</span><br><span class="line">    <span class="keyword">private</span> vararg val initializers: ViewModelInitializer&lt;*&gt;</span><br><span class="line">) : ViewModelProvider.Factory &#123;</span><br><span class="line">    override fun &lt;T : ViewModel&gt; create(modelClass: Class&lt;T&gt;, extras: CreationExtras): T &#123;</span><br><span class="line">        <span class="keyword">var</span> viewModel: T? = <span class="literal">null</span></span><br><span class="line">        <span class="meta">@Suppress(&quot;UNCHECKED_CAST&quot;)</span></span><br><span class="line">        initializers.forEach &#123;</span><br><span class="line">            <span class="keyword">if</span> (it.clazz == modelClass) &#123;</span><br><span class="line">                viewModel = it.initializer.invoke(extras) as? T</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> viewModel ?: <span class="keyword">throw</span> IllegalArgumentException(</span><br><span class="line">            <span class="string">&quot;No initializer set for given class $&#123;modelClass.name&#125;&quot;</span></span><br><span class="line">        )</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="AndroidViewModel"><a href="#AndroidViewModel" class="headerlink" title="AndroidViewModel"></a>AndroidViewModel</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> androidx.lifecycle;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> android.annotation.SuppressLint;</span><br><span class="line"><span class="keyword">import</span> android.app.Application;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> androidx.annotation.NonNull;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AndroidViewModel</span> <span class="keyword">extends</span> <span class="title class_">ViewModel</span> &#123;</span><br><span class="line">    <span class="meta">@SuppressLint(&quot;StaticFieldLeak&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> Application mApplication;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">AndroidViewModel</span><span class="params">(<span class="meta">@NonNull</span> Application application)</span> &#123;</span><br><span class="line">        mApplication = application;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SuppressWarnings(&#123;&quot;TypeParameterUnusedInFormals&quot;, &quot;unchecked&quot;&#125;)</span></span><br><span class="line">    <span class="meta">@NonNull</span></span><br><span class="line">    <span class="keyword">public</span> &lt;T <span class="keyword">extends</span> <span class="title class_">Application</span>&gt; T <span class="title function_">getApplication</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> (T) mApplication;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>AndroidViewModel</code> 是一个扩展了标准 ViewModel 功能的类，通过提供对 <code>Application</code> 上下文的访问，它允许 ViewModel 执行需要这种上下文的操作。使用 <code>AndroidViewModel</code> 可以帮助你编写更清晰、更健壮的应用程序代码，尤其是在处理配置更改和应用程序范围的资源访问时</p>
+<h1 id="HasDefaultViewModelProviderFactory"><a href="#HasDefaultViewModelProviderFactory" class="headerlink" title="HasDefaultViewModelProviderFactory"></a>HasDefaultViewModelProviderFactory</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> androidx.lifecycle;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> androidx.annotation.NonNull;</span><br><span class="line"><span class="keyword">import</span> androidx.lifecycle.viewmodel.CreationExtras;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">HasDefaultViewModelProviderFactory</span> &#123;</span><br><span class="line">    <span class="meta">@NonNull</span></span><br><span class="line">    ViewModelProvider.Factory <span class="title function_">getDefaultViewModelProviderFactory</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@NonNull</span></span><br><span class="line">    <span class="keyword">default</span> CreationExtras <span class="title function_">getDefaultViewModelCreationExtras</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> CreationExtras.Empty.INSTANCE;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="ViewModel"><a href="#ViewModel" class="headerlink" title="ViewModel"></a>ViewModel</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> androidx.lifecycle;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> androidx.annotation.MainThread;</span><br><span class="line"><span class="keyword">import</span> androidx.annotation.NonNull;</span><br><span class="line"><span class="keyword">import</span> androidx.annotation.Nullable;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.Closeable;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.util.Arrays;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.LinkedHashSet;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"><span class="keyword">import</span> java.util.Set;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">ViewModel</span> &#123;</span><br><span class="line">    <span class="comment">// Can&#x27;t use ConcurrentHashMap, because it can lose values on old apis (see b/37042460)</span></span><br><span class="line">    <span class="meta">@Nullable</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, Object&gt; mBagOfTags = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">    <span class="meta">@Nullable</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Set&lt;Closeable&gt; mCloseables = <span class="keyword">new</span> <span class="title class_">LinkedHashSet</span>&lt;&gt;();</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> <span class="type">boolean</span> <span class="variable">mCleared</span> <span class="operator">=</span> <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ViewModel</span><span class="params">()</span> &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ViewModel</span><span class="params">(<span class="meta">@NonNull</span> Closeable... closeables)</span> &#123;</span><br><span class="line">        mCloseables.addAll(Arrays.asList(closeables));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">addCloseable</span><span class="params">(<span class="meta">@NonNull</span> Closeable closeable)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (mCloseables != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (mCloseables) &#123;</span><br><span class="line">                mCloseables.add(closeable);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SuppressWarnings(&quot;WeakerAccess&quot;)</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">onCleared</span><span class="params">()</span> &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@MainThread</span></span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">void</span> <span class="title function_">clear</span><span class="params">()</span> &#123;</span><br><span class="line">        mCleared = <span class="literal">true</span>;</span><br><span class="line">        <span class="keyword">if</span> (mBagOfTags != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (mBagOfTags) &#123;</span><br><span class="line">                <span class="keyword">for</span> (Object value : mBagOfTags.values()) &#123;</span><br><span class="line">                    closeWithRuntimeException(value);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (mCloseables != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (mCloseables) &#123;</span><br><span class="line">                <span class="keyword">for</span> (Closeable closeable : mCloseables) &#123;</span><br><span class="line">                    closeWithRuntimeException(closeable);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        onCleared();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SuppressWarnings(&quot;unchecked&quot;)</span></span><br><span class="line">    &lt;T&gt; T <span class="title function_">setTagIfAbsent</span><span class="params">(String key, T newValue)</span> &#123;</span><br><span class="line">        T previous;</span><br><span class="line">        <span class="keyword">synchronized</span> (mBagOfTags) &#123;</span><br><span class="line">            previous = (T) mBagOfTags.get(key);</span><br><span class="line">            <span class="keyword">if</span> (previous == <span class="literal">null</span>) &#123;</span><br><span class="line">                mBagOfTags.put(key, newValue);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">T</span> <span class="variable">result</span> <span class="operator">=</span> previous == <span class="literal">null</span> ? newValue : previous;</span><br><span class="line">        <span class="keyword">if</span> (mCleared) &#123;</span><br><span class="line">            closeWithRuntimeException(result);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SuppressWarnings(&#123;&quot;TypeParameterUnusedInFormals&quot;, &quot;unchecked&quot;&#125;)</span></span><br><span class="line">    &lt;T&gt; T <span class="title function_">getTag</span><span class="params">(String key)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (mBagOfTags == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">synchronized</span> (mBagOfTags) &#123;</span><br><span class="line">            <span class="keyword">return</span> (T) mBagOfTags.get(key);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">closeWithRuntimeException</span><span class="params">(Object obj)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (obj <span class="keyword">instanceof</span> Closeable) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                ((Closeable) obj).close();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="举例子说明哪些特殊数据是需要-ViewModel-特别管理的"><a href="#举例子说明哪些特殊数据是需要-ViewModel-特别管理的" class="headerlink" title="举例子说明哪些特殊数据是需要 ViewModel 特别管理的"></a>举例子说明哪些特殊数据是需要 ViewModel 特别管理的</h2><p>在 <code>ViewModel</code> 的使用场景中，有几种特殊数据需要通过 <code>ViewModel</code> 来特别管理，主要是因为这些数据的生命周期需要与 <code>ViewModel</code> 保持一致，或者这些数据在 <code>ViewModel</code> 被销毁时需要进行特殊处理。以下是一些示例：</p>
+<ol>
+<li><p><strong>网络请求的取消标识（Cancellation Tokens）</strong>：当使用 <code>ViewModel</code> 进行网络请求时，可以在 <code>mBagOfTags</code> 中保存请求的取消标识（如 <code>Call</code> 对象或其他取消机制）。如果用户离开了关联的界面（例如，Activity 或 Fragment 被销毁），则可以在 <code>ViewModel</code> 的 <code>onCleared()</code> 方法中取消所有挂起的网络请求，以避免不必要的网络流量消耗或潜在的内存泄漏。</p>
+</li>
+<li><p><strong>数据库监听器（Database Listeners）</strong>：如果 <code>ViewModel</code> 监听数据库变化（例如，使用 SQLite 数据库或 Room 持久库），可以将监听器对象存储在 <code>mBagOfTags</code> 中。当 <code>ViewModel</code> 被清理时，这些监听器可以被适当地移除，防止因为监听器持续激活而导致的内存泄漏。</p>
+</li>
+<li><p><strong>文件资源（File Resources）</strong>：应用可能会打开文件进行读写操作，这些文件的句柄或相关的流对象（如 <code>FileInputStream</code>、<code>FileOutputStream</code>）可以放在 <code>mBagOfTags</code> 中。在 <code>ViewModel</code> 生命周期结束时，确保这些资源被正确关闭，避免文件资源泄漏。</p>
+</li>
+<li><p><strong>自定义资源的清理（Custom Resource Cleanup）</strong>：如果有一些自定义的资源或对象需要在 <code>ViewModel</code> 生命周期结束时进行清理（比如自定义的缓存机制、临时文件的删除等），也可以利用 <code>mBagOfTags</code> 来管理这些资源。通过实现 <code>Closeable</code> 接口，可以确保这些资源在 <code>ViewModel</code> 的 <code>clear()</code> 方法被调用时得到正确的处理。</p>
+</li>
+<li><p><strong>订阅服务（Subscriptions）</strong>：当 <code>ViewModel</code> 订阅了某些事件通知或数据流（例如，使用 RxJava 的 <code>Observable</code> 或 LiveData 订阅），可以将这些订阅的取消引用（比如 <code>Disposable</code>）存储在 <code>mBagOfTags</code> 中。这样，可以在不需要这些订阅时或 <code>ViewModel</code> 销毁时，统一取消订阅，防止内存泄漏。</p>
+</li>
+</ol>
+<p>通过以上示例，可以看出 <code>ViewModel</code> 中的 <code>mBagOfTags</code> 提供了一种便捷的方式来管理与 <code>ViewModel</code> 生命周期紧密相关的特殊数据和资源，帮助开发者维护应用的健壮性和性能。</p>
+<h1 id="ViewModelLazy"><a href="#ViewModelLazy" class="headerlink" title="ViewModelLazy"></a>ViewModelLazy</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> androidx.lifecycle</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> androidx.lifecycle.viewmodel.CreationExtras</span><br><span class="line"><span class="keyword">import</span> kotlin.reflect.KClass</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ViewModelLazy</span>&lt;VM : ViewModel&gt; <span class="meta">@JvmOverloads</span> constructor(</span><br><span class="line">    <span class="keyword">private</span> val viewModelClass: KClass&lt;VM&gt;,</span><br><span class="line">    <span class="keyword">private</span> val storeProducer: () -&gt; ViewModelStore,</span><br><span class="line">    <span class="keyword">private</span> val factoryProducer: () -&gt; ViewModelProvider.Factory,</span><br><span class="line">    <span class="keyword">private</span> val extrasProducer: () -&gt; CreationExtras = &#123; CreationExtras.Empty &#125;</span><br><span class="line">) : Lazy&lt;VM&gt; &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">var</span> cached: VM? = <span class="literal">null</span></span><br><span class="line"></span><br><span class="line">    override val value: VM</span><br><span class="line">        <span class="title function_">get</span><span class="params">()</span> &#123;</span><br><span class="line">            <span class="type">val</span> <span class="variable">viewModel</span> <span class="operator">=</span> cached</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">if</span> (viewModel == <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="type">val</span> <span class="variable">factory</span> <span class="operator">=</span> factoryProducer()</span><br><span class="line">                <span class="type">val</span> <span class="variable">store</span> <span class="operator">=</span> storeProducer()</span><br><span class="line">                ViewModelProvider(</span><br><span class="line">                    store,</span><br><span class="line">                    factory,</span><br><span class="line">                    extrasProducer()</span><br><span class="line">                ).get(viewModelClass.java).also &#123;</span><br><span class="line">                    cached = it</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                viewModel</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    override fun <span class="title function_">isInitialized</span><span class="params">()</span>: Boolean = cached != <span class="literal">null</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="ViewModelProvider"><a href="#ViewModelProvider" class="headerlink" title="ViewModelProvider"></a>ViewModelProvider</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@file</span>:JvmName(<span class="string">&quot;ViewModelProviderGetKt&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">package</span> androidx.lifecycle</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> android.app.Application</span><br><span class="line"><span class="keyword">import</span> androidx.annotation.MainThread</span><br><span class="line"><span class="keyword">import</span> androidx.annotation.RestrictTo</span><br><span class="line"><span class="keyword">import</span> androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.DEFAULT_KEY</span><br><span class="line"><span class="keyword">import</span> androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.defaultFactory</span><br><span class="line"><span class="keyword">import</span> androidx.lifecycle.viewmodel.CreationExtras.Key</span><br><span class="line"><span class="keyword">import</span> androidx.lifecycle.ViewModelProvider.NewInstanceFactory.Companion.VIEW_MODEL_KEY</span><br><span class="line"><span class="keyword">import</span> androidx.lifecycle.viewmodel.CreationExtras</span><br><span class="line"><span class="keyword">import</span> androidx.lifecycle.viewmodel.InitializerViewModelFactory</span><br><span class="line"><span class="keyword">import</span> androidx.lifecycle.viewmodel.MutableCreationExtras</span><br><span class="line"><span class="keyword">import</span> androidx.lifecycle.viewmodel.ViewModelInitializer</span><br><span class="line"><span class="keyword">import</span> java.lang.IllegalArgumentException</span><br><span class="line"><span class="keyword">import</span> java.lang.RuntimeException</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.InvocationTargetException</span><br><span class="line"><span class="keyword">import</span> kotlin.UnsupportedOperationException</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> open <span class="keyword">class</span> <span class="title class_">ViewModelProvider</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@JvmOverloads</span></span><br><span class="line">constructor(</span><br><span class="line">    <span class="keyword">private</span> val store: ViewModelStore,</span><br><span class="line">    <span class="keyword">private</span> val factory: Factory,</span><br><span class="line">    <span class="keyword">private</span> val defaultCreationExtras: CreationExtras = CreationExtras.Empty,</span><br><span class="line">) &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Factory</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">public</span> fun &lt;T : ViewModel&gt; create(modelClass: Class&lt;T&gt;): T &#123;</span><br><span class="line">            <span class="keyword">throw</span> UnsupportedOperationException(</span><br><span class="line">                <span class="string">&quot;Factory.create(String) is unsupported.  This Factory requires &quot;</span> +</span><br><span class="line">                    <span class="string">&quot;`CreationExtras` to be passed into `create` method.&quot;</span></span><br><span class="line">            )</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">public</span> fun &lt;T : ViewModel&gt; create(modelClass: Class&lt;T&gt;, extras: CreationExtras): T =</span><br><span class="line">            create(modelClass)</span><br><span class="line"></span><br><span class="line">        companion object &#123;</span><br><span class="line">            <span class="meta">@JvmStatic</span></span><br><span class="line">            fun <span class="title function_">from</span><span class="params">(vararg initializers: ViewModelInitializer&lt;*&gt;)</span>: Factory =</span><br><span class="line">                InitializerViewModelFactory(*initializers)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)</span></span><br><span class="line">    <span class="keyword">public</span> open <span class="keyword">class</span> <span class="title class_">OnRequeryFactory</span> &#123;</span><br><span class="line">        <span class="keyword">public</span> open fun <span class="title function_">onRequery</span><span class="params">(viewModel: ViewModel)</span> &#123;&#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">constructor</span><span class="params">(</span></span><br><span class="line"><span class="params">        owner: ViewModelStoreOwner</span></span><br><span class="line"><span class="params">    )</span> : <span class="built_in">this</span>(owner.viewModelStore, defaultFactory(owner), defaultCreationExtras(owner))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">constructor</span><span class="params">(owner: ViewModelStoreOwner, factory: Factory)</span> : <span class="built_in">this</span>(</span><br><span class="line">        owner.viewModelStore,</span><br><span class="line">        factory,</span><br><span class="line">        defaultCreationExtras(owner)</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">    <span class="meta">@MainThread</span></span><br><span class="line">    <span class="keyword">public</span> open operator fun &lt;T : ViewModel&gt; get(modelClass: Class&lt;T&gt;): T &#123;</span><br><span class="line">        <span class="type">val</span> <span class="variable">canonicalName</span> <span class="operator">=</span> modelClass.canonicalName</span><br><span class="line">            ?: <span class="keyword">throw</span> IllegalArgumentException(<span class="string">&quot;Local and anonymous classes can not be ViewModels&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> get(<span class="string">&quot;$DEFAULT_KEY:$canonicalName&quot;</span>, modelClass)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Suppress(&quot;UNCHECKED_CAST&quot;)</span></span><br><span class="line">    <span class="meta">@MainThread</span></span><br><span class="line">    <span class="keyword">public</span> open operator fun &lt;T : ViewModel&gt; get(key: String, modelClass: Class&lt;T&gt;): T &#123;</span><br><span class="line">        <span class="type">val</span> <span class="variable">viewModel</span> <span class="operator">=</span> store[key]</span><br><span class="line">        <span class="keyword">if</span> (modelClass.isInstance(viewModel)) &#123;</span><br><span class="line">            (factory as? OnRequeryFactory)?.onRequery(viewModel)</span><br><span class="line">            <span class="keyword">return</span> viewModel as T</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="meta">@Suppress(&quot;ControlFlowWithEmptyBody&quot;)</span></span><br><span class="line">            <span class="keyword">if</span> (viewModel != <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="comment">// <span class="doctag">TODO:</span> log a warning.</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">val</span> <span class="variable">extras</span> <span class="operator">=</span> MutableCreationExtras(defaultCreationExtras)</span><br><span class="line">        extras[VIEW_MODEL_KEY] = key</span><br><span class="line">        <span class="comment">// AGP has some desugaring issues associated with compileOnly dependencies so we need to</span></span><br><span class="line">        <span class="comment">// fall back to the other create method to keep from crashing.</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">try</span> &#123;</span><br><span class="line">            factory.create(modelClass, extras)</span><br><span class="line">        &#125; <span class="keyword">catch</span> (e: AbstractMethodError) &#123;</span><br><span class="line">            factory.create(modelClass)</span><br><span class="line">        &#125;.also &#123; store.put(key, it) &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// actually there is getInstance()</span></span><br><span class="line">    <span class="meta">@Suppress(&quot;SingletonConstructor&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> open <span class="keyword">class</span> <span class="title class_">NewInstanceFactory</span> : Factory &#123;</span><br><span class="line">        <span class="meta">@Suppress(&quot;DocumentExceptions&quot;)</span></span><br><span class="line">        override fun &lt;T : ViewModel&gt; create(modelClass: Class&lt;T&gt;): T &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">try</span> &#123;</span><br><span class="line">                modelClass.newInstance()</span><br><span class="line">            &#125; <span class="keyword">catch</span> (e: InstantiationException) &#123;</span><br><span class="line">                <span class="keyword">throw</span> RuntimeException(<span class="string">&quot;Cannot create an instance of $modelClass&quot;</span>, e)</span><br><span class="line">            &#125; <span class="keyword">catch</span> (e: IllegalAccessException) &#123;</span><br><span class="line">                <span class="keyword">throw</span> RuntimeException(<span class="string">&quot;Cannot create an instance of $modelClass&quot;</span>, e)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">public</span> companion object &#123;</span><br><span class="line">            <span class="keyword">private</span> <span class="keyword">var</span> sInstance: NewInstanceFactory? = <span class="literal">null</span></span><br><span class="line">          </span><br><span class="line">            <span class="meta">@JvmStatic</span></span><br><span class="line">            <span class="keyword">public</span> val instance: NewInstanceFactory</span><br><span class="line">                <span class="meta">@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)</span></span><br><span class="line">                get() &#123;</span><br><span class="line">                    <span class="keyword">if</span> (sInstance == <span class="literal">null</span>) &#123;</span><br><span class="line">                        sInstance = NewInstanceFactory()</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">return</span> sInstance!!</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">private</span> object ViewModelKeyImpl : Key&lt;String&gt;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@JvmField</span></span><br><span class="line">            val VIEW_MODEL_KEY: Key&lt;String&gt; = ViewModelKeyImpl</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> open <span class="keyword">class</span> <span class="title class_">AndroidViewModelFactory</span></span><br><span class="line">    <span class="keyword">private</span> <span class="title function_">constructor</span><span class="params">(</span></span><br><span class="line"><span class="params">        <span class="keyword">private</span> val application: Application?,</span></span><br><span class="line"><span class="params">        <span class="meta">@Suppress(&quot;UNUSED_PARAMETER&quot;)</span> unused: Int,</span></span><br><span class="line"><span class="params">    )</span> : NewInstanceFactory() &#123;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Suppress(&quot;SingletonConstructor&quot;)</span></span><br><span class="line">        <span class="keyword">public</span> <span class="title function_">constructor</span><span class="params">()</span> : <span class="built_in">this</span>(<span class="literal">null</span>, <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Suppress(&quot;SingletonConstructor&quot;)</span></span><br><span class="line">        <span class="keyword">public</span> <span class="title function_">constructor</span><span class="params">(application: Application)</span> : <span class="built_in">this</span>(application, <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Suppress(&quot;DocumentExceptions&quot;)</span></span><br><span class="line">        override fun &lt;T : ViewModel&gt; create(modelClass: Class&lt;T&gt;, extras: CreationExtras): T &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">if</span> (application != <span class="literal">null</span>) &#123;</span><br><span class="line">                create(modelClass)</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="type">val</span> <span class="variable">application</span> <span class="operator">=</span> extras[APPLICATION_KEY]</span><br><span class="line">                <span class="keyword">if</span> (application != <span class="literal">null</span>) &#123;</span><br><span class="line">                    create(modelClass, application)</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="comment">// For AndroidViewModels, CreationExtras must have an application set</span></span><br><span class="line">                    <span class="keyword">if</span> (AndroidViewModel::class.java.isAssignableFrom(modelClass)) &#123;</span><br><span class="line">                        <span class="keyword">throw</span> IllegalArgumentException(</span><br><span class="line">                            <span class="string">&quot;CreationExtras must have an application by `APPLICATION_KEY`&quot;</span></span><br><span class="line">                        )</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="built_in">super</span>.create(modelClass)</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Suppress(&quot;DocumentExceptions&quot;)</span></span><br><span class="line">        override fun &lt;T : ViewModel&gt; create(modelClass: Class&lt;T&gt;): T &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">if</span> (application == <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="keyword">throw</span> UnsupportedOperationException(</span><br><span class="line">                    <span class="string">&quot;AndroidViewModelFactory constructed &quot;</span> +</span><br><span class="line">                        <span class="string">&quot;with empty constructor works only with &quot;</span> +</span><br><span class="line">                        <span class="string">&quot;create(modelClass: Class&lt;T&gt;, extras: CreationExtras).&quot;</span></span><br><span class="line">                )</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                create(modelClass, application)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Suppress(&quot;DocumentExceptions&quot;)</span></span><br><span class="line">        <span class="keyword">private</span> fun &lt;T : ViewModel&gt; create(modelClass: Class&lt;T&gt;, app: Application): T &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">if</span> (AndroidViewModel::class.java.isAssignableFrom(modelClass)) &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    modelClass.getConstructor(Application::class.java).newInstance(app)</span><br><span class="line">                &#125; <span class="keyword">catch</span> (e: NoSuchMethodException) &#123;</span><br><span class="line">                    <span class="keyword">throw</span> RuntimeException(<span class="string">&quot;Cannot create an instance of $modelClass&quot;</span>, e)</span><br><span class="line">                &#125; <span class="keyword">catch</span> (e: IllegalAccessException) &#123;</span><br><span class="line">                    <span class="keyword">throw</span> RuntimeException(<span class="string">&quot;Cannot create an instance of $modelClass&quot;</span>, e)</span><br><span class="line">                &#125; <span class="keyword">catch</span> (e: InstantiationException) &#123;</span><br><span class="line">                    <span class="keyword">throw</span> RuntimeException(<span class="string">&quot;Cannot create an instance of $modelClass&quot;</span>, e)</span><br><span class="line">                &#125; <span class="keyword">catch</span> (e: InvocationTargetException) &#123;</span><br><span class="line">                    <span class="keyword">throw</span> RuntimeException(<span class="string">&quot;Cannot create an instance of $modelClass&quot;</span>, e)</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="built_in">super</span>.create(modelClass)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">public</span> companion object &#123;</span><br><span class="line">            internal fun <span class="title function_">defaultFactory</span><span class="params">(owner: ViewModelStoreOwner)</span>: Factory =</span><br><span class="line">                <span class="keyword">if</span> (owner is HasDefaultViewModelProviderFactory)</span><br><span class="line">                    owner.defaultViewModelProviderFactory <span class="keyword">else</span> instance</span><br><span class="line"></span><br><span class="line">            internal const <span class="type">val</span> <span class="variable">DEFAULT_KEY</span> <span class="operator">=</span> <span class="string">&quot;androidx.lifecycle.ViewModelProvider.DefaultKey&quot;</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">private</span> <span class="keyword">var</span> sInstance: AndroidViewModelFactory? = <span class="literal">null</span></span><br><span class="line"></span><br><span class="line">            <span class="meta">@JvmStatic</span></span><br><span class="line">            <span class="keyword">public</span> fun <span class="title function_">getInstance</span><span class="params">(application: Application)</span>: AndroidViewModelFactory &#123;</span><br><span class="line">                <span class="keyword">if</span> (sInstance == <span class="literal">null</span>) &#123;</span><br><span class="line">                    sInstance = AndroidViewModelFactory(application)</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">return</span> sInstance!!</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">private</span> object ApplicationKeyImpl : Key&lt;Application&gt;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@JvmField</span></span><br><span class="line">            val APPLICATION_KEY: Key&lt;Application&gt; = ApplicationKeyImpl</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">internal fun <span class="title function_">defaultCreationExtras</span><span class="params">(owner: ViewModelStoreOwner)</span>: CreationExtras &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">if</span> (owner is HasDefaultViewModelProviderFactory) &#123;</span><br><span class="line">        owner.defaultViewModelCreationExtras</span><br><span class="line">    &#125; <span class="keyword">else</span> CreationExtras.Empty</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@MainThread</span></span><br><span class="line"><span class="keyword">public</span> inline fun &lt;reified VM : ViewModel&gt; ViewModelProvider.get(): VM = get(VM::class.java)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="简单解析一下-ViewModelProvider"><a href="#简单解析一下-ViewModelProvider" class="headerlink" title="简单解析一下 ViewModelProvider"></a>简单解析一下 ViewModelProvider</h2><p>在这段代码中，定义了一个<code>ViewModelProvider</code>类，其作用是提供<code>ViewModel</code>实例。<br>在MVVM架构中，<code>ViewModel</code>是负责准备和管理UI相关数据的组件，它使数据和命令可以轻松地绑定到UI控件，同时保持UI控件和应用逻辑的分离。<br><code>ViewModelProvider</code>负责创建和管理这些<code>ViewModel</code>对象。<br>以下是该代码段中定义的主要函数及其作用的分析：</p>
+<h3 id="构造函数"><a href="#构造函数" class="headerlink" title="构造函数"></a>构造函数</h3><ul>
+<li><strong><code>ViewModelProvider</code>构造函数</strong>: 接收一个<code>ViewModelStore</code>和一个<code>Factory</code>作为参数，以及一个可选的<code>CreationExtras</code>。这些构造函数允许你在创建<code>ViewModelProvider</code>实例时指定<code>ViewModel</code>的存储和创建方式。</li>
+</ul>
+<h3 id="内部接口和类"><a href="#内部接口和类" class="headerlink" title="内部接口和类"></a>内部接口和类</h3><ul>
+<li><strong><code>Factory</code>接口</strong>: 定义了创建<code>ViewModel</code>实例的方法。这个接口允许自定义<code>ViewModel</code>的创建过程，包括通过<code>CreationExtras</code>传递额外的创建参数。</li>
+<li><strong><code>OnRequeryFactory</code>类</strong>: 这是一个可选的回调，当<code>ViewModel</code>被重新查询时调用。</li>
+<li><strong><code>NewInstanceFactory</code>类</strong>: 一个默认的<code>Factory</code>实现，它使用反射来创建<code>ViewModel</code>的新实例。</li>
+<li><strong><code>AndroidViewModelFactory</code>类</strong>: 专门为<code>AndroidViewModel</code>定制的<code>Factory</code>实现，它需要<code>Application</code>实例来创建<code>ViewModel</code>。</li>
+</ul>
+<h3 id="主要方法"><a href="#主要方法" class="headerlink" title="主要方法"></a>主要方法</h3><ul>
+<li><strong><code>get</code>方法</strong>: 重载的方法，用于获取指定类的<code>ViewModel</code>实例。如果<code>ViewModel</code>已经存在于<code>ViewModelStore</code>中，则返回这个实例；如果不存在，则通过<code>Factory</code>创建新的实例并存储起来。这些方法确保<code>ViewModel</code>的生命周期被正确管理，即使在配置更改（如屏幕旋转）后也能保持状态。</li>
+<li><strong><code>defaultCreationExtras</code>函数</strong>: 为<code>ViewModel</code>创建提供默认的<code>CreationExtras</code>。这是用于传递额外参数给<code>ViewModel</code>构造函数的一种机制。</li>
+</ul>
+<h3 id="其他重要组件"><a href="#其他重要组件" class="headerlink" title="其他重要组件"></a>其他重要组件</h3><ul>
+<li><strong><code>ViewModelStore</code></strong>: 一个容器，用于存储和管理<code>ViewModel</code>实例。这确保了<code>ViewModel</code>能够跨配置更改存活。</li>
+<li><strong><code>ViewModelStoreOwner</code></strong>: 一个接口，表示拥有<code>ViewModelStore</code>的对象，通常是UI控制器，如Activity或Fragment。</li>
+<li><strong><code>CreationExtras</code></strong>: 一个容器，用于在创建<code>ViewModel</code>时传递额外的参数。它支持通过键值对形式传递任意数据。</li>
+</ul>
+<p>整体而言，这段代码提供了一个灵活的机制来创建和管理<code>ViewModel</code>实例，支持自定义创建过程，并确保<code>ViewModel</code>能够有效地与UI组件的生命周期同步。</p>
+<p>这段代码体现了Android架构组件中<code>ViewModel</code>的灵活创建和管理机制，包括支持自定义工厂、传递额外参数以及通过工厂模式解耦<code>ViewModel</code>的创建过程。这套机制不仅提高了<code>ViewModel</code>使用的灵活性，还增强了组件之间的解耦，使得应用架构更加清晰和易于维护。</p>
+<h1 id="参数-defaultCreationExtras-的作用"><a href="#参数-defaultCreationExtras-的作用" class="headerlink" title="参数 defaultCreationExtras 的作用"></a>参数 defaultCreationExtras 的作用</h1><p><code>defaultCreationExtras</code>函数在<code>ViewModelProvider</code>的上下文中扮演着重要的角色。它提供了一种机制，用于在创建<code>ViewModel</code>实例时传递额外的参数，这些参数被封装在<code>CreationExtras</code>对象中。这允许<code>ViewModel</code>的构造过程中接收来自<code>ViewModelProvider</code>以外的信息，进而使得<code>ViewModel</code>的创建更加灵活和动态。</p>
+<h2 id="CreationExtras的作用"><a href="#CreationExtras的作用" class="headerlink" title="CreationExtras的作用"></a><code>CreationExtras</code>的作用</h2><p><code>CreationExtras</code>是一种键值对集合，它允许开发者在创建<code>ViewModel</code>时传递任意类型的数据。这些数据可以是应用上下文（如<code>Application</code>实例）、配置参数，或者任何对于<code>ViewModel</code>初始化过程中可能需要的信息。</p>
+<h2 id="defaultCreationExtras-使用场景"><a href="#defaultCreationExtras-使用场景" class="headerlink" title="defaultCreationExtras 使用场景"></a>defaultCreationExtras 使用场景</h2><p><code>defaultCreationExtras</code>的使用场景通常涉及到需要向<code>ViewModel</code>传递额外信息的情况。例如，如果某个<code>ViewModel</code>需要访问全局的应用状态，或者依赖于特定的服务实例，这些依赖项可以通过<code>CreationExtras</code>在创建时传递给<code>ViewModel</code>，而<code>defaultCreationExtras</code>函数就是为了方便地提供这类默认参数的。</p>
+<p>总之，<code>defaultCreationExtras</code>函数和<code>CreationExtras</code>机制为<code>ViewModel</code>的创建提供了额外的灵活性和动态配置能力，使得<code>ViewModel</code>能够更好地适应不同的应用场景和需求。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a>
+
+      
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/1%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%BA%8C)/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          ViewModel 源代码分析 (二)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2024/03/22/7%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/UI%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/TextView-layout_constrainedWidth-%E5%B1%9E%E6%80%A7/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">TextView layout_constrainedWidth 属性</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="sidebar">
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">Contents</strong>
+    
+      <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CreationExtras-%E4%B8%8E-MutableCreationExtra"><span class="nav-number">1.</span> <span class="nav-text">CreationExtras 与 MutableCreationExtra</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#fun-viewModelFactory-%E5%92%8C-InitializerViewModelFactoryBuilder"><span class="nav-number">2.</span> <span class="nav-text">fun viewModelFactory 和 InitializerViewModelFactoryBuilder</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#AndroidViewModel"><span class="nav-number">3.</span> <span class="nav-text">AndroidViewModel</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#HasDefaultViewModelProviderFactory"><span class="nav-number">4.</span> <span class="nav-text">HasDefaultViewModelProviderFactory</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ViewModel"><span class="nav-number">5.</span> <span class="nav-text">ViewModel</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BE%E4%BE%8B%E5%AD%90%E8%AF%B4%E6%98%8E%E5%93%AA%E4%BA%9B%E7%89%B9%E6%AE%8A%E6%95%B0%E6%8D%AE%E6%98%AF%E9%9C%80%E8%A6%81-ViewModel-%E7%89%B9%E5%88%AB%E7%AE%A1%E7%90%86%E7%9A%84"><span class="nav-number">5.1.</span> <span class="nav-text">举例子说明哪些特殊数据是需要 ViewModel 特别管理的</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ViewModelLazy"><span class="nav-number">6.</span> <span class="nav-text">ViewModelLazy</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ViewModelProvider"><span class="nav-number">7.</span> <span class="nav-text">ViewModelProvider</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E5%8D%95%E8%A7%A3%E6%9E%90%E4%B8%80%E4%B8%8B-ViewModelProvider"><span class="nav-number">7.1.</span> <span class="nav-text">简单解析一下 ViewModelProvider</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0"><span class="nav-number">7.1.1.</span> <span class="nav-text">构造函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E9%83%A8%E6%8E%A5%E5%8F%A3%E5%92%8C%E7%B1%BB"><span class="nav-number">7.1.2.</span> <span class="nav-text">内部接口和类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E6%96%B9%E6%B3%95"><span class="nav-number">7.1.3.</span> <span class="nav-text">主要方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E9%87%8D%E8%A6%81%E7%BB%84%E4%BB%B6"><span class="nav-number">7.1.4.</span> <span class="nav-text">其他重要组件</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E6%95%B0-defaultCreationExtras-%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="nav-number">8.</span> <span class="nav-text">参数 defaultCreationExtras 的作用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CreationExtras%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="nav-number">8.1.</span> <span class="nav-text">CreationExtras的作用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#defaultCreationExtras-%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">8.2.</span> <span class="nav-text">defaultCreationExtras 使用场景</span></a></li></ol></li></ol>
+    
+    </div>
+  </aside>
+</section>
+        
+      </div>
+
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    <footer id="footer" class="site-footer">
+  
+
+  <div class="clearfix container">
+      <div class="site-info">
+	      &copy; 2024 喵星科技报 All Rights Reserved.
+        
+            <span id="busuanzi_container_site_uv">
+              本站访客数<span id="busuanzi_value_site_uv"></span>人次  
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+          
+      </div>
+      <div class="site-credit">
+        Theme by <a href="https://github.com/CatJason" target="_blank">hipaper</a>
+      </div>
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var wrapdiv = document.getElementById("wrap");
+    var contentdiv = document.getElementById("content");
+
+    wrapdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+
+
+    <!-- headerblur min height -->
+    
+    
+</script>
+    
+<div style="display: none;">
+  <script src="https://s11.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+</div>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+<script src="/js/bootstrap.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+	</script>
+
+
+
+
+
+
+  </div>
+
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js" async=""></script>
+</body>
+</html>
