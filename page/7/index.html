@@ -107,6 +107,200 @@
         
           <section id="main">
   
+    <article id="post-3 Android/ARouter/08-Arouter"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2023/09/10/3%20Android/ARouter/08-Arouter/">从零开始写一个 ARouter - compiler 编译模块</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/09/10/3%20Android/ARouter/08-Arouter/" class="article-date">
+	  <time datetime="2023-09-09T17:05:06.000Z" itemprop="datePublished">September 10, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <ul>
+<li><p>ARouter</p>
+<ul>
+<li><p>router-annotation 路由注解模块</p>
+<ul>
+<li>src.main.java<ul>
+<li>com.alibaba.android.arouter<ul>
+<li>facade 提供注解和枚举的包<ul>
+<li>annotation 存放各种注解类的包<ul>
+<li>Autowired.java 自动注入的注解</li>
+<li>Interceptor.java 拦截器的注解</li>
+<li>Param.java(废弃) 参数注解: 被 Autowired 淘汰</li>
+<li>Route.java 路由信息注解</li>
+</ul>
+</li>
+<li>enums 包含各种枚举类型的包<ul>
+<li>RouteType.java 路由类型的枚举</li>
+<li>TypeKind.java 类型种类的枚举</li>
+</ul>
+</li>
+<li>model 包含模型类的包<ul>
+<li>RouteMeta.java 路由元信息的模型类</li>
+<li>TypeWrapper.java 存储目标对象的泛型类型信息的类</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>arouter-api ARouter框架的API模块</p>
+<ul>
+<li>src.main.java<ul>
+<li>com.alibaba.android.arouter<ul>
+<li>base 基础功能相关的包<ul>
+<li>UniqueKeyTreeMap.java 唯一键树形映射的类</li>
+</ul>
+</li>
+<li>core 核心功能相关的包<ul>
+<li>AutowiredLifecyleCallback.java(废弃) 自动注入生命周期回调的类</li>
+<li>AutowiredServiceImpl.java 自动注入服务的实现类</li>
+<li>InstrumentationHook.java(废弃) 仪表钩子的类</li>
+<li>InterceptorServiceImpl.java 拦截器服务的实现类</li>
+<li>LogisticsCenter.java 物流中心的类</li>
+<li>Warehouse.java 仓库的类</li>
+</ul>
+</li>
+<li>exception 异常相关的包<ul>
+<li>HandlerException.java 处理异常的类</li>
+<li>InitException.java 初始化异常的类</li>
+<li>NoRouteFoundException.java 未找到路由的异常类</li>
+</ul>
+</li>
+<li>facade 提供各种服务和回调的包<ul>
+<li>callback 回调相关的包<ul>
+<li>InterceptorCallback.java 拦截器回调的接口</li>
+<li>NavigationCallback.java 导航回调的接口</li>
+<li>NoRouteFoundException.java 未找到路由的异常接口</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>service 服务相关的包<ul>
+<li>AutowiredService.java 自动注入服务的接口</li>
+<li>ClassLoaderService.java 类加载器服务的接口</li>
+<li>DegradeService.java 降级服务的接口</li>
+<li>InterceptorService.java 拦截器服务的接口</li>
+<li>PathReplaceService.java 路径替换服务的接口</li>
+<li>PretreatmentService.java 预处理服务的接口</li>
+<li>SerializationService.java 序列化服务的接口</li>
+</ul>
+</li>
+<li>template 模板相关的包<ul>
+<li>IInterceptor.java 拦截器接口</li>
+<li>IInterceptorGroup.java 拦截器分组接口</li>
+<li>Ilogger.java 日志记录器接口</li>
+<li>IPolicy.java 策略接口</li>
+<li>IProvider.java 提供者接口</li>
+<li>IProviderGroup.java 提供者分组接口</li>
+<li>IRouteGroup.java 路由分组接口</li>
+<li>IRouteRoot.java 路由根接口</li>
+<li>Isyringe.java 注射器接口</li>
+<li>Postcard.java 路由信息封装类</li>
+</ul>
+</li>
+<li>launcher 启动器: 包含一些用于启动ARouter框架的类和线程管理相关的类。<ul>
+<li>_Arouter.java ARouter框架的内部启动类，用于初始化ARouter。</li>
+<li>Arouter.java ARouter框架的启动类，用于初始化ARouter。</li>
+</ul>
+</li>
+<li>thread （线程）包含了与线程管理相关的类。<ul>
+<li>CancelableCountDownLatch.java 可取消的倒计时计数器，用于线程同步。</li>
+<li>DefaultPoolExecutor.java 默认的线程池执行器，用于执行异步任务。</li>
+<li>DefaultThreadFactory.java 默认线程工厂，用于创建线程。</li>
+</ul>
+</li>
+<li>utils 工具类。<ul>
+<li>ClassUtils.java 用于操作类的实用工具类。</li>
+<li>Consts.java 包含一些常量值的类。</li>
+<li>DefaultLogger.java 默认的日志记录器类。</li>
+<li>MapUtils.java 用于操作地图数据的实用工具类。</li>
+<li>PackageUtils.java 用于操作包信息的实用工具类。</li>
+<li>TextUtils.java 用于操作文本数据的实用工具类。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>arouter-compiler</p>
+<ul>
+<li>src.main.java<ul>
+<li>com.alibaba.android.arouter<ul>
+<li>compiler 编译相关的包<ul>
+<li>entity 实体类相关的包<ul>
+<li><a href="#RouteDoc">RouteDoc.java</a> 路由文档实体类</li>
+</ul>
+</li>
+<li>processor 处理器相关的包<ul>
+<li><a href="#AutowiredProcessor">AutowiredProcessor.java</a> 自动注入处理器</li>
+<li><a href="#BaseProcessor">BaseProcessor.java</a> 基础处理器</li>
+<li><a href="#InterceptorProcessor">InterceptorProcessor.java</a> 拦截器处理器</li>
+<li><a href="#RouteProcessor">RouteProcessor.java</a> 路由处理器</li>
+</ul>
+</li>
+<li>utils 工具类相关的包<ul>
+<li><a href="#Consts">Consts.java</a> 常量类</li>
+<li><a href="#Logger">Logger.java</a> 日志记录器类</li>
+<li><a href="#TypeUtils">TypeUtils.java</a> 类型工具类</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
     <article id="post-4 架构方案设计/01 MVI/Android-音视频架构专项"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
@@ -406,7 +600,7 @@
 <!-- Table of Contents -->
 
   
-    <article id="post-7复杂代码模版/UI绘制模版/TextView-layout_constrainedWidth-属性"  class="article article-type-post" itemscope itemprop="blogPost" >
+    <article id="post-7复杂代码模版/0 UI绘制模版/TextView-layout_constrainedWidth-属性"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -414,7 +608,7 @@
         
   
     <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2024/03/22/7%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/UI%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/TextView-layout_constrainedWidth-%E5%B1%9E%E6%80%A7/">TextView layout_constrainedWidth 属性</a>
+      <a class="article-title" href="/2024/03/22/7%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/0%20UI%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/TextView-layout_constrainedWidth-%E5%B1%9E%E6%80%A7/">TextView layout_constrainedWidth 属性</a>
     </h1>
   
 
@@ -422,7 +616,7 @@
     
     <div class="article-meta">
       
-	<a href="/2024/03/22/7%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/UI%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/TextView-layout_constrainedWidth-%E5%B1%9E%E6%80%A7/" class="article-date">
+	<a href="/2024/03/22/7%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/0%20UI%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/TextView-layout_constrainedWidth-%E5%B1%9E%E6%80%A7/" class="article-date">
 	  <time datetime="2024-03-22T13:47:30.611Z" itemprop="datePublished">March 22, 2024</time>
 	</a>
 
@@ -569,7 +763,7 @@
 <!-- Table of Contents -->
 
   
-    <article id="post-8渲染引擎/01 Android GameProject 中最基础的 Renderer"  class="article article-type-post" itemscope itemprop="blogPost" >
+    <article id="post-8渲染引擎/02 OpenGL ES 3.0/01 OpenGL ES 3.0 开发（一）：绘制一个三角形"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -577,7 +771,7 @@
         
   
     <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01%20Android%20GameProject%20%E4%B8%AD%E6%9C%80%E5%9F%BA%E7%A1%80%E7%9A%84%20Renderer/">Android Game Project 核心 Renderer.cpp</a>
+      <a class="article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02%20OpenGL%20ES%203.0/01%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E7%BB%98%E5%88%B6%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/">OpenGL ES 3.0 开发（一）：绘制一个三角形</a>
     </h1>
   
 
@@ -585,7 +779,64 @@
     
     <div class="article-meta">
       
-	<a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01%20Android%20GameProject%20%E4%B8%AD%E6%9C%80%E5%9F%BA%E7%A1%80%E7%9A%84%20Renderer/" class="article-date">
+	<a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02%20OpenGL%20ES%203.0/01%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E7%BB%98%E5%88%B6%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/" class="article-date">
+	  <time datetime="2023-08-23T10:38:36.000Z" itemprop="datePublished">August 23, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a>, <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+
+          
+          <div class="entry-summary">
+          转载与二次编辑非公开文章
+
+        
+          <p class="article-more-link">
+            <a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02%20OpenGL%20ES%203.0/01%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E7%BB%98%E5%88%B6%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/#more">Continue Reading →</a>
+          </p>
+        </div>
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a>, <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-8渲染引擎/01 工程结构/01 Android GameProject 中最基础的 Renderer"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01%20%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/01%20Android%20GameProject%20%E4%B8%AD%E6%9C%80%E5%9F%BA%E7%A1%80%E7%9A%84%20Renderer/">Android Game Project 核心 Renderer.cpp</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01%20%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/01%20Android%20GameProject%20%E4%B8%AD%E6%9C%80%E5%9F%BA%E7%A1%80%E7%9A%84%20Renderer/" class="article-date">
 	  <time datetime="2023-08-23T10:38:36.000Z" itemprop="datePublished">August 23, 2023</time>
 	</a>
 
@@ -648,63 +899,6 @@
       
 	<span class="ico-folder"></span>
     <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a>, <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a>
-
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
-    <article id="post-8渲染引擎/OpenGL ES 3.0/01 OpenGL ES 3.0 开发（一）：绘制一个三角形"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/OpenGL%20ES%203.0/01%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E7%BB%98%E5%88%B6%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/">OpenGL ES 3.0 开发（一）：绘制一个三角形</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/OpenGL%20ES%203.0/01%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E7%BB%98%E5%88%B6%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/" class="article-date">
-	  <time datetime="2023-08-23T10:38:36.000Z" itemprop="datePublished">August 23, 2023</time>
-	</a>
-
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a>, <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a>
- 
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-
-          
-          <div class="entry-summary">
-          转载与二次编辑非公开文章
-
-        
-          <p class="article-more-link">
-            <a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/OpenGL%20ES%203.0/01%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E7%BB%98%E5%88%B6%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/#more">Continue Reading →</a>
-          </p>
-        </div>
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a>, <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a>
 
       
       
@@ -836,7 +1030,7 @@
 <!-- Table of Contents -->
 
   
-    <article id="post-8渲染引擎/02 Android GameProject 结构目录"  class="article article-type-post" itemscope itemprop="blogPost" >
+    <article id="post-8渲染引擎/02 OpenGL ES 3.0/02 OpenGL ES 3.0 开发（二）：纹理映射"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -844,7 +1038,7 @@
         
   
     <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02%20Android%20GameProject%20%E7%BB%93%E6%9E%84%E7%9B%AE%E5%BD%95/">Android Game Project 项目结构</a>
+      <a class="article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02%20OpenGL%20ES%203.0/02%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E7%BA%B9%E7%90%86%E6%98%A0%E5%B0%84/">OpenGL ES 3.0 开发（二）：纹理映射</a>
     </h1>
   
 
@@ -852,94 +1046,7 @@
     
     <div class="article-meta">
       
-	<a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02%20Android%20GameProject%20%E7%BB%93%E6%9E%84%E7%9B%AE%E5%BD%95/" class="article-date">
-	  <time datetime="2023-08-23T10:38:36.000Z" itemprop="datePublished">August 23, 2023</time>
-	</a>
-
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a>, <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a>
- 
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><strong>author: 朕小猫-GPT4</strong></p>
-<p>图片显示的是一个典型的Android项目目录结构，这个项目中集成了C++原生代码。以下是各个组件的结构和作用的简述：</p>
-<ul>
-<li><code>src</code><ul>
-<li><code>main</code><ul>
-<li><code>assets</code><ul>
-<li><code>android_robot.png</code> 一个图像资产，可能用于应用的用户界面或游戏图形。</li>
-</ul>
-</li>
-<li><code>cpp</code><ul>
-<li><code>AndroidOut.cpp</code> 和 <code>AndroidOut.h</code>：C++源文件和头文件，可能用于原生代码中的日志或输出目的。</li>
-<li><code>CMakeLists.txt</code>：CMake配置文件，CMake是用于管理原生代码编译的构建系统。</li>
-<li><code>main.cpp</code>：主要的C++源文件，可能包含原生代码执行的入口点。</li>
-<li><code>Model.h</code>：很可能定义了一个数据模型或对象的头文件。</li>
-<li><code>Renderer.cpp</code> 和 <code>Renderer.h</code>：渲染相关的源文件和头文件，或许处理屏幕上图形的绘制。</li>
-<li><code>Shader.cpp</code> 和 <code>Shader.h</code>：与着色器程序相关的源文件和头文件，用于高级图形效果。</li>
-<li><code>TextureAsset.cpp</code> 和 <code>TextureAsset.h</code>：处理原生代码中纹理资产的源文件和头文件。</li>
-<li><code>Utility.cpp</code> 和 <code>Utility.h</code>：在原生代码库中使用的工具函数或类的源文件和头文件。</li>
-</ul>
-</li>
-<li><code>java</code><ul>
-<li><code>com.jason.game</code><ul>
-<li><code>MainActivity</code></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><code>res</code>：<ul>
-<li><code>AndroidManifest.xml</code></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><code>.gitignore</code>：Git的配置文件，指定在版本控制中忽略哪些文件或目录。</li>
-<li><code>build.gradle.kts</code>：用Kotlin脚本编写的Gradle构建系统的构建配置文件，指定依赖和构建设置。</li>
-<li><code>proguard-rules.pro</code>：ProGuard的配置文件，ProGuard是一个用于代码缩减和混淆的工具，以防止应用发布构建的反向工程。</li>
-</ul>
-<p>这个结构表明这是一个复杂的Android项目，它使用Java&#x2F;Kotlin来实现Android特定功能，并使用C++来处理性能密集型任务，可能用于游戏开发或计算密集型应用。 </p>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a>, <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a>
-
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
-    <article id="post-8渲染引擎/OpenGL ES 3.0/02 OpenGL ES 3.0 开发（二）：纹理映射"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/OpenGL%20ES%203.0/02%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E7%BA%B9%E7%90%86%E6%98%A0%E5%B0%84/">OpenGL ES 3.0 开发（二）：纹理映射</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/OpenGL%20ES%203.0/02%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E7%BA%B9%E7%90%86%E6%98%A0%E5%B0%84/" class="article-date">
+	<a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02%20OpenGL%20ES%203.0/02%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E7%BA%B9%E7%90%86%E6%98%A0%E5%B0%84/" class="article-date">
 	  <time datetime="2023-08-23T10:38:36.000Z" itemprop="datePublished">August 23, 2023</time>
 	</a>
 
@@ -959,7 +1066,7 @@
 
         
           <p class="article-more-link">
-            <a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/OpenGL%20ES%203.0/02%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E7%BA%B9%E7%90%86%E6%98%A0%E5%B0%84/#more">Continue Reading →</a>
+            <a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02%20OpenGL%20ES%203.0/02%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E7%BA%B9%E7%90%86%E6%98%A0%E5%B0%84/#more">Continue Reading →</a>
           </p>
         </div>
       
@@ -1067,7 +1174,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">4</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/10-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">10 - 计算机网络</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">5</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.0 - Java 多线程</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">18</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.1 - 播放器架构方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">4</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/10-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">10 - 计算机网络</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">5</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.0 - Java 多线程</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">19</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.1 - 播放器架构方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1081,7 +1188,7 @@
     <h3 class="widget-title">Archives</h3>
 
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">March 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">58</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">March 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">59</span></li></ul>
     </div>
   </div>
 
@@ -1137,7 +1244,7 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2024/03/22/7%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/UI%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/TextView-layout_constrainedWidth-%E5%B1%9E%E6%80%A7/">TextView layout_constrainedWidth 属性</a></h6>
+              <h6 style="margin: 0;"><a href="/2024/03/22/7%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/0%20UI%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/TextView-layout_constrainedWidth-%E5%B1%9E%E6%80%A7/">TextView layout_constrainedWidth 属性</a></h6>
               <span>March 22, 2024</span>
             </div>
 
