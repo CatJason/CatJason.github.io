@@ -149,16 +149,16 @@
 <p>这段代码是用于在 Android 中创建和管理消息对象的一部分。它通过维护一个对象池，允许在需要时重复利用已有的消息对象，从而减少内存分配和垃圾回收的开销。当需要获取一个新的消息对象时，它会首先检查对象池是否有可用的对象。如果有，它会从对象池中取出一个对象并重置其状态，然后返回；如果对象池为空，它会创建一个新的消息对象并返回。这种做法有助于提高应用程序的性能和效率。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">synchronized</span> (sPoolSync) &#123;</span><br><span class="line">    <span class="keyword">if</span> (sPool != <span class="literal">null</span>) &#123;</span><br><span class="line">    		...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p><img src="/2023/08/27/3%20Android/Framework/03-Android-Framework-%E4%B8%93%E9%A1%B9-Handler3/20160713203707125.png" alt="链表初始态"></p>
+<p><img src="https://s21.ax1x.com/2024/04/09/pFOuBmd.png" alt="pFOuBmd.png"></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Message</span> <span class="variable">m</span> <span class="operator">=</span> sPool;</span><br></pre></td></tr></table></figure>
 
-<p><img src="/2023/08/27/3%20Android/Framework/03-Android-Framework-%E4%B8%93%E9%A1%B9-Handler3/20160713203837939.png" alt="Message m = sPool;"></p>
+<p><img src="https://s21.ax1x.com/2024/04/09/pFOuD0A.png" alt="pFOuD0A.png"></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sPool = m.next;</span><br></pre></td></tr></table></figure>
 
-<p><img src="/2023/08/27/3%20Android/Framework/03-Android-Framework-%E4%B8%93%E9%A1%B9-Handler3/20160713203910065.png" alt="sPool = m.next;"></p>
+<p><img src="https://s21.ax1x.com/2024/04/09/pFOuwOH.png" alt="pFOuwOH.png"></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">m.next = <span class="literal">null</span>;</span><br></pre></td></tr></table></figure>
 
-<p><img src="/2023/08/27/3%20Android/Framework/03-Android-Framework-%E4%B8%93%E9%A1%B9-Handler3/20160713203938940.png" alt="m.next = null;"></p>
+<p><img src="https://s21.ax1x.com/2024/04/09/pFOu6tP.png" alt="pFOu6tP.png"></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">m.flags=<span class="number">0</span>;</span><br><span class="line">sPoolSize--;</span><br><span class="line"><span class="keyword">return</span> m;</span><br></pre></td></tr></table></figure>
 
 <h5 id="回收-android-os-Message-recycle"><a href="#回收-android-os-Message-recycle" class="headerlink" title="回收: android.os.Message#recycle()"></a>回收: android.os.Message#recycle()</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Return a Message instance to the global pool.</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;</span></span><br><span class="line"><span class="comment"> * You MUST NOT touch the Message after calling this function because it has</span></span><br><span class="line"><span class="comment"> * effectively been freed.  It is an error to recycle a message that is currently</span></span><br><span class="line"><span class="comment"> * enqueued or that is in the process of being delivered to a Handler.</span></span><br><span class="line"><span class="comment"> * &lt;/p&gt;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">recycle</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (isInUse()) &#123;</span><br><span class="line">        <span class="keyword">if</span> (gCheckRecycle) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalStateException</span>(<span class="string">&quot;This message cannot be recycled because it &quot;</span></span><br><span class="line">                    + <span class="string">&quot;is still in use.&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    recycleUnchecked();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -178,13 +178,13 @@
 <li>如果是，将当前消息对象放入消息池的链表中，以供将来重用。</li>
 <li>更新消息池的大小。</li>
 </ul>
-<p><img src="/2023/08/27/3%20Android/Framework/03-Android-Framework-%E4%B8%93%E9%A1%B9-Handler3/20160713204015503.png" alt="初始链表"></p>
+<p><img src="https://s21.ax1x.com/2024/04/09/pFOud6e.png" alt="pFOud6e.png"></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">next=sPool;</span><br></pre></td></tr></table></figure>
 
-<p><img src="/2023/08/27/3%20Android/Framework/03-Android-Framework-%E4%B8%93%E9%A1%B9-Handler3/20160713204035066.png" alt="next=sPool;"></p>
+<p><img src="https://s21.ax1x.com/2024/04/09/pFOurTI.png" alt="pFOurTI.png"></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sPool=<span class="built_in">this</span>;</span><br></pre></td></tr></table></figure>
 
-<p><img src="/2023/08/27/3%20Android/Framework/03-Android-Framework-%E4%B8%93%E9%A1%B9-Handler3/20160713204119209.png" alt="sPool=this;"></p>
+<p><img src="https://s21.ax1x.com/2024/04/09/pFOuykt.png" alt="pFOuykt.png"></p>
 <hr>
 <p>内存抖动参考自:<br>知乎博主Android小瓜: Android 性能优化大法——内存抖动<br>原文链接: <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/575959909">https://zhuanlan.zhihu.com/p/575959909</a></p>
 <p>android.os.Message#obtain() 与 android.os.Message#recycleUnchecked 相关图片来自于:<br>版权声明：本文为CSDN博主「-_-void」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。<br>原文链接：<a target="_blank" rel="noopener" href="https://blog.csdn.net/xmh19936688/article/details/51901338">https://blog.csdn.net/xmh19936688/article/details/51901338</a></p>
@@ -247,7 +247,7 @@
 <h3 id="从-Android-系统设计说起"><a href="#从-Android-系统设计说起" class="headerlink" title="从 Android 系统设计说起"></a>从 Android 系统设计说起</h3><h4 id="Android-的系统的三个层次"><a href="#Android-的系统的三个层次" class="headerlink" title="Android 的系统的三个层次"></a>Android 的系统的三个层次</h4><p>application 应用层 - Framework 层- native 层</p>
 <p>Android 中的应用层和系统服务层不在同一个进程，系统服务在单独的进程中。<br>Android 中的不同应用属于不同的进程，每一个应用是 zygote fork 出来的</p>
 <p>为了安全，Android 的应用层与系统层之间是隔离的</p>
-<h3 id="Android-系统-IPC-原理"><a href="#Android-系统-IPC-原理" class="headerlink" title="Android 系统 IPC 原理"></a>Android 系统 IPC 原理</h3><p><img src="/2023/08/27/3%20Android/Framework/04-Android-Framework-%E4%B8%93%E9%A1%B9-IPC-Binder-%E6%9C%BA%E5%88%B61/binder_interprocess_communication.png" alt="IPC原理"></p>
+<h3 id="Android-系统-IPC-原理"><a href="#Android-系统-IPC-原理" class="headerlink" title="Android 系统 IPC 原理"></a>Android 系统 IPC 原理</h3><p><img src="https://s21.ax1x.com/2024/04/09/pFOKnAI.png" alt="pFOKnAI.png"></p>
 <p>每个 Android 的进程，只能运行在自己进程所拥有的虚拟地址空间。<br>对应一个 4GB 的<strong>虚拟地址空间</strong>，其中 3GB 是用户空间，1GB 是内核空间，当然内核空间的大小是可以通过参数配置调整的。<br>对于用户空间，不同进程之间彼此是不能共享的，而内核空间却是可共享的。<br>Client 进程向 Server 进程通信，恰恰是<strong>利用进程间可共享的内核内存空间来完成底层通信工作的</strong>，Client 端与 Server 端进程往往采用 ioctl 等方法跟内核空间的驱动进行交互。</p>
 <h4 id="用户空间和内核空间知识补充"><a href="#用户空间和内核空间知识补充" class="headerlink" title="用户空间和内核空间知识补充"></a>用户空间和内核空间知识补充</h4><p>怎么理解不同进程之间用户空间不能共享，而内核空间却是可共享的？</p>
 <ol>
@@ -405,6 +405,53 @@
 <p>gityuan: <a target="_blank" rel="noopener" href="http://gityuan.com/2015/10/31/binder-prepare/">http://gityuan.com/2015/10/31/binder-prepare/</a></p>
 <p>参考资料：《计算机操作系统》</p>
 
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-3 Android/Framework/05-Android-Framework-专项-Task（一）"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2023/08/27/3%20Android/Framework/05-Android-Framework-%E4%B8%93%E9%A1%B9-Task%EF%BC%88%E4%B8%80%EF%BC%89/">Android Framework 专项 - Task（一）</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/27/3%20Android/Framework/05-Android-Framework-%E4%B8%93%E9%A1%B9-Task%EF%BC%88%E4%B8%80%EF%BC%89/" class="article-date">
+	  <time datetime="2023-08-27T15:16:28.000Z" itemprop="datePublished">August 27, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        
       
     </div>
     <footer class="entry-meta entry-footer">
@@ -1861,200 +1908,6 @@
 <!-- Table of Contents -->
 
   
-    <article id="post-3 Android/ARouter/08-Arouter"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2023/09/10/3%20Android/ARouter/08-Arouter/">从零开始写一个 ARouter - compiler 编译模块</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2023/09/10/3%20Android/ARouter/08-Arouter/" class="article-date">
-	  <time datetime="2023-09-09T17:05:06.000Z" itemprop="datePublished">September 10, 2023</time>
-	</a>
-
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a>
- 
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <ul>
-<li><p>ARouter</p>
-<ul>
-<li><p>router-annotation 路由注解模块</p>
-<ul>
-<li>src.main.java<ul>
-<li>com.alibaba.android.arouter<ul>
-<li>facade 提供注解和枚举的包<ul>
-<li>annotation 存放各种注解类的包<ul>
-<li>Autowired.java 自动注入的注解</li>
-<li>Interceptor.java 拦截器的注解</li>
-<li>Param.java(废弃) 参数注解: 被 Autowired 淘汰</li>
-<li>Route.java 路由信息注解</li>
-</ul>
-</li>
-<li>enums 包含各种枚举类型的包<ul>
-<li>RouteType.java 路由类型的枚举</li>
-<li>TypeKind.java 类型种类的枚举</li>
-</ul>
-</li>
-<li>model 包含模型类的包<ul>
-<li>RouteMeta.java 路由元信息的模型类</li>
-<li>TypeWrapper.java 存储目标对象的泛型类型信息的类</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>arouter-api ARouter框架的API模块</p>
-<ul>
-<li>src.main.java<ul>
-<li>com.alibaba.android.arouter<ul>
-<li>base 基础功能相关的包<ul>
-<li>UniqueKeyTreeMap.java 唯一键树形映射的类</li>
-</ul>
-</li>
-<li>core 核心功能相关的包<ul>
-<li>AutowiredLifecyleCallback.java(废弃) 自动注入生命周期回调的类</li>
-<li>AutowiredServiceImpl.java 自动注入服务的实现类</li>
-<li>InstrumentationHook.java(废弃) 仪表钩子的类</li>
-<li>InterceptorServiceImpl.java 拦截器服务的实现类</li>
-<li>LogisticsCenter.java 物流中心的类</li>
-<li>Warehouse.java 仓库的类</li>
-</ul>
-</li>
-<li>exception 异常相关的包<ul>
-<li>HandlerException.java 处理异常的类</li>
-<li>InitException.java 初始化异常的类</li>
-<li>NoRouteFoundException.java 未找到路由的异常类</li>
-</ul>
-</li>
-<li>facade 提供各种服务和回调的包<ul>
-<li>callback 回调相关的包<ul>
-<li>InterceptorCallback.java 拦截器回调的接口</li>
-<li>NavigationCallback.java 导航回调的接口</li>
-<li>NoRouteFoundException.java 未找到路由的异常接口</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>service 服务相关的包<ul>
-<li>AutowiredService.java 自动注入服务的接口</li>
-<li>ClassLoaderService.java 类加载器服务的接口</li>
-<li>DegradeService.java 降级服务的接口</li>
-<li>InterceptorService.java 拦截器服务的接口</li>
-<li>PathReplaceService.java 路径替换服务的接口</li>
-<li>PretreatmentService.java 预处理服务的接口</li>
-<li>SerializationService.java 序列化服务的接口</li>
-</ul>
-</li>
-<li>template 模板相关的包<ul>
-<li>IInterceptor.java 拦截器接口</li>
-<li>IInterceptorGroup.java 拦截器分组接口</li>
-<li>Ilogger.java 日志记录器接口</li>
-<li>IPolicy.java 策略接口</li>
-<li>IProvider.java 提供者接口</li>
-<li>IProviderGroup.java 提供者分组接口</li>
-<li>IRouteGroup.java 路由分组接口</li>
-<li>IRouteRoot.java 路由根接口</li>
-<li>Isyringe.java 注射器接口</li>
-<li>Postcard.java 路由信息封装类</li>
-</ul>
-</li>
-<li>launcher 启动器: 包含一些用于启动ARouter框架的类和线程管理相关的类。<ul>
-<li>_Arouter.java ARouter框架的内部启动类，用于初始化ARouter。</li>
-<li>Arouter.java ARouter框架的启动类，用于初始化ARouter。</li>
-</ul>
-</li>
-<li>thread （线程）包含了与线程管理相关的类。<ul>
-<li>CancelableCountDownLatch.java 可取消的倒计时计数器，用于线程同步。</li>
-<li>DefaultPoolExecutor.java 默认的线程池执行器，用于执行异步任务。</li>
-<li>DefaultThreadFactory.java 默认线程工厂，用于创建线程。</li>
-</ul>
-</li>
-<li>utils 工具类。<ul>
-<li>ClassUtils.java 用于操作类的实用工具类。</li>
-<li>Consts.java 包含一些常量值的类。</li>
-<li>DefaultLogger.java 默认的日志记录器类。</li>
-<li>MapUtils.java 用于操作地图数据的实用工具类。</li>
-<li>PackageUtils.java 用于操作包信息的实用工具类。</li>
-<li>TextUtils.java 用于操作文本数据的实用工具类。</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>arouter-compiler</p>
-<ul>
-<li>src.main.java<ul>
-<li>com.alibaba.android.arouter<ul>
-<li>compiler 编译相关的包<ul>
-<li>entity 实体类相关的包<ul>
-<li><a href="#RouteDoc">RouteDoc.java</a> 路由文档实体类</li>
-</ul>
-</li>
-<li>processor 处理器相关的包<ul>
-<li><a href="#AutowiredProcessor">AutowiredProcessor.java</a> 自动注入处理器</li>
-<li><a href="#BaseProcessor">BaseProcessor.java</a> 基础处理器</li>
-<li><a href="#InterceptorProcessor">InterceptorProcessor.java</a> 拦截器处理器</li>
-<li><a href="#RouteProcessor">RouteProcessor.java</a> 路由处理器</li>
-</ul>
-</li>
-<li>utils 工具类相关的包<ul>
-<li><a href="#Consts">Consts.java</a> 常量类</li>
-<li><a href="#Logger">Logger.java</a> 日志记录器类</li>
-<li><a href="#TypeUtils">TypeUtils.java</a> 类型工具类</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a>
-
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
 
 
   <nav id="page-nav">
@@ -2142,7 +1995,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">4</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/10-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">10 - 计算机网络</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">5</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.0 - Java 多线程</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">18</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.1 - 播放器架构方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">4</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/10-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">10 - 计算机网络</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">5</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.0 - Java 多线程</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">19</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.1 - 播放器架构方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -2156,7 +2009,7 @@
     <h3 class="widget-title">Archives</h3>
 
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">March 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">58</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">March 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">59</span></li></ul>
     </div>
   </div>
 
@@ -2212,7 +2065,7 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2024/03/22/7%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/UI%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/TextView-layout_constrainedWidth-%E5%B1%9E%E6%80%A7/">TextView layout_constrainedWidth 属性</a></h6>
+              <h6 style="margin: 0;"><a href="/2024/03/22/7%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/0%20UI%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/TextView-layout_constrainedWidth-%E5%B1%9E%E6%80%A7/">TextView layout_constrainedWidth 属性</a></h6>
               <span>March 22, 2024</span>
             </div>
 

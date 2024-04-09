@@ -16,12 +16,12 @@
 <meta property="og:site_name" content="喵星科技报">
 <meta property="og:description" content="问题12The formulation of the problem is often more essential than its solution, which may be merely a matter of mathematical or experimental skill.― Albert Einstein  Q: Binder 是什么？binder 是如何出现的 Q: Binde">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://example.com/2023/08/27/3%20Android/Framework/04-Android-Framework-%E4%B8%93%E9%A1%B9-IPC-Binder-%E6%9C%BA%E5%88%B61/binder_interprocess_communication.png">
+<meta property="og:image" content="https://s21.ax1x.com/2024/04/09/pFOKnAI.png">
 <meta property="article:published_time" content="2023-08-27T15:16:28.000Z">
-<meta property="article:modified_time" content="2023-08-27T15:16:28.000Z">
+<meta property="article:modified_time" content="2024-04-09T10:06:17.152Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2023/08/27/3%20Android/Framework/04-Android-Framework-%E4%B8%93%E9%A1%B9-IPC-Binder-%E6%9C%BA%E5%88%B61/binder_interprocess_communication.png">
+<meta name="twitter:image" content="https://s21.ax1x.com/2024/04/09/pFOKnAI.png">
   
     <link rel="alternate" href="/atom.xml" title="喵星科技报" type="application/atom+xml">
   
@@ -155,7 +155,7 @@
 <h3 id="从-Android-系统设计说起"><a href="#从-Android-系统设计说起" class="headerlink" title="从 Android 系统设计说起"></a>从 Android 系统设计说起</h3><h4 id="Android-的系统的三个层次"><a href="#Android-的系统的三个层次" class="headerlink" title="Android 的系统的三个层次"></a>Android 的系统的三个层次</h4><p>application 应用层 - Framework 层- native 层</p>
 <p>Android 中的应用层和系统服务层不在同一个进程，系统服务在单独的进程中。<br>Android 中的不同应用属于不同的进程，每一个应用是 zygote fork 出来的</p>
 <p>为了安全，Android 的应用层与系统层之间是隔离的</p>
-<h3 id="Android-系统-IPC-原理"><a href="#Android-系统-IPC-原理" class="headerlink" title="Android 系统 IPC 原理"></a>Android 系统 IPC 原理</h3><p><img src="/2023/08/27/3%20Android/Framework/04-Android-Framework-%E4%B8%93%E9%A1%B9-IPC-Binder-%E6%9C%BA%E5%88%B61/binder_interprocess_communication.png" alt="IPC原理"></p>
+<h3 id="Android-系统-IPC-原理"><a href="#Android-系统-IPC-原理" class="headerlink" title="Android 系统 IPC 原理"></a>Android 系统 IPC 原理</h3><p><img src="https://s21.ax1x.com/2024/04/09/pFOKnAI.png" alt="pFOKnAI.png"></p>
 <p>每个 Android 的进程，只能运行在自己进程所拥有的虚拟地址空间。<br>对应一个 4GB 的<strong>虚拟地址空间</strong>，其中 3GB 是用户空间，1GB 是内核空间，当然内核空间的大小是可以通过参数配置调整的。<br>对于用户空间，不同进程之间彼此是不能共享的，而内核空间却是可共享的。<br>Client 进程向 Server 进程通信，恰恰是<strong>利用进程间可共享的内核内存空间来完成底层通信工作的</strong>，Client 端与 Server 端进程往往采用 ioctl 等方法跟内核空间的驱动进行交互。</p>
 <h4 id="用户空间和内核空间知识补充"><a href="#用户空间和内核空间知识补充" class="headerlink" title="用户空间和内核空间知识补充"></a>用户空间和内核空间知识补充</h4><p>怎么理解不同进程之间用户空间不能共享，而内核空间却是可共享的？</p>
 <ol>
@@ -364,9 +364,9 @@
     </a>
   
   
-    <a href="/2023/08/27/3%20Android/Framework/03-Android-Framework-%E4%B8%93%E9%A1%B9-Handler3/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/2023/08/27/3%20Android/Framework/05-Android-Framework-%E4%B8%93%E9%A1%B9-Task%EF%BC%88%E4%B8%80%EF%BC%89/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">Android Framework 专项 - Handler（三）</div>
+      <div class="article-nav-title">Android Framework 专项 - Task（一）</div>
     </a>
   
 </nav>
