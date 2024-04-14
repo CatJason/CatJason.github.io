@@ -462,6 +462,67 @@
 <!-- Table of Contents -->
 
   
+    <article id="post-1 Kotlin/02 Kotlin 基础/Kotlin中的自动拆装箱"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2023/08/11/1%20Kotlin/02%20Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%E4%B8%AD%E7%9A%84%E8%87%AA%E5%8A%A8%E6%8B%86%E8%A3%85%E7%AE%B1/">Kotlin中的自动拆装箱</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/11/1%20Kotlin/02%20Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%E4%B8%AD%E7%9A%84%E8%87%AA%E5%8A%A8%E6%8B%86%E8%A3%85%E7%AE%B1/" class="article-date">
+	  <time datetime="2023-08-10T23:18:54.000Z" itemprop="datePublished">August 11, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在 Kotlin 中，对于基本数据类型的包装类，比如 <code>Integer</code>、<code>Boolean</code> 等，Kotlin 设计了一套特殊的类，被称为原生类型的包装类或者叫做原生类型的对象，例如 <code>Int</code>、<code>Boolean</code> 等。这些类的行为表现得如同 Java 的基本类型，同时它们具备了对象的一些特性。在编译阶段，Kotlin 会尽量使用 JVM 的原生类型来提高性能，但在需要时（例如作为泛型参数时），这些原生类型会自动装箱。</p>
+<h3 id="自动装箱与拆箱"><a href="#自动装箱与拆箱" class="headerlink" title="自动装箱与拆箱"></a>自动装箱与拆箱</h3><p>Kotlin 处理原生类型和装箱类型的自动转换，以保证性能同时提供丰富的类库支持。这个过程包括两个部分：自动装箱（boxing）和自动拆箱（unboxing）。</p>
+<ul>
+<li><strong>装箱（Boxing）</strong>：当一个原生类型的值需要作为对象处理时，它会自动被装入对应的包装类。例如，当你将一个 <code>int</code> 值放入一个泛型集合如 <code>List&lt;Int&gt;</code> 时，这个值会自动被装箱成 <code>Integer</code>。</li>
+<li><strong>拆箱（Unboxing）</strong>：当从对象中需要一个原生类型的值时，这个包装对象会自动被拆箱。例如，从 <code>List&lt;Int&gt;</code> 中取出一个元素时，它会自动从 <code>Integer</code> 转换为 <code>int</code>。</li>
+</ul>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> list: List&lt;<span class="built_in">Int</span>&gt; = listOf(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>)  <span class="comment">// 装箱</span></span><br><span class="line"><span class="keyword">val</span> x: <span class="built_in">Int</span> = list[<span class="number">0</span>]                   <span class="comment">// 拆箱</span></span><br></pre></td></tr></table></figure>
+
+<p>在上面的例子中，整数列表中的数字自动被装箱成 <code>Integer</code> 类型的对象以存入 <code>List&lt;Int&gt;</code>。当从列表中检索一个整数时，它自动拆箱回 <code>Int</code> 类型。</p>
+<h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h3><p>虽然 Kotlin 试图隐藏装箱和拆箱的复杂性，但在某些情况下，装箱对象的身份不会保留。例如，两个独立装箱的整数可能不会在内存中具有相同的引用：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> a: <span class="built_in">Int</span> = <span class="number">1000</span></span><br><span class="line"><span class="keyword">val</span> boxedA: <span class="built_in">Int</span>? = a</span><br><span class="line"><span class="keyword">val</span> anotherBoxedA: <span class="built_in">Int</span>? = a</span><br><span class="line">println(boxedA === anotherBoxedA)  <span class="comment">// 可能输出 false</span></span><br></pre></td></tr></table></figure>
+
+<p>在上面的代码中，<code>boxedA</code> 和 <code>anotherBoxedA</code> 是相同原始值的两个独立的装箱实例。使用 <code>===</code> 比较它们的引用时可能得到 <code>false</code>，因为它们可能指向不同的对象。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>Kotlin 在编写代码时提供了类似于基本数据类型的简洁性和效率，同时也保留了对象的灵活性。通过自动装箱和拆箱，Kotlin 旨在提供无缝的集合操作和泛型支持，同时减少需要程序员关注的底层细节。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
     <article id="post-1 Kotlin/01 Kotlin 协程/Kotlin 的协程本质到底什么"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
@@ -867,57 +928,6 @@
 <!-- Table of Contents -->
 
   
-    <article id="post-2 Java/Java程序基础/Java Stack 过时了吗"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2023/08/11/2%20Java/Java%E7%A8%8B%E5%BA%8F%E5%9F%BA%E7%A1%80/Java%20Stack%20%E8%BF%87%E6%97%B6%E4%BA%86%E5%90%97/">Java Stack 过时了吗</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2023/08/11/2%20Java/Java%E7%A8%8B%E5%BA%8F%E5%9F%BA%E7%A1%80/Java%20Stack%20%E8%BF%87%E6%97%B6%E4%BA%86%E5%90%97/" class="article-date">
-	  <time datetime="2023-08-10T23:17:20.000Z" itemprop="datePublished">August 11, 2023</time>
-	</a>
-
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/2-Java/">2 - Java</a>, <a class="article-category-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a>
- 
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>在 Java 中，<code>Stack</code> 类并没有过时，仍然可以使用。然而，根据 Java 官方文档的建议，推荐使用 <code>Deque</code> 接口的实现类 <code>ArrayDeque</code> 来代替 <code>Stack</code>。</p>
-<p><code>Stack</code> 类是基于向量（<code>Vector</code>）实现的，而 <code>Vector</code> 是线程安全的、同步的，因此在性能上可能会有一些开销。而 <code>ArrayDeque</code> 是基于数组实现的双端队列，性能更高，并且在大多数情况下能够提供与 <code>Stack</code> 类相同的功能。</p>
-<p>此外，<code>Deque</code> 接口提供了更丰富的操作方法，例如在队首或队尾插入、删除元素等，使得其更灵活且更符合现代编程的需求。</p>
-<p>因此，尽管 <code>Stack</code> 类仍然可用，但在新的代码中，推荐使用 <code>ArrayDeque</code> 或其他实现了 <code>Deque</code> 接口的类来代替 <code>Stack</code>。</p>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/2-Java/">2 - Java</a>, <a class="article-category-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a>
-
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
 
 
   <nav id="page-nav">
@@ -1005,7 +1015,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">4</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/10-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">10 - 计算机网络</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">5</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.0 - Java 多线程</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">19</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.1 - 播放器架构方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">5</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/10-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">10 - 计算机网络</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">5</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.0 - Java 多线程</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">20</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.1 - 播放器架构方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1019,7 +1029,7 @@
     <h3 class="widget-title">Archives</h3>
 
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">March 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">59</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">March 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">61</span></li></ul>
     </div>
   </div>
 
