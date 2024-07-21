@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Android aar 文件到底是什么 | 喵星科技报</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  
+  
+  
+  <meta name="description" content="作者: 朕小猫与GPT4 1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556575859606162636465666768697071727374757677787980818283848586878889909192939495969798">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android aar 文件到底是什么">
+<meta property="og:url" content="http://example.com/2023/08/11/6%20Android%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85/Android%20%E4%BA%91%E7%BC%96%E8%AF%91%20gradle%20%E9%85%8D%E7%BD%AE/index.html">
+<meta property="og:site_name" content="喵星科技报">
+<meta property="og:description" content="作者: 朕小猫与GPT4 1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556575859606162636465666768697071727374757677787980818283848586878889909192939495969798">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-08-10T23:19:04.000Z">
+<meta property="article:modified_time" content="2024-07-21T10:57:09.044Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="喵星科技报" type="application/atom+xml">
+  
+  <link rel="icon" href="/css/images/favicon.ico">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+    
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Yanone+Kaffeesatz%3A200%2C300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Oswald%3A300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+<script src="/js/jquery-3.1.1.min.js"></script>
+
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.css" >
+  <link rel="stylesheet" href="/css/fashion.css" >
+  <link rel="stylesheet" href="/css/glyphs.css" >
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<a target="_blank" rel="noopener" href="https://github.com/CatJason">
+<img decoding="async" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" loading="lazy" data-recalc-dims="1">
+</a>
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  
+
+
+<header id="allheader" class="site-header" role="banner" 
+   >
+  <div class="clearfix container">
+      <div class="site-branding">
+
+          <h1 class="site-title">
+            
+              <a href="/" title="喵星科技报" rel="home"> 喵星科技报 </a>
+            
+          </h1>
+          
+          
+            
+          <nav id="main-navigation" class="main-navigation" role="navigation">
+            <a class="nav-open">Menu</a>
+            <a class="nav-close">Close</a>
+
+            <div class="clearfix sf-menu">
+              <ul id="main-nav" class="menu sf-js-enabled sf-arrows"  style="touch-action: pan-y;">
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="/"> <a class="" href="/">Home</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="archives"> <a class="" href="/archives">Archives</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="categories"> <a class="" href="/categories">Categories</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="tags"> <a class="" href="/tags">Tags</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="about"> <a class="" href="/about">About</a> </li>
+                    
+              </ul>
+            </div>
+          </nav>
+
+      </div>
+  </div>
+</header>
+
+
+  <div id="container">
+    <div id="wrap">
+            
+      <div id="content" class="outer">
+        
+          <section id="main" style="float:none;"><article id="post-6 Android编译打包/Android 云编译 gradle 配置" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" class="article-title" itemprop="name">
+      Android aar 文件到底是什么
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/11/6%20Android%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85/Android%20%E4%BA%91%E7%BC%96%E8%AF%91%20gradle%20%E9%85%8D%E7%BD%AE/" class="article-date">
+	  <time datetime="2023-08-10T23:19:04.000Z" itemprop="datePublished">August 11, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a>, <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.1 - 简单好用的 gradle 云编译设置</a>
+ 
+      
+	<span id="busuanzi_container_page_pv">
+	  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	</span>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>作者: 朕小猫与GPT4</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br></pre></td><td class="code"><pre><span class="line">task downloadApk &#123;</span><br><span class="line">    doLast &#123;</span><br><span class="line">        <span class="keyword">def</span> remoteApkPath = <span class="string">&quot;/home/jason/AndroidStudioProjects/ncmusic/app/build/outputs/apk/debug/app-debug.apk&quot;</span></span><br><span class="line">        <span class="keyword">def</span> localApkDir = System.getProperty(<span class="string">&quot;user.home&quot;</span>) + <span class="string">&quot;/Downloads/&quot;</span></span><br><span class="line">        <span class="keyword">def</span> localApkPath = localApkDir + <span class="string">&quot;app-debug.apk&quot;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 创建本地目录</span></span><br><span class="line">        <span class="keyword">new</span> File(localApkDir).mkdirs()</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 使用 scp 下载远程 APK 文件到本地</span></span><br><span class="line">        <span class="keyword">def</span> command = <span class="string">&quot;sshpass -p &#x27;password&#x27; scp jason@192.168.1.100:$&#123;remoteApkPath&#125; $&#123;localApkPath&#125;&quot;</span></span><br><span class="line">        println <span class="string">&quot;Executing command: $&#123;command&#125;&quot;</span></span><br><span class="line"></span><br><span class="line">        exec &#123;</span><br><span class="line">            commandLine <span class="string">&#x27;bash&#x27;</span>, <span class="string">&#x27;-c&#x27;</span>, command</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">task installAndStart &#123;</span><br><span class="line">    dependsOn downloadApk</span><br><span class="line">    doLast &#123;</span><br><span class="line">        <span class="keyword">def</span> localApkPath = System.getProperty(<span class="string">&quot;user.home&quot;</span>) + <span class="string">&quot;/Downloads/app-debug.apk&quot;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 确保 adb 可用</span></span><br><span class="line">        <span class="keyword">def</span> adbPath = <span class="string">&#x27;/Users/jason/Library/Android/sdk/platform-tools/adb&#x27;</span></span><br><span class="line">        <span class="keyword">if</span> (!<span class="keyword">new</span> File(adbPath).exists()) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> GradleException(<span class="string">&quot;adb command not found at $&#123;adbPath&#125;! Please ensure Android SDK is properly installed.&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 安装 APK</span></span><br><span class="line">        <span class="keyword">def</span> installCommand = <span class="string">&quot;$&#123;adbPath&#125; install -r $&#123;localApkPath&#125;&quot;</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            exec &#123;</span><br><span class="line">                commandLine <span class="string">&#x27;bash&#x27;</span>, <span class="string">&#x27;-c&#x27;</span>, installCommand</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> GradleException(<span class="string">&quot;Failed to install APK: $&#123;e.message&#125;&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 提取包名</span></span><br><span class="line">        <span class="keyword">def</span> manifestFile = file(<span class="string">&quot;$&#123;rootProject.projectDir&#125;/app/src/main/AndroidManifest.xml&quot;</span>)</span><br><span class="line">        <span class="keyword">def</span> packageName = <span class="string">&quot;&quot;</span></span><br><span class="line">        <span class="keyword">if</span> (manifestFile.exists()) &#123;</span><br><span class="line">            manifestFile.eachLine &#123; line -&gt;</span><br><span class="line">                <span class="keyword">if</span> (line.contains(<span class="string">&quot;package=&quot;</span>)) &#123;</span><br><span class="line">                    packageName = line.split(<span class="string">&#x27;package=&#x27;</span>)[<span class="number">1</span>].split(<span class="string">&#x27;&quot;&#x27;</span>)[<span class="number">1</span>]</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (packageName == <span class="string">&quot;&quot;</span>) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> GradleException(<span class="string">&quot;Failed to extract package name from AndroidManifest.xml&quot;</span>)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> GradleException(<span class="string">&quot;AndroidManifest.xml file not found!&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 启动应用</span></span><br><span class="line">        <span class="keyword">def</span> launchCommand = <span class="string">&quot;$&#123;adbPath&#125; shell monkey -p $&#123;packageName&#125; -c android.intent.category.LAUNCHER 1&quot;</span></span><br><span class="line">        println <span class="string">&quot;Executing command: $&#123;launchCommand&#125;&quot;</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            exec &#123;</span><br><span class="line">                commandLine <span class="string">&#x27;bash&#x27;</span>, <span class="string">&#x27;-c&#x27;</span>, launchCommand</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> GradleException(<span class="string">&quot;Failed to launch application: $&#123;e.message&#125;&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">task downloadBuild &#123;</span><br><span class="line">    doLast &#123;</span><br><span class="line">        subprojects.each &#123; subproject -&gt;</span><br><span class="line">            <span class="keyword">def</span> remoteRootPath = <span class="string">&quot;/home/jason/AndroidStudioProjects/&quot;</span></span><br><span class="line">            <span class="keyword">def</span> remoteDirPath = remoteRootPath + <span class="string">&quot;$&#123;rootProject.name&#125;/$&#123;subproject.name&#125;/build&quot;</span></span><br><span class="line">            <span class="keyword">def</span> localDirPath = <span class="string">&quot;$&#123;subproject.projectDir&#125;&quot;</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 创建本地目录</span></span><br><span class="line">            <span class="keyword">new</span> File(localDirPath).mkdirs()</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 使用 rsync 同步远程文件到本地</span></span><br><span class="line">            <span class="keyword">def</span> command = <span class="string">&quot;sshpass -p &#x27;password&#x27; rsync -avz --delete jason@192.168.1.100:$&#123;remoteDirPath&#125; $&#123;localDirPath&#125;&quot;</span></span><br><span class="line">            println <span class="string">&quot;Executing command: $&#123;command&#125;&quot;</span></span><br><span class="line"></span><br><span class="line">            exec &#123;</span><br><span class="line">                commandLine <span class="string">&#x27;bash&#x27;</span>, <span class="string">&#x27;-c&#x27;</span>, command</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">task remoteBuild &#123;</span><br><span class="line">    doLast &#123;</span><br><span class="line">        <span class="comment">// 远程构建命令</span></span><br><span class="line">        <span class="keyword">def</span> command = <span class="string">&quot;sshpass -p &#x27;password&#x27; ssh jason@192.168.1.100 &#x27;cd /home/jason/AndroidStudioProjects/ncmusic/ &amp;&amp; ./gradlew assembleDebug&#x27;&quot;</span></span><br><span class="line">        exec &#123;</span><br><span class="line">            commandLine <span class="string">&#x27;bash&#x27;</span>, <span class="string">&#x27;-c&#x27;</span>, command</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义一个任务来执行远程构建、下载 APK、安装并启动应用，然后同步构建产物</span></span><br><span class="line">task buildDownloadInstallAndStart &#123;</span><br><span class="line">    dependsOn remoteBuild</span><br><span class="line">    finalizedBy installAndStart, downloadBuild</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a>, <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.1 - 简单好用的 gradle 云编译设置</a>
+
+      
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2023/08/11/6%20Android%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85/Android%20aar%20%E6%96%87%E4%BB%B6%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Android aar 文件到底是什么
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2023/08/11/1%20Kotlin/01%20Kotlin%20%E5%8D%8F%E7%A8%8B/Kotlin%20%E7%9A%84%E5%8D%8F%E7%A8%8B%E6%9C%AC%E8%B4%A8%E5%88%B0%E5%BA%95%E4%BB%80%E4%B9%88/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Kotlin 的协程本质到底什么</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="sidebar">
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">Contents</strong>
+    
+      <ol class="nav">None</ol>
+    
+    </div>
+  </aside>
+</section>
+        
+      </div>
+
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    <footer id="footer" class="site-footer">
+  
+
+  <div class="clearfix container">
+      <div class="site-info">
+	      &copy; 2024 喵星科技报 All Rights Reserved.
+        
+            <span id="busuanzi_container_site_uv">
+              本站访客数<span id="busuanzi_value_site_uv"></span>人次  
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+          
+      </div>
+      <div class="site-credit">
+        Theme by <a href="https://github.com/CatJason" target="_blank">hipaper</a>
+      </div>
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var wrapdiv = document.getElementById("wrap");
+    var contentdiv = document.getElementById("content");
+
+    wrapdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+
+
+    <!-- headerblur min height -->
+    
+    
+</script>
+    
+<div style="display: none;">
+  <script src="https://s11.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+</div>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+<script src="/js/bootstrap.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+	</script>
+
+
+
+
+
+
+  </div>
+
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js" async=""></script>
+</body>
+</html>

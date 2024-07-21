@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Android-Framework-AMS专项-Activity启动的整体流程与第一个阶段解读参数 | 喵星科技报</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  
+  
+  
+  <meta name="description" content="Activity 启动整体流程分析我们把 Activity 的启动简单分为几个部分  Intent  startActivity(intent):ActivityA	ActivityB   解析 Activity 启动参数  ActivityRecord   activityStack ActivityRecord，管理和启动 ActivityB  AMS:  activityStackSuper">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android-Framework-AMS专项-Activity启动的整体流程与第一个阶段解读参数">
+<meta property="og:url" content="http://example.com/2023/08/15/3%20Android/Framework/05-Android-Framework-AMS%E4%B8%93%E9%A1%B9-Activity%E5%90%AF%E5%8A%A8%E7%9A%84%E6%95%B4%E4%BD%93%E6%B5%81%E7%A8%8B%E4%B8%8E%E7%AC%AC%E4%B8%80%E4%B8%AA%E9%98%B6%E6%AE%B5%E8%A7%A3%E8%AF%BB%E5%8F%82%E6%95%B0/index.html">
+<meta property="og:site_name" content="喵星科技报">
+<meta property="og:description" content="Activity 启动整体流程分析我们把 Activity 的启动简单分为几个部分  Intent  startActivity(intent):ActivityA	ActivityB   解析 Activity 启动参数  ActivityRecord   activityStack ActivityRecord，管理和启动 ActivityB  AMS:  activityStackSuper">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-08-15T10:21:30.000Z">
+<meta property="article:modified_time" content="2024-04-13T12:26:21.029Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="喵星科技报" type="application/atom+xml">
+  
+  <link rel="icon" href="/css/images/favicon.ico">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+    
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Yanone+Kaffeesatz%3A200%2C300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Oswald%3A300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+<script src="/js/jquery-3.1.1.min.js"></script>
+
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.css" >
+  <link rel="stylesheet" href="/css/fashion.css" >
+  <link rel="stylesheet" href="/css/glyphs.css" >
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<a target="_blank" rel="noopener" href="https://github.com/CatJason">
+<img decoding="async" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" loading="lazy" data-recalc-dims="1">
+</a>
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  
+
+
+<header id="allheader" class="site-header" role="banner" 
+   >
+  <div class="clearfix container">
+      <div class="site-branding">
+
+          <h1 class="site-title">
+            
+              <a href="/" title="喵星科技报" rel="home"> 喵星科技报 </a>
+            
+          </h1>
+          
+          
+            
+          <nav id="main-navigation" class="main-navigation" role="navigation">
+            <a class="nav-open">Menu</a>
+            <a class="nav-close">Close</a>
+
+            <div class="clearfix sf-menu">
+              <ul id="main-nav" class="menu sf-js-enabled sf-arrows"  style="touch-action: pan-y;">
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="/"> <a class="" href="/">Home</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="archives"> <a class="" href="/archives">Archives</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="categories"> <a class="" href="/categories">Categories</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="tags"> <a class="" href="/tags">Tags</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="about"> <a class="" href="/about">About</a> </li>
+                    
+              </ul>
+            </div>
+          </nav>
+
+      </div>
+  </div>
+</header>
+
+
+  <div id="container">
+    <div id="wrap">
+            
+      <div id="content" class="outer">
+        
+          <section id="main" style="float:none;"><article id="post-3 Android/Framework/05-Android-Framework-AMS专项-Activity启动的整体流程与第一个阶段解读参数" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" class="article-title" itemprop="name">
+      Android-Framework-AMS专项-Activity启动的整体流程与第一个阶段解读参数
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/15/3%20Android/Framework/05-Android-Framework-AMS%E4%B8%93%E9%A1%B9-Activity%E5%90%AF%E5%8A%A8%E7%9A%84%E6%95%B4%E4%BD%93%E6%B5%81%E7%A8%8B%E4%B8%8E%E7%AC%AC%E4%B8%80%E4%B8%AA%E9%98%B6%E6%AE%B5%E8%A7%A3%E8%AF%BB%E5%8F%82%E6%95%B0/" class="article-date">
+	  <time datetime="2023-08-15T10:21:30.000Z" itemprop="datePublished">August 15, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>
+ 
+      
+	<span id="busuanzi_container_page_pv">
+	  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	</span>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Activity-启动整体流程分析"><a href="#Activity-启动整体流程分析" class="headerlink" title="Activity 启动整体流程分析"></a>Activity 启动整体流程分析</h1><p>我们把 Activity 的启动简单分为几个部分</p>
+<ul>
+<li><p>Intent </p>
+<p>startActivity(intent):<br>ActivityA	ActivityB </p>
+</li>
+<li><p>解析 Activity 启动参数<br>  ActivityRecord </p>
+</li>
+<li><p>activityStack ActivityRecord，管理和启动 ActivityB</p>
+</li>
+<li><p>AMS:<br>  activityStackSupervisor: 封装 clientTransaction（触发事件）</p>
+</li>
+<li><p>通信的流程：clientTransaction<br>  Application: process Activit</p>
+</li>
+</ul>
+<h1 id="Activity-启动第一阶段解析参数"><a href="#Activity-启动第一阶段解析参数" class="headerlink" title="Activity 启动第一阶段解析参数"></a>Activity 启动第一阶段解析参数</h1><p>ActivityStarter：解析 Activity 启动参数，每一个 Activity 启动都会有一个 Starter 去启动它。<br>ActivityStartController：Controller 回去生产 Starter 对象，控制 Starter 的创建。</p>
+<p>Q：为什么需要 ActivityStartController？</p>
+<h2 id="AMS-和-ATMS"><a href="#AMS-和-ATMS" class="headerlink" title="AMS 和 ATMS"></a>AMS 和 ATMS</h2><p> 在 Android 操作系统中，ATMS（ActivityTaskManagerService）和AMS（ActivityManagerService）是两个关键的系统服务，负责管理应用程序的生命周期和任务栈。它们在 Android 的多任务处理和应用管理方面扮演着重要角色。随着 Android 系统的发展，这两个服务的职责和架构也发生了一些变化。下面是它们之间主要的区别：</p>
+<ol>
+<li><p><strong>职责分工</strong>：</p>
+<ul>
+<li><strong>AMS（ActivityManagerService）</strong>：在 Android 10 及其之前的版本中，AMS 是负责管理系统中的所有活动（Activities）、应用进程和服务的核心服务。它处理应用的启动、切换、生命周期管理等任务。</li>
+<li><strong>ATMS（ActivityTaskManagerService）</strong>：从 Android 10（API 级别 29）开始引入，ATMS 负责管理活动和任务的栈管理（Activity and Task Stack Management）。这意味着 ATMS 处理应用的 UI&#x2F;界面任务，如任务视图、活动栈、分屏模式和最近应用的管理。ATMS 实质上是从 AMS 中拆分出来的，专注于任务和活动栈的管理，而让 AMS 能更专注于后台进程和应用管理。</li>
+</ul>
+</li>
+<li><p><strong>架构变化</strong>：</p>
+<ul>
+<li>随着 Android 系统的发展，其架构也在不断演进。引入 ATMS 是 Android 系统为了更好地模块化和清晰地区分不同服务的职责而做的改变。这种变化有助于简化系统服务的管理，使得系统架构更加清晰，同时也为未来的扩展和维护提供了便利。</li>
+</ul>
+</li>
+<li><p><strong>目的</strong>：</p>
+<ul>
+<li>分拆 AMS 和引入 ATMS 的目的是为了更好地分离和管理 Android 系统中的活动和任务栈管理逻辑，从而提高系统的稳定性和可维护性。ATMS 的引入，让 AMS 能够更加专注于进程管理和服务管理，而不是同时处理与 UI&#x2F;界面相关的复杂逻辑。</li>
+</ul>
+</li>
+</ol>
+<p>总结来说，ATMS 和 AMS 在 Android 10 之后的版本中共同工作，以更高效和清晰的方式管理应用的生命周期和用户界面任务。ATMS 的引入是 Android 系统架构演进的一个例证，显示了 Android 团队在不断追求更好的系统管理和性能优化方面的努力。</p>
+<h2 id="ActivityStartController"><a href="#ActivityStartController" class="headerlink" title="ActivityStartController"></a>ActivityStartController</h2><p>Android 10 之前的版本，ActivityStartController 是在 AMS 的 initialize 时创建<br>Android 10 开始，AMS 分离出了一些职责到 ATMS 中，包含了 initialize</p>
+<h3 id="starter，factory，pool-与-recycle，reset"><a href="#starter，factory，pool-与-recycle，reset" class="headerlink" title="starter，factory，pool 与 recycle，reset"></a>starter，factory，pool 与 recycle，reset</h3><p>在这个 initalize 中初始化了 ActivityStartController<br>ActivityStartController 初始化时去获取 starter</p>
+<p>实际上是由 ActivityStartController 初始化时去 创建了一个 Factory<br>这个  Factory 是定义在 ActivityStartController 内部的 DefaultFactory，通过 DefaultFactory 的 obtain 函数去获取一个 ActivityStarter</p>
+<p>DefaultFactory 中构建了一个 synchronizedPool<ActivityStarter>  复用池子，就和 Hanlder 一样，通过 obtain 去获取 ActivityStarter，设置三个缓存<br>采用享元模式去复用，避免内存抖动，同样的，使用完之后要去 recycle，recycle 的时候要去 reset，之后添加回 pool</ActivityStarter></p>
+<p>所以 本质上是使用工厂模式去建造 ActivityStartController 缓存池，并管控 ActivityStartController 的复用，由 AMS 创建</p>
+<h2 id="Activity-的启动参数到底被谁持有了？"><a href="#Activity-的启动参数到底被谁持有了？" class="headerlink" title="Activity 的启动参数到底被谁持有了？"></a>Activity 的启动参数到底被谁持有了？</h2><p> activity 的启动参数实际上是被添加到了 ActivityStarter 的 Request 中，之后执行 ActivityStarter 的 execute 函数</p>
+<p>Request 是 Activity 的内部类，在这个内部类中包含了 Activity 启动过程中一系列的交互参数<br>比如我们要从 Activity A 启动 Activity B，这个过程中需要记录 Activity A 与 Activity B 的核心参数（ 如果我们对 Activity A 启动 Activity B 之后，Activity A 和 B 生命周期函数的执行顺序有所了解，就非常容易理解这里为什么需要记录 A B 双方的核心参数，启动 B 的过程也是 A B 进行交互的过程） </p>
+<p>ActivityStarter 的 execute 函数会执行 executeRequest， 这时候 ActivityStarter 就会去创建一个 ActivityRecord，这就是我们要启动的 Activity</p>
+<p>在启动之前，会先执行 ActivityStartController 的 doPendingActivityLaunches 函数<br>这个函数是用来启动那些没有来得及启动的 Activity（举个例子，在启动之前按了 Home 键）</p>
+<p>之后再调用 StartActivityUnchecked，其中调用 StartActivityInner<br>这里注意下 StartActivityInner 头两个参数是 final ActivityRecord r，ActivityRecord sourceRecord<br>这个函数里会计算 ActivityRecord （要启动的 Activity 的 task 标志），也就是启动模式，接着计算 sourceRecord（源 Activity）所在的 task，将计算后的启动模式 mLaunchFlags 设置给 Intent （ <code>mIntent.setFlags(mLaunchFlags)</code> ）</p>
+<h2 id="Launcher-启动创建黑白屏"><a href="#Launcher-启动创建黑白屏" class="headerlink" title="Launcher 启动创建黑白屏"></a>Launcher 启动创建黑白屏</h2><p>注意完成上述操作之后我们去调用 Launcher 去启动一个 Activity 的时候，为了让用户知道我们已经进行了响应，会启动一个黑白屏</p>
+<p>Q：这个时候 Activity 有启动吗？</p>
+<p>A：并没有，上述操作只是在构建一个 Activity 的启动流程，并没有真正的去启动一个 Activity，因为 Activity 必须依附于一个进程存在，所以黑白屏是为了表示已经开始响应启动流程，但是进程的创建是一个相对缓慢的过程，之后进程创建之后才会启动 Activity</p>
+<h2 id="Activity的真正启动"><a href="#Activity的真正启动" class="headerlink" title="Activity的真正启动"></a>Activity的真正启动</h2><p>启动完黑白屏之后，通过调用 mRootWindowContainer.resumeFocusedStackTopActivities 启动 Activity</p>
+<p>首先，什么是 RootWindowContainer，注释上写 RootWindowContainer 就是 WindowContainer 的根容器，管理了所有窗口容器，<br>设备上所有的窗口（Window）、显示（Display）都是由它管理的 它通过 <code>RootWindowContainer</code> 来检查当前任务栈顶部的 <code>Activity</code> 是否真的可见。</p>
+<p>在这个过程中，<code>RootWindowContainer</code> 会考虑多个因素来确定一个 <code>Activity</code> 的可见性，包括但不限于：</p>
+<ul>
+<li><strong>屏幕的显示状态</strong>：例如，如果设备处于锁屏状态，则处于前台的 <code>Activity</code> 可能不会被认为是可见的。</li>
+<li><strong>其他应用的窗口</strong>：例如，如果有一个全屏模式的应用或是一个浮动窗口覆盖在当前 <code>Activity</code> 上方，可能会影响当前 <code>Activity</code> 的可见性。</li>
+<li><strong>系统对话框或通知</strong>：这些元素也可能覆盖在活动 <code>Activity</code> 上方，影响其可见性。</li>
+<li><strong>分屏模式</strong>：在分屏模式下，两个 <code>Activity</code> 可以同时处于可见状态，<code>RootWindowContainer</code> 需要管理这些 <code>Activity</code> 的可见性和布局。</li>
+</ul>
+<p>基于上述因素的判断，如果 <code>RootWindowContainer</code> 确定任务栈顶部的 <code>Activity</code> 是可见的，<code>resumeFocusedStackTopActivities</code> 方法就会继续执行，恢复该 <code>Activity</code>。这个过程涉及调用 <code>Activity</code> 的 <code>onResume()</code> 方法，使其成为用户可以与之交互的活动界面。</p>
+<p>这一机制确保了 Android 系统在恢复 <code>Activity</code> 时能够正确地管理用户界面的状态和交互，保持应用的流畅运行和用户体验的一致性。</p>
+<p>当启动一个新的 <code>Activity</code> 时，<code>resumeFocusedStackTopActivities</code> 方法负责将这个新的 <code>Activity</code> 放置到正确的任务栈和位置上。如果判断结果为 !resumeOnDisplay，并且 focusedStack !&#x3D; null，那么就会执行 focusedStack.resumeTopActivityUncheckLocked，进入启动的第二阶段</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>
+
+      
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2023/08/15/3%20Android/Framework/06-Android-Framework-AMS%E4%B8%93%E9%A1%B9-Activity%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E4%BA%8B%E7%89%A9%E5%B0%81%E8%A3%85/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          06-Android-Framework-AMS专项-Activity生命周期事物封装
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2023/08/15/3%20Android/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Android-Bitmap-%E6%80%A7%E8%83%BD%E4%B8%93%E9%A2%98/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Android Bitmap 性能专题 - Bitmap 内存从申请到回收</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="sidebar">
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">Contents</strong>
+    
+      <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Activity-%E5%90%AF%E5%8A%A8%E6%95%B4%E4%BD%93%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90"><span class="nav-number">1.</span> <span class="nav-text">Activity 启动整体流程分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Activity-%E5%90%AF%E5%8A%A8%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%E8%A7%A3%E6%9E%90%E5%8F%82%E6%95%B0"><span class="nav-number">2.</span> <span class="nav-text">Activity 启动第一阶段解析参数</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#AMS-%E5%92%8C-ATMS"><span class="nav-number">2.1.</span> <span class="nav-text">AMS 和 ATMS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ActivityStartController"><span class="nav-number">2.2.</span> <span class="nav-text">ActivityStartController</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#starter%EF%BC%8Cfactory%EF%BC%8Cpool-%E4%B8%8E-recycle%EF%BC%8Creset"><span class="nav-number">2.2.1.</span> <span class="nav-text">starter，factory，pool 与 recycle，reset</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Activity-%E7%9A%84%E5%90%AF%E5%8A%A8%E5%8F%82%E6%95%B0%E5%88%B0%E5%BA%95%E8%A2%AB%E8%B0%81%E6%8C%81%E6%9C%89%E4%BA%86%EF%BC%9F"><span class="nav-number">2.3.</span> <span class="nav-text">Activity 的启动参数到底被谁持有了？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Launcher-%E5%90%AF%E5%8A%A8%E5%88%9B%E5%BB%BA%E9%BB%91%E7%99%BD%E5%B1%8F"><span class="nav-number">2.4.</span> <span class="nav-text">Launcher 启动创建黑白屏</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Activity%E7%9A%84%E7%9C%9F%E6%AD%A3%E5%90%AF%E5%8A%A8"><span class="nav-number">2.5.</span> <span class="nav-text">Activity的真正启动</span></a></li></ol></li></ol>
+    
+    </div>
+  </aside>
+</section>
+        
+      </div>
+
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    <footer id="footer" class="site-footer">
+  
+
+  <div class="clearfix container">
+      <div class="site-info">
+	      &copy; 2024 喵星科技报 All Rights Reserved.
+        
+            <span id="busuanzi_container_site_uv">
+              本站访客数<span id="busuanzi_value_site_uv"></span>人次  
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+          
+      </div>
+      <div class="site-credit">
+        Theme by <a href="https://github.com/CatJason" target="_blank">hipaper</a>
+      </div>
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var wrapdiv = document.getElementById("wrap");
+    var contentdiv = document.getElementById("content");
+
+    wrapdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+
+
+    <!-- headerblur min height -->
+    
+    
+</script>
+    
+<div style="display: none;">
+  <script src="https://s11.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+</div>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+<script src="/js/bootstrap.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+	</script>
+
+
+
+
+
+
+  </div>
+
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js" async=""></script>
+</body>
+</html>

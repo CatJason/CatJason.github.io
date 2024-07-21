@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Kotlin中有哪些类 | 喵星科技报</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  
+  
+  
+  <meta name="description" content="在 Kotlin 中，类的概念是非常广泛的，包括各种类型的类设计用于不同的目的和场景。Kotlin 提供了丰富的类类型以支持现代软件开发的需要。下面是一些在 Kotlin 中常见的类类型： 1. 数据类（Data Class）数据类是专门用于存储数据的类。Kotlin 的数据类通过 data 关键字定义，它自动从所声明的属性中派生出 equals()、hashCode() 和 toString()">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kotlin中有哪些类">
+<meta property="og:url" content="http://example.com/2023/08/11/1%20Kotlin/02%20Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%E4%B8%AD%E6%9C%89%E5%93%AA%E4%BA%9B%E7%B1%BB/index.html">
+<meta property="og:site_name" content="喵星科技报">
+<meta property="og:description" content="在 Kotlin 中，类的概念是非常广泛的，包括各种类型的类设计用于不同的目的和场景。Kotlin 提供了丰富的类类型以支持现代软件开发的需要。下面是一些在 Kotlin 中常见的类类型： 1. 数据类（Data Class）数据类是专门用于存储数据的类。Kotlin 的数据类通过 data 关键字定义，它自动从所声明的属性中派生出 equals()、hashCode() 和 toString()">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-08-10T23:18:54.000Z">
+<meta property="article:modified_time" content="2024-04-14T04:44:00.321Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="喵星科技报" type="application/atom+xml">
+  
+  <link rel="icon" href="/css/images/favicon.ico">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+    
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Yanone+Kaffeesatz%3A200%2C300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Oswald%3A300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+<script src="/js/jquery-3.1.1.min.js"></script>
+
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.css" >
+  <link rel="stylesheet" href="/css/fashion.css" >
+  <link rel="stylesheet" href="/css/glyphs.css" >
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<a target="_blank" rel="noopener" href="https://github.com/CatJason">
+<img decoding="async" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" loading="lazy" data-recalc-dims="1">
+</a>
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  
+
+
+<header id="allheader" class="site-header" role="banner" 
+   >
+  <div class="clearfix container">
+      <div class="site-branding">
+
+          <h1 class="site-title">
+            
+              <a href="/" title="喵星科技报" rel="home"> 喵星科技报 </a>
+            
+          </h1>
+          
+          
+            
+          <nav id="main-navigation" class="main-navigation" role="navigation">
+            <a class="nav-open">Menu</a>
+            <a class="nav-close">Close</a>
+
+            <div class="clearfix sf-menu">
+              <ul id="main-nav" class="menu sf-js-enabled sf-arrows"  style="touch-action: pan-y;">
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="/"> <a class="" href="/">Home</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="archives"> <a class="" href="/archives">Archives</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="categories"> <a class="" href="/categories">Categories</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="tags"> <a class="" href="/tags">Tags</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="about"> <a class="" href="/about">About</a> </li>
+                    
+              </ul>
+            </div>
+          </nav>
+
+      </div>
+  </div>
+</header>
+
+
+  <div id="container">
+    <div id="wrap">
+            
+      <div id="content" class="outer">
+        
+          <section id="main" style="float:none;"><article id="post-1 Kotlin/02 Kotlin 基础/Kotlin中有哪些类" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" class="article-title" itemprop="name">
+      Kotlin中有哪些类
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/11/1%20Kotlin/02%20Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%E4%B8%AD%E6%9C%89%E5%93%AA%E4%BA%9B%E7%B1%BB/" class="article-date">
+	  <time datetime="2023-08-10T23:18:54.000Z" itemprop="datePublished">August 11, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a>
+ 
+      
+	<span id="busuanzi_container_page_pv">
+	  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	</span>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在 Kotlin 中，类的概念是非常广泛的，包括各种类型的类设计用于不同的目的和场景。Kotlin 提供了丰富的类类型以支持现代软件开发的需要。下面是一些在 Kotlin 中常见的类类型：</p>
+<h3 id="1-数据类（Data-Class）"><a href="#1-数据类（Data-Class）" class="headerlink" title="1. 数据类（Data Class）"></a>1. <strong>数据类（Data Class）</strong></h3><p>数据类是专门用于存储数据的类。Kotlin 的数据类通过 <code>data</code> 关键字定义，它自动从所声明的属性中派生出 <code>equals()</code>、<code>hashCode()</code> 和 <code>toString()</code> 等方法，以及 <code>copy()</code> 函数和 <code>componentN()</code> 函数（按声明顺序对应于所有属性）。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">data</span> <span class="keyword">class</span> <span class="title class_">User</span>(<span class="keyword">val</span> name: String, <span class="keyword">val</span> age: <span class="built_in">Int</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-枚举类（Enum-Class）"><a href="#2-枚举类（Enum-Class）" class="headerlink" title="2. 枚举类（Enum Class）"></a>2. <strong>枚举类（Enum Class）</strong></h3><p>枚举类用于定义一组命名常量。Kotlin 中的枚举不仅可以有属性，还可以有自己的方法。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> <span class="keyword">class</span> <span class="title class_">Direction</span> &#123;</span><br><span class="line">    NORTH, SOUTH, EAST, WEST;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-密封类（Sealed-Class）"><a href="#3-密封类（Sealed-Class）" class="headerlink" title="3. 密封类（Sealed Class）"></a>3. <strong>密封类（Sealed Class）</strong></h3><p>密封类用于表示受限的类层次结构，即一个值只能是有限集合中的某个类型，而不能是任何其他类型。这对于当你在使用 <code>when</code> 表达式时，想要确保覆盖所有可能的类型非常有用。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">sealed</span> <span class="keyword">class</span> <span class="title class_">Expr</span></span><br><span class="line"><span class="keyword">data</span> <span class="keyword">class</span> <span class="title class_">Const</span>(<span class="keyword">val</span> number: <span class="built_in">Double</span>) : Expr()</span><br><span class="line"><span class="keyword">data</span> <span class="keyword">class</span> <span class="title class_">Sum</span>(<span class="keyword">val</span> e1: Expr, <span class="keyword">val</span> e2: Expr) : Expr()</span><br><span class="line"><span class="keyword">object</span> NotANumber : Expr()</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-抽象类（Abstract-Class）"><a href="#4-抽象类（Abstract-Class）" class="headerlink" title="4. 抽象类（Abstract Class）"></a>4. <strong>抽象类（Abstract Class）</strong></h3><p>抽象类是不能被实例化的类，通常用作其他类的基类。抽象类可以包含抽象方法（没有实现的方法）和非抽象方法。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">Vehicle</span> &#123;</span><br><span class="line">    <span class="keyword">abstract</span> <span class="function"><span class="keyword">fun</span> <span class="title">drive</span><span class="params">()</span></span></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">park</span><span class="params">()</span></span> &#123; println(<span class="string">&quot;Parked&quot;</span>) &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-内部类（Inner-Class）"><a href="#5-内部类（Inner-Class）" class="headerlink" title="5. 内部类（Inner Class）"></a>5. <strong>内部类（Inner Class）</strong></h3><p>内部类是定义在另一个类内部的类。内部类持有其外部类的一个引用，因此可以访问其成员。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Outer</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> bar: <span class="built_in">Int</span> = <span class="number">1</span></span><br><span class="line">    <span class="keyword">inner</span> <span class="keyword">class</span> <span class="title class_">Inner</span> &#123;</span><br><span class="line">        <span class="function"><span class="keyword">fun</span> <span class="title">foo</span><span class="params">()</span></span> = bar</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-嵌套类（Nested-Class）"><a href="#6-嵌套类（Nested-Class）" class="headerlink" title="6. 嵌套类（Nested Class）"></a>6. <strong>嵌套类（Nested Class）</strong></h3><p>与内部类相比，嵌套类没有对外部类的隐式引用。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Outer</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> bar: <span class="built_in">Int</span> = <span class="number">1</span></span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">Nested</span> &#123;</span><br><span class="line">        <span class="function"><span class="keyword">fun</span> <span class="title">foo</span><span class="params">()</span></span> = <span class="number">2</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-对象声明（Object-Declaration）"><a href="#7-对象声明（Object-Declaration）" class="headerlink" title="7. 对象声明（Object Declaration）"></a>7. <strong>对象声明（Object Declaration）</strong></h3><p>Kotlin 支持对象声明，这是实现单例模式的一种方式。对象声明的实例自动成为一个单例。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">object</span> DataProviderManager &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">registerDataProvider</span><span class="params">(provider: <span class="type">String</span>)</span></span> &#123;</span><br><span class="line">        println(<span class="string">&quot;Provider registered: <span class="variable">$provider</span>&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="8-伴生对象（Companion-Object）"><a href="#8-伴生对象（Companion-Object）" class="headerlink" title="8. 伴生对象（Companion Object）"></a>8. <strong>伴生对象（Companion Object）</strong></h3><p>在 Kotlin 中，没有静态方法，但可以用伴生对象来模拟静态方法的效果。伴生对象的成员可以通过类名直接访问。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MyClass</span> &#123;</span><br><span class="line">    <span class="keyword">companion</span> <span class="keyword">object</span> Factory &#123;</span><br><span class="line">        <span class="function"><span class="keyword">fun</span> <span class="title">create</span><span class="params">()</span></span>: MyClass = MyClass()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="9-接口（Interface）"><a href="#9-接口（Interface）" class="headerlink" title="9. 接口（Interface）"></a>9. <strong>接口（Interface）</strong></h3><p>虽然不是类，但接口在 Kotlin 中用于定义可以由类实现或继承的协定。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> <span class="title class_">Drivable</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">drive</span><span class="params">()</span></span> &#123;</span><br><span class="line">        println(<span class="string">&quot;Driving&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这些类类型展示了 Kotlin 语言的灵活性和现代特性，旨在提供简洁而强大的语法来支持各种编程范式和设计模式。</p>
+<h1 id="密封类"><a href="#密封类" class="headerlink" title="密封类"></a>密封类</h1><p>在 Kotlin 中，密封类（sealed class）是一种特殊的类，它用于表示严格的类层次结构。使用密封类，你可以定义一个类的可能的子类集合，而且这些子类只能在与密封类相同的文件中定义。这种限制确保了除文件内定义的子类之外，无法有其他子类存在，从而使得使用时更加安全和维护更加方便。</p>
+<h3 id="密封类的主要特点和优势："><a href="#密封类的主要特点和优势：" class="headerlink" title="密封类的主要特点和优势："></a>密封类的主要特点和优势：</h3><ol>
+<li><p><strong>受限的继承</strong>：</p>
+<ul>
+<li>密封类本身是抽象的，不能直接实例化，只能通过其子类进行实例化。</li>
+<li>所有的子类必须与密封类在同一个文件中声明，这提高了可维护性，因为所有扩展都在一个集中的位置。</li>
+</ul>
+</li>
+<li><p><strong>类型安全</strong>：</p>
+<ul>
+<li>密封类非常适合用在 <code>when</code> 表达式中，因为它们可以确保覆盖所有可能的情况，不需要再添加一个 <code>else</code> 子句。这是因为编译器能够检测到所有定义的子类。</li>
+</ul>
+</li>
+<li><p><strong>更精确的控制</strong>：</p>
+<ul>
+<li>使用密封类可以精确控制类的继承结构，这对于构建不可变数据类型和状态管理非常有用。</li>
+</ul>
+</li>
+</ol>
+<h3 id="密封类的用法示例："><a href="#密封类的用法示例：" class="headerlink" title="密封类的用法示例："></a>密封类的用法示例：</h3><p>首先，定义一个密封类，然后在同一个文件中定义其所有子类：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">sealed</span> <span class="keyword">class</span> <span class="title class_">Expr</span> &#123;</span><br><span class="line">    <span class="keyword">data</span> <span class="keyword">class</span> <span class="title class_">Const</span>(<span class="keyword">val</span> number: <span class="built_in">Double</span>) : Expr()</span><br><span class="line">    <span class="keyword">data</span> <span class="keyword">class</span> <span class="title class_">Sum</span>(<span class="keyword">val</span> e1: Expr, <span class="keyword">val</span> e2: Expr) : Expr()</span><br><span class="line">    <span class="keyword">object</span> NotANumber : Expr()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">eval</span><span class="params">(expr: <span class="type">Expr</span>)</span></span>: <span class="built_in">Double</span> = <span class="keyword">when</span> (expr) &#123;</span><br><span class="line">    <span class="keyword">is</span> Expr.Const -&gt; expr.number</span><br><span class="line">    <span class="keyword">is</span> Expr.Sum -&gt; eval(expr.e1) + eval(expr.e2)</span><br><span class="line">    Expr.NotANumber -&gt; <span class="built_in">Double</span>.NaN</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这个例子中，<code>Expr</code> 是一个密封类，有三个子类：<code>Const</code>、<code>Sum</code> 和 <code>NotANumber</code>。这使得 <code>eval</code> 函数可以安全地使用 <code>when</code> 表达式来处理所有可能的 <code>Expr</code> 类型，而不需要 <code>else</code> 分支，因为编译器知道所有可能的子类。</p>
+<h3 id="使用密封类的场景："><a href="#使用密封类的场景：" class="headerlink" title="使用密封类的场景："></a>使用密封类的场景：</h3><ul>
+<li><strong>状态管理</strong>：在应用程序状态管理或者在处理有限状态机（FSM）时，密封类提供了一种清晰的方式来表示所有可能的状态。</li>
+<li><strong>返回类型的多样性</strong>：在函数需要返回多种类型的结果时，可以使用密封类来封装这些不同类型的返回值。</li>
+<li><strong>在模式匹配中增强类型安全</strong>：如上面示例中的 <code>eval</code> 函数，使用密封类可以确保 <code>when</code> 表达式已经处理了所有可能的情况，这在处理复杂的逻辑分支时非常有帮助。</li>
+</ul>
+<p>通过这种方式，Kotlin 的密封类增加了代码的安全性和清晰度，特别是在需要表达一个有限的类层次结构时。</p>
+<h1 id="内联类"><a href="#内联类" class="headerlink" title="内联类"></a>内联类</h1><p>Kotlin 1.3 引入了内联类，主要目的是提供一种无开销的抽象方式。内联类允许你创建一个包含单个属性的类，当这个类被使用时，它会在编译时被内联，即直接替换为它包含的那个值，从而避免了额外的内存分配和间接访问。</p>
+<h3 id="内联类的定义和使用"><a href="#内联类的定义和使用" class="headerlink" title="内联类的定义和使用"></a>内联类的定义和使用</h3><p>内联类定义时需要使用 <code>inline</code> 关键字，且必须有一个主构造函数，该构造函数恰好接收一个参数：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">inline</span> <span class="keyword">class</span> <span class="title class_">Password</span>(<span class="keyword">val</span> value: String)</span><br></pre></td></tr></table></figure>
+
+<p>这里的 <code>Password</code> 类包裹了一个字符串，但在编译后，Kotlin 编译器会尽可能将 <code>Password</code> 类的实例替换为简单的 <code>String</code> 类型，从而减少对象创建的开销。当你在代码中使用 <code>Password</code> 类型时，例如将它作为函数参数或从函数中返回时，实际上传递的将是一个 <code>String</code> 类型。</p>
+<h3 id="内联类的特点和优势"><a href="#内联类的特点和优势" class="headerlink" title="内联类的特点和优势"></a>内联类的特点和优势</h3><ol>
+<li><strong>性能优化</strong>：内联类主要用于性能优化，可以避免对象分配，并减少方法调用的层次。</li>
+<li><strong>类型安全</strong>：虽然内联类在运行时表现为它们包装的类型（例如 <code>String</code> 或 <code>Int</code>），但在编译时，它们是不同的类型。这意味着你可以用它们来实现类型安全的操作，例如防止将普通字符串与经过验证的密码字符串混淆。</li>
+<li><strong>限制</strong>：内联类不能有初始化块 (<code>init</code> 块)，它们也不能包含其他属性或构造函数。此外，内联类可以实现接口，但不能从其他类继承。</li>
+</ol>
+<h3 id="示例代码"><a href="#示例代码" class="headerlink" title="示例代码"></a>示例代码</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">inline</span> <span class="keyword">class</span> <span class="title class_">Password</span>(<span class="keyword">val</span> value: String)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">takePassword</span><span class="params">(password: <span class="type">Password</span>)</span></span> &#123;</span><br><span class="line">    println(<span class="string">&quot;Password is <span class="subst">$&#123;password.value&#125;</span>&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">val</span> password = Password(<span class="string">&quot;my_secret_password&quot;</span>)</span><br><span class="line">    takePassword(password)  <span class="comment">// 在这里，password 被内联，实际传递的是一个 String 对象</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这个例子中，尽管我们定义了一个名为 <code>Password</code> 的内联类，并在函数 <code>takePassword</code> 中使用它，实际上，在编译后，这些函数调用会直接使用 <code>String</code> 类型，而不会有任何包装和解包的性能开销。</p>
+<h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3><p>内联类是 Kotlin 提供的一种非常有用的特性，特别适合那些需要通过类型来提供更丰富语义但又不想引入运行时开销的场景。通过内联类，Kotlin 开发者可以在享受类型安全的同时，保持代码的高性能。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a>
+
+      
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2023/08/11/1%20Kotlin/02%20Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%E4%B8%AD%E7%9A%84%E6%83%B0%E6%80%A7%E6%93%8D%E4%BD%9C%E5%AE%B9%E5%99%A8%E2%80%94%E2%80%94Sequence/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Kotlin中的惰性操作容器——Sequence
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2023/08/11/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/synchronized%20%E5%85%B3%E9%94%AE%E5%AD%97%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E5%BC%95%E5%85%A5%E9%94%81%E7%9A%84%E7%AB%9E%E4%BA%89/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">synchronized 关键字为什么会引入锁的竞争</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="sidebar">
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">Contents</strong>
+    
+      <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%95%B0%E6%8D%AE%E7%B1%BB%EF%BC%88Data-Class%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">1. 数据类（Data Class）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%9E%9A%E4%B8%BE%E7%B1%BB%EF%BC%88Enum-Class%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">2. 枚举类（Enum Class）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%AF%86%E5%B0%81%E7%B1%BB%EF%BC%88Sealed-Class%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">3. 密封类（Sealed Class）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E6%8A%BD%E8%B1%A1%E7%B1%BB%EF%BC%88Abstract-Class%EF%BC%89"><span class="nav-number">4.</span> <span class="nav-text">4. 抽象类（Abstract Class）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E5%86%85%E9%83%A8%E7%B1%BB%EF%BC%88Inner-Class%EF%BC%89"><span class="nav-number">5.</span> <span class="nav-text">5. 内部类（Inner Class）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E5%B5%8C%E5%A5%97%E7%B1%BB%EF%BC%88Nested-Class%EF%BC%89"><span class="nav-number">6.</span> <span class="nav-text">6. 嵌套类（Nested Class）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-%E5%AF%B9%E8%B1%A1%E5%A3%B0%E6%98%8E%EF%BC%88Object-Declaration%EF%BC%89"><span class="nav-number">7.</span> <span class="nav-text">7. 对象声明（Object Declaration）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-%E4%BC%B4%E7%94%9F%E5%AF%B9%E8%B1%A1%EF%BC%88Companion-Object%EF%BC%89"><span class="nav-number">8.</span> <span class="nav-text">8. 伴生对象（Companion Object）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-%E6%8E%A5%E5%8F%A3%EF%BC%88Interface%EF%BC%89"><span class="nav-number">9.</span> <span class="nav-text">9. 接口（Interface）</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AF%86%E5%B0%81%E7%B1%BB"><span class="nav-number"></span> <span class="nav-text">密封类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%86%E5%B0%81%E7%B1%BB%E7%9A%84%E4%B8%BB%E8%A6%81%E7%89%B9%E7%82%B9%E5%92%8C%E4%BC%98%E5%8A%BF%EF%BC%9A"><span class="nav-number">1.</span> <span class="nav-text">密封类的主要特点和优势：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%86%E5%B0%81%E7%B1%BB%E7%9A%84%E7%94%A8%E6%B3%95%E7%A4%BA%E4%BE%8B%EF%BC%9A"><span class="nav-number">2.</span> <span class="nav-text">密封类的用法示例：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%AF%86%E5%B0%81%E7%B1%BB%E7%9A%84%E5%9C%BA%E6%99%AF%EF%BC%9A"><span class="nav-number">3.</span> <span class="nav-text">使用密封类的场景：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E8%81%94%E7%B1%BB"><span class="nav-number"></span> <span class="nav-text">内联类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E8%81%94%E7%B1%BB%E7%9A%84%E5%AE%9A%E4%B9%89%E5%92%8C%E4%BD%BF%E7%94%A8"><span class="nav-number">1.</span> <span class="nav-text">内联类的定义和使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E8%81%94%E7%B1%BB%E7%9A%84%E7%89%B9%E7%82%B9%E5%92%8C%E4%BC%98%E5%8A%BF"><span class="nav-number">2.</span> <span class="nav-text">内联类的特点和优势</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81"><span class="nav-number">3.</span> <span class="nav-text">示例代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E8%AE%BA"><span class="nav-number">4.</span> <span class="nav-text">结论</span></a></li></ol>
+    
+    </div>
+  </aside>
+</section>
+        
+      </div>
+
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    <footer id="footer" class="site-footer">
+  
+
+  <div class="clearfix container">
+      <div class="site-info">
+	      &copy; 2024 喵星科技报 All Rights Reserved.
+        
+            <span id="busuanzi_container_site_uv">
+              本站访客数<span id="busuanzi_value_site_uv"></span>人次  
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+          
+      </div>
+      <div class="site-credit">
+        Theme by <a href="https://github.com/CatJason" target="_blank">hipaper</a>
+      </div>
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var wrapdiv = document.getElementById("wrap");
+    var contentdiv = document.getElementById("content");
+
+    wrapdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+
+
+    <!-- headerblur min height -->
+    
+    
+</script>
+    
+<div style="display: none;">
+  <script src="https://s11.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+</div>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+<script src="/js/bootstrap.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+	</script>
+
+
+
+
+
+
+  </div>
+
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js" async=""></script>
+</body>
+</html>

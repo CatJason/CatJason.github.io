@@ -3,19 +3,21 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Android Framework 专项 - Task（一） | 喵星科技报</title>
+  <title>Kotlin中的自动拆装箱 | 喵星科技报</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
   
   
   
-  <meta property="og:type" content="article">
-<meta property="og:title" content="Android Framework 专项 - Task（一）">
-<meta property="og:url" content="http://example.com/2023/08/27/3%20Android/Framework/05-Android-Framework-%E4%B8%93%E9%A1%B9-Task%EF%BC%88%E4%B8%80%EF%BC%89/index.html">
+  <meta name="description" content="在 Kotlin 中，对于基本数据类型的包装类，比如 Integer、Boolean 等，Kotlin 设计了一套特殊的类，被称为原生类型的包装类或者叫做原生类型的对象，例如 Int、Boolean 等。这些类的行为表现得如同 Java 的基本类型，同时它们具备了对象的一些特性。在编译阶段，Kotlin 会尽量使用 JVM 的原生类型来提高性能，但在需要时（例如作为泛型参数时），这些原生类型会自动">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kotlin中的自动拆装箱">
+<meta property="og:url" content="http://example.com/2024/04/14/1%20Kotlin/02%20Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%E4%B8%AD%E7%9A%84%E8%87%AA%E5%8A%A8%E6%8B%86%E8%A3%85%E7%AE%B1/index.html">
 <meta property="og:site_name" content="喵星科技报">
+<meta property="og:description" content="在 Kotlin 中，对于基本数据类型的包装类，比如 Integer、Boolean 等，Kotlin 设计了一套特殊的类，被称为原生类型的包装类或者叫做原生类型的对象，例如 Int、Boolean 等。这些类的行为表现得如同 Java 的基本类型，同时它们具备了对象的一些特性。在编译阶段，Kotlin 会尽量使用 JVM 的原生类型来提高性能，但在需要时（例如作为泛型参数时），这些原生类型会自动">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2023-08-27T15:16:28.000Z">
-<meta property="article:modified_time" content="2024-04-09T10:28:19.537Z">
+<meta property="article:published_time" content="2024-04-14T04:47:49.083Z">
+<meta property="article:modified_time" content="2024-04-14T04:47:53.517Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
   
@@ -107,7 +109,7 @@
             
       <div id="content" class="outer">
         
-          <section id="main" style="float:none;"><article id="post-3 Android/Framework/05-Android-Framework-专项-Task（一）" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+          <section id="main" style="float:none;"><article id="post-1 Kotlin/02 Kotlin 基础/Kotlin中的自动拆装箱" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -115,7 +117,7 @@
         
   
     <h1 class="thumb" class="article-title" itemprop="name">
-      Android Framework 专项 - Task（一）
+      Kotlin中的自动拆装箱
     </h1>
   
 
@@ -123,13 +125,13 @@
     
     <div class="article-meta">
       
-	<a href="/2023/08/27/3%20Android/Framework/05-Android-Framework-%E4%B8%93%E9%A1%B9-Task%EF%BC%88%E4%B8%80%EF%BC%89/" class="article-date">
-	  <time datetime="2023-08-27T15:16:28.000Z" itemprop="datePublished">August 27, 2023</time>
+	<a href="/2024/04/14/1%20Kotlin/02%20Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%E4%B8%AD%E7%9A%84%E8%87%AA%E5%8A%A8%E6%8B%86%E8%A3%85%E7%AE%B1/" class="article-date">
+	  <time datetime="2024-04-14T04:47:49.083Z" itemprop="datePublished">April 14, 2024</time>
 	</a>
 
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a>
  
       
 	<span id="busuanzi_container_page_pv">
@@ -139,13 +141,27 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        
+        <p>在 Kotlin 中，对于基本数据类型的包装类，比如 <code>Integer</code>、<code>Boolean</code> 等，Kotlin 设计了一套特殊的类，被称为原生类型的包装类或者叫做原生类型的对象，例如 <code>Int</code>、<code>Boolean</code> 等。这些类的行为表现得如同 Java 的基本类型，同时它们具备了对象的一些特性。在编译阶段，Kotlin 会尽量使用 JVM 的原生类型来提高性能，但在需要时（例如作为泛型参数时），这些原生类型会自动装箱。</p>
+<h3 id="自动装箱与拆箱"><a href="#自动装箱与拆箱" class="headerlink" title="自动装箱与拆箱"></a>自动装箱与拆箱</h3><p>Kotlin 处理原生类型和装箱类型的自动转换，以保证性能同时提供丰富的类库支持。这个过程包括两个部分：自动装箱（boxing）和自动拆箱（unboxing）。</p>
+<ul>
+<li><strong>装箱（Boxing）</strong>：当一个原生类型的值需要作为对象处理时，它会自动被装入对应的包装类。例如，当你将一个 <code>int</code> 值放入一个泛型集合如 <code>List&lt;Int&gt;</code> 时，这个值会自动被装箱成 <code>Integer</code>。</li>
+<li><strong>拆箱（Unboxing）</strong>：当从对象中需要一个原生类型的值时，这个包装对象会自动被拆箱。例如，从 <code>List&lt;Int&gt;</code> 中取出一个元素时，它会自动从 <code>Integer</code> 转换为 <code>int</code>。</li>
+</ul>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> list: List&lt;<span class="built_in">Int</span>&gt; = listOf(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>)  <span class="comment">// 装箱</span></span><br><span class="line"><span class="keyword">val</span> x: <span class="built_in">Int</span> = list[<span class="number">0</span>]                   <span class="comment">// 拆箱</span></span><br></pre></td></tr></table></figure>
+
+<p>在上面的例子中，整数列表中的数字自动被装箱成 <code>Integer</code> 类型的对象以存入 <code>List&lt;Int&gt;</code>。当从列表中检索一个整数时，它自动拆箱回 <code>Int</code> 类型。</p>
+<h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h3><p>虽然 Kotlin 试图隐藏装箱和拆箱的复杂性，但在某些情况下，装箱对象的身份不会保留。例如，两个独立装箱的整数可能不会在内存中具有相同的引用：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> a: <span class="built_in">Int</span> = <span class="number">1000</span></span><br><span class="line"><span class="keyword">val</span> boxedA: <span class="built_in">Int</span>? = a</span><br><span class="line"><span class="keyword">val</span> anotherBoxedA: <span class="built_in">Int</span>? = a</span><br><span class="line">println(boxedA === anotherBoxedA)  <span class="comment">// 可能输出 false</span></span><br></pre></td></tr></table></figure>
+
+<p>在上面的代码中，<code>boxedA</code> 和 <code>anotherBoxedA</code> 是相同原始值的两个独立的装箱实例。使用 <code>===</code> 比较它们的引用时可能得到 <code>false</code>，因为它们可能指向不同的对象。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>Kotlin 在编写代码时提供了类似于基本数据类型的简洁性和效率，同时也保留了对象的灵活性。通过自动装箱和拆箱，Kotlin 旨在提供无缝的集合操作和泛型支持，同时减少需要程序员关注的底层细节。</p>
+
       
     </div>
     <footer class="entry-meta entry-footer">
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a>
 
       
       
@@ -181,19 +197,10 @@
     
 <nav id="article-nav">
   
-    <a href="/2023/08/27/3%20Android/Framework/04-Android-Framework-%E4%B8%93%E9%A1%B9-IPC-Binder-%E6%9C%BA%E5%88%B61/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          Android Framework 专项 - IPC Binder 机制（一）
-        
-      </div>
-    </a>
   
-  
-    <a href="/2023/08/27/3%20Android/Framework/03-Android-Framework-%E4%B8%93%E9%A1%B9-Handler3/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/2%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%89)%20/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">Android Framework 专项 - Handler（三）</div>
+      <div class="article-nav-title">ViewModel 源代码分析 (三)</div>
     </a>
   
 </nav>
@@ -207,7 +214,7 @@
     <div id="toc" class="toc-article">
     <strong class="toc-title">Contents</strong>
     
-      <ol class="nav">None</ol>
+      <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%8A%A8%E8%A3%85%E7%AE%B1%E4%B8%8E%E6%8B%86%E7%AE%B1"><span class="nav-number">1.</span> <span class="nav-text">自动装箱与拆箱</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B"><span class="nav-number">2.</span> <span class="nav-text">示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">3.</span> <span class="nav-text">注意事项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol>
     
     </div>
   </aside>

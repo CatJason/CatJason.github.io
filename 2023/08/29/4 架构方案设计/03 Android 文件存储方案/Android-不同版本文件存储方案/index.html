@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Android 音视频屏幕旋转方案 | 喵星科技报</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  
+  
+  
+  <meta name="description" content="Q：我应该去哪里获取不同版本的存储策略 A：要获取不同版本的 Android 存储策略（Storage Policies），您可以访问以下资源，这些资源提供了详细的版本特定存储策略和变更的信息： 官方 Android 文档Android 官方文档是了解不同版本存储策略最可靠的来源。以下是一些重要的链接：  **Android Developers Storage Documentation**：这">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android 音视频屏幕旋转方案">
+<meta property="og:url" content="http://example.com/2023/08/29/4%20%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/03%20Android%20%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E6%96%B9%E6%A1%88/Android-%E4%B8%8D%E5%90%8C%E7%89%88%E6%9C%AC%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E6%96%B9%E6%A1%88/index.html">
+<meta property="og:site_name" content="喵星科技报">
+<meta property="og:description" content="Q：我应该去哪里获取不同版本的存储策略 A：要获取不同版本的 Android 存储策略（Storage Policies），您可以访问以下资源，这些资源提供了详细的版本特定存储策略和变更的信息： 官方 Android 文档Android 官方文档是了解不同版本存储策略最可靠的来源。以下是一些重要的链接：  **Android Developers Storage Documentation**：这">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-08-28T18:45:14.000Z">
+<meta property="article:modified_time" content="2024-05-22T14:02:16.906Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="喵星科技报" type="application/atom+xml">
+  
+  <link rel="icon" href="/css/images/favicon.ico">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+    
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Yanone+Kaffeesatz%3A200%2C300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Oswald%3A300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+<script src="/js/jquery-3.1.1.min.js"></script>
+
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.css" >
+  <link rel="stylesheet" href="/css/fashion.css" >
+  <link rel="stylesheet" href="/css/glyphs.css" >
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<a target="_blank" rel="noopener" href="https://github.com/CatJason">
+<img decoding="async" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" loading="lazy" data-recalc-dims="1">
+</a>
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  
+
+
+<header id="allheader" class="site-header" role="banner" 
+   >
+  <div class="clearfix container">
+      <div class="site-branding">
+
+          <h1 class="site-title">
+            
+              <a href="/" title="喵星科技报" rel="home"> 喵星科技报 </a>
+            
+          </h1>
+          
+          
+            
+          <nav id="main-navigation" class="main-navigation" role="navigation">
+            <a class="nav-open">Menu</a>
+            <a class="nav-close">Close</a>
+
+            <div class="clearfix sf-menu">
+              <ul id="main-nav" class="menu sf-js-enabled sf-arrows"  style="touch-action: pan-y;">
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="/"> <a class="" href="/">Home</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="archives"> <a class="" href="/archives">Archives</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="categories"> <a class="" href="/categories">Categories</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="tags"> <a class="" href="/tags">Tags</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="about"> <a class="" href="/about">About</a> </li>
+                    
+              </ul>
+            </div>
+          </nav>
+
+      </div>
+  </div>
+</header>
+
+
+  <div id="container">
+    <div id="wrap">
+            
+      <div id="content" class="outer">
+        
+          <section id="main" style="float:none;"><article id="post-4 架构方案设计/03 Android 文件存储方案/Android-不同版本文件存储方案" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" class="article-title" itemprop="name">
+      Android 音视频屏幕旋转方案
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/29/4%20%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/03%20Android%20%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E6%96%B9%E6%A1%88/Android-%E4%B8%8D%E5%90%8C%E7%89%88%E6%9C%AC%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E6%96%B9%E6%A1%88/" class="article-date">
+	  <time datetime="2023-08-28T18:45:14.000Z" itemprop="datePublished">August 29, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a>, <a class="article-category-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-2-Android-%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.2 - Android 存储文件方案设计</a>
+ 
+      
+	<span id="busuanzi_container_page_pv">
+	  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	</span>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Q：我应该去哪里获取不同版本的存储策略</p>
+<p>A：要获取不同版本的 Android 存储策略（Storage Policies），您可以访问以下资源，这些资源提供了详细的版本特定存储策略和变更的信息：</p>
+<h3 id="官方-Android-文档"><a href="#官方-Android-文档" class="headerlink" title="官方 Android 文档"></a>官方 Android 文档</h3><p>Android 官方文档是了解不同版本存储策略最可靠的来源。以下是一些重要的链接：</p>
+<ol>
+<li><p>**<a target="_blank" rel="noopener" href="https://developer.android.com/guide/topics/data/data-storage">Android Developers Storage Documentation</a>**：<br>这是 Android 官方的存储文档，涵盖了各种存储选项和最佳实践。</p>
+</li>
+<li><p>**<a target="_blank" rel="noopener" href="https://developer.android.com/about/versions">Android Platform Releases</a>**：<br>这个页面提供了每个 Android 版本的详细变更，包括存储策略的变更。</p>
+</li>
+<li><p>**<a target="_blank" rel="noopener" href="https://developer.android.com/training/data-storage">Scoped Storage</a>**：<br>针对 Android 10（API Level 29）及更高版本的分区存储（Scoped Storage），是存储策略的重要变更点。</p>
+</li>
+</ol>
+<h3 id="官方博客和公告"><a href="#官方博客和公告" class="headerlink" title="官方博客和公告"></a>官方博客和公告</h3><p>Android 官方博客和公告也是了解存储策略变更的好资源：</p>
+<ol>
+<li>**<a target="_blank" rel="noopener" href="https://android-developers.googleblog.com/">Android Developers Blog</a>**：<br>在这个博客上，Google 发布了关于新功能和存储策略变更的详细信息和指导。</li>
+</ol>
+<h3 id="GitHub-和社区资源"><a href="#GitHub-和社区资源" class="headerlink" title="GitHub 和社区资源"></a>GitHub 和社区资源</h3><p>开源社区和开发者论坛也提供了大量关于存储策略的信息：</p>
+<ol>
+<li><p>**<a target="_blank" rel="noopener" href="https://github.com/android/sunflower">Google Samples on GitHub</a>**：<br>Google 提供的示例项目，可以查看不同版本的存储策略实现。</p>
+</li>
+<li><p>**<a target="_blank" rel="noopener" href="https://stackoverflow.com/">Stack Overflow</a>**：<br>搜索关于 Android 存储策略的问题和答案，可以获取社区的解决方案和建议。</p>
+</li>
+</ol>
+<h3 id="具体版本的存储策略变更"><a href="#具体版本的存储策略变更" class="headerlink" title="具体版本的存储策略变更"></a>具体版本的存储策略变更</h3><p>要了解具体版本的存储策略变更，可以参考以下步骤：</p>
+<ol>
+<li><p><strong>访问 Android 开发者文档中的版本变更日志</strong>：<br>每个 Android 版本的变更日志会详细列出该版本的新特性和变更，包括存储策略。</p>
+</li>
+<li><p><strong>查找特定版本的存储策略文档</strong>：<br>在 Android Developers 网站上，您可以找到特定版本的 API 参考和变更日志。</p>
+</li>
+</ol>
+<h3 id="直接搜索具体问题"><a href="#直接搜索具体问题" class="headerlink" title="直接搜索具体问题"></a>直接搜索具体问题</h3><p>如果您有特定的存储策略问题，可以直接在 Google 搜索：</p>
+<ul>
+<li>例如：<code>Android 10 Scoped Storage</code></li>
+<li>例如：<code>Android 11 Storage Policy Changes</code></li>
+</ul>
+<p>通过这些资源，您应该能够找到详细的 Android 存储策略信息，并理解每个版本的特定变更。</p>
+<h1 id="Android-6-以下的文件存储和读取策略"><a href="#Android-6-以下的文件存储和读取策略" class="headerlink" title="Android 6 以下的文件存储和读取策略"></a>Android 6 以下的文件存储和读取策略</h1><p>在Android 6.0（API Level 23）及以下版本中，文件存储和读取的策略主要涉及以下几个方面：</p>
+<h3 id="1-存储位置"><a href="#1-存储位置" class="headerlink" title="1. 存储位置"></a>1. 存储位置</h3><p>Android系统提供了两种主要的存储位置：内部存储和外部存储。</p>
+<h4 id="内部存储"><a href="#内部存储" class="headerlink" title="内部存储"></a>内部存储</h4><ul>
+<li>内部存储是应用的私有存储区域，只有该应用可以访问。</li>
+<li>存储在内部存储中的文件默认在应用卸载时会被删除。</li>
+<li>使用<code>Context</code>对象的方法可以在内部存储中读写文件，例如：<ul>
+<li><code>openFileOutput(String name, int mode)</code>：写文件</li>
+<li><code>openFileInput(String name)</code>：读文件</li>
+</ul>
+</li>
+</ul>
+<h4 id="外部存储"><a href="#外部存储" class="headerlink" title="外部存储"></a>外部存储</h4><ul>
+<li>外部存储可以是设备的外部存储卡或者内置存储分区。</li>
+<li>分为公共外部存储和应用私有外部存储。</li>
+<li>公共外部存储可以被所有应用访问，例如图片、音频文件等。</li>
+<li>应用私有外部存储只能被创建该文件的应用访问，在应用卸载时会被删除。</li>
+<li>使用<code>Environment</code>类和<code>Context</code>对象的方法可以在外部存储中读写文件，例如：<ul>
+<li><code>getExternalFilesDir(String type)</code>：获取应用私有外部存储目录</li>
+<li><code>Environment.getExternalStoragePublicDirectory(String type)</code>：获取公共外部存储目录</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-权限管理"><a href="#2-权限管理" class="headerlink" title="2. 权限管理"></a>2. 权限管理</h3><p>在Android 6.0及以下版本中，应用需要在<code>AndroidManifest.xml</code>中声明对外部存储的读写权限：</p>
+<ul>
+<li>读权限：<code>&lt;uses-permission android:name=&quot;android.permission.READ_EXTERNAL_STORAGE&quot;/&gt;</code></li>
+<li>写权限：<code>&lt;uses-permission android:name=&quot;android.permission.WRITE_EXTERNAL_STORAGE&quot;/&gt;</code></li>
+</ul>
+<p>这些权限在应用安装时由用户批准。</p>
+<h3 id="3-文件操作代码示例"><a href="#3-文件操作代码示例" class="headerlink" title="3. 文件操作代码示例"></a>3. 文件操作代码示例</h3><h4 id="内部存储-1"><a href="#内部存储-1" class="headerlink" title="内部存储"></a>内部存储</h4><p>写文件：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">filename</span> <span class="operator">=</span> <span class="string">&quot;myfile.txt&quot;</span>;</span><br><span class="line"><span class="type">String</span> <span class="variable">fileContents</span> <span class="operator">=</span> <span class="string">&quot;Hello, world!&quot;</span>;</span><br><span class="line"><span class="type">FileOutputStream</span> <span class="variable">fos</span> <span class="operator">=</span> openFileOutput(filename, Context.MODE_PRIVATE);</span><br><span class="line">fos.write(fileContents.getBytes());</span><br><span class="line">fos.close();</span><br></pre></td></tr></table></figure>
+
+<p>读文件：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">FileInputStream</span> <span class="variable">fis</span> <span class="operator">=</span> openFileInput(filename);</span><br><span class="line"><span class="type">InputStreamReader</span> <span class="variable">isr</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">InputStreamReader</span>(fis);</span><br><span class="line"><span class="type">BufferedReader</span> <span class="variable">bufferedReader</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BufferedReader</span>(isr);</span><br><span class="line"><span class="type">StringBuilder</span> <span class="variable">sb</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>();</span><br><span class="line">String line;</span><br><span class="line"><span class="keyword">while</span> ((line = bufferedReader.readLine()) != <span class="literal">null</span>) &#123;</span><br><span class="line">    sb.append(line);</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">String</span> <span class="variable">fileContents</span> <span class="operator">=</span> sb.toString();</span><br><span class="line">fis.close();</span><br></pre></td></tr></table></figure>
+
+<h4 id="外部存储-1"><a href="#外部存储-1" class="headerlink" title="外部存储"></a>外部存储</h4><p>检查存储状态：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">state</span> <span class="operator">=</span> Environment.getExternalStorageState();</span><br><span class="line"><span class="keyword">if</span> (Environment.MEDIA_MOUNTED.equals(state)) &#123;</span><br><span class="line">    <span class="comment">// 可以读写外部存储</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>写文件：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">File</span> <span class="variable">file</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(getExternalFilesDir(<span class="literal">null</span>), <span class="string">&quot;myfile.txt&quot;</span>);</span><br><span class="line"><span class="type">FileOutputStream</span> <span class="variable">fos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileOutputStream</span>(file);</span><br><span class="line">fos.write(fileContents.getBytes());</span><br><span class="line">fos.close();</span><br></pre></td></tr></table></figure>
+
+<p>读文件：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">File</span> <span class="variable">file</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(getExternalFilesDir(<span class="literal">null</span>), <span class="string">&quot;myfile.txt&quot;</span>);</span><br><span class="line"><span class="type">FileInputStream</span> <span class="variable">fis</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileInputStream</span>(file);</span><br><span class="line"><span class="type">InputStreamReader</span> <span class="variable">isr</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">InputStreamReader</span>(fis);</span><br><span class="line"><span class="type">BufferedReader</span> <span class="variable">bufferedReader</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BufferedReader</span>(isr);</span><br><span class="line"><span class="type">StringBuilder</span> <span class="variable">sb</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>();</span><br><span class="line">String line;</span><br><span class="line"><span class="keyword">while</span> ((line = bufferedReader.readLine()) != <span class="literal">null</span>) &#123;</span><br><span class="line">    sb.append(line);</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">String</span> <span class="variable">fileContents</span> <span class="operator">=</span> sb.toString();</span><br><span class="line">fis.close();</span><br></pre></td></tr></table></figure>
+
+<p>这些代码示例展示了在Android 6.0及以下版本中如何进行基本的文件读写操作。随着Android版本的升级，文件存储和权限管理策略也发生了显著变化，因此在开发过程中需要根据目标API版本进行适配。</p>
+<h1 id="Android-6-以上文件存储和读取策略"><a href="#Android-6-以上文件存储和读取策略" class="headerlink" title="Android 6 以上文件存储和读取策略"></a>Android 6 以上文件存储和读取策略</h1><p>在Android 6.0（API Level 23）及以上版本中，文件存储和读取策略发生了一些变化，特别是在权限管理和存储位置的使用方面。以下是各版本的策略变化和相应的文件存储读写方法。</p>
+<h3 id="1-Android-6-0-API-Level-23"><a href="#1-Android-6-0-API-Level-23" class="headerlink" title="1. Android 6.0 (API Level 23)"></a>1. Android 6.0 (API Level 23)</h3><h4 id="动态权限"><a href="#动态权限" class="headerlink" title="动态权限"></a>动态权限</h4><ul>
+<li>从Android 6.0开始，权限管理采用动态权限模式。用户可以在运行时授予或拒绝权限。</li>
+<li>应用在使用外部存储时，需要在<code>AndroidManifest.xml</code>中声明权限，并在运行时请求权限。</li>
+</ul>
+<p><strong>权限请求代码示例：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (ContextCompat.checkSelfPermission(<span class="built_in">this</span>, Manifest.permission.WRITE_EXTERNAL_STORAGE)</span><br><span class="line">        != PackageManager.PERMISSION_GRANTED) &#123;</span><br><span class="line">    ActivityCompat.requestPermissions(<span class="built_in">this</span>, <span class="keyword">new</span> <span class="title class_">String</span>[]&#123;Manifest.permission.WRITE_EXTERNAL_STORAGE&#125;, REQUEST_CODE);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-Android-7-0-API-Level-24"><a href="#2-Android-7-0-API-Level-24" class="headerlink" title="2. Android 7.0 (API Level 24)"></a>2. Android 7.0 (API Level 24)</h3><h4 id="文件URI策略"><a href="#文件URI策略" class="headerlink" title="文件URI策略"></a>文件URI策略</h4><ul>
+<li>从Android 7.0开始，<code>File</code> URI不再被允许在应用之间共享。必须使用<code>FileProvider</code>来共享文件URI。</li>
+</ul>
+<p><strong><code>FileProvider</code>配置示例：</strong><br>在<code>AndroidManifest.xml</code>中：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">provider</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:name</span>=<span class="string">&quot;androidx.core.content.FileProvider&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:authorities</span>=<span class="string">&quot;$&#123;applicationId&#125;.fileprovider&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:exported</span>=<span class="string">&quot;false&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:grantUriPermissions</span>=<span class="string">&quot;true&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta-data</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:name</span>=<span class="string">&quot;android.support.FILE_PROVIDER_PATHS&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:resource</span>=<span class="string">&quot;@xml/file_paths&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">provider</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>在<code>res/xml/file_paths.xml</code>中：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">paths</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">external-path</span> <span class="attr">name</span>=<span class="string">&quot;external_files&quot;</span> <span class="attr">path</span>=<span class="string">&quot;.&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">paths</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-Android-8-0-API-Level-26"><a href="#3-Android-8-0-API-Level-26" class="headerlink" title="3. Android 8.0 (API Level 26)"></a>3. Android 8.0 (API Level 26)</h3><h4 id="安全性增强"><a href="#安全性增强" class="headerlink" title="安全性增强"></a>安全性增强</h4><ul>
+<li>在后台执行文件操作受到限制，必须在前台任务或通过服务进行文件操作。</li>
+</ul>
+<h3 id="4-Android-9-0-API-Level-28"><a href="#4-Android-9-0-API-Level-28" class="headerlink" title="4. Android 9.0 (API Level 28)"></a>4. Android 9.0 (API Level 28)</h3><h4 id="共享存储访问"><a href="#共享存储访问" class="headerlink" title="共享存储访问"></a>共享存储访问</h4><ul>
+<li>在Android 9.0中引入了新的API，用于访问共享存储，推荐使用<code>ACTION_OPEN_DOCUMENT</code>和<code>ACTION_CREATE_DOCUMENT</code>来访问和创建文件。</li>
+</ul>
+<p><strong>使用示例：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Intent</span> <span class="variable">intent</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Intent</span>(Intent.ACTION_OPEN_DOCUMENT);</span><br><span class="line">intent.addCategory(Intent.CATEGORY_OPENABLE);</span><br><span class="line">intent.setType(<span class="string">&quot;*/*&quot;</span>);</span><br><span class="line">startActivityForResult(intent, REQUEST_CODE_OPEN_DOCUMENT);</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-Android-10-API-Level-29"><a href="#5-Android-10-API-Level-29" class="headerlink" title="5. Android 10 (API Level 29)"></a>5. Android 10 (API Level 29)</h3><h4 id="分区存储-Scoped-Storage"><a href="#分区存储-Scoped-Storage" class="headerlink" title="分区存储 (Scoped Storage)"></a>分区存储 (Scoped Storage)</h4><ul>
+<li>引入了分区存储，应用只能访问其私有的外部存储空间，除非使用特定的API访问公共存储。</li>
+<li>可以通过请求Legacy存储模式来继续使用传统的存储访问方式（直到Android 11）。</li>
+</ul>
+<p><strong>分区存储代码示例：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">File</span> <span class="variable">file</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(getExternalFilesDir(<span class="literal">null</span>), <span class="string">&quot;myfile.txt&quot;</span>);</span><br><span class="line"><span class="type">FileOutputStream</span> <span class="variable">fos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileOutputStream</span>(file);</span><br><span class="line">fos.write(fileContents.getBytes());</span><br><span class="line">fos.close();</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-Android-11-API-Level-30"><a href="#6-Android-11-API-Level-30" class="headerlink" title="6. Android 11 (API Level 30)"></a>6. Android 11 (API Level 30)</h3><h4 id="强制分区存储"><a href="#强制分区存储" class="headerlink" title="强制分区存储"></a>强制分区存储</h4><ul>
+<li>强制启用分区存储，应用无法再使用<code>requestLegacyExternalStorage</code>标志。</li>
+<li>提供了新的访问存储的API，如<code>MediaStore</code>。</li>
+</ul>
+<p><strong>MediaStore使用示例：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">ContentValues</span> <span class="variable">values</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ContentValues</span>();</span><br><span class="line">values.put(MediaStore.MediaColumns.DISPLAY_NAME, <span class="string">&quot;myfile.txt&quot;</span>);</span><br><span class="line">values.put(MediaStore.MediaColumns.MIME_TYPE, <span class="string">&quot;text/plain&quot;</span>);</span><br><span class="line">values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOCUMENTS);</span><br><span class="line"><span class="type">Uri</span> <span class="variable">uri</span> <span class="operator">=</span> getContentResolver().insert(MediaStore.Files.getContentUri(<span class="string">&quot;external&quot;</span>), values);</span><br><span class="line"><span class="keyword">if</span> (uri != <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="type">OutputStream</span> <span class="variable">outputStream</span> <span class="operator">=</span> getContentResolver().openOutputStream(uri);</span><br><span class="line">    outputStream.write(fileContents.getBytes());</span><br><span class="line">    outputStream.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-Android-12-API-Level-31-及更高版本"><a href="#7-Android-12-API-Level-31-及更高版本" class="headerlink" title="7. Android 12 (API Level 31) 及更高版本"></a>7. Android 12 (API Level 31) 及更高版本</h3><h4 id="进一步限制外部存储访问"><a href="#进一步限制外部存储访问" class="headerlink" title="进一步限制外部存储访问"></a>进一步限制外部存储访问</h4><ul>
+<li>在Android 12中，对特定类型的文件访问进行了更多的限制，需要使用特定的API来访问不同类型的文件，如音频、视频和图片等。</li>
+</ul>
+<p><strong>总结：</strong></p>
+<ul>
+<li>Android 6.0及以上版本在权限管理上采用动态权限，需要在运行时请求权限。</li>
+<li>Android 7.0开始引入<code>FileProvider</code>来共享文件URI。</li>
+<li>Android 10引入分区存储，Android 11强制启用分区存储，进一步限制了应用对外部存储的访问。</li>
+<li>使用<code>MediaStore</code>等新的API来进行文件的读写操作，以适应最新的存储策略。</li>
+</ul>
+<p>了解并适应这些变化，可以确保应用在不同Android版本上的文件存储和读取操作安全且有效。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a>, <a class="article-category-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-2-Android-%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.2 - Android 存储文件方案设计</a>
+
+      
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2023/08/29/4%20%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/01%20MVI/Android-%E9%9F%B3%E8%A7%86%E9%A2%91%E6%9E%B6%E6%9E%84%E4%B8%93%E9%A1%B9/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Android MVI GPT4 快问快答
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2023/08/27/3%20Android/Framework/04-Android-Framework-%E4%B8%93%E9%A1%B9-IPC-Binder-%E6%9C%BA%E5%88%B61/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Android Framework 专项 - IPC Binder 机制（一）</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="sidebar">
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">Contents</strong>
+    
+      <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%98%E6%96%B9-Android-%E6%96%87%E6%A1%A3"><span class="nav-number">1.</span> <span class="nav-text">官方 Android 文档</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%98%E6%96%B9%E5%8D%9A%E5%AE%A2%E5%92%8C%E5%85%AC%E5%91%8A"><span class="nav-number">2.</span> <span class="nav-text">官方博客和公告</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GitHub-%E5%92%8C%E7%A4%BE%E5%8C%BA%E8%B5%84%E6%BA%90"><span class="nav-number">3.</span> <span class="nav-text">GitHub 和社区资源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E7%89%88%E6%9C%AC%E7%9A%84%E5%AD%98%E5%82%A8%E7%AD%96%E7%95%A5%E5%8F%98%E6%9B%B4"><span class="nav-number">4.</span> <span class="nav-text">具体版本的存储策略变更</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B4%E6%8E%A5%E6%90%9C%E7%B4%A2%E5%85%B7%E4%BD%93%E9%97%AE%E9%A2%98"><span class="nav-number">5.</span> <span class="nav-text">直接搜索具体问题</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Android-6-%E4%BB%A5%E4%B8%8B%E7%9A%84%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E5%92%8C%E8%AF%BB%E5%8F%96%E7%AD%96%E7%95%A5"><span class="nav-number"></span> <span class="nav-text">Android 6 以下的文件存储和读取策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%AD%98%E5%82%A8%E4%BD%8D%E7%BD%AE"><span class="nav-number">1.</span> <span class="nav-text">1. 存储位置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8"><span class="nav-number">1.1.</span> <span class="nav-text">内部存储</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8"><span class="nav-number">1.2.</span> <span class="nav-text">外部存储</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">2. 权限管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B"><span class="nav-number">3.</span> <span class="nav-text">3. 文件操作代码示例</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8-1"><span class="nav-number">3.1.</span> <span class="nav-text">内部存储</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8-1"><span class="nav-number">3.2.</span> <span class="nav-text">外部存储</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Android-6-%E4%BB%A5%E4%B8%8A%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E5%92%8C%E8%AF%BB%E5%8F%96%E7%AD%96%E7%95%A5"><span class="nav-number"></span> <span class="nav-text">Android 6 以上文件存储和读取策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Android-6-0-API-Level-23"><span class="nav-number">1.</span> <span class="nav-text">1. Android 6.0 (API Level 23)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8A%A8%E6%80%81%E6%9D%83%E9%99%90"><span class="nav-number">1.1.</span> <span class="nav-text">动态权限</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Android-7-0-API-Level-24"><span class="nav-number">2.</span> <span class="nav-text">2. Android 7.0 (API Level 24)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%87%E4%BB%B6URI%E7%AD%96%E7%95%A5"><span class="nav-number">2.1.</span> <span class="nav-text">文件URI策略</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Android-8-0-API-Level-26"><span class="nav-number">3.</span> <span class="nav-text">3. Android 8.0 (API Level 26)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%89%E5%85%A8%E6%80%A7%E5%A2%9E%E5%BC%BA"><span class="nav-number">3.1.</span> <span class="nav-text">安全性增强</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-Android-9-0-API-Level-28"><span class="nav-number">4.</span> <span class="nav-text">4. Android 9.0 (API Level 28)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%B1%E4%BA%AB%E5%AD%98%E5%82%A8%E8%AE%BF%E9%97%AE"><span class="nav-number">4.1.</span> <span class="nav-text">共享存储访问</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-Android-10-API-Level-29"><span class="nav-number">5.</span> <span class="nav-text">5. Android 10 (API Level 29)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%86%E5%8C%BA%E5%AD%98%E5%82%A8-Scoped-Storage"><span class="nav-number">5.1.</span> <span class="nav-text">分区存储 (Scoped Storage)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-Android-11-API-Level-30"><span class="nav-number">6.</span> <span class="nav-text">6. Android 11 (API Level 30)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BC%BA%E5%88%B6%E5%88%86%E5%8C%BA%E5%AD%98%E5%82%A8"><span class="nav-number">6.1.</span> <span class="nav-text">强制分区存储</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-Android-12-API-Level-31-%E5%8F%8A%E6%9B%B4%E9%AB%98%E7%89%88%E6%9C%AC"><span class="nav-number">7.</span> <span class="nav-text">7. Android 12 (API Level 31) 及更高版本</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%9B%E4%B8%80%E6%AD%A5%E9%99%90%E5%88%B6%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8%E8%AE%BF%E9%97%AE"><span class="nav-number">7.1.</span> <span class="nav-text">进一步限制外部存储访问</span></a></li></ol></li></ol>
+    
+    </div>
+  </aside>
+</section>
+        
+      </div>
+
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    <footer id="footer" class="site-footer">
+  
+
+  <div class="clearfix container">
+      <div class="site-info">
+	      &copy; 2024 喵星科技报 All Rights Reserved.
+        
+            <span id="busuanzi_container_site_uv">
+              本站访客数<span id="busuanzi_value_site_uv"></span>人次  
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+          
+      </div>
+      <div class="site-credit">
+        Theme by <a href="https://github.com/CatJason" target="_blank">hipaper</a>
+      </div>
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var wrapdiv = document.getElementById("wrap");
+    var contentdiv = document.getElementById("content");
+
+    wrapdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+
+
+    <!-- headerblur min height -->
+    
+    
+</script>
+    
+<div style="display: none;">
+  <script src="https://s11.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+</div>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+<script src="/js/bootstrap.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+	</script>
+
+
+
+
+
+
+  </div>
+
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js" async=""></script>
+</body>
+</html>
