@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>从零开始写一个 Android 播放器 | 喵星科技报</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  
+  
+  
+  <meta name="description" content="我们用需求倒逼的方式，首先搞清楚我们需要什么 首先我们需要一个 extractor 库用来解析 mp4 文件 我们希望给外部提供一个 Mp4Extractor 解析 mp4 数据 12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从零开始写一个 Android 播放器">
+<meta property="og:url" content="http://example.com/2025/01/04/11%20%E9%9F%B3%E8%A7%86%E9%A2%91/01%20%E6%92%AD%E6%94%BE%E5%99%A8/%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%86%99%E4%B8%80%E4%B8%AA-Android-%E6%92%AD%E6%94%BE%E5%99%A8/index.html">
+<meta property="og:site_name" content="喵星科技报">
+<meta property="og:description" content="我们用需求倒逼的方式，首先搞清楚我们需要什么 首先我们需要一个 extractor 库用来解析 mp4 文件 我们希望给外部提供一个 Mp4Extractor 解析 mp4 数据 12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-01-04T11:48:36.200Z">
+<meta property="article:modified_time" content="2025-01-04T12:55:49.300Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="喵星科技报" type="application/atom+xml">
+  
+  <link rel="icon" href="/css/images/favicon.ico">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+    
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Yanone+Kaffeesatz%3A200%2C300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Oswald%3A300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+<script src="/js/jquery-3.1.1.min.js"></script>
+
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.css" >
+  <link rel="stylesheet" href="/css/fashion.css" >
+  <link rel="stylesheet" href="/css/glyphs.css" >
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<a target="_blank" rel="noopener" href="https://github.com/CatJason">
+<img decoding="async" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" loading="lazy" data-recalc-dims="1">
+</a>
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  
+
+
+<header id="allheader" class="site-header" role="banner" 
+   >
+  <div class="clearfix container">
+      <div class="site-branding">
+
+          <h1 class="site-title">
+            
+              <a href="/" title="喵星科技报" rel="home"> 喵星科技报 </a>
+            
+          </h1>
+          
+          
+            
+          <nav id="main-navigation" class="main-navigation" role="navigation">
+            <a class="nav-open">Menu</a>
+            <a class="nav-close">Close</a>
+
+            <div class="clearfix sf-menu">
+              <ul id="main-nav" class="menu sf-js-enabled sf-arrows"  style="touch-action: pan-y;">
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="/"> <a class="" href="/">Home</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="archives"> <a class="" href="/archives">Archives</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="categories"> <a class="" href="/categories">Categories</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="tags"> <a class="" href="/tags">Tags</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="about"> <a class="" href="/about">About</a> </li>
+                    
+              </ul>
+            </div>
+          </nav>
+
+      </div>
+  </div>
+</header>
+
+
+  <div id="container">
+    <div id="wrap">
+            
+      <div id="content" class="outer">
+        
+          <section id="main" style="float:none;"><article id="post-11 音视频/01 播放器/从零开始写一个-Android-播放器" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" class="article-title" itemprop="name">
+      从零开始写一个 Android 播放器
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2025/01/04/11%20%E9%9F%B3%E8%A7%86%E9%A2%91/01%20%E6%92%AD%E6%94%BE%E5%99%A8/%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%86%99%E4%B8%80%E4%B8%AA-Android-%E6%92%AD%E6%94%BE%E5%99%A8/" class="article-date">
+	  <time datetime="2025-01-04T11:48:36.200Z" itemprop="datePublished">January 4, 2025</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/">11 - 音视频</a>, <a class="article-category-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/11-1-%E6%92%AD%E6%94%BE%E5%99%A8/">11.1 - 播放器</a>
+ 
+      
+	<span id="busuanzi_container_page_pv">
+	  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	</span>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>我们用需求倒逼的方式，首先搞清楚我们需要什么</p>
+<p>首先我们需要一个 extractor 库用来解析 mp4 文件</p>
+<p>我们希望给外部提供一个 Mp4Extractor 解析 mp4 数据</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> androidx.media3.extractor.ExtractorInput;</span><br><span class="line"><span class="keyword">import</span> androidx.media3.extractor.Mp4Extractor;</span><br><span class="line"><span class="keyword">import</span> androidx.media3.extractor.TrackOutput;</span><br><span class="line"><span class="keyword">import</span> androidx.media3.common.util.Util;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStream;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MediaExtractorExample</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 解析 MP4 文件</span></span><br><span class="line"><span class="comment">     * </span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> inputStream 输入流</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IOException 如果读取文件时发生错误</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> void extractMp4(InputStream inputStream) throws IOException &#123;</span><br><span class="line">        <span class="comment">// 创建一个 ExtractorInput 实现，用于从输入流中读取数据</span></span><br><span class="line">        ExtractorInput extractorInput = new ExtractorInput() &#123;</span><br><span class="line">            <span class="keyword">private</span> InputStream input = inputStream;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> long getLength() throws IOException &#123;</span><br><span class="line">                <span class="keyword">return</span> input.available(); <span class="comment">// 获取文件长度</span></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> long getPosition() throws IOException &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="number">0</span>; <span class="comment">// 返回当前读取的位置，假设从头开始读取</span></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> void advancePeekPosition(int length) throws IOException &#123;</span><br><span class="line">                input.skip(length); <span class="comment">// 跳过指定长度的字节</span></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> void resetPeekPosition() throws IOException &#123;</span><br><span class="line">                <span class="comment">// 重置读取位置，这里未实现</span></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> int read(byte[] target, int offset, int length) throws IOException &#123;</span><br><span class="line">                <span class="keyword">return</span> input.read(target, offset, length); <span class="comment">// 从输入流中读取数据到目标字节数组</span></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> void close() throws IOException &#123;</span><br><span class="line">                input.close(); <span class="comment">// 关闭输入流</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 创建 MP4 提取器</span></span><br><span class="line">        Mp4Extractor mp4Extractor = new Mp4Extractor();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 提供输出轨道的处理器，简单打印数据</span></span><br><span class="line">        TrackOutput trackOutput = new TrackOutput() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> void format(Format format) &#123;</span><br><span class="line">                <span class="comment">// 处理格式信息</span></span><br><span class="line">                System.<span class="keyword">out</span>.println(<span class="string">&quot;Format: &quot;</span> + format);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> void sampleData(ExtractorInput input, int length) throws IOException &#123;</span><br><span class="line">                <span class="comment">// 处理样本数据</span></span><br><span class="line">                byte[] buffer = new byte[length];</span><br><span class="line">                input.readFully(buffer, <span class="number">0</span>, length); <span class="comment">// 读取样本数据</span></span><br><span class="line">                System.<span class="keyword">out</span>.println(<span class="string">&quot;Sample Data: &quot;</span> + new String(buffer));</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> void sampleMetadata(long timeUs, int flags, int size, int offset, CryptoData cryptoData) &#123;</span><br><span class="line">                <span class="comment">// 处理样本元数据</span></span><br><span class="line">                System.<span class="keyword">out</span>.println(<span class="string">&quot;Sample Metadata: timeUs=&quot;</span> + timeUs + <span class="string">&quot;, flags=&quot;</span> + flags);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 使用提取器初始化 ExtractorOutput</span></span><br><span class="line">        mp4Extractor.<span class="keyword">init</span>(new ExtractorOutput() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> void seekMap(SeekMap seekMap) &#123;</span><br><span class="line">                <span class="comment">// 处理 SeekMap</span></span><br><span class="line">                long duration = seekMap.getDurationUs();</span><br><span class="line">                System.<span class="keyword">out</span>.println(<span class="string">&quot;Media Duration: &quot;</span> + duration);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> void track(int id, TrackOutput trackOutput) &#123;</span><br><span class="line">                <span class="comment">// 添加轨道</span></span><br><span class="line">                System.<span class="keyword">out</span>.println(<span class="string">&quot;Track: &quot;</span> + id);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 解析文件数据</span></span><br><span class="line">        mp4Extractor.read(extractorInput, new PositionHolder(), <span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="Mp4Extractor-需要的-API-名称以及对应的功能"><a href="#Mp4Extractor-需要的-API-名称以及对应的功能" class="headerlink" title="Mp4Extractor 需要的 API 名称以及对应的功能"></a>Mp4Extractor 需要的 API 名称以及对应的功能</h3><hr>
+<h3 id="构造方法"><a href="#构造方法" class="headerlink" title="构造方法"></a><strong>构造方法</strong></h3><ol>
+<li><strong><code>Mp4Extractor()</code></strong><ul>
+<li><strong>功能：</strong> 默认构造函数，初始化 <code>Mp4Extractor</code> 对象。</li>
+</ul>
+</li>
+<li><strong><code>Mp4Extractor(Factory factory)</code></strong><ul>
+<li><strong>功能：</strong> 通过工厂方法创建 <code>Mp4Extractor</code> 实例，用于支持动态依赖注入。</li>
+</ul>
+</li>
+<li><strong><code>Mp4Extractor(int flags)</code></strong><ul>
+<li><strong>功能：</strong> 通过标志（flags）初始化解析器，例如控制是否解析特定类型的 Atom。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="工厂方法"><a href="#工厂方法" class="headerlink" title="工厂方法"></a><strong>工厂方法</strong></h3><ol>
+<li><code>newFactory(Factory factory): ExtractorsFactory</code><ul>
+<li><strong>功能：</strong> 提供用于创建 <code>Mp4Extractor</code> 实例的工厂方法。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="格式验证"><a href="#格式验证" class="headerlink" title="格式验证"></a><strong>格式验证</strong></h3><ol>
+<li><strong><code>sniff(ExtractorInput input): boolean</code></strong><ul>
+<li><strong>功能：</strong> 检测输入流是否是支持的 MP4 文件格式。</li>
+</ul>
+</li>
+<li><strong><code>getSniffFailureDetails(): ImmutableList&lt;SniffFailure&gt;</code></strong><ul>
+<li><strong>功能：</strong> 如果 <code>sniff</code> 方法失败，返回失败的详细信息。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="初始化与资源管理"><a href="#初始化与资源管理" class="headerlink" title="初始化与资源管理"></a><strong>初始化与资源管理</strong></h3><ol>
+<li><strong><code>init(ExtractorOutput output): void</code></strong><ul>
+<li><strong>功能：</strong> 初始化解析器，设置音视频数据的输出接口。</li>
+</ul>
+</li>
+<li><strong><code>release(): void</code></strong><ul>
+<li><strong>功能：</strong> 释放资源，清理解析器的内部状态。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="文件解析"><a href="#文件解析" class="headerlink" title="文件解析"></a><strong>文件解析</strong></h3><ol>
+<li><strong><code>read(ExtractorInput input, PositionHolder seekPosition): int</code></strong><ul>
+<li><strong>功能：</strong> 读取输入流，逐步解析 MP4 文件的音视频数据或元数据。</li>
+</ul>
+</li>
+<li><strong><code>seek(long position, long timeUs): void</code></strong><ul>
+<li><strong>功能：</strong> 跳转到指定的文件位置和时间戳。</li>
+</ul>
+</li>
+<li><strong><code>getDurationUs(): long</code></strong><ul>
+<li><strong>功能：</strong> 返回 MP4 文件的总时长（单位：微秒）。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="跳转与定位"><a href="#跳转与定位" class="headerlink" title="跳转与定位"></a><strong>跳转与定位</strong></h3><ol>
+<li><strong><code>getSeekPoints(long timeUs): SeekPoints</code></strong><ul>
+<li><strong>功能：</strong> 根据时间戳获取跳转点，帮助实现精确跳转。</li>
+</ul>
+</li>
+<li><strong><code>isSeekable(): boolean</code></strong><ul>
+<li><strong>功能：</strong> 判断当前 MP4 文件是否支持跳转功能。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="Atom-解析"><a href="#Atom-解析" class="headerlink" title="Atom 解析"></a><strong>Atom 解析</strong></h3><ol>
+<li><strong><code>shouldParseLeafAtom(int atomType): boolean</code></strong><ul>
+<li><strong>功能：</strong> 判断是否需要解析叶子 Atom（无子元素的 Atom）。</li>
+</ul>
+</li>
+<li><strong><code>shouldParseContainerAtom(int atomType): boolean</code></strong><ul>
+<li><strong>功能：</strong> 判断是否需要解析容器 Atom（包含子元素的 Atom）。</li>
+</ul>
+</li>
+<li><strong><code>readAtomHeader(ExtractorInput input): boolean</code></strong><ul>
+<li><strong>功能：</strong> 读取当前 Atom 的头部信息（类型和大小）。</li>
+</ul>
+</li>
+<li><strong><code>readAtomPayload(ExtractorInput input, PositionHolder positionHolder): boolean</code></strong><ul>
+<li><strong>功能：</strong> 读取 Atom 的有效负载部分。</li>
+</ul>
+</li>
+<li><strong><code>processMoovAtom(ContainerAtom moov): void</code></strong><ul>
+<li><strong>功能：</strong> 处理 MP4 文件中的 <code>moov</code> Atom，它包含元数据和轨道信息。</li>
+</ul>
+</li>
+<li><strong><code>processUnparsedAtom(long atomSize): void</code></strong><ul>
+<li><strong>功能：</strong> 跳过未解析的 Atom，通常用于忽略无关数据。</li>
+</ul>
+</li>
+<li><strong><code>brandToFileType(int brand): int</code></strong><ul>
+<li><strong>功能：</strong> 将 <code>ftyp</code> Atom 中的 Major Brand 转换为文件类型标识。</li>
+</ul>
+</li>
+<li><strong><code>processAtomEnded(long atomSize): void</code></strong><ul>
+<li><strong>功能：</strong> 在解析完整个 Atom 后执行收尾处理。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="音视频样本处理"><a href="#音视频样本处理" class="headerlink" title="音视频样本处理"></a><strong>音视频样本处理</strong></h3><ol>
+<li><strong><code>readSample(ExtractorInput input, PositionHolder positionHolder): int</code></strong><ul>
+<li><strong>功能：</strong> 读取音视频样本数据（如一帧音频或视频）。</li>
+</ul>
+</li>
+<li><strong><code>getTrackIndexOfNextReadSample(long timeUs): int</code></strong><ul>
+<li><strong>功能：</strong> 获取下一帧需要读取的轨道索引。</li>
+</ul>
+</li>
+<li><strong><code>updateSampleIndex(Mp4Track track, long timeUs): void</code></strong><ul>
+<li><strong>功能：</strong> 更新轨道的样本索引，用于定位到特定的时间点。</li>
+</ul>
+</li>
+<li><strong><code>calculateAccumulatedSampleSizes(Mp4Track[] tracks): long[][]</code></strong><ul>
+<li><strong>功能：</strong> 计算所有轨道中样本的累积大小，用于样本偏移计算。</li>
+</ul>
+</li>
+<li><strong><code>getSynchronizationSampleIndex(TrackSampleTable sampleTable, long timeUs): long</code></strong><ul>
+<li><strong>功能：</strong> 获取同步样本索引（关键帧），用于跳转或快速预览。</li>
+</ul>
+</li>
+<li><strong><code>maybeAdjustSeekOffset(TrackSampleTable sampleTable, long timeUs, long seekPosition): long</code></strong><ul>
+<li><strong>功能：</strong> 根据当前轨道信息调整跳转偏移。</li>
+</ul>
+</li>
+<li><strong><code>processEndOfStreamReadingAtomHeader(): void</code></strong><ul>
+<li><strong>功能：</strong> 在文件流结束时，处理 Atom 头部的读取操作。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="辅助方法"><a href="#辅助方法" class="headerlink" title="辅助方法"></a><strong>辅助方法</strong></h3><ol>
+<li><code>maybeSkipRemainingMetaAtomHeaderBytes(ExtractorInput input): void</code><ul>
+<li><strong>功能：</strong> 跳过当前 Atom 的剩余头部字节，通常用于优化解析流程。</li>
+</ul>
+</li>
+</ol>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/">11 - 音视频</a>, <a class="article-category-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/11-1-%E6%92%AD%E6%94%BE%E5%99%A8/">11.1 - 播放器</a>
+
+      
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2024/11/02/6%20Android%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85/CMake-%E4%B8%AD%E7%9A%84%E9%9D%99%E6%80%81%E8%BF%9E%E6%8E%A5%E5%92%8C%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">CMake 中的静态连接和动态链接</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="sidebar">
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">Contents</strong>
+    
+      <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Mp4Extractor-%E9%9C%80%E8%A6%81%E7%9A%84-API-%E5%90%8D%E7%A7%B0%E4%BB%A5%E5%8F%8A%E5%AF%B9%E5%BA%94%E7%9A%84%E5%8A%9F%E8%83%BD"><span class="nav-number">1.</span> <span class="nav-text">Mp4Extractor 需要的 API 名称以及对应的功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">构造方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">工厂方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%BC%E5%BC%8F%E9%AA%8C%E8%AF%81"><span class="nav-number">4.</span> <span class="nav-text">格式验证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E4%B8%8E%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86"><span class="nav-number">5.</span> <span class="nav-text">初始化与资源管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90"><span class="nav-number">6.</span> <span class="nav-text">文件解析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B7%B3%E8%BD%AC%E4%B8%8E%E5%AE%9A%E4%BD%8D"><span class="nav-number">7.</span> <span class="nav-text">跳转与定位</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Atom-%E8%A7%A3%E6%9E%90"><span class="nav-number">8.</span> <span class="nav-text">Atom 解析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9F%B3%E8%A7%86%E9%A2%91%E6%A0%B7%E6%9C%AC%E5%A4%84%E7%90%86"><span class="nav-number">9.</span> <span class="nav-text">音视频样本处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BE%85%E5%8A%A9%E6%96%B9%E6%B3%95"><span class="nav-number">10.</span> <span class="nav-text">辅助方法</span></a></li></ol>
+    
+    </div>
+  </aside>
+</section>
+        
+      </div>
+
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    <footer id="footer" class="site-footer">
+  
+
+  <div class="clearfix container">
+      <div class="site-info">
+	      &copy; 2025 喵星科技报 All Rights Reserved.
+        
+            <span id="busuanzi_container_site_uv">
+              本站访客数<span id="busuanzi_value_site_uv"></span>人次  
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+          
+      </div>
+      <div class="site-credit">
+        Theme by <a href="https://github.com/CatJason" target="_blank">hipaper</a>
+      </div>
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var wrapdiv = document.getElementById("wrap");
+    var contentdiv = document.getElementById("content");
+
+    wrapdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+
+
+    <!-- headerblur min height -->
+    
+    
+</script>
+    
+<div style="display: none;">
+  <script src="https://s11.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+</div>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+<script src="/js/bootstrap.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+	</script>
+
+
+
+
+
+
+  </div>
+
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js" async=""></script>
+</body>
+</html>
