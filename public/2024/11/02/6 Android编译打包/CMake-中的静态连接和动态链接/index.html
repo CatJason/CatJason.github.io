@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>CMake 中的静态连接和动态链接 | 喵星科技报</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  
+  
+  
+  <meta name="description" content="作者: 朕小猫与GPT4 12345678910111213141516171819202122232425262728293031cmake_minimum_required(VERSION 3.4.1)project(DualVectorFoil)# 先设置 Assimp 配置项，禁用测试、样例和文档生成set(ASSIMP_BUILD_TESTS OFF CACHE BOOL &quot;&amp;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CMake 中的静态连接和动态链接">
+<meta property="og:url" content="http://example.com/2024/11/02/6%20Android%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85/CMake-%E4%B8%AD%E7%9A%84%E9%9D%99%E6%80%81%E8%BF%9E%E6%8E%A5%E5%92%8C%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5/index.html">
+<meta property="og:site_name" content="喵星科技报">
+<meta property="og:description" content="作者: 朕小猫与GPT4 12345678910111213141516171819202122232425262728293031cmake_minimum_required(VERSION 3.4.1)project(DualVectorFoil)# 先设置 Assimp 配置项，禁用测试、样例和文档生成set(ASSIMP_BUILD_TESTS OFF CACHE BOOL &quot;&amp;">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-11-02T10:59:31.865Z">
+<meta property="article:modified_time" content="2024-11-02T11:00:29.072Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="喵星科技报" type="application/atom+xml">
+  
+  <link rel="icon" href="/css/images/favicon.ico">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+    
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Yanone+Kaffeesatz%3A200%2C300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Oswald%3A300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+<script src="/js/jquery-3.1.1.min.js"></script>
+
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.css" >
+  <link rel="stylesheet" href="/css/fashion.css" >
+  <link rel="stylesheet" href="/css/glyphs.css" >
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<a target="_blank" rel="noopener" href="https://github.com/CatJason">
+<img decoding="async" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" loading="lazy" data-recalc-dims="1">
+</a>
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  
+
+
+<header id="allheader" class="site-header" role="banner" 
+   >
+  <div class="clearfix container">
+      <div class="site-branding">
+
+          <h1 class="site-title">
+            
+              <a href="/" title="喵星科技报" rel="home"> 喵星科技报 </a>
+            
+          </h1>
+          
+          
+            
+          <nav id="main-navigation" class="main-navigation" role="navigation">
+            <a class="nav-open">Menu</a>
+            <a class="nav-close">Close</a>
+
+            <div class="clearfix sf-menu">
+              <ul id="main-nav" class="menu sf-js-enabled sf-arrows"  style="touch-action: pan-y;">
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="/"> <a class="" href="/">Home</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="archives"> <a class="" href="/archives">Archives</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="categories"> <a class="" href="/categories">Categories</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="tags"> <a class="" href="/tags">Tags</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="about"> <a class="" href="/about">About</a> </li>
+                    
+              </ul>
+            </div>
+          </nav>
+
+      </div>
+  </div>
+</header>
+
+
+  <div id="container">
+    <div id="wrap">
+            
+      <div id="content" class="outer">
+        
+          <section id="main" style="float:none;"><article id="post-6 Android编译打包/CMake-中的静态连接和动态链接" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" class="article-title" itemprop="name">
+      CMake 中的静态连接和动态链接
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2024/11/02/6%20Android%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85/CMake-%E4%B8%AD%E7%9A%84%E9%9D%99%E6%80%81%E8%BF%9E%E6%8E%A5%E5%92%8C%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5/" class="article-date">
+	  <time datetime="2024-11-02T10:59:31.865Z" itemprop="datePublished">November 2, 2024</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a>, <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a>
+ 
+      
+	<span id="busuanzi_container_page_pv">
+	  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	</span>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>作者: 朕小猫与GPT4</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.4</span>.<span class="number">1</span>)</span><br><span class="line"><span class="keyword">project</span>(DualVectorFoil)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 先设置 Assimp 配置项，禁用测试、样例和文档生成</span></span><br><span class="line"><span class="keyword">set</span>(ASSIMP_BUILD_TESTS <span class="keyword">OFF</span> CACHE BOOL <span class="string">&quot;&quot;</span> FORCE)</span><br><span class="line"><span class="keyword">set</span>(ASSIMP_BUILD_SAMPLES <span class="keyword">OFF</span> CACHE BOOL <span class="string">&quot;&quot;</span> FORCE)</span><br><span class="line"><span class="keyword">set</span>(ASSIMP_BUILD_DOCS <span class="keyword">OFF</span> CACHE BOOL <span class="string">&quot;&quot;</span> FORCE)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加 Assimp 目录和包含目录</span></span><br><span class="line"><span class="keyword">add_subdirectory</span>(<span class="variable">$&#123;CMAKE_SOURCE_DIR&#125;</span>/Assimp)</span><br><span class="line"><span class="keyword">include_directories</span>(<span class="variable">$&#123;CMAKE_SOURCE_DIR&#125;</span>/Assimp/<span class="keyword">include</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义库文件 DualVectorFoilLib</span></span><br><span class="line"><span class="keyword">add_library</span>(</span><br><span class="line">        DualVectorFoilLib      <span class="comment"># 库名称</span></span><br><span class="line">        SHARED                 <span class="comment"># 库类型</span></span><br><span class="line">        <span class="comment"># 你的源文件列表，示例：src/main/cpp/你的文件.cpp</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 链接必要的库</span></span><br><span class="line"><span class="keyword">target_link_libraries</span>(</span><br><span class="line">        DualVectorFoilLib</span><br><span class="line">        assimp                 <span class="comment"># Assimp 库</span></span><br><span class="line">        android                <span class="comment"># Android 系统库</span></span><br><span class="line">        EGL                    <span class="comment"># OpenGL 库</span></span><br><span class="line">        GLESv2                 <span class="comment"># OpenGL ES 2.0</span></span><br><span class="line">        m                      <span class="comment"># 数学库</span></span><br><span class="line">        z                      <span class="comment"># 压缩库</span></span><br><span class="line">        atomic                 <span class="comment"># 原子操作库</span></span><br><span class="line">)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>Q: 这样写完之后，apk 安装包中有两个so文件 libDualVectorFoilLib 和 libassimp，都占用 14m，但其实，libDualVectorFoilLib 中包含的就是libassimp，不应该再占用这么大体积</p>
+<p>A: 为了减少 APK 中的体积，你可以将 <code>libassimp</code> 静态链接到 <code>DualVectorFoilLib</code> 中，这样只会生成一个包含 <code>assimp</code> 的 <code>libDualVectorFoilLib.so</code> 文件，而不会包含独立的 <code>libassimp.so</code> 文件。这种方式可以避免重复打包和减小 APK 的体积。具体修改如下：</p>
+<h3 id="修改-CMakeLists-txt-配置，将-assimp-静态链接"><a href="#修改-CMakeLists-txt-配置，将-assimp-静态链接" class="headerlink" title="修改 CMakeLists.txt 配置，将 assimp 静态链接"></a>修改 CMakeLists.txt 配置，将 <code>assimp</code> 静态链接</h3><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.4</span>.<span class="number">1</span>)</span><br><span class="line"><span class="keyword">project</span>(DualVectorFoil)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 先设置 Assimp 配置项，禁用测试、样例和文档生成</span></span><br><span class="line"><span class="keyword">set</span>(ASSIMP_BUILD_TESTS <span class="keyword">OFF</span> CACHE BOOL <span class="string">&quot;&quot;</span> FORCE)</span><br><span class="line"><span class="keyword">set</span>(ASSIMP_BUILD_SAMPLES <span class="keyword">OFF</span> CACHE BOOL <span class="string">&quot;&quot;</span> FORCE)</span><br><span class="line"><span class="keyword">set</span>(ASSIMP_BUILD_DOCS <span class="keyword">OFF</span> CACHE BOOL <span class="string">&quot;&quot;</span> FORCE)</span><br><span class="line"><span class="keyword">set</span>(BUILD_SHARED_LIBS <span class="keyword">OFF</span>)  <span class="comment"># 禁用 Assimp 的动态库生成，改为静态库</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加 Assimp 目录和包含目录</span></span><br><span class="line"><span class="keyword">add_subdirectory</span>(<span class="variable">$&#123;CMAKE_SOURCE_DIR&#125;</span>/Assimp)</span><br><span class="line"><span class="keyword">include_directories</span>(<span class="variable">$&#123;CMAKE_SOURCE_DIR&#125;</span>/Assimp/<span class="keyword">include</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义库文件 DualVectorFoilLib</span></span><br><span class="line"><span class="keyword">add_library</span>(</span><br><span class="line">        DualVectorFoilLib      <span class="comment"># 库名称</span></span><br><span class="line">        SHARED                 <span class="comment"># 库类型</span></span><br><span class="line">        <span class="comment"># 你的源文件列表，示例：src/main/cpp/你的文件.cpp</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 链接必要的库</span></span><br><span class="line"><span class="keyword">target_link_libraries</span>(</span><br><span class="line">        DualVectorFoilLib</span><br><span class="line">        assimp                 <span class="comment"># 静态链接 Assimp 库</span></span><br><span class="line">        android                <span class="comment"># Android 系统库</span></span><br><span class="line">        EGL                    <span class="comment"># OpenGL 库</span></span><br><span class="line">        GLESv2                 <span class="comment"># OpenGL ES 2.0</span></span><br><span class="line">        m                      <span class="comment"># 数学库</span></span><br><span class="line">        z                      <span class="comment"># 压缩库</span></span><br><span class="line">        atomic                 <span class="comment"># 原子操作库</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<h3 id="解释"><a href="#解释" class="headerlink" title="解释"></a>解释</h3><ol>
+<li><p>**禁用 <code>BUILD_SHARED_LIBS</code>**：将 <code>BUILD_SHARED_LIBS</code> 设置为 <code>OFF</code>，使 Assimp 以静态库（<code>.a</code> 文件）形式生成，这样 Assimp 将不会生成独立的 <code>.so</code> 文件，而是将代码直接打包到 <code>libDualVectorFoilLib.so</code> 中。</p>
+</li>
+<li><p>**静态链接 <code>assimp</code>**：在 <code>target_link_libraries</code> 中链接 <code>assimp</code>，这会将 Assimp 的代码直接合并进 <code>libDualVectorFoilLib.so</code>，避免生成和打包独立的 <code>libassimp.so</code>。</p>
+</li>
+<li><p><strong>结果</strong>：这样可以减小 APK 体积，因为不再包含重复的库文件。</p>
+</li>
+</ol>
+<p>之后重新构建项目，确保 APK 中只包含 <code>libDualVectorFoilLib.so</code> 文件，不再包含 <code>libassimp.so</code> 文件。</p>
+<p>Q: 为什么改成静态连接之后小了好多</p>
+<p>A: 改成静态链接之后 APK 大小减少，主要原因在于静态链接和动态链接的工作原理不同，以及 Android 应用打包时如何处理库文件：</p>
+<ol>
+<li><p><strong>避免重复加载的冗余文件</strong>：动态链接时，<code>libassimp.so</code> 作为独立的动态库被单独打包，并在运行时加载。而静态链接则将 <code>libassimp</code> 的代码直接整合到 <code>libDualVectorFoilLib.so</code> 中，避免了多余的 <code>.so</code> 文件。因此，只生成一个完整的 <code>.so</code> 文件，而不是两个重复的文件，节省了空间。</p>
+</li>
+<li><p><strong>优化与裁剪</strong>：静态链接时，链接器会自动去除 Assimp 库中未使用的代码，只保留 <code>DualVectorFoilLib</code> 需要的部分。这意味着生成的 <code>libDualVectorFoilLib.so</code> 体积更小，因为一些多余的功能不会被包含进去。而动态链接时，通常整个库都被打包，即使项目不使用 Assimp 的所有功能，APK 也会包含整个库的内容。</p>
+</li>
+<li><p><strong>减少符号表与动态加载信息</strong>：动态库需要额外的符号表和动态加载信息，以便在运行时进行地址解析和符号加载。静态链接的 <code>.so</code> 文件则不需要这些额外的信息，因此最终生成的文件会更小。</p>
+</li>
+<li><p><strong>加载性能提升</strong>：除了体积减小，静态链接也会带来性能上的提升，因为它省去了动态加载库时的解析步骤，在某些场景下可以略微缩短应用启动时间。</p>
+</li>
+</ol>
+<p>通过静态链接，代码体积优化和去重工作会更加有效，因此可以显著减小 APK 大小。</p>
+<p>Q: 如果我只想引入 assimp 不想引入 libDualVectorFoilLib.so 怎么处理</p>
+<p>A: 如果只想引入 <code>assimp</code> 库，不需要 <code>libDualVectorFoilLib.so</code>，可以直接在 CMake 中只构建 <code>assimp</code>，而不创建其他自定义的 <code>.so</code> 库文件。这样可以实现只生成 <code>libassimp.so</code>，并确保它在你的 APK 中被正确引用。以下是可以实现的步骤：</p>
+<ol>
+<li><p><strong>直接构建 Assimp 并禁用其他库的生成</strong>：<br>只需要 <code>assimp</code>，无需自定义的库文件，可以移除自定义库的定义，只保留对 <code>assimp</code> 的配置与编译。</p>
+</li>
+<li><p><strong>修改 CMakeLists.txt</strong>：</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.4</span>.<span class="number">1</span>)</span><br><span class="line"><span class="keyword">project</span>(DualVectorFoil)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置 Assimp：禁用测试、样例和文档生成</span></span><br><span class="line"><span class="keyword">set</span>(ASSIMP_BUILD_TESTS <span class="keyword">OFF</span> CACHE BOOL <span class="string">&quot;&quot;</span> FORCE)</span><br><span class="line"><span class="keyword">set</span>(ASSIMP_BUILD_SAMPLES <span class="keyword">OFF</span> CACHE BOOL <span class="string">&quot;&quot;</span> FORCE)</span><br><span class="line"><span class="keyword">set</span>(ASSIMP_BUILD_DOCS <span class="keyword">OFF</span> CACHE BOOL <span class="string">&quot;&quot;</span> FORCE)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加 Assimp 目录并包含头文件</span></span><br><span class="line"><span class="keyword">add_subdirectory</span>(<span class="variable">$&#123;CMAKE_SOURCE_DIR&#125;</span>/Assimp)</span><br><span class="line"><span class="keyword">include_directories</span>(<span class="variable">$&#123;CMAKE_SOURCE_DIR&#125;</span>/Assimp/<span class="keyword">include</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Assimp 将自动生成 libassimp.so，无需自定义其他库</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>**在 <code>build.gradle</code> 中指定加载 <code>libassimp.so</code>**：<br>在你的 Android 项目中确保在 Java 或 Kotlin 代码中正确加载 <code>libassimp.so</code>，例如：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">System.loadLibrary(<span class="string">&quot;assimp&quot;</span>)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>**检查并确保只有 <code>libassimp.so</code>**：<br>构建 APK 后，检查生成的 APK 文件，确认只有 <code>libassimp.so</code> 被打包，而没有 <code>libDualVectorFoilLib.so</code>。</p>
+</li>
+</ol>
+<p>这样配置后，APK 中只会包含 <code>libassimp.so</code>，并且该库可以直接使用，不再生成不必要的库文件。</p>
+<p>Q: So 文件的 Raw File Size 和 Download Size 分别是什么?</p>
+<p>A: 在 APK 文件的打包和发布过程中，文件会经历压缩处理，这使得 APK 下载包的体积通常小于安装后在设备上实际占用的空间。在 Android Studio 中，APK Analyzer 工具展示了两个关键指标来帮助我们理解这些差异：</p>
+<ol>
+<li><p><strong>Raw File Size</strong>（原始文件大小）：这是文件在 APK 解压后，在设备上占用的实际存储空间大小。在您提供的截图中，<code>libassimpd.so</code> 的原始文件大小为 <strong>14.4 MB</strong>，表示安装到设备后它会占用 14.4 MB 的空间。</p>
+</li>
+<li><p><strong>Download Size</strong>（下载大小）：这是 APK 包含的文件在压缩后的大小。由于 APK 打包时会对文件进行压缩，<code>libassimpd.so</code> 的压缩后下载大小仅为 <strong>3.4 MB</strong>。这个值表示用户在下载 APK 包时实际需要传输的数据量。</p>
+</li>
+</ol>
+<p>总结来说：</p>
+<ul>
+<li><strong>Raw File Size</strong> 是文件在设备上解压后的实际存储空间需求。</li>
+<li><strong>Download Size</strong> 是文件在 APK 压缩包中的大小，直接影响 APK 的下载体积。</li>
+</ul>
+<p>因此，虽然下载 APK 时 <code>libassimpd.so</code> 只占 <strong>3.4 MB</strong>，但安装后在设备上会占用 <strong>14.4 MB</strong> 的存储空间。</p>
+<p>Q: So 文件是怎么实现从14M压缩到3.4M的</p>
+<p>A: <code>so</code> 文件（共享库文件）的大小可以大幅度缩小，主要是因为 Android APK 打包过程中应用了<strong>压缩算法</strong>。以下是一些关键原因和过程：</p>
+<h3 id="1-ZIP-压缩"><a href="#1-ZIP-压缩" class="headerlink" title="1. ZIP 压缩"></a>1. ZIP 压缩</h3><p>APK 文件本质上是一个 ZIP 文件，打包时会对资源文件和库文件应用 ZIP 压缩。共享库文件（<code>so</code> 文件）通常包含大量<strong>重复数据</strong>和<strong>空白区域</strong>，这些内容在 ZIP 压缩时能够被有效地缩减。因此，像 <code>libassimpd.so</code> 这种大型的二进制文件，通过 ZIP 压缩可以大幅度减小体积。</p>
+<h3 id="2-二进制格式的高压缩率"><a href="#2-二进制格式的高压缩率" class="headerlink" title="2. 二进制格式的高压缩率"></a>2. 二进制格式的高压缩率</h3><p><code>so</code> 文件是二进制格式，包含大量的<strong>结构化数据</strong>和<strong>代码段</strong>。这些二进制数据在结构上非常紧密，包含许多重复的模式和数据块，非常适合被压缩算法处理。常用的压缩算法（例如 DEFLATE）能够识别这些模式，减少冗余，从而将文件压缩到较小的尺寸。</p>
+<h3 id="3-去除无用数据"><a href="#3-去除无用数据" class="headerlink" title="3. 去除无用数据"></a>3. 去除无用数据</h3><p>一些调试信息和符号信息在生成 <code>so</code> 文件时可能会被包含在内，但是在发布 APK 时通常会将这些<strong>调试符号信息</strong>剥离。这会进一步减少 <code>so</code> 文件的体积，尤其在压缩之后，对这些无用数据的移除效果显著。</p>
+<h3 id="4-压缩前未使用的代码和数据区域"><a href="#4-压缩前未使用的代码和数据区域" class="headerlink" title="4. 压缩前未使用的代码和数据区域"></a>4. 压缩前未使用的代码和数据区域</h3><p><code>so</code> 文件可能包含一些预留的<strong>数据段</strong>或<strong>对齐填充</strong>，这些部分在压缩后也会被进一步缩小。比如对齐填充区域在压缩时几乎不会占用空间，从而进一步减小了整体体积。</p>
+<h3 id="示例总结"><a href="#示例总结" class="headerlink" title="示例总结"></a>示例总结</h3><p>在您的示例中，<code>libassimpd.so</code> 原始文件大小为 <strong>14.4 MB</strong>，而在 APK 中压缩后的下载大小是 <strong>3.4 MB</strong>。这种大幅缩小主要得益于 ZIP 压缩的高效性，以及 <code>so</code> 文件的二进制结构带来的高压缩比。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>APK 中的 <code>so</code> 文件能够实现从 14 MB 压缩到 3.4 MB，主要是由于以下原因：</p>
+<ul>
+<li>ZIP 压缩算法的高效性</li>
+<li>二进制文件的结构适合压缩</li>
+<li>发布时剥离调试符号信息</li>
+<li>未使用的数据和对齐填充在压缩后基本不占空间</li>
+</ul>
+<p>这些因素共同作用，使得 <code>so</code> 文件在安装包中的大小远小于其解压后的原始大小。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a>, <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a>
+
+      
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2024/04/14/1%20Kotlin/02%20Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%E4%B8%AD%E7%9A%84%E8%87%AA%E5%8A%A8%E6%8B%86%E8%A3%85%E7%AE%B1/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Kotlin中的自动拆装箱</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="sidebar">
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">Contents</strong>
+    
+      <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9-CMakeLists-txt-%E9%85%8D%E7%BD%AE%EF%BC%8C%E5%B0%86-assimp-%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5"><span class="nav-number">1.</span> <span class="nav-text">修改 CMakeLists.txt 配置，将 assimp 静态链接</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E9%87%8A"><span class="nav-number">2.</span> <span class="nav-text">解释</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-ZIP-%E5%8E%8B%E7%BC%A9"><span class="nav-number">3.</span> <span class="nav-text">1. ZIP 压缩</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%A0%BC%E5%BC%8F%E7%9A%84%E9%AB%98%E5%8E%8B%E7%BC%A9%E7%8E%87"><span class="nav-number">4.</span> <span class="nav-text">2. 二进制格式的高压缩率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%8E%BB%E9%99%A4%E6%97%A0%E7%94%A8%E6%95%B0%E6%8D%AE"><span class="nav-number">5.</span> <span class="nav-text">3. 去除无用数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%8E%8B%E7%BC%A9%E5%89%8D%E6%9C%AA%E4%BD%BF%E7%94%A8%E7%9A%84%E4%BB%A3%E7%A0%81%E5%92%8C%E6%95%B0%E6%8D%AE%E5%8C%BA%E5%9F%9F"><span class="nav-number">6.</span> <span class="nav-text">4. 压缩前未使用的代码和数据区域</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E6%80%BB%E7%BB%93"><span class="nav-number">7.</span> <span class="nav-text">示例总结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">8.</span> <span class="nav-text">总结</span></a></li></ol>
+    
+    </div>
+  </aside>
+</section>
+        
+      </div>
+
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    <footer id="footer" class="site-footer">
+  
+
+  <div class="clearfix container">
+      <div class="site-info">
+	      &copy; 2025 喵星科技报 All Rights Reserved.
+        
+            <span id="busuanzi_container_site_uv">
+              本站访客数<span id="busuanzi_value_site_uv"></span>人次  
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+          
+      </div>
+      <div class="site-credit">
+        Theme by <a href="https://github.com/CatJason" target="_blank">hipaper</a>
+      </div>
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var wrapdiv = document.getElementById("wrap");
+    var contentdiv = document.getElementById("content");
+
+    wrapdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+
+
+    <!-- headerblur min height -->
+    
+    
+</script>
+    
+<div style="display: none;">
+  <script src="https://s11.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+</div>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+<script src="/js/bootstrap.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+	</script>
+
+
+
+
+
+
+  </div>
+
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js" async=""></script>
+</body>
+</html>
