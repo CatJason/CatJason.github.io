@@ -172,6 +172,90 @@
     
     
     <entry>
+      <title>04/80 寻找数组的中心下标</title>
+      <link href="/2024/03/28/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/04%20%E5%AF%BB%E6%89%BE%E6%95%B0%E7%BB%84%E7%9A%84%E4%B8%AD%E5%BF%83%E4%B8%8B%E6%A0%87/"/>
+      <url>/2024/03/28/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/04%20%E5%AF%BB%E6%89%BE%E6%95%B0%E7%BB%84%E7%9A%84%E4%B8%AD%E5%BF%83%E4%B8%8B%E6%A0%87/</url>
+      
+        <content type="html"><![CDATA[<p>要在Kotlin中实现寻找数组的中心下标的算法，你可以遵循这个基本思路：遍历数组，对于每个下标，计算其左侧所有元素的和与右侧所有元素的和。如果在某个下标位置，这两个和相等，那么这个下标就是数组的中心下标。</p><p>下面是一个具体的实现示例：</p><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">findPivotIndex</span><span class="params">(nums: <span class="type">IntArray</span>)</span></span>: <span class="built_in">Int</span> &#123;</span><br><span class="line">    <span class="keyword">val</span> totalSum = nums.sum()</span><br><span class="line">    <span class="keyword">var</span> leftSum = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> ((index, value) <span class="keyword">in</span> nums.withIndex()) &#123;</span><br><span class="line">        <span class="comment">// 如果左侧和的两倍加上当前值等于总和，则当前索引是中心索引</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="number">2</span> * leftSum + value == totalSum) &#123;</span><br><span class="line">            <span class="keyword">return</span> index</span><br><span class="line">        &#125;</span><br><span class="line">        leftSum += value</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> -<span class="number">1</span> <span class="comment">// 如果没有找到，返回-1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>这个函数<code>findPivotIndex</code>接受一个整数数组<code>nums</code>作为参数，并返回中心下标。它首先计算数组的总和，然后遍历数组。在遍历过程中，它更新一个名为<code>leftSum</code>的变量，该变量存储当前索引左侧所有元素的和。对于每个元素，它检查<code>2 * leftSum + value</code>是否等于<code>totalSum</code>。如果等于，这意味着左侧所有元素的和等于右侧所有元素的和，因此当前索引是中心下标，函数返回该索引。如果遍历完整个数组都没有找到这样的索引，函数返回-1。</p><p>要使用这个函数，你可以像这样调用它：</p><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">val</span> nums = intArrayOf(<span class="number">1</span>, <span class="number">7</span>, <span class="number">3</span>, <span class="number">6</span>, <span class="number">5</span>, <span class="number">6</span>)</span><br><span class="line">    <span class="keyword">val</span> pivotIndex = findPivotIndex(nums)</span><br><span class="line">    println(pivotIndex) <span class="comment">// 输出中心下标</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>这个示例会输出数组<code>[1, 7, 3, 6, 5, 6]</code>的中心下标。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 0 - 算法 </category>
+          
+          <category> 0.2 - 80 道基础算法 </category>
+          
+      </categories>
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>02/80 统计素数个数-埃氏筛选法</title>
+      <link href="/2024/03/28/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/02%20%E7%BB%9F%E8%AE%A1%E7%B4%A0%E6%95%B0%E4%B8%AA%E6%95%B0%20%E5%9F%83%E6%B0%8F%E7%AD%9B%E9%80%89%E6%B3%95/"/>
+      <url>/2024/03/28/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/02%20%E7%BB%9F%E8%AE%A1%E7%B4%A0%E6%95%B0%E4%B8%AA%E6%95%B0%20%E5%9F%83%E6%B0%8F%E7%AD%9B%E9%80%89%E6%B3%95/</url>
+      
+        <content type="html"><![CDATA[<p>埃拉托斯特尼筛法（简称埃氏筛）是一种高效的查找素数的算法，它通过排除从2开始到给定数n的所有非素数来找出所有小于或等于n的素数。使用埃氏筛选法改进统计数组中素数元素的个数的算法，我们可以先通过筛法找出数组中所有可能的素数，然后再统计数组中这些素数的个数。</p><p>这里是如何用Kotlin实现基于埃氏筛选法来统计一个数组中素数元素的个数：</p><ol><li>构建埃氏筛: 根据数组中的最大值构建埃氏筛，以找到所有可能的素数。</li><li>统计素数: 遍历数组，利用构建的埃氏筛判断每个元素是否为素数，并计算素数的总数。</li></ol><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">countPrimesInArrayWithSieve</span><span class="params">(arr: <span class="type">IntArray</span>)</span></span>: <span class="built_in">Int</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (arr.isEmpty()) <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 找出数组中的最大值，以便构建足够大的筛</span></span><br><span class="line">    <span class="keyword">val</span> max = arr.maxOrNull() ?: <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 构建埃氏筛</span></span><br><span class="line">    <span class="keyword">val</span> isPrime = BooleanArray(max + <span class="number">1</span>) &#123; <span class="literal">true</span> &#125;</span><br><span class="line">    isPrime[<span class="number">0</span>] = <span class="literal">false</span></span><br><span class="line">    <span class="keyword">if</span> (isPrime.size &gt; <span class="number">1</span>) isPrime[<span class="number">1</span>] = <span class="literal">false</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">2.</span>.Math.sqrt(max.toDouble()).toInt()) &#123;</span><br><span class="line">        <span class="keyword">if</span> (isPrime[i]) &#123;</span><br><span class="line">            <span class="keyword">for</span> (j <span class="keyword">in</span> i * i..max step i) &#123;</span><br><span class="line">                isPrime[j] = <span class="literal">false</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 统计数组中的素数个数</span></span><br><span class="line">    <span class="keyword">var</span> count = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> (num <span class="keyword">in</span> arr) &#123;</span><br><span class="line">        <span class="keyword">if</span> (num &gt;= <span class="number">2</span> &amp;&amp; isPrime[num]) &#123;</span><br><span class="line">            count++</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> count</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">val</span> arr = intArrayOf(<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>)</span><br><span class="line">    println(<span class="string">&quot;Count of prime numbers in the array with sieve: <span class="subst">$&#123;countPrimesInArrayWithSieve(arr)&#125;</span>&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>在这个实现中，<code>countPrimesInArrayWithSieve</code> 函数首先找出数组中的最大值，以此来确定筛的大小。接着，它通过遍历2到<code>sqrt(max)</code>的数来构建筛，标记所有这些数的倍数为非素数。最后，它遍历数组，统计那些标记为素数的元素个数。</p><p>埃氏筛选法的时间复杂度通常为 O(n log log n)，相比暴力法的 O(n^2)，它在处理大量数据时更加高效。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 0 - 算法 </category>
+          
+          <category> 0.2 - 80 道基础算法 </category>
+          
+      </categories>
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>03/80 删除排序数组中的重复项</title>
+      <link href="/2024/03/28/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/03%20%E5%88%A0%E9%99%A4%E6%8E%92%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E9%87%8D%E5%A4%8D%E9%A1%B9/"/>
+      <url>/2024/03/28/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/03%20%E5%88%A0%E9%99%A4%E6%8E%92%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E9%87%8D%E5%A4%8D%E9%A1%B9/</url>
+      
+        <content type="html"><![CDATA[<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">removeDuplicates</span><span class="params">(nums: <span class="type">IntArray</span>)</span></span>: <span class="built_in">Int</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (nums.isEmpty()) <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">    <span class="keyword">var</span> i = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> (j <span class="keyword">in</span> <span class="number">1</span> until nums.size) &#123;</span><br><span class="line">        <span class="keyword">if</span> (nums[j] != nums[i]) &#123;</span><br><span class="line">            i++</span><br><span class="line">            nums[i] = nums[j]</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> i + <span class="number">1</span> <span class="comment">// 返回不重复数组的长度</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用例子</span></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">val</span> nums = intArrayOf(<span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">3</span>)</span><br><span class="line">    <span class="keyword">val</span> length = removeDuplicates(nums)</span><br><span class="line">    println(<span class="string">&quot;新的数组长度: <span class="variable">$length</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">0</span> until length) &#123;</span><br><span class="line">        print(<span class="string">&quot;<span class="subst">$&#123;nums[i]&#125;</span> &quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+      
+      
+      <categories>
+          
+          <category> 0 - 算法 </category>
+          
+          <category> 0.2 - 80 道基础算法 </category>
+          
+      </categories>
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>01/80 统计素数个数-暴力算法</title>
+      <link href="/2024/03/28/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/01%20%E7%BB%9F%E8%AE%A1%E7%B4%A0%E6%95%B0%E4%B8%AA%E6%95%B0%20%E6%9A%B4%E5%8A%9B%E7%AE%97%E6%B3%95/"/>
+      <url>/2024/03/28/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/01%20%E7%BB%9F%E8%AE%A1%E7%B4%A0%E6%95%B0%E4%B8%AA%E6%95%B0%20%E6%9A%B4%E5%8A%9B%E7%AE%97%E6%B3%95/</url>
+      
+        <content type="html"><![CDATA[<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">isPrime</span><span class="params">(n: <span class="type">Int</span>)</span></span>: <span class="built_in">Boolean</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (n &lt;= <span class="number">1</span>) <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    <span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">2</span> until n) &#123;</span><br><span class="line">        <span class="keyword">if</span> (n % i == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">countPrimesInArray</span><span class="params">(arr: <span class="type">IntArray</span>)</span></span>: <span class="built_in">Int</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> count = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> (num <span class="keyword">in</span> arr) &#123;</span><br><span class="line">        <span class="keyword">if</span> (isPrime(num)) &#123;</span><br><span class="line">            count++</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> count</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">val</span> arr = intArrayOf(<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>)</span><br><span class="line">    println(<span class="string">&quot;Count of prime numbers in the array: <span class="subst">$&#123;countPrimesInArray(arr)&#125;</span>&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+      
+      
+      <categories>
+          
+          <category> 0 - 算法 </category>
+          
+          <category> 0.2 - 80 道基础算法 </category>
+          
+      </categories>
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>TextView layout_constrainedWidth 属性</title>
       <link href="/2024/03/22/7%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/0%20UI%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/TextView-layout_constrainedWidth-%E5%B1%9E%E6%80%A7/"/>
       <url>/2024/03/22/7%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/0%20UI%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/TextView-layout_constrainedWidth-%E5%B1%9E%E6%80%A7/</url>
@@ -1734,6 +1818,27 @@
     
     
     <entry>
+      <title>算法进阶心法</title>
+      <link href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/00%20%E5%BF%83%E6%B3%95/"/>
+      <url>/2023/08/11/0%20%E7%AE%97%E6%B3%95/00%20%E5%BF%83%E6%B3%95/</url>
+      
+        <content type="html"><![CDATA[<h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>一、筑基阶段（1-3个月）</p><ol><li>武器库建设<br>​数据结构：<br>数组：掌握前缀和、差分数组、双指针技巧（快慢指针&#x2F;对撞指针）<br>链表：环形检测（Floyd龟兔算法）、LRU缓存实现<br>树：红黑树旋转规则、B+树在数据库索引的应用<br>图：邻接表与邻接矩阵的存储差异，Dijkstra堆优化版时间复杂度推导<br>​算法范式：<br>分治：Karatsuba大数乘法（时间复杂度O(n^log3)）<br>贪心：Huffman编码的熵最优性证明<br>DP：背包问题状态压缩技巧（滚动数组）<br>每日训练：</li></ol><p>完成《算法导论》第1-15章课后习题（重点：递归式求解主方法）<br>在LeetCode按类型刷题，每日3道（Easy 1, Medium 2）<br>二、思维强化阶段（3-6个月）</p><ol><li>高阶算法模式<br>​位运算魔法：<br>用XOR找缺失数（LC268）<br>快速幂算法（矩阵快速幂解斐波那契）<br>​空间换时间：<br>单调栈解决Next Greater Element（LC496）<br>跳表(SkipList)实现O(logN)查询<br>​数学建模：<br>约瑟夫环递推公式推导<br>用中国剩余定理解决周期问题（LC1250）<br>实战突破：</li></ol><p>参加每周LeetCode周赛，目标进入前10%<br>实现《算法竞赛入门经典》中的STL轮子（手写红黑树）<br>三、领域专精阶段（6-12个月）</p><ol><li>分支选择与深化<br>​机器学习算法：<br>推导XGBoost损失函数泰勒展开过程<br>手写SVM对偶问题求解器（SMO算法）<br>​分布式算法：<br>Raft协议Leader选举的随机超时机制<br>Gossip协议在Cassandra中的应用<br>​几何计算：<br>凸包Graham扫描法实现<br>使用扫描线算法求矩形并集面积（LC850）<br>专项训练：</li></ol><p>在Codeforces刷2200+分的计算几何题目<br>复现Google Spanner的TrueTime API设计<br>四、思维跃迁训练法</p><ol><li>降维打击法<br>将字符串匹配问题转化为自动机（AC自动机实现）<br>用FFT加速多项式乘法（大数乘法优化）</li><li>极限压榨法<br>在内存限制1MB下实现外排序（多路归并）<br>用位图处理40亿整数去重（LC原题变形）<br>五、工具链配置<br>​调试神器：<br>python</li></ol><h1 id="重定向调试工具"><a href="#重定向调试工具" class="headerlink" title="重定向调试工具"></a>重定向调试工具</h1><p>import pdb<br>pdb.set_trace()</p><h1 id="性能分析"><a href="#性能分析" class="headerlink" title="性能分析"></a>性能分析</h1><p>python -m cProfile myscript.py<br>​可视化武器：<br>用graphviz绘制递归树<br>通过py-spy分析火焰图<br>六、高手秘籍</p><ol><li>代码模板库（Snippet Library）<br>​滑动窗口模板：<br>python<br>def sliding_window(s: str):<br> left &#x3D; 0<br> counter &#x3D; defaultdict(int)<br> for right in range(len(s)):<br> counter[s[right]] +&#x3D; 1<br> while 窗口不满足条件:<br>     counter[s[left]] -&#x3D; 1<br>     left +&#x3D; 1<br>     更新结果</li><li>复杂度速判表<br>数据规模    可接受时间复杂度<br>n ≤ 1e6    O(n)<br>n ≤ 1e5    O(n log n)<br>n ≤ 1e4    O(n^2)<br>七、终极试炼<br>在24小时内完成Google Code Jam决赛题<br>手写TCP拥塞控制算法（BBR&#x2F;CUBIC）<br>实现量子退火算法解决TSP问题<br>训练要点：</li></ol><p>每道题必须推导数学证明（如贪心算法的正确性）<br>提交前进行最坏情况测试（如1e6规模的边界测试）<br>参加ACM-ICPC训练营，体验5小时3人1机的极限编程<br>通过这套训练体系，6个月后你将能：</p><p>秒杀LeetCode Hard级题目<br>设计出比STL更高效的容器<br>在系统设计中灵活运用分布式算法<br>在Kaggle竞赛中进入前5%<br>记住：算法能力&#x3D;20%天赋+30%方法论+50%刻意练习。每天保持200行算法代码量，持续1年必成高手。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 0 - 算法 </category>
+          
+          <category> 0.0 - 学习规划 </category>
+          
+      </categories>
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>01. 双指针-只有一个输入, 从两端开始遍历</title>
       <link href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/01%20%E7%AE%97%E6%B3%95%E6%A8%A1%E6%9D%BF/01%20%E5%8F%8C%E6%8C%87%E9%92%88-%E5%8F%AA%E6%9C%89%E4%B8%80%E4%B8%AA%E8%BE%93%E5%85%A5,%20%E4%BB%8E%E4%B8%A4%E7%AB%AF%E5%BC%80%E5%A7%8B%E9%81%8D%E5%8E%86/"/>
       <url>/2023/08/11/0%20%E7%AE%97%E6%B3%95/01%20%E7%AE%97%E6%B3%95%E6%A8%A1%E6%9D%BF/01%20%E5%8F%8C%E6%8C%87%E9%92%88-%E5%8F%AA%E6%9C%89%E4%B8%80%E4%B8%AA%E8%BE%93%E5%85%A5,%20%E4%BB%8E%E4%B8%A4%E7%AB%AF%E5%BC%80%E5%A7%8B%E9%81%8D%E5%8E%86/</url>
@@ -1746,90 +1851,6 @@
           <category> 0 - 算法 </category>
           
           <category> 0.0 - 算法模版 </category>
-          
-      </categories>
-      
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>01/80 统计素数个数-暴力算法</title>
-      <link href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/01%20%E7%BB%9F%E8%AE%A1%E7%B4%A0%E6%95%B0%E4%B8%AA%E6%95%B0%20%E6%9A%B4%E5%8A%9B%E7%AE%97%E6%B3%95/"/>
-      <url>/2023/08/11/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/01%20%E7%BB%9F%E8%AE%A1%E7%B4%A0%E6%95%B0%E4%B8%AA%E6%95%B0%20%E6%9A%B4%E5%8A%9B%E7%AE%97%E6%B3%95/</url>
-      
-        <content type="html"><![CDATA[<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">isPrime</span><span class="params">(n: <span class="type">Int</span>)</span></span>: <span class="built_in">Boolean</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (n &lt;= <span class="number">1</span>) <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    <span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">2</span> until n) &#123;</span><br><span class="line">        <span class="keyword">if</span> (n % i == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">countPrimesInArray</span><span class="params">(arr: <span class="type">IntArray</span>)</span></span>: <span class="built_in">Int</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> count = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> (num <span class="keyword">in</span> arr) &#123;</span><br><span class="line">        <span class="keyword">if</span> (isPrime(num)) &#123;</span><br><span class="line">            count++</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> count</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">val</span> arr = intArrayOf(<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>)</span><br><span class="line">    println(<span class="string">&quot;Count of prime numbers in the array: <span class="subst">$&#123;countPrimesInArray(arr)&#125;</span>&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
-      
-      
-      <categories>
-          
-          <category> 0 - 算法 </category>
-          
-          <category> 0.2 - 80 道基础算法 </category>
-          
-      </categories>
-      
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>02/80 统计素数个数-埃氏筛选法</title>
-      <link href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/02%20%E7%BB%9F%E8%AE%A1%E7%B4%A0%E6%95%B0%E4%B8%AA%E6%95%B0%20%E5%9F%83%E6%B0%8F%E7%AD%9B%E9%80%89%E6%B3%95/"/>
-      <url>/2023/08/11/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/02%20%E7%BB%9F%E8%AE%A1%E7%B4%A0%E6%95%B0%E4%B8%AA%E6%95%B0%20%E5%9F%83%E6%B0%8F%E7%AD%9B%E9%80%89%E6%B3%95/</url>
-      
-        <content type="html"><![CDATA[<p>埃拉托斯特尼筛法（简称埃氏筛）是一种高效的查找素数的算法，它通过排除从2开始到给定数n的所有非素数来找出所有小于或等于n的素数。使用埃氏筛选法改进统计数组中素数元素的个数的算法，我们可以先通过筛法找出数组中所有可能的素数，然后再统计数组中这些素数的个数。</p><p>这里是如何用Kotlin实现基于埃氏筛选法来统计一个数组中素数元素的个数：</p><ol><li>构建埃氏筛: 根据数组中的最大值构建埃氏筛，以找到所有可能的素数。</li><li>统计素数: 遍历数组，利用构建的埃氏筛判断每个元素是否为素数，并计算素数的总数。</li></ol><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">countPrimesInArrayWithSieve</span><span class="params">(arr: <span class="type">IntArray</span>)</span></span>: <span class="built_in">Int</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (arr.isEmpty()) <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 找出数组中的最大值，以便构建足够大的筛</span></span><br><span class="line">    <span class="keyword">val</span> max = arr.maxOrNull() ?: <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 构建埃氏筛</span></span><br><span class="line">    <span class="keyword">val</span> isPrime = BooleanArray(max + <span class="number">1</span>) &#123; <span class="literal">true</span> &#125;</span><br><span class="line">    isPrime[<span class="number">0</span>] = <span class="literal">false</span></span><br><span class="line">    <span class="keyword">if</span> (isPrime.size &gt; <span class="number">1</span>) isPrime[<span class="number">1</span>] = <span class="literal">false</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">2.</span>.Math.sqrt(max.toDouble()).toInt()) &#123;</span><br><span class="line">        <span class="keyword">if</span> (isPrime[i]) &#123;</span><br><span class="line">            <span class="keyword">for</span> (j <span class="keyword">in</span> i * i..max step i) &#123;</span><br><span class="line">                isPrime[j] = <span class="literal">false</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 统计数组中的素数个数</span></span><br><span class="line">    <span class="keyword">var</span> count = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> (num <span class="keyword">in</span> arr) &#123;</span><br><span class="line">        <span class="keyword">if</span> (num &gt;= <span class="number">2</span> &amp;&amp; isPrime[num]) &#123;</span><br><span class="line">            count++</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> count</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">val</span> arr = intArrayOf(<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>)</span><br><span class="line">    println(<span class="string">&quot;Count of prime numbers in the array with sieve: <span class="subst">$&#123;countPrimesInArrayWithSieve(arr)&#125;</span>&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>在这个实现中，<code>countPrimesInArrayWithSieve</code> 函数首先找出数组中的最大值，以此来确定筛的大小。接着，它通过遍历2到<code>sqrt(max)</code>的数来构建筛，标记所有这些数的倍数为非素数。最后，它遍历数组，统计那些标记为素数的元素个数。</p><p>埃氏筛选法的时间复杂度通常为 O(n log log n)，相比暴力法的 O(n^2)，它在处理大量数据时更加高效。</p>]]></content>
-      
-      
-      <categories>
-          
-          <category> 0 - 算法 </category>
-          
-          <category> 0.2 - 80 道基础算法 </category>
-          
-      </categories>
-      
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>03/80 删除排序数组中的重复项</title>
-      <link href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/03%20%E5%88%A0%E9%99%A4%E6%8E%92%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E9%87%8D%E5%A4%8D%E9%A1%B9/"/>
-      <url>/2023/08/11/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/03%20%E5%88%A0%E9%99%A4%E6%8E%92%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E9%87%8D%E5%A4%8D%E9%A1%B9/</url>
-      
-        <content type="html"><![CDATA[<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">removeDuplicates</span><span class="params">(nums: <span class="type">IntArray</span>)</span></span>: <span class="built_in">Int</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (nums.isEmpty()) <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">    <span class="keyword">var</span> i = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> (j <span class="keyword">in</span> <span class="number">1</span> until nums.size) &#123;</span><br><span class="line">        <span class="keyword">if</span> (nums[j] != nums[i]) &#123;</span><br><span class="line">            i++</span><br><span class="line">            nums[i] = nums[j]</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> i + <span class="number">1</span> <span class="comment">// 返回不重复数组的长度</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用例子</span></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">val</span> nums = intArrayOf(<span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">3</span>)</span><br><span class="line">    <span class="keyword">val</span> length = removeDuplicates(nums)</span><br><span class="line">    println(<span class="string">&quot;新的数组长度: <span class="variable">$length</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">0</span> until length) &#123;</span><br><span class="line">        print(<span class="string">&quot;<span class="subst">$&#123;nums[i]&#125;</span> &quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
-      
-      
-      <categories>
-          
-          <category> 0 - 算法 </category>
-          
-          <category> 0.2 - 80 道基础算法 </category>
-          
-      </categories>
-      
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>04/80 寻找数组的中心下标</title>
-      <link href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/04%20%E5%AF%BB%E6%89%BE%E6%95%B0%E7%BB%84%E7%9A%84%E4%B8%AD%E5%BF%83%E4%B8%8B%E6%A0%87/"/>
-      <url>/2023/08/11/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/04%20%E5%AF%BB%E6%89%BE%E6%95%B0%E7%BB%84%E7%9A%84%E4%B8%AD%E5%BF%83%E4%B8%8B%E6%A0%87/</url>
-      
-        <content type="html"><![CDATA[<p>要在Kotlin中实现寻找数组的中心下标的算法，你可以遵循这个基本思路：遍历数组，对于每个下标，计算其左侧所有元素的和与右侧所有元素的和。如果在某个下标位置，这两个和相等，那么这个下标就是数组的中心下标。</p><p>下面是一个具体的实现示例：</p><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">findPivotIndex</span><span class="params">(nums: <span class="type">IntArray</span>)</span></span>: <span class="built_in">Int</span> &#123;</span><br><span class="line">    <span class="keyword">val</span> totalSum = nums.sum()</span><br><span class="line">    <span class="keyword">var</span> leftSum = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> ((index, value) <span class="keyword">in</span> nums.withIndex()) &#123;</span><br><span class="line">        <span class="comment">// 如果左侧和的两倍加上当前值等于总和，则当前索引是中心索引</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="number">2</span> * leftSum + value == totalSum) &#123;</span><br><span class="line">            <span class="keyword">return</span> index</span><br><span class="line">        &#125;</span><br><span class="line">        leftSum += value</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> -<span class="number">1</span> <span class="comment">// 如果没有找到，返回-1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>这个函数<code>findPivotIndex</code>接受一个整数数组<code>nums</code>作为参数，并返回中心下标。它首先计算数组的总和，然后遍历数组。在遍历过程中，它更新一个名为<code>leftSum</code>的变量，该变量存储当前索引左侧所有元素的和。对于每个元素，它检查<code>2 * leftSum + value</code>是否等于<code>totalSum</code>。如果等于，这意味着左侧所有元素的和等于右侧所有元素的和，因此当前索引是中心下标，函数返回该索引。如果遍历完整个数组都没有找到这样的索引，函数返回-1。</p><p>要使用这个函数，你可以像这样调用它：</p><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">val</span> nums = intArrayOf(<span class="number">1</span>, <span class="number">7</span>, <span class="number">3</span>, <span class="number">6</span>, <span class="number">5</span>, <span class="number">6</span>)</span><br><span class="line">    <span class="keyword">val</span> pivotIndex = findPivotIndex(nums)</span><br><span class="line">    println(pivotIndex) <span class="comment">// 输出中心下标</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>这个示例会输出数组<code>[1, 7, 3, 6, 5, 6]</code>的中心下标。</p>]]></content>
-      
-      
-      <categories>
-          
-          <category> 0 - 算法 </category>
-          
-          <category> 0.2 - 80 道基础算法 </category>
           
       </categories>
       
