@@ -20,7 +20,7 @@
 <meta property="og:image" content="https://s21.ax1x.com/2025/04/14/pEWy1G6.md.png">
 <meta property="og:image" content="https://s21.ax1x.com/2025/04/14/pEWsHUI.png">
 <meta property="article:published_time" content="2025-04-14T10:28:08.388Z">
-<meta property="article:modified_time" content="2025-04-14T14:03:59.637Z">
+<meta property="article:modified_time" content="2025-04-14T14:06:39.473Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://s21.ax1x.com/2025/04/14/pEWsX28.md.png">
@@ -157,7 +157,7 @@
 <p>ShadowLayout 使用了 1600 行代码只为实现边框阴影</p>
 <p>再看看 github 上其他绘制阴影的方案，不是采用 RenderScript 这种即将被谷歌废弃的图像处理库，就是使用 Android 12 以上才有的还要依赖硬件加速的 RenderEffect，更有甚者者干脆用 Canvas 硬画，不仅效果不好，性能更是很差，稍有复杂的情况，甚至可能导致卡顿发热</p>
 </blockquote>
-<p>我们不经要发问：Android 10多年了，难道就没有一个不需要和设计 battle，能兼容所有机型，对开发简单友好的阴影解决方案吗？</p>
+<p>我们不经要发问：Android 10多年了，难道就没有一个不需要和设计掰扯，能兼容所有机型，对开发简单友好的阴影解决方案吗？</p>
 <h1 id="到底什么是阴影"><a href="#到底什么是阴影" class="headerlink" title="到底什么是阴影"></a>到底什么是阴影</h1><p>先来看下阴影的组成部分</p>
 <p>我们可以将阴影大致分成两个部分，<strong>全影&#x2F;umbra</strong> 和 <strong>半影&#x2F;penumbra</strong> 。</p>
 <p>半影区域就是阴影的过渡区， 也就是软阴影，有半影的阴影过渡时，视觉效果会好很多。</p>
