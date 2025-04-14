@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Android 边框阴影绘制方案 | 喵星科技报</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  
+  
+  
+  <meta name="description" content="在说解决方案之前，我们需要先明确两个问题  到底什么是阴影 为什么在 Android 端上绘制阴影效果这么麻烦  每当我向 Android 同学提出第一问时，通常他们会回答我：阴影是个10-25%透明度的线性减淡的黑色图层 但是当你尝试在移动端去绘制这样一个黑色图层去代表阴影，其视觉效果肉眼可见的差强人意 于是绝大多数 Android 同学会提议你去找设计出个带阴影的图，或者使用诸如 Shadow">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android 边框阴影绘制方案">
+<meta property="og:url" content="http://example.com/2025/04/14/7%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/2%20%E9%98%B4%E5%BD%B1%E7%BB%98%E5%88%B6/Android-%E8%BE%B9%E6%A1%86%E9%98%B4%E5%BD%B1%E7%BB%98%E5%88%B6%E6%96%B9%E6%A1%88/index.html">
+<meta property="og:site_name" content="喵星科技报">
+<meta property="og:description" content="在说解决方案之前，我们需要先明确两个问题  到底什么是阴影 为什么在 Android 端上绘制阴影效果这么麻烦  每当我向 Android 同学提出第一问时，通常他们会回答我：阴影是个10-25%透明度的线性减淡的黑色图层 但是当你尝试在移动端去绘制这样一个黑色图层去代表阴影，其视觉效果肉眼可见的差强人意 于是绝大多数 Android 同学会提议你去找设计出个带阴影的图，或者使用诸如 Shadow">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://s21.ax1x.com/2025/04/14/pEWsX28.md.png">
+<meta property="og:image" content="https://s21.ax1x.com/2025/04/14/pEWy1G6.md.png">
+<meta property="og:image" content="https://s21.ax1x.com/2025/04/14/pEWsHUI.png">
+<meta property="article:published_time" content="2025-04-14T10:28:08.388Z">
+<meta property="article:modified_time" content="2025-04-14T10:28:08.388Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s21.ax1x.com/2025/04/14/pEWsX28.md.png">
+  
+    <link rel="alternate" href="/atom.xml" title="喵星科技报" type="application/atom+xml">
+  
+  <link rel="icon" href="/css/images/favicon.ico">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+    
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Yanone+Kaffeesatz%3A200%2C300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Oswald%3A300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+<script src="/js/jquery-3.1.1.min.js"></script>
+
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.css" >
+  <link rel="stylesheet" href="/css/fashion.css" >
+  <link rel="stylesheet" href="/css/glyphs.css" >
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<a target="_blank" rel="noopener" href="https://github.com/CatJason">
+<img decoding="async" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" loading="lazy" data-recalc-dims="1">
+</a>
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  
+
+
+<header id="allheader" class="site-header" role="banner" 
+   >
+  <div class="clearfix container">
+      <div class="site-branding">
+
+          <h1 class="site-title">
+            
+              <a href="/" title="喵星科技报" rel="home"> 喵星科技报 </a>
+            
+          </h1>
+          
+          
+            
+          <nav id="main-navigation" class="main-navigation" role="navigation">
+            <a class="nav-open">Menu</a>
+            <a class="nav-close">Close</a>
+
+            <div class="clearfix sf-menu">
+              <ul id="main-nav" class="menu sf-js-enabled sf-arrows"  style="touch-action: pan-y;">
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="/"> <a class="" href="/">Home</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="archives"> <a class="" href="/archives">Archives</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="categories"> <a class="" href="/categories">Categories</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="tags"> <a class="" href="/tags">Tags</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="about"> <a class="" href="/about">About</a> </li>
+                    
+              </ul>
+            </div>
+          </nav>
+
+      </div>
+  </div>
+</header>
+
+
+  <div id="container">
+    <div id="wrap">
+            
+      <div id="content" class="outer">
+        
+          <section id="main" style="float:none;"><article id="post-7复杂代码模版/2 阴影绘制/Android-边框阴影绘制方案" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" class="article-title" itemprop="name">
+      Android 边框阴影绘制方案
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2025/04/14/7%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/2%20%E9%98%B4%E5%BD%B1%E7%BB%98%E5%88%B6/Android-%E8%BE%B9%E6%A1%86%E9%98%B4%E5%BD%B1%E7%BB%98%E5%88%B6%E6%96%B9%E6%A1%88/" class="article-date">
+	  <time datetime="2025-04-14T10:28:08.388Z" itemprop="datePublished">April 14, 2025</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a>, <a class="article-category-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-3-%E5%A4%8D%E6%9D%82-UI-%E6%95%88%E6%9E%9C/">7.3 - 复杂 UI 效果</a>
+ 
+      
+	<span id="busuanzi_container_page_pv">
+	  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	</span>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在说解决方案之前，我们需要先明确两个问题</p>
+<ol>
+<li>到底什么是阴影</li>
+<li>为什么在 Android 端上绘制阴影效果这么麻烦</li>
+</ol>
+<p>每当我向 Android 同学提出第一问时，通常他们会回答我：阴影是个10-25%透明度的线性减淡的黑色图层</p>
+<p>但是当你尝试在移动端去绘制这样一个黑色图层去代表阴影，其视觉效果肉眼可见的差强人意</p>
+<p>于是绝大多数 Android 同学会提议你去找设计出个带阴影的图，或者使用诸如 ShadowLayout 这样复杂的控件<br><a target="_blank" rel="noopener" href="https://github.com/lihangleo2/ShadowLayout">https://github.com/lihangleo2/ShadowLayout</a></p>
+<p>ShadowLayout 使用了 1600 行代码只为实现边框阴影</p>
+<p>再看看 github 上其他绘制阴影的方案，不是采用 RenderScript 这种即将被谷歌废弃的图像处理库，就是使用 Android 12 以上才有的还要依赖硬件加速</p>
+<p>的 RenderEffect，更有甚者者干脆用 Canvas 硬画，不仅效果不好，性能更是很差，稍有复杂的情况，甚至可能导致卡顿发热</p>
+<p>我们不经要发问：Android 10多年了，难道就没有一个不需要和设计 battle，能兼容所有机型，对开发简单友好的阴影解决方案吗？</p>
+<h1 id="到底什么是阴影"><a href="#到底什么是阴影" class="headerlink" title="到底什么是阴影"></a>到底什么是阴影</h1><p>先来看下阴影的组成部分</p>
+<p>我们可以将阴影大致分成两个部分，<strong>全影&#x2F;umbra</strong> 和 <strong>半影&#x2F;penumbra</strong> 。</p>
+<p>半影区域就是阴影的过渡区， 也就是软阴影，有半影的阴影过渡时，视觉效果会好很多。</p>
+<p><a target="_blank" rel="noopener" href="https://imgse.com/i/pEWsX28"><img src="https://s21.ax1x.com/2025/04/14/pEWsX28.md.png" alt="pEWsX28.md.png"></a></p>
+<p>通俗点说：全影就是大家常说的 10 - 25% 透明度的黑色图层，通常我们需要绘制的边框阴影是半影。</p>
+<h1 id="为什么在-Android-端上绘制阴影效果这么麻烦"><a href="#为什么在-Android-端上绘制阴影效果这么麻烦" class="headerlink" title="为什么在 Android 端上绘制阴影效果这么麻烦"></a>为什么在 Android 端上绘制阴影效果这么麻烦</h1><p>半影的绘制实际上是一个多次采样模糊的过程</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">float</span> <span class="title function_">PCF</span><span class="params">(float2 uv, <span class="type">float</span> currentDepth)</span> &#123;</span><br><span class="line">    <span class="type">float</span> shadow = <span class="number">0.0</span>;</span><br><span class="line">    float2 texelSize = <span class="number">1.0</span> / _ShadowMap_TexelSize;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> x = <span class="number">-1</span>; x &lt;= <span class="number">1</span>; x++) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> y = <span class="number">-1</span>; y &lt;= <span class="number">1</span>; y++) &#123;</span><br><span class="line">            <span class="type">float</span> depth = tex2D(_ShadowMap, uv + float2(x, y) * texelSize).r;</span><br><span class="line">            shadow += (currentDepth &gt; depth) ? <span class="number">1.0</span> : <span class="number">0.0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> shadow / <span class="number">9.0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在上述代码中，对 3* 3 的区域进行了模糊采样，也就是说每个像素点的颜色依赖其周围相邻的一圈像素点的颜色的计算结果，实现逐步衰减</p>
+<h1 id="切图和代码实现究竟哪个更好？"><a href="#切图和代码实现究竟哪个更好？" class="headerlink" title="切图和代码实现究竟哪个更好？"></a>切图和代码实现究竟哪个更好？</h1><p>首先明确一点：切图和代码实现的本质区别是什么？</p>
+<p>是预渲染和实时渲染的区别</p>
+<p>如果我们当前卡片所在的背景是可枚举且数量较少的，我们应该倾向使用预渲染</p>
+<p>举个例子：</p>
+<ol>
+<li>如果一个页面只有日夜间两种阴影我们倾向于切图</li>
+<li>如果需要七彩渐变非中心光源产生的（上下左右阴影不一致的）阴影，我们倾向于代码实现</li>
+</ol>
+<h1 id="使用-9-图来规避切图的弊端"><a href="#使用-9-图来规避切图的弊端" class="headerlink" title="使用 .9 图来规避切图的弊端"></a>使用 .9 图来规避切图的弊端</h1><p>切图虽然方便，却有以下几种弊端</p>
+<ol>
+<li>设计会想打你，尤其当你需要反复调试效果的时候</li>
+<li>切图会增加包体积</li>
+</ol>
+<p>解决方案</p>
+<ol>
+<li>自己学会使用 figma 调试阴影切图</li>
+</ol>
+<p><a target="_blank" rel="noopener" href="https://imgse.com/i/pEWy1G6"><img src="https://s21.ax1x.com/2025/04/14/pEWy1G6.md.png" alt="pEWy1G6.md.png"></a></p>
+<ol start="2">
+<li>使用 .9 图</li>
+</ol>
+<p><a target="_blank" rel="noopener" href="https://imgse.com/i/pEWsHUI"><img src="https://s21.ax1x.com/2025/04/14/pEWsHUI.png" alt="pEWsHUI.png"></a></p>
+<p>当我们想要绘制一个带阴影的圆角矩形的时候，我们会发现除了矩形的四个角外，整个矩形绝大部份都是重复可拉伸的</p>
+<p>如果我切出一个这样的圆角矩形最小图，并设置其非圆角的区域为拉伸区域</p>
+<p>那我们就可以用一个只有几 kb 大小的 .9 图实现固定圆角的带边框阴影的矩形</p>
+<p>考虑到实际情况，我们可以切出 0 - 12度的圆角图共13张图，圆角越小的图片越小，易得总共大约 (1kb + 5kb ) &#x2F; 2 * 13  &#x3D; 39kb</p>
+<p>再算上深色模式，未打包压缩前总共只需要 80kb</p>
+<p>而 1600 行的 ShadowLayout.java 未压缩前有 55kb，引入 Androidx 的 CardView 就更大了，还需要考虑机型的兼容性和硬件加速开关</p>
+<p>而使用 .9 图，开发同学只需要选择对应圆角的 .9 图设置为背景即可</p>
+<h1 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h1><p>轻松使用</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">View</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_width</span>=<span class="string">&quot;400dp&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_height</span>=<span class="string">&quot;200dp&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:backgroud</span>=<span class="string">&quot;@drawable/rounded_corner_12dp_shadow&quot;</span></span></span><br><span class="line"><span class="tag"> /&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="展望"><a href="#展望" class="headerlink" title="展望"></a>展望</h1><p>我们可以进一步，将圆角和矩形分离，使用原子化的图片素材 + 微量代码，组合各种圆角与阴影效果</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>以下是 <strong>预渲染（.9图）</strong> 和 <strong>代码实现（如ShadowLayout &#x2F; CardView）</strong> 的优劣势对比表格，结合性能、开发效率、灵活性等维度分析：</p>
+<hr>
+<table>
+<thead>
+<tr>
+<th><strong>对比维度</strong></th>
+<th><strong>预渲染（.9图）</strong></th>
+<th><strong>代码实现（动态绘制）</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>性能</strong></td>
+<td>✅ 极低开销（仅纹理采样）</td>
+<td>⚠️ 较高开销（实时计算阴影、图层叠加）</td>
+</tr>
+<tr>
+<td><strong>内存占用</strong></td>
+<td>✅ 固定（如80KB存储多套圆角图）</td>
+<td>⚠️ 动态（代码+运行时内存，可能更高）</td>
+</tr>
+<tr>
+<td><strong>开发效率</strong></td>
+<td>✅ 直接设置背景，无需编码</td>
+<td>⚠️ 需编写&#x2F;维护复杂逻辑（如阴影算法）</td>
+</tr>
+<tr>
+<td><strong>灵活性</strong></td>
+<td>❌ 仅支持预定义的圆角&#x2F;阴影样式</td>
+<td>✅ 动态调整参数（颜色、圆角、模糊度等）</td>
+</tr>
+<tr>
+<td><strong>适配性</strong></td>
+<td>✅ 无兼容性问题（Android&#x2F;iOS通用）</td>
+<td>⚠️ 需处理机型兼容（如硬件加速、API差异）</td>
+</tr>
+<tr>
+<td><strong>扩展性</strong></td>
+<td>❌ 修改样式需重新切图</td>
+<td>✅ 可通过代码快速迭代新效果</td>
+</tr>
+<tr>
+<td><strong>文件体积</strong></td>
+<td>✅ 极小（如80KB未压缩）</td>
+<td>⚠️ 较大（代码+依赖库，如CardView）</td>
+</tr>
+<tr>
+<td><strong>动态效果支持</strong></td>
+<td>❌ 无法实现动画或实时变化</td>
+<td>✅ 支持动态阴影（如跟随光源移动）</td>
+</tr>
+<tr>
+<td><strong>多分辨率适配</strong></td>
+<td>✅ 自动拉伸（.9图特性）</td>
+<td>⚠️ 需额外处理多分辨率下的绘制精度</td>
+</tr>
+<tr>
+<td><strong>维护成本</strong></td>
+<td>✅ 低（替换图片即可）</td>
+<td>⚠️ 高（需测试不同机型&#x2F;系统版本）</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="适用场景总结"><a href="#适用场景总结" class="headerlink" title="适用场景总结"></a><strong>适用场景总结</strong></h3><ol>
+<li><p><strong>优先使用.9图</strong>：<br>• 样式固定（如标准化设计语言中的卡片阴影）。<br>• 性能敏感场景（如列表项、高频刷新界面）。<br>• 需要快速开发且无动态效果需求。</p>
+</li>
+<li><p><strong>优先代码实现</strong>：<br>• 需要动态效果（如阴影动画、交互反馈）。<br>• 样式高度自定义（如设计师要求的特殊渐变阴影）。</p>
+</li>
+</ol>
+<h3 id="补充建议"><a href="#补充建议" class="headerlink" title="补充建议"></a><strong>补充建议</strong></h3><p>• <strong>混合方案</strong>：对静态部分使用.9图，动态部分叠加代码绘制（如悬浮按钮的阴影）。<br>• <strong>工具化</strong>：将.9图生成和代码阴影封装成工具，供团队按需选择</p>
+<p>通过明确场景需求，可以高效选择最优方案。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a>, <a class="article-category-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-3-%E5%A4%8D%E6%9D%82-UI-%E6%95%88%E6%9E%9C/">7.3 - 复杂 UI 效果</a>
+
+      
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2025/02/05/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/03%20%E5%AE%9E%E6%97%B6%E6%B8%B2%E6%9F%93/01%20%E7%BB%98%E5%88%B6%E7%AC%AC%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">实时渲染（一）绘制一个三角形</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="sidebar">
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">Contents</strong>
+    
+      <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%B0%E5%BA%95%E4%BB%80%E4%B9%88%E6%98%AF%E9%98%B4%E5%BD%B1"><span class="nav-number">1.</span> <span class="nav-text">到底什么是阴影</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E5%9C%A8-Android-%E7%AB%AF%E4%B8%8A%E7%BB%98%E5%88%B6%E9%98%B4%E5%BD%B1%E6%95%88%E6%9E%9C%E8%BF%99%E4%B9%88%E9%BA%BB%E7%83%A6"><span class="nav-number">2.</span> <span class="nav-text">为什么在 Android 端上绘制阴影效果这么麻烦</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%87%E5%9B%BE%E5%92%8C%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0%E7%A9%B6%E7%AB%9F%E5%93%AA%E4%B8%AA%E6%9B%B4%E5%A5%BD%EF%BC%9F"><span class="nav-number">3.</span> <span class="nav-text">切图和代码实现究竟哪个更好？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-9-%E5%9B%BE%E6%9D%A5%E8%A7%84%E9%81%BF%E5%88%87%E5%9B%BE%E7%9A%84%E5%BC%8A%E7%AB%AF"><span class="nav-number">4.</span> <span class="nav-text">使用 .9 图来规避切图的弊端</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">使用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B1%95%E6%9C%9B"><span class="nav-number">6.</span> <span class="nav-text">展望</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF%E6%80%BB%E7%BB%93"><span class="nav-number">7.0.1.</span> <span class="nav-text">适用场景总结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A1%A5%E5%85%85%E5%BB%BA%E8%AE%AE"><span class="nav-number">7.0.2.</span> <span class="nav-text">补充建议</span></a></li></ol></li></ol></li></ol>
+    
+    </div>
+  </aside>
+</section>
+        
+      </div>
+
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    <footer id="footer" class="site-footer">
+  
+
+  <div class="clearfix container">
+      <div class="site-info">
+	      &copy; 2025 喵星科技报 All Rights Reserved.
+        
+            <span id="busuanzi_container_site_uv">
+              本站访客数<span id="busuanzi_value_site_uv"></span>人次  
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+          
+      </div>
+      <div class="site-credit">
+        Theme by <a href="https://github.com/CatJason" target="_blank">hipaper</a>
+      </div>
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var wrapdiv = document.getElementById("wrap");
+    var contentdiv = document.getElementById("content");
+
+    wrapdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+
+
+    <!-- headerblur min height -->
+    
+    
+</script>
+    
+<div style="display: none;">
+  <script src="https://s11.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+</div>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+<script src="/js/bootstrap.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+	</script>
+
+
+
+
+
+
+  </div>
+
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js" async=""></script>
+</body>
+</html>
