@@ -26,8 +26,8 @@
     
     <entry>
       <title>如何理解 Vulkan</title>
-      <link href="/2025/05/31/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/03%20Vulkan/02%20%E5%A6%82%E4%BD%95%E7%90%86%E8%A7%A3%20Vulkan%20UBO%20%E4%B8%8E%E5%B8%A7%E9%87%8D%E5%8F%A0/"/>
-      <url>/2025/05/31/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/03%20Vulkan/02%20%E5%A6%82%E4%BD%95%E7%90%86%E8%A7%A3%20Vulkan%20UBO%20%E4%B8%8E%E5%B8%A7%E9%87%8D%E5%8F%A0/</url>
+      <link href="/2025/05/31/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/03%20Vulkan/03%20/"/>
+      <url>/2025/05/31/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/03%20Vulkan/03%20/</url>
       
         <content type="html"><![CDATA[<p>这段代码定义了一个名为 <code>uniformBuffers</code> 的数组，它包含 <code>MAX_CONCURRENT_FRAMES</code> 个 <code>UniformBuffer</code> 对象。这种设计通常用于图形渲染中的多缓冲技术（如双缓冲或三缓冲），目的是实现帧重叠（frame overlapping）并避免资源冲突。</p><h3 id="关键点解释："><a href="#关键点解释：" class="headerlink" title="关键点解释："></a>关键点解释：</h3><ol><li><p><strong>帧重叠（Frame Overlapping）</strong>：</p><ul><li>现代图形 API（如 Vulkan&#x2F;DirectX 12）允许 CPU 准备下一帧的数据，同时 GPU 仍在渲染当前帧。</li><li>这需要为每一帧使用独立的资源，防止 CPU 覆盖 GPU 正在使用的数据。</li></ul></li><li><p>**<code>MAX_CONCURRENT_FRAMES</code>**：</p><ul><li>表示系统支持的最大并行处理帧数（通常是 2 或 3）。</li><li>例如：Vulkan 中常设为 <code>VK_MAX_FRAMES_IN_FLIGHT</code>。</li></ul></li><li><p>**<code>UniformBuffer</code>**：</p><ul><li>存储每帧需要的统一&#x2F;常量数据（如 MVP 矩阵、光照参数等）。</li><li>每个活跃帧都有自己独立的 UBO，防止写入冲突。</li></ul></li><li><p><strong>工作流程示例</strong>：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// 帧N使用它的UBO</span><br><span class="line">drawFrameN(uniformBuffers[currentFrame]);</span><br><span class="line"></span><br><span class="line">// 同时，CPU可以更新帧N+1的UBO</span><br><span class="line">updateUniformBuffer(uniformBuffers[(currentFrame + 1) % MAX_CONCURRENT_FRAMES]);</span><br></pre></td></tr></table></figure></li></ol><h3 id="为什么需要这样设计？"><a href="#为什么需要这样设计？" class="headerlink" title="为什么需要这样设计？"></a>为什么需要这样设计？</h3><ul><li><strong>安全性</strong>：避免 GPU 读取 UBO 时被 CPU 写入破坏数据。</li><li><strong>性能</strong>：允许 CPU 和 GPU 并行工作，提高吞吐量。</li><li><strong>同步</strong>：配合栅栏（Fence）&#x2F;信号量（Semaphore）实现正确的帧调度。</li></ul><p>这是现代图形编程中实现高效资源管理的典型模式。</p>]]></content>
       
@@ -46,9 +46,9 @@
     
     
     <entry>
-      <title>如何理解 Vulkan</title>
-      <link href="/2025/05/31/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/03%20Vulkan/03%20/"/>
-      <url>/2025/05/31/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/03%20Vulkan/03%20/</url>
+      <title>UBO 与帧重叠</title>
+      <link href="/2025/05/31/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/03%20Vulkan/02%20UBO%20%E4%B8%8E%E5%B8%A7%E9%87%8D%E5%8F%A0/"/>
+      <url>/2025/05/31/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/03%20Vulkan/02%20UBO%20%E4%B8%8E%E5%B8%A7%E9%87%8D%E5%8F%A0/</url>
       
         <content type="html"><![CDATA[<p>这段代码定义了一个名为 <code>uniformBuffers</code> 的数组，它包含 <code>MAX_CONCURRENT_FRAMES</code> 个 <code>UniformBuffer</code> 对象。这种设计通常用于图形渲染中的多缓冲技术（如双缓冲或三缓冲），目的是实现帧重叠（frame overlapping）并避免资源冲突。</p><h3 id="关键点解释："><a href="#关键点解释：" class="headerlink" title="关键点解释："></a>关键点解释：</h3><ol><li><p><strong>帧重叠（Frame Overlapping）</strong>：</p><ul><li>现代图形 API（如 Vulkan&#x2F;DirectX 12）允许 CPU 准备下一帧的数据，同时 GPU 仍在渲染当前帧。</li><li>这需要为每一帧使用独立的资源，防止 CPU 覆盖 GPU 正在使用的数据。</li></ul></li><li><p>**<code>MAX_CONCURRENT_FRAMES</code>**：</p><ul><li>表示系统支持的最大并行处理帧数（通常是 2 或 3）。</li><li>例如：Vulkan 中常设为 <code>VK_MAX_FRAMES_IN_FLIGHT</code>。</li></ul></li><li><p>**<code>UniformBuffer</code>**：</p><ul><li>存储每帧需要的统一&#x2F;常量数据（如 MVP 矩阵、光照参数等）。</li><li>每个活跃帧都有自己独立的 UBO，防止写入冲突。</li></ul></li><li><p><strong>工作流程示例</strong>：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// 帧N使用它的UBO</span><br><span class="line">drawFrameN(uniformBuffers[currentFrame]);</span><br><span class="line"></span><br><span class="line">// 同时，CPU可以更新帧N+1的UBO</span><br><span class="line">updateUniformBuffer(uniformBuffers[(currentFrame + 1) % MAX_CONCURRENT_FRAMES]);</span><br></pre></td></tr></table></figure></li></ol><h3 id="为什么需要这样设计？"><a href="#为什么需要这样设计？" class="headerlink" title="为什么需要这样设计？"></a>为什么需要这样设计？</h3><ul><li><strong>安全性</strong>：避免 GPU 读取 UBO 时被 CPU 写入破坏数据。</li><li><strong>性能</strong>：允许 CPU 和 GPU 并行工作，提高吞吐量。</li><li><strong>同步</strong>：配合栅栏（Fence）&#x2F;信号量（Semaphore）实现正确的帧调度。</li></ul><p>这是现代图形编程中实现高效资源管理的典型模式。</p>]]></content>
       
