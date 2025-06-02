@@ -3,21 +3,21 @@
 <head>
   <meta charset="utf-8">
   
-  <title>如何理解 Vulkan | 喵星科技报</title>
+  <title>共享管线布局 | 喵星科技报</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
   
   
   
-  <meta name="description" content="这段代码定义了一个名为 uniformBuffers 的数组，它包含 MAX_CONCURRENT_FRAMES 个 UniformBuffer 对象。这种设计通常用于图形渲染中的多缓冲技术（如双缓冲或三缓冲），目的是实现帧重叠（frame overlapping）并避免资源冲突。 关键点解释： 帧重叠（Frame Overlapping）：  现代图形 API（如 Vulkan&#x2F;Dir">
+  <meta name="description" content="在Vulkan中，管线布局（Pipeline Layout）是一个非常重要的概念，它定义了着色器程序如何与外部资源进行交互的接口规范。让我用更通俗的方式解释：  什么是管线布局？   就像一个”资源使用合同”：它告诉GPU：”我的着色器将会按照这种方式来访问外部数据” 它声明了着色器会使用哪些描述符集（Descriptor Sets）和推送常量（Push Constants） 但不包含实际数据，只">
 <meta property="og:type" content="article">
-<meta property="og:title" content="如何理解 Vulkan">
-<meta property="og:url" content="http://example.com/2025/05/31/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/03%20Vulkan/03%20/index.html">
+<meta property="og:title" content="共享管线布局">
+<meta property="og:url" content="http://example.com/2025/05/31/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/03%20Vulkan/03%20%E5%85%B1%E4%BA%AB%E7%AE%A1%E7%BA%BF%E5%B8%83%E5%B1%80%20/index.html">
 <meta property="og:site_name" content="喵星科技报">
-<meta property="og:description" content="这段代码定义了一个名为 uniformBuffers 的数组，它包含 MAX_CONCURRENT_FRAMES 个 UniformBuffer 对象。这种设计通常用于图形渲染中的多缓冲技术（如双缓冲或三缓冲），目的是实现帧重叠（frame overlapping）并避免资源冲突。 关键点解释： 帧重叠（Frame Overlapping）：  现代图形 API（如 Vulkan&#x2F;Dir">
+<meta property="og:description" content="在Vulkan中，管线布局（Pipeline Layout）是一个非常重要的概念，它定义了着色器程序如何与外部资源进行交互的接口规范。让我用更通俗的方式解释：  什么是管线布局？   就像一个”资源使用合同”：它告诉GPU：”我的着色器将会按照这种方式来访问外部数据” 它声明了着色器会使用哪些描述符集（Descriptor Sets）和推送常量（Push Constants） 但不包含实际数据，只">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-05-30T17:40:12.612Z">
-<meta property="article:modified_time" content="2025-05-31T08:34:30.044Z">
+<meta property="article:modified_time" content="2025-06-02T17:26:18.973Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
   
@@ -124,7 +124,7 @@
     <div id="content" class="outer">
       
         <!-- 无侧边栏的布局 -->
-        <section id="main" style="float:none;"><article id="post-8渲染引擎/03 Vulkan/03 " style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+        <section id="main" style="float:none;"><article id="post-8渲染引擎/03 Vulkan/03 共享管线布局 " style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -132,7 +132,7 @@
         
   
     <h1 class="thumb" class="article-title" itemprop="name">
-      如何理解 Vulkan
+      共享管线布局
     </h1>
   
 
@@ -140,7 +140,7 @@
     
     <div class="article-meta">
       
-	<a href="/2025/05/31/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/03%20Vulkan/03%20/" class="article-date">
+	<a href="/2025/05/31/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/03%20Vulkan/03%20%E5%85%B1%E4%BA%AB%E7%AE%A1%E7%BA%BF%E5%B8%83%E5%B1%80%20/" class="article-date">
 	  <time datetime="2025-05-30T17:40:12.612Z" itemprop="datePublished">May 31, 2025</time>
 	</a>
 
@@ -156,35 +156,53 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>这段代码定义了一个名为 <code>uniformBuffers</code> 的数组，它包含 <code>MAX_CONCURRENT_FRAMES</code> 个 <code>UniformBuffer</code> 对象。这种设计通常用于图形渲染中的多缓冲技术（如双缓冲或三缓冲），目的是实现帧重叠（frame overlapping）并避免资源冲突。</p>
-<h3 id="关键点解释："><a href="#关键点解释：" class="headerlink" title="关键点解释："></a>关键点解释：</h3><ol>
-<li><p><strong>帧重叠（Frame Overlapping）</strong>：</p>
-<ul>
-<li>现代图形 API（如 Vulkan&#x2F;DirectX 12）允许 CPU 准备下一帧的数据，同时 GPU 仍在渲染当前帧。</li>
-<li>这需要为每一帧使用独立的资源，防止 CPU 覆盖 GPU 正在使用的数据。</li>
-</ul>
-</li>
-<li><p>**<code>MAX_CONCURRENT_FRAMES</code>**：</p>
-<ul>
-<li>表示系统支持的最大并行处理帧数（通常是 2 或 3）。</li>
-<li>例如：Vulkan 中常设为 <code>VK_MAX_FRAMES_IN_FLIGHT</code>。</li>
-</ul>
-</li>
-<li><p>**<code>UniformBuffer</code>**：</p>
-<ul>
-<li>存储每帧需要的统一&#x2F;常量数据（如 MVP 矩阵、光照参数等）。</li>
-<li>每个活跃帧都有自己独立的 UBO，防止写入冲突。</li>
-</ul>
-</li>
-<li><p><strong>工作流程示例</strong>：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// 帧N使用它的UBO</span><br><span class="line">drawFrameN(uniformBuffers[currentFrame]);</span><br><span class="line"></span><br><span class="line">// 同时，CPU可以更新帧N+1的UBO</span><br><span class="line">updateUniformBuffer(uniformBuffers[(currentFrame + 1) % MAX_CONCURRENT_FRAMES]);</span><br></pre></td></tr></table></figure></li>
+        <p>在Vulkan中，管线布局（Pipeline Layout）是一个非常重要的概念，它定义了着色器程序如何与外部资源进行交互的接口规范。让我用更通俗的方式解释：</p>
+<ol>
+<li><strong>什么是管线布局？</strong></li>
 </ol>
-<h3 id="为什么需要这样设计？"><a href="#为什么需要这样设计？" class="headerlink" title="为什么需要这样设计？"></a>为什么需要这样设计？</h3><ul>
-<li><strong>安全性</strong>：避免 GPU 读取 UBO 时被 CPU 写入破坏数据。</li>
-<li><strong>性能</strong>：允许 CPU 和 GPU 并行工作，提高吞吐量。</li>
-<li><strong>同步</strong>：配合栅栏（Fence）&#x2F;信号量（Semaphore）实现正确的帧调度。</li>
+<ul>
+<li>就像一个”资源使用合同”：它告诉GPU：”我的着色器将会按照这种方式来访问外部数据”</li>
+<li>它声明了着色器会使用哪些描述符集（Descriptor Sets）和推送常量（Push Constants）</li>
+<li>但不包含实际数据，只规定数据的组织方式</li>
 </ul>
-<p>这是现代图形编程中实现高效资源管理的典型模式。</p>
+<ol>
+<li><strong>为什么需要管线布局？</strong></li>
+</ol>
+<ul>
+<li>Vulkan要求必须明确声明所有可能访问的资源</li>
+<li>它让驱动程序可以提前优化着色器的资源访问</li>
+<li>提供了一种验证机制，确保绑定的资源与着色器期望的匹配</li>
+</ul>
+<ol>
+<li><strong>共享管线布局的典型场景：</strong></li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// 创建可共享的管线布局</span><br><span class="line">VkPipelineLayoutCreateInfo layoutInfo&#123;...&#125;;</span><br><span class="line">vkCreatePipelineLayout(device, &amp;layoutInfo, nullptr, &amp;pipelineLayout);</span><br><span class="line"></span><br><span class="line">// 管线1使用这个布局</span><br><span class="line">VkGraphicsPipelineCreateInfo pipelineInfo1&#123;...&#125;;</span><br><span class="line">pipelineInfo1.layout = pipelineLayout;</span><br><span class="line"></span><br><span class="line">// 管线2也使用同一个布局</span><br><span class="line">VkGraphicsPipelineCreateInfo pipelineInfo2&#123;...&#125;;</span><br><span class="line">pipelineInfo2.layout = pipelineLayout;  // 相同的layout对象</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><strong>共享的好处：</strong></li>
+</ol>
+<ul>
+<li><strong>性能优化</strong>：驱动程序只需处理一次布局的验证和优化</li>
+<li><strong>内存节省</strong>：避免重复创建相同布局</li>
+<li><strong>一致性</strong>：确保多个管线使用相同的资源接口</li>
+</ul>
+<ol>
+<li><strong>实际应用示例：</strong><br> 假设你有两个渲染管线：</li>
+</ol>
+<ul>
+<li>管线A：渲染建筑物（使用描述符集0&#x3D;纹理，描述符集1&#x3D;矩阵）</li>
+<li>管线B：渲染树木（使用相同的描述符集布局）</li>
+</ul>
+<p>这两个管线可以共享同一个管线布局，即使它们使用不同的着色器和实际数据。</p>
+<ol>
+<li><strong>注意事项：</strong></li>
+</ol>
+<ul>
+<li>共享的前提是接口完全兼容</li>
+<li>改变布局需要重新创建管线</li>
+<li>描述符集的绑定是在绘制时进行的，与布局分开</li>
+</ul>
+<p>关键理解：可以把管线布局想象成电源插座的标准（比如220V），多个电器（管线）可以遵循同一个标准，但实际插上去的电器（绑定的描述符集）可以不同。</p>
 
       
     </div>
@@ -227,19 +245,19 @@
     
 <nav id="article-nav">
   
-    <a href="/2025/05/31/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/03%20Vulkan/01%20%E5%A6%82%E4%BD%95%E7%90%86%E8%A7%A3%20Vulkan%20MAX_CONCURRENT_FRAMES/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2025/05/31/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/03%20Vulkan/02%20UBO%20%E4%B8%8E%E5%B8%A7%E9%87%8D%E5%8F%A0/" id="article-nav-newer" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          如何理解 Vulkan MAX_CONCURRENT_FRAMES
+          UBO 与帧重叠
         
       </div>
     </a>
   
   
-    <a href="/2025/05/31/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/03%20Vulkan/02%20UBO%20%E4%B8%8E%E5%B8%A7%E9%87%8D%E5%8F%A0/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/2025/04/14/7%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/2%20%E9%98%B4%E5%BD%B1%E7%BB%98%E5%88%B6/Android-%E8%BE%B9%E6%A1%86%E9%98%B4%E5%BD%B1%E7%BB%98%E5%88%B6%E6%96%B9%E6%A1%88/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">UBO 与帧重叠</div>
+      <div class="article-nav-title">Android 边框阴影绘制方案</div>
     </a>
   
 </nav>
@@ -253,7 +271,7 @@
     <div id="toc" class="toc-article">
     <strong class="toc-title">Contents</strong>
     
-      <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E9%94%AE%E7%82%B9%E8%A7%A3%E9%87%8A%EF%BC%9A"><span class="nav-number">1.</span> <span class="nav-text">关键点解释：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E8%BF%99%E6%A0%B7%E8%AE%BE%E8%AE%A1%EF%BC%9F"><span class="nav-number">2.</span> <span class="nav-text">为什么需要这样设计？</span></a></li></ol>
+      <ol class="nav">None</ol>
     
     </div>
   </aside>
