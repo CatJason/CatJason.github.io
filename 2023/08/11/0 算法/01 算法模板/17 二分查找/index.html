@@ -9,15 +9,15 @@
   
   
   
-  <meta name="description" content="正文123456789101112131415161718fun binarySearch(nums: IntArray, target: Int): Int &amp;#123;    var left &#x3D; 0    var right &#x3D; nums.size - 1    while (left &lt;&#x3D; right) &amp;#123;        val mid &#x3D; left + (right -">
+  <meta name="description" content="正文二分查找（Binary Search）是一种在有序数组中查找特定元素的搜索算法。它的核心思想是通过不断将搜索区间减半，来极大地提高搜索效率。 算法模板1234567891011121314151617181920212223fun binarySearch(nums: IntArray, target: Int): Int &amp;#123;    var left &#x3D; 0    var right">
 <meta property="og:type" content="article">
 <meta property="og:title" content="17. 二分查找">
 <meta property="og:url" content="http://example.com/2023/08/11/0%20%E7%AE%97%E6%B3%95/01%20%E7%AE%97%E6%B3%95%E6%A8%A1%E6%9D%BF/17%20%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE/index.html">
 <meta property="og:site_name" content="喵星科技报">
-<meta property="og:description" content="正文123456789101112131415161718fun binarySearch(nums: IntArray, target: Int): Int &amp;#123;    var left &#x3D; 0    var right &#x3D; nums.size - 1    while (left &lt;&#x3D; right) &amp;#123;        val mid &#x3D; left + (right -">
+<meta property="og:description" content="正文二分查找（Binary Search）是一种在有序数组中查找特定元素的搜索算法。它的核心思想是通过不断将搜索区间减半，来极大地提高搜索效率。 算法模板1234567891011121314151617181920212223fun binarySearch(nums: IntArray, target: Int): Int &amp;#123;    var left &#x3D; 0    var right">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-08-10T23:15:38.000Z">
-<meta property="article:modified_time" content="2023-08-10T23:15:38.000Z">
+<meta property="article:modified_time" content="2026-03-26T16:44:02.853Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
   
@@ -141,7 +141,36 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">binarySearch</span><span class="params">(nums: <span class="type">IntArray</span>, target: <span class="type">Int</span>)</span></span>: <span class="built_in">Int</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> left = <span class="number">0</span></span><br><span class="line">    <span class="keyword">var</span> right = nums.size - <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (left &lt;= right) &#123;</span><br><span class="line">        <span class="keyword">val</span> mid = left + (right - left) / <span class="number">2</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (nums[mid] == target) &#123;</span><br><span class="line">            <span class="keyword">return</span> mid</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (nums[mid] &lt; target) &#123;</span><br><span class="line">            left = mid + <span class="number">1</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            right = mid - <span class="number">1</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> -<span class="number">1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+        <h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>二分查找（Binary Search）是一种在<strong>有序数组</strong>中查找特定元素的搜索算法。它的核心思想是通过不断将搜索区间减半，来极大地提高搜索效率。</p>
+<h4 id="算法模板"><a href="#算法模板" class="headerlink" title="算法模板"></a>算法模板</h4><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">binarySearch</span><span class="params">(nums: <span class="type">IntArray</span>, target: <span class="type">Int</span>)</span></span>: <span class="built_in">Int</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> left = <span class="number">0</span></span><br><span class="line">    <span class="keyword">var</span> right = nums.size - <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (left &lt;= right) &#123;</span><br><span class="line">        <span class="comment">// 使用该方式计算 mid 防止 (left + right) 导致整型溢出</span></span><br><span class="line">        <span class="keyword">val</span> mid = left + (right - left) / <span class="number">2</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (nums[mid] == target) &#123;</span><br><span class="line">            <span class="comment">// 找到目标，返回索引</span></span><br><span class="line">            <span class="keyword">return</span> mid</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (nums[mid] &lt; target) &#123;</span><br><span class="line">            <span class="comment">// 目标在右半部分，收缩左边界</span></span><br><span class="line">            left = mid + <span class="number">1</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 目标在左半部分，收缩右边界</span></span><br><span class="line">            right = mid - <span class="number">1</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 未找到目标元素</span></span><br><span class="line">    <span class="keyword">return</span> -<span class="number">1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用说明"><a href="#使用说明" class="headerlink" title="使用说明"></a>使用说明</h3><ol>
+<li><p><strong>先决条件</strong>：</p>
+<ul>
+<li>数据必须是<strong>有序</strong>的（通常是升序）。</li>
+<li>必须支持随机访问（即数组或列表，链表不适用）。</li>
+</ul>
+</li>
+<li><p><strong>核心技巧</strong>：</p>
+<ul>
+<li>**计算 <code>mid</code>**：建议使用 <code>val mid = left + (right - left) / 2</code>，而不是 <code>(left + right) / 2</code>。这是为了避免当 <code>left</code> 和 <code>right</code> 都很大时相加导致 <code>Int</code> 溢出。</li>
+<li><strong>循环条件</strong>：<code>while (left &lt;= right)</code> 意味着搜索区间是闭区间 <code>[left, right]</code>。</li>
+</ul>
+</li>
+<li><p><strong>复杂度分析</strong>：</p>
+<ul>
+<li><strong>时间复杂度</strong>：$O(\log N)$。</li>
+<li><strong>空间复杂度</strong>：$O(1)$。</li>
+</ul>
+</li>
+<li><p><strong>注意点</strong>：</p>
+<ul>
+<li>注意边界处理：<code>left = mid + 1</code> 和 <code>right = mid - 1</code>，确保每次循环都能缩小搜索区间，防止死循环。</li>
+<li>如果数组中存在重复元素，该模板返回的是其中任意一个目标的索引。若需查找“最左侧”或“最右侧”插入点，请参考后续专门的二分模板。</li>
+</ul>
+</li>
+</ol>
+
       
     </div>
     <footer class="entry-meta entry-footer">
@@ -209,7 +238,7 @@
     <div id="toc" class="toc-article">
     <strong class="toc-title">Contents</strong>
     
-      <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A3%E6%96%87"><span class="nav-number">1.</span> <span class="nav-text">正文</span></a></li></ol>
+      <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A3%E6%96%87"><span class="nav-number">1.</span> <span class="nav-text">正文</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AE%97%E6%B3%95%E6%A8%A1%E6%9D%BF"><span class="nav-number">1.1.</span> <span class="nav-text">算法模板</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E"><span class="nav-number">2.</span> <span class="nav-text">使用说明</span></a></li></ol>
     
     </div>
   </aside>

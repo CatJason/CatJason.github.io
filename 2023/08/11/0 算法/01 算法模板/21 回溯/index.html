@@ -9,15 +9,15 @@
   
   
   
-  <meta name="description" content="正文1234567891011121314151617181920fun backtrack(...) &amp;#123;    &#x2F;&#x2F; 检查是否达到结束条件    if (满足结束条件) &amp;#123;        &#x2F;&#x2F; 处理结果        处理结果        return    &amp;#125;    &#x2F;&#x2F; 遍历所有可能的选择    for (选择 in 可选列表) &amp;#123;        &#x2F;">
+  <meta name="description" content="正文回溯（Backtracking）是一种深度优先搜索（DFS）的特殊形式，主要用于解决“排列、组合、切割、子集”等问题。它的核心在于试探与撤销。 算法模板1234567891011121314151617181920212223fun backtrack(path: MutableList&lt;T&gt;, options: List&lt;T&gt;) &amp;#123;    &#x2F;&#x2F; 1. 终止条">
 <meta property="og:type" content="article">
 <meta property="og:title" content="21. 回溯">
 <meta property="og:url" content="http://example.com/2023/08/11/0%20%E7%AE%97%E6%B3%95/01%20%E7%AE%97%E6%B3%95%E6%A8%A1%E6%9D%BF/21%20%E5%9B%9E%E6%BA%AF/index.html">
 <meta property="og:site_name" content="喵星科技报">
-<meta property="og:description" content="正文1234567891011121314151617181920fun backtrack(...) &amp;#123;    &#x2F;&#x2F; 检查是否达到结束条件    if (满足结束条件) &amp;#123;        &#x2F;&#x2F; 处理结果        处理结果        return    &amp;#125;    &#x2F;&#x2F; 遍历所有可能的选择    for (选择 in 可选列表) &amp;#123;        &#x2F;">
+<meta property="og:description" content="正文回溯（Backtracking）是一种深度优先搜索（DFS）的特殊形式，主要用于解决“排列、组合、切割、子集”等问题。它的核心在于试探与撤销。 算法模板1234567891011121314151617181920212223fun backtrack(path: MutableList&lt;T&gt;, options: List&lt;T&gt;) &amp;#123;    &#x2F;&#x2F; 1. 终止条">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-08-10T23:15:50.000Z">
-<meta property="article:modified_time" content="2023-08-10T23:15:50.000Z">
+<meta property="article:modified_time" content="2026-03-26T16:45:05.378Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
   
@@ -141,7 +141,39 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">backtrack</span><span class="params">(...)</span></span> &#123;</span><br><span class="line">    <span class="comment">// 检查是否达到结束条件</span></span><br><span class="line">    <span class="keyword">if</span> (满足结束条件) &#123;</span><br><span class="line">        <span class="comment">// 处理结果</span></span><br><span class="line">        处理结果</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 遍历所有可能的选择</span></span><br><span class="line">    <span class="keyword">for</span> (选择 <span class="keyword">in</span> 可选列表) &#123;</span><br><span class="line">        <span class="comment">// 做选择</span></span><br><span class="line">        做选择</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 进入下一层决策树</span></span><br><span class="line">        backtrack(...)</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 撤销选择</span></span><br><span class="line">        撤销选择</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+        <h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>回溯（Backtracking）是一种深度优先搜索（DFS）的特殊形式，主要用于解决“排列、组合、切割、子集”等问题。它的核心在于<strong>试探</strong>与<strong>撤销</strong>。</p>
+<h4 id="算法模板"><a href="#算法模板" class="headerlink" title="算法模板"></a>算法模板</h4><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">backtrack</span><span class="params">(path: <span class="type">MutableList</span>&lt;<span class="type">T</span>&gt;, options: <span class="type">List</span>&lt;<span class="type">T</span>&gt;)</span></span> &#123;</span><br><span class="line">    <span class="comment">// 1. 终止条件：满足特定的结束条件</span></span><br><span class="line">    <span class="keyword">if</span> (isFinished(path)) &#123;</span><br><span class="line">        <span class="comment">// 记得拷贝结果 (deep copy)，否则最终返回的列表都是空的</span></span><br><span class="line">        res.add(ArrayList(path))</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 2. 遍历候选列表</span></span><br><span class="line">    <span class="keyword">for</span> (option <span class="keyword">in</span> options) &#123;</span><br><span class="line">        <span class="comment">// 剪枝：过滤掉不符合条件的路径</span></span><br><span class="line">        <span class="keyword">if</span> (!isValid(option, path)) <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3. 做选择</span></span><br><span class="line">        path.add(option)</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 4. 递归进入下一层决策树</span></span><br><span class="line">        backtrack(path, nextOptions)</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 5. 撤销选择：回溯的核心步骤</span></span><br><span class="line">        path.removeAt(path.size - <span class="number">1</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用说明"><a href="#使用说明" class="headerlink" title="使用说明"></a>使用说明</h3><ol>
+<li><p><strong>核心步骤</strong>：</p>
+<ul>
+<li><strong>路径</strong>：记录已经做出的选择。</li>
+<li><strong>选择列表</strong>：当前可以做的选择。</li>
+<li><strong>结束条件</strong>：到达决策树叶子节点，结束递归。</li>
+</ul>
+</li>
+<li><p><strong>核心技巧</strong>：</p>
+<ul>
+<li><strong>深度优先遍历</strong>：先从根节点出发，一直走到叶子节点。</li>
+<li><strong>状态重置</strong>：在递归返回时，必须将当前节点的状态重置（撤销选择），以便在下一次循环中尝试其他路径。</li>
+<li><strong>深拷贝</strong>：在保存结果时，必须使用 <code>ArrayList(path)</code>。</li>
+</ul>
+</li>
+<li><p><strong>常见变形</strong>：</p>
+<ul>
+<li><strong>排列问题</strong>：需要使用 <code>used</code> 数组记录已选元素。</li>
+<li><strong>组合&#x2F;子集问题</strong>：通常需要一个 <code>startIndex</code> 来控制搜索范围，避免重复。</li>
+<li><strong>剪枝优化</strong>：通过对数组预排序或提前退出循环来极大提升效率。</li>
+</ul>
+</li>
+<li><p><strong>注意点</strong>：</p>
+<ul>
+<li>回溯算法的时间复杂度通常很高（指数级），必须结合题目特点进行剪枝。</li>
+<li>注意处理重复元素（如“组合总和 II”）。</li>
+</ul>
+</li>
+</ol>
+
       
     </div>
     <footer class="entry-meta entry-footer">
@@ -209,7 +241,7 @@
     <div id="toc" class="toc-article">
     <strong class="toc-title">Contents</strong>
     
-      <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A3%E6%96%87"><span class="nav-number">1.</span> <span class="nav-text">正文</span></a></li></ol>
+      <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A3%E6%96%87"><span class="nav-number">1.</span> <span class="nav-text">正文</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AE%97%E6%B3%95%E6%A8%A1%E6%9D%BF"><span class="nav-number">1.1.</span> <span class="nav-text">算法模板</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E"><span class="nav-number">2.</span> <span class="nav-text">使用说明</span></a></li></ol>
     
     </div>
   </aside>

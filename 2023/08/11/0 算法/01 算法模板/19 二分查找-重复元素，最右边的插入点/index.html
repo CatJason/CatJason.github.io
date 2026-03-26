@@ -9,15 +9,15 @@
   
   
   
-  <meta name="description" content="正文123456789101112131415161718192021fun searchInsert(nums: IntArray, target: Int): Int &amp;#123;    var left &#x3D; 0    var right &#x3D; nums.size - 1    var result &#x3D; nums.size &#x2F;&#x2F; 默认插入到最右边    while (left &lt;&#x3D; rig">
+  <meta name="description" content="正文当数组中存在重复元素时，如果我们需要寻找目标元素出现的最后一次索引位置（最右侧边界），或者目标不存在时其应插入的位置，需要使用以下变体。 算法模板1234567891011121314151617181920fun searchRightBound(nums: IntArray, target: Int): Int &amp;#123;    var left &#x3D; 0    var right &#x3D; n">
 <meta property="og:type" content="article">
 <meta property="og:title" content="19. 二分查找-重复元素，最右边的插入点">
 <meta property="og:url" content="http://example.com/2023/08/11/0%20%E7%AE%97%E6%B3%95/01%20%E7%AE%97%E6%B3%95%E6%A8%A1%E6%9D%BF/19%20%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE-%E9%87%8D%E5%A4%8D%E5%85%83%E7%B4%A0%EF%BC%8C%E6%9C%80%E5%8F%B3%E8%BE%B9%E7%9A%84%E6%8F%92%E5%85%A5%E7%82%B9/index.html">
 <meta property="og:site_name" content="喵星科技报">
-<meta property="og:description" content="正文123456789101112131415161718192021fun searchInsert(nums: IntArray, target: Int): Int &amp;#123;    var left &#x3D; 0    var right &#x3D; nums.size - 1    var result &#x3D; nums.size &#x2F;&#x2F; 默认插入到最右边    while (left &lt;&#x3D; rig">
+<meta property="og:description" content="正文当数组中存在重复元素时，如果我们需要寻找目标元素出现的最后一次索引位置（最右侧边界），或者目标不存在时其应插入的位置，需要使用以下变体。 算法模板1234567891011121314151617181920fun searchRightBound(nums: IntArray, target: Int): Int &amp;#123;    var left &#x3D; 0    var right &#x3D; n">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-08-10T23:15:44.000Z">
-<meta property="article:modified_time" content="2023-08-10T23:15:44.000Z">
+<meta property="article:modified_time" content="2026-03-26T16:44:48.938Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
   
@@ -141,7 +141,32 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">searchInsert</span><span class="params">(nums: <span class="type">IntArray</span>, target: <span class="type">Int</span>)</span></span>: <span class="built_in">Int</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> left = <span class="number">0</span></span><br><span class="line">    <span class="keyword">var</span> right = nums.size - <span class="number">1</span></span><br><span class="line">    <span class="keyword">var</span> result = nums.size <span class="comment">// 默认插入到最右边</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (left &lt;= right) &#123;</span><br><span class="line">        <span class="keyword">val</span> mid = left + (right - left) / <span class="number">2</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (nums[mid] &lt;= target) &#123;</span><br><span class="line">            <span class="keyword">if</span> (nums[mid] == target) &#123;</span><br><span class="line">                <span class="comment">// 找到目标元素，更新结果为当前索引</span></span><br><span class="line">                result = mid</span><br><span class="line">            &#125;</span><br><span class="line">            left = mid + <span class="number">1</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            right = mid - <span class="number">1</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+        <h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>当数组中存在重复元素时，如果我们需要寻找目标元素出现的<strong>最后一次</strong>索引位置（最右侧边界），或者目标不存在时其应插入的位置，需要使用以下变体。</p>
+<h4 id="算法模板"><a href="#算法模板" class="headerlink" title="算法模板"></a>算法模板</h4><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">searchRightBound</span><span class="params">(nums: <span class="type">IntArray</span>, target: <span class="type">Int</span>)</span></span>: <span class="built_in">Int</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> left = <span class="number">0</span></span><br><span class="line">    <span class="keyword">var</span> right = nums.size - <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (left &lt;= right) &#123;</span><br><span class="line">        <span class="keyword">val</span> mid = left + (right - left) / <span class="number">2</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> (nums[mid] &lt;= target) &#123;</span><br><span class="line">            <span class="comment">// 如果中间值小于等于目标，说明右边界可能在右侧</span></span><br><span class="line">            <span class="comment">// 我们继续向右移动以寻找“最后一个”目标</span></span><br><span class="line">            left = mid + <span class="number">1</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            right = mid - <span class="number">1</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 此时 right 就是最右侧的插入点（即最后一个小于等于 target 的元素位置）</span></span><br><span class="line">    <span class="comment">// 或者说 left 是第一个大于 target 的元素位置</span></span><br><span class="line">    <span class="keyword">return</span> right</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用说明"><a href="#使用说明" class="headerlink" title="使用说明"></a>使用说明</h3><ol>
+<li><p><strong>核心逻辑</strong>：</p>
+<ul>
+<li>关键在于 <code>nums[mid] &lt;= target</code> 时执行 <code>left = mid + 1</code>。即使找到了目标，我们也并不立即返回，而是继续收缩左边界，试图在右侧寻找最后一次出现的目标。</li>
+<li>循环结束后，<code>right</code> 指向的是最后一个等于 <code>target</code> 的元素索引。</li>
+</ul>
+</li>
+<li><p><strong>适用场景</strong>：</p>
+<ul>
+<li>查找有序数组中最后一个等于 <code>target</code> 的元素。</li>
+<li>查找最后一个小于等于 <code>target</code> 的元素（Upper Bound 变体）。</li>
+<li>统计重复元素的范围（配合左边界模板）。</li>
+</ul>
+</li>
+<li><p><strong>注意点</strong>：</p>
+<ul>
+<li>返回值 <code>right</code> 的范围是 <code>[-1, nums.size - 1]</code>。如果 <code>target</code> 比数组所有元素都小，<code>right</code> 将为 <code>-1</code>。</li>
+<li>检查是否存在时，务必先判断 <code>right &gt;= 0</code>。</li>
+<li><code>left</code> 的最终位置是第一个<strong>大于</strong> <code>target</code> 的元素位置。</li>
+</ul>
+</li>
+</ol>
+
       
     </div>
     <footer class="entry-meta entry-footer">
@@ -209,7 +234,7 @@
     <div id="toc" class="toc-article">
     <strong class="toc-title">Contents</strong>
     
-      <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A3%E6%96%87"><span class="nav-number">1.</span> <span class="nav-text">正文</span></a></li></ol>
+      <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A3%E6%96%87"><span class="nav-number">1.</span> <span class="nav-text">正文</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AE%97%E6%B3%95%E6%A8%A1%E6%9D%BF"><span class="nav-number">1.1.</span> <span class="nav-text">算法模板</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E"><span class="nav-number">2.</span> <span class="nav-text">使用说明</span></a></li></ol>
     
     </div>
   </aside>

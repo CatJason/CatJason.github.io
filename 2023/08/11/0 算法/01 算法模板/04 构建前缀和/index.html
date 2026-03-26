@@ -9,15 +9,15 @@
   
   
   
-  <meta name="description" content="正文以下是一个前缀和算法的常见模板： 12345678910fun prefixSum(nums: IntArray): IntArray &amp;#123;    val prefixSum &#x3D; IntArray(nums.size + 1)    &#x2F;&#x2F; 计算前缀和数组    for (i in 1..nums.size) &amp;#123;        prefixSum[i] &#x3D; prefixSum[">
+  <meta name="description" content="正文前缀和（Prefix Sum）是一种非常重要的预处理技巧，主要用于高效计算数组中任意区间的元素之和。 算法模板1234567891011fun prefixSum(nums: IntArray): IntArray &amp;#123;    &#x2F;&#x2F; 前缀和数组长度为 n + 1，prefixSum[i] 表示 nums 中前 i 个元素的和    val prefixSum &#x3D; IntArray(nu">
 <meta property="og:type" content="article">
 <meta property="og:title" content="04. 构建前缀和">
 <meta property="og:url" content="http://example.com/2023/08/11/0%20%E7%AE%97%E6%B3%95/01%20%E7%AE%97%E6%B3%95%E6%A8%A1%E6%9D%BF/04%20%E6%9E%84%E5%BB%BA%E5%89%8D%E7%BC%80%E5%92%8C/index.html">
 <meta property="og:site_name" content="喵星科技报">
-<meta property="og:description" content="正文以下是一个前缀和算法的常见模板： 12345678910fun prefixSum(nums: IntArray): IntArray &amp;#123;    val prefixSum &#x3D; IntArray(nums.size + 1)    &#x2F;&#x2F; 计算前缀和数组    for (i in 1..nums.size) &amp;#123;        prefixSum[i] &#x3D; prefixSum[">
+<meta property="og:description" content="正文前缀和（Prefix Sum）是一种非常重要的预处理技巧，主要用于高效计算数组中任意区间的元素之和。 算法模板1234567891011fun prefixSum(nums: IntArray): IntArray &amp;#123;    &#x2F;&#x2F; 前缀和数组长度为 n + 1，prefixSum[i] 表示 nums 中前 i 个元素的和    val prefixSum &#x3D; IntArray(nu">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-08-10T23:14:48.000Z">
-<meta property="article:modified_time" content="2023-08-10T23:14:48.000Z">
+<meta property="article:modified_time" content="2026-03-26T16:31:33.188Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
   
@@ -141,12 +141,22 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>以下是一个前缀和算法的常见模板：</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">prefixSum</span><span class="params">(nums: <span class="type">IntArray</span>)</span></span>: IntArray &#123;</span><br><span class="line">    <span class="keyword">val</span> prefixSum = IntArray(nums.size + <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 计算前缀和数组</span></span><br><span class="line">    <span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">1.</span>.nums.size) &#123;</span><br><span class="line">        prefixSum[i] = prefixSum[i - <span class="number">1</span>] + nums[i - <span class="number">1</span>]</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> prefixSum</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>在这个模板中，我们使用一个额外的数组 prefixSum 来存储原始数组 nums 的前缀和。通过遍历原始数组，我们可以计算每个位置的前缀和并存储在 prefixSum 中。</p>
-<p>使用前缀和数组 prefixSum，我们可以高效地回答多个查询，例如计算某个区间的和。假设我们需要计算区间 [left, right] 的和，我们可以使用如下方式获取结果：</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> sum = prefixSum[right + <span class="number">1</span>] - prefixSum[left</span><br></pre></td></tr></table></figure>
-<p>这个计算结果即为原始数组中从位置 left 到位置 right 的元素之和。<br>请注意，在模板中，前缀和数组 prefixSum 的长度比原始数组 nums 的长度多了一个元素。这是为了方便计算区间和时的边界情况。</p>
+        <h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>前缀和（Prefix Sum）是一种非常重要的预处理技巧，主要用于高效计算数组中任意区间的元素之和。</p>
+<h4 id="算法模板"><a href="#算法模板" class="headerlink" title="算法模板"></a>算法模板</h4><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">prefixSum</span><span class="params">(nums: <span class="type">IntArray</span>)</span></span>: IntArray &#123;</span><br><span class="line">    <span class="comment">// 前缀和数组长度为 n + 1，prefixSum[i] 表示 nums 中前 i 个元素的和</span></span><br><span class="line">    <span class="keyword">val</span> prefixSum = IntArray(nums.size + <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 计算前缀和数组</span></span><br><span class="line">    <span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">1.</span>.nums.size) &#123;</span><br><span class="line">        prefixSum[i] = prefixSum[i - <span class="number">1</span>] + nums[i - <span class="number">1</span>]</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> prefixSum</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="使用说明"><a href="#使用说明" class="headerlink" title="使用说明"></a>使用说明</h4><ol>
+<li><p><strong>区间求和</strong>：<br>使用前缀和数组 <code>prefixSum</code>，我们可以以 $O(1)$ 的时间复杂度回答多个区间和查询。计算区间 <code>[left, right]</code>（包含两端）的元素之和：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> sum = prefixSum[right + <span class="number">1</span>] - prefixSum[left]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>核心优势</strong>：<br>将多次区间查询的时间复杂度从 $O(N)$ 降低到 $O(1)$。</p>
+</li>
+<li><p><strong>注意点</strong>：</p>
+<ul>
+<li>前缀和数组长度通常设为 <code>n + 1</code>，其中 <code>prefixSum[0] = 0</code>。这样可以统一处理 <code>left = 0</code> 的边界情况，无需额外的 <code>if</code> 判断。</li>
+<li>如果数组元素较大，注意前缀和数组可能发生整型溢出，必要时使用 <code>LongArray</code>。</li>
+</ul>
+</li>
+</ol>
 
       
     </div>
@@ -215,7 +225,7 @@
     <div id="toc" class="toc-article">
     <strong class="toc-title">Contents</strong>
     
-      <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A3%E6%96%87"><span class="nav-number">1.</span> <span class="nav-text">正文</span></a></li></ol>
+      <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A3%E6%96%87"><span class="nav-number">1.</span> <span class="nav-text">正文</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AE%97%E6%B3%95%E6%A8%A1%E6%9D%BF"><span class="nav-number">1.1.</span> <span class="nav-text">算法模板</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E"><span class="nav-number">1.2.</span> <span class="nav-text">使用说明</span></a></li></ol></li></ol>
     
     </div>
   </aside>
