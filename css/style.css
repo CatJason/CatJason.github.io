@@ -1784,3 +1784,31 @@ pre .xml .cdata {
   margin-right: 5px;
   display: inline-block;
 }
+#sidebar {
+  max-height: calc(100vh - 50px);
+  overflow-y: auto !important;
+  scrollbar-width: thin;
+}
+#sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+#sidebar::-webkit-scrollbar-thumb {
+  background-color: #ddd;
+  border-radius: 10px;
+}
+#toc {
+  overflow-y: auto !important;
+}
+.toc-fixed {
+  overflow-y: auto !important;
+  max-height: 85vh !important;
+/* Scrollbar styling for TOC */
+  scrollbar-width: thin;
+}
+.toc-fixed::-webkit-scrollbar {
+  width: 4px;
+}
+.toc-fixed::-webkit-scrollbar-thumb {
+  background-color: #ddd;
+  border-radius: 10px;
+}

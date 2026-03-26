@@ -59,10 +59,32 @@
 
 
   
+  
+  <div class="site-header-image">
+    <img id="originBg" width="100%" alt="Hike News" src="">
+  </div>
+
+  <div id="header-blur" class="site-header-image blur" style="position: absolute; top:0; height: 207px; min-height: 207px; min-width: 100%;">
+    <img id="blurBg" width="100%" style="top: 96%" alt="Hike News" src="">
+  </div>
+
+  <script>
+        var imgUrls = "css/images/pose01.jpg,https://source.unsplash.com/collection/954550/1920x1080,https://source.unsplash.com/collection/954550/1920x1081".split(",");
+        var random = Math.floor((Math.random() * imgUrls.length ));
+        if (imgUrls[random].startsWith('http') || imgUrls[random].indexOf('://') >= 0) {
+          document.getElementById("originBg").src=imgUrls[random];
+          document.getElementById("blurBg").src=imgUrls[random];
+        } else {
+          document.getElementById("originBg").src='/' + imgUrls[random];
+          document.getElementById("blurBg").src='/' + imgUrls[random];
+        }
+    </script>
+
+
 
 
 <header id="allheader" class="site-header" role="banner" 
-   >
+   style="width: 100%; position: absolute; top:0; background: rgba(255,255,255,.8);"  >
   <div class="clearfix container">
       <div class="site-branding">
 
@@ -107,7 +129,7 @@
         
           <section id="main">
   
-    <article id="post-4 架构方案设计/02 播放器架构方案设计/Android-音视频架构专项"  class="article article-type-post" itemscope itemprop="blogPost" >
+    <article id="post-4 架构方案设计/03 Android 文件存储方案/Android-不同版本文件存储方案"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -115,7 +137,7 @@
         
   
     <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2023/08/29/4%20%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/02%20%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/Android-%E9%9F%B3%E8%A7%86%E9%A2%91%E6%9E%B6%E6%9E%84%E4%B8%93%E9%A1%B9/">Android 音视频屏幕旋转方案</a>
+      <a class="article-title" href="/2023/08/29/4%20%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/03%20Android%20%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E6%96%B9%E6%A1%88/Android-%E4%B8%8D%E5%90%8C%E7%89%88%E6%9C%AC%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E6%96%B9%E6%A1%88/">Android 音视频屏幕旋转方案</a>
     </h1>
   
 
@@ -123,81 +145,154 @@
     
     <div class="article-meta">
       
-	<a href="/2023/08/29/4%20%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/02%20%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/Android-%E9%9F%B3%E8%A7%86%E9%A2%91%E6%9E%B6%E6%9E%84%E4%B8%93%E9%A1%B9/" class="article-date">
+	<a href="/2023/08/29/4%20%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/03%20Android%20%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E6%96%B9%E6%A1%88/Android-%E4%B8%8D%E5%90%8C%E7%89%88%E6%9C%AC%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E6%96%B9%E6%A1%88/" class="article-date">
 	  <time datetime="2023-08-28T18:45:14.000Z" itemprop="datePublished">August 29, 2023</time>
 	</a>
 
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a>, <a class="article-category-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.1 - 播放器架构方案设计</a>
+    <a class="article-category-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a>, <a class="article-category-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-2-Android-%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.2 - Android 存储文件方案设计</a>
  
       
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>在Android平台上，实现音视频播放过程中的屏幕旋转涉及到以下几个方面：界面布局的调整、Activity的生命周期管理、保存和恢复播放状态、以及处理屏幕旋转时可能引发的音视频播放问题。以下是一个基本的音视频屏幕旋转方案的步骤：</p>
-<h4 id="布局调整"><a href="#布局调整" class="headerlink" title="布局调整"></a>布局调整</h4><p>在<code>res</code>文件夹中创建不同方向的布局文件，例如<code>layout/activity_main.xml</code>和<code>layout-land/activity_main.xml</code>分别表示竖屏和横屏时的布局。在这些布局文件中，你可以调整控件的摆放位置以适应不同方向的屏幕。</p>
-<h4 id="Activity的生命周期管理"><a href="#Activity的生命周期管理" class="headerlink" title="Activity的生命周期管理"></a>Activity的生命周期管理</h4><p>当屏幕发生旋转时，Activity会经历重新创建的过程。确保你的Activity正确处理生命周期事件，特别是<code>onCreate</code>、<code>onSaveInstanceState</code>和<code>onRestoreInstanceState</code>等方法。</p>
-<h4 id="保存和恢复播放状态"><a href="#保存和恢复播放状态" class="headerlink" title="保存和恢复播放状态"></a>保存和恢复播放状态</h4><p>在<code>onSaveInstanceState</code>方法中保存当前的播放状态，例如播放位置、播放状态（播放、暂停等），以及其他相关信息。然后在<code>onCreate</code>和<code>onRestoreInstanceState</code>方法中恢复这些状态。</p>
-<h4 id="处理屏幕旋转可能引发的问题"><a href="#处理屏幕旋转可能引发的问题" class="headerlink" title="处理屏幕旋转可能引发的问题"></a>处理屏幕旋转可能引发的问题</h4><p>屏幕旋转可能会导致播放器重新创建或重置，从而影响播放状态。你需要在Activity重新创建时恢复播放状态，并确保播放器不会中断或重置播放进度。</p>
-<h4 id="使用ViewModel来保存播放状态（可选）"><a href="#使用ViewModel来保存播放状态（可选）" class="headerlink" title="使用ViewModel来保存播放状态（可选）"></a>使用ViewModel来保存播放状态（可选）</h4><p>使用ViewModel可以更方便地在屏幕旋转时保持数据。ViewModel会在Activity重新创建时保持其状态，因此你可以将播放状态等数据存储在ViewModel中，以确保不会丢失。</p>
-<h4 id="锁定屏幕方向（可选）"><a href="#锁定屏幕方向（可选）" class="headerlink" title="锁定屏幕方向（可选）"></a>锁定屏幕方向（可选）</h4><p>如果你希望在播放音视频时固定屏幕方向，可以在AndroidManifest.xml中的相应Activity中使用<code>android:screenOrientation</code>属性来指定所需的屏幕方向（如<code>portrait</code>或<code>landscape</code>）。</p>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>总之，处理音视频播放过程中的屏幕旋转需要综合考虑界面布局、生命周期管理、数据保存和恢复等方面的问题。合理使用布局文件、Activity生命周期方法、ViewModel等工具，可以帮助你实现稳定且用户友好的音视频播放体验。</p>
+        <p>Q：我应该去哪里获取不同版本的存储策略</p>
+<p>A：要获取不同版本的 Android 存储策略（Storage Policies），您可以访问以下资源，这些资源提供了详细的版本特定存储策略和变更的信息：</p>
+<h3 id="官方-Android-文档"><a href="#官方-Android-文档" class="headerlink" title="官方 Android 文档"></a>官方 Android 文档</h3><p>Android 官方文档是了解不同版本存储策略最可靠的来源。以下是一些重要的链接：</p>
+<ol>
+<li><p>**<a target="_blank" rel="noopener" href="https://developer.android.com/guide/topics/data/data-storage">Android Developers Storage Documentation</a>**：<br>这是 Android 官方的存储文档，涵盖了各种存储选项和最佳实践。</p>
+</li>
+<li><p>**<a target="_blank" rel="noopener" href="https://developer.android.com/about/versions">Android Platform Releases</a>**：<br>这个页面提供了每个 Android 版本的详细变更，包括存储策略的变更。</p>
+</li>
+<li><p>**<a target="_blank" rel="noopener" href="https://developer.android.com/training/data-storage">Scoped Storage</a>**：<br>针对 Android 10（API Level 29）及更高版本的分区存储（Scoped Storage），是存储策略的重要变更点。</p>
+</li>
+</ol>
+<h3 id="官方博客和公告"><a href="#官方博客和公告" class="headerlink" title="官方博客和公告"></a>官方博客和公告</h3><p>Android 官方博客和公告也是了解存储策略变更的好资源：</p>
+<ol>
+<li>**<a target="_blank" rel="noopener" href="https://android-developers.googleblog.com/">Android Developers Blog</a>**：<br>在这个博客上，Google 发布了关于新功能和存储策略变更的详细信息和指导。</li>
+</ol>
+<h3 id="GitHub-和社区资源"><a href="#GitHub-和社区资源" class="headerlink" title="GitHub 和社区资源"></a>GitHub 和社区资源</h3><p>开源社区和开发者论坛也提供了大量关于存储策略的信息：</p>
+<ol>
+<li><p>**<a target="_blank" rel="noopener" href="https://github.com/android/sunflower">Google Samples on GitHub</a>**：<br>Google 提供的示例项目，可以查看不同版本的存储策略实现。</p>
+</li>
+<li><p>**<a target="_blank" rel="noopener" href="https://stackoverflow.com/">Stack Overflow</a>**：<br>搜索关于 Android 存储策略的问题和答案，可以获取社区的解决方案和建议。</p>
+</li>
+</ol>
+<h3 id="具体版本的存储策略变更"><a href="#具体版本的存储策略变更" class="headerlink" title="具体版本的存储策略变更"></a>具体版本的存储策略变更</h3><p>要了解具体版本的存储策略变更，可以参考以下步骤：</p>
+<ol>
+<li><p><strong>访问 Android 开发者文档中的版本变更日志</strong>：<br>每个 Android 版本的变更日志会详细列出该版本的新特性和变更，包括存储策略。</p>
+</li>
+<li><p><strong>查找特定版本的存储策略文档</strong>：<br>在 Android Developers 网站上，您可以找到特定版本的 API 参考和变更日志。</p>
+</li>
+</ol>
+<h3 id="直接搜索具体问题"><a href="#直接搜索具体问题" class="headerlink" title="直接搜索具体问题"></a>直接搜索具体问题</h3><p>如果您有特定的存储策略问题，可以直接在 Google 搜索：</p>
+<ul>
+<li>例如：<code>Android 10 Scoped Storage</code></li>
+<li>例如：<code>Android 11 Storage Policy Changes</code></li>
+</ul>
+<p>通过这些资源，您应该能够找到详细的 Android 存储策略信息，并理解每个版本的特定变更。</p>
+<h1 id="Android-6-以下的文件存储和读取策略"><a href="#Android-6-以下的文件存储和读取策略" class="headerlink" title="Android 6 以下的文件存储和读取策略"></a>Android 6 以下的文件存储和读取策略</h1><p>在Android 6.0（API Level 23）及以下版本中，文件存储和读取的策略主要涉及以下几个方面：</p>
+<h3 id="1-存储位置"><a href="#1-存储位置" class="headerlink" title="1. 存储位置"></a>1. 存储位置</h3><p>Android系统提供了两种主要的存储位置：内部存储和外部存储。</p>
+<h4 id="内部存储"><a href="#内部存储" class="headerlink" title="内部存储"></a>内部存储</h4><ul>
+<li>内部存储是应用的私有存储区域，只有该应用可以访问。</li>
+<li>存储在内部存储中的文件默认在应用卸载时会被删除。</li>
+<li>使用<code>Context</code>对象的方法可以在内部存储中读写文件，例如：<ul>
+<li><code>openFileOutput(String name, int mode)</code>：写文件</li>
+<li><code>openFileInput(String name)</code>：读文件</li>
+</ul>
+</li>
+</ul>
+<h4 id="外部存储"><a href="#外部存储" class="headerlink" title="外部存储"></a>外部存储</h4><ul>
+<li>外部存储可以是设备的外部存储卡或者内置存储分区。</li>
+<li>分为公共外部存储和应用私有外部存储。</li>
+<li>公共外部存储可以被所有应用访问，例如图片、音频文件等。</li>
+<li>应用私有外部存储只能被创建该文件的应用访问，在应用卸载时会被删除。</li>
+<li>使用<code>Environment</code>类和<code>Context</code>对象的方法可以在外部存储中读写文件，例如：<ul>
+<li><code>getExternalFilesDir(String type)</code>：获取应用私有外部存储目录</li>
+<li><code>Environment.getExternalStoragePublicDirectory(String type)</code>：获取公共外部存储目录</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-权限管理"><a href="#2-权限管理" class="headerlink" title="2. 权限管理"></a>2. 权限管理</h3><p>在Android 6.0及以下版本中，应用需要在<code>AndroidManifest.xml</code>中声明对外部存储的读写权限：</p>
+<ul>
+<li>读权限：<code>&lt;uses-permission android:name=&quot;android.permission.READ_EXTERNAL_STORAGE&quot;/&gt;</code></li>
+<li>写权限：<code>&lt;uses-permission android:name=&quot;android.permission.WRITE_EXTERNAL_STORAGE&quot;/&gt;</code></li>
+</ul>
+<p>这些权限在应用安装时由用户批准。</p>
+<h3 id="3-文件操作代码示例"><a href="#3-文件操作代码示例" class="headerlink" title="3. 文件操作代码示例"></a>3. 文件操作代码示例</h3><h4 id="内部存储-1"><a href="#内部存储-1" class="headerlink" title="内部存储"></a>内部存储</h4><p>写文件：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">filename</span> <span class="operator">=</span> <span class="string">&quot;myfile.txt&quot;</span>;</span><br><span class="line"><span class="type">String</span> <span class="variable">fileContents</span> <span class="operator">=</span> <span class="string">&quot;Hello, world!&quot;</span>;</span><br><span class="line"><span class="type">FileOutputStream</span> <span class="variable">fos</span> <span class="operator">=</span> openFileOutput(filename, Context.MODE_PRIVATE);</span><br><span class="line">fos.write(fileContents.getBytes());</span><br><span class="line">fos.close();</span><br></pre></td></tr></table></figure>
+
+<p>读文件：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">FileInputStream</span> <span class="variable">fis</span> <span class="operator">=</span> openFileInput(filename);</span><br><span class="line"><span class="type">InputStreamReader</span> <span class="variable">isr</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">InputStreamReader</span>(fis);</span><br><span class="line"><span class="type">BufferedReader</span> <span class="variable">bufferedReader</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BufferedReader</span>(isr);</span><br><span class="line"><span class="type">StringBuilder</span> <span class="variable">sb</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>();</span><br><span class="line">String line;</span><br><span class="line"><span class="keyword">while</span> ((line = bufferedReader.readLine()) != <span class="literal">null</span>) &#123;</span><br><span class="line">    sb.append(line);</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">String</span> <span class="variable">fileContents</span> <span class="operator">=</span> sb.toString();</span><br><span class="line">fis.close();</span><br></pre></td></tr></table></figure>
+
+<h4 id="外部存储-1"><a href="#外部存储-1" class="headerlink" title="外部存储"></a>外部存储</h4><p>检查存储状态：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">state</span> <span class="operator">=</span> Environment.getExternalStorageState();</span><br><span class="line"><span class="keyword">if</span> (Environment.MEDIA_MOUNTED.equals(state)) &#123;</span><br><span class="line">    <span class="comment">// 可以读写外部存储</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>写文件：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">File</span> <span class="variable">file</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(getExternalFilesDir(<span class="literal">null</span>), <span class="string">&quot;myfile.txt&quot;</span>);</span><br><span class="line"><span class="type">FileOutputStream</span> <span class="variable">fos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileOutputStream</span>(file);</span><br><span class="line">fos.write(fileContents.getBytes());</span><br><span class="line">fos.close();</span><br></pre></td></tr></table></figure>
+
+<p>读文件：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">File</span> <span class="variable">file</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(getExternalFilesDir(<span class="literal">null</span>), <span class="string">&quot;myfile.txt&quot;</span>);</span><br><span class="line"><span class="type">FileInputStream</span> <span class="variable">fis</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileInputStream</span>(file);</span><br><span class="line"><span class="type">InputStreamReader</span> <span class="variable">isr</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">InputStreamReader</span>(fis);</span><br><span class="line"><span class="type">BufferedReader</span> <span class="variable">bufferedReader</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BufferedReader</span>(isr);</span><br><span class="line"><span class="type">StringBuilder</span> <span class="variable">sb</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>();</span><br><span class="line">String line;</span><br><span class="line"><span class="keyword">while</span> ((line = bufferedReader.readLine()) != <span class="literal">null</span>) &#123;</span><br><span class="line">    sb.append(line);</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">String</span> <span class="variable">fileContents</span> <span class="operator">=</span> sb.toString();</span><br><span class="line">fis.close();</span><br></pre></td></tr></table></figure>
+
+<p>这些代码示例展示了在Android 6.0及以下版本中如何进行基本的文件读写操作。随着Android版本的升级，文件存储和权限管理策略也发生了显著变化，因此在开发过程中需要根据目标API版本进行适配。</p>
+<h1 id="Android-6-以上文件存储和读取策略"><a href="#Android-6-以上文件存储和读取策略" class="headerlink" title="Android 6 以上文件存储和读取策略"></a>Android 6 以上文件存储和读取策略</h1><p>在Android 6.0（API Level 23）及以上版本中，文件存储和读取策略发生了一些变化，特别是在权限管理和存储位置的使用方面。以下是各版本的策略变化和相应的文件存储读写方法。</p>
+<h3 id="1-Android-6-0-API-Level-23"><a href="#1-Android-6-0-API-Level-23" class="headerlink" title="1. Android 6.0 (API Level 23)"></a>1. Android 6.0 (API Level 23)</h3><h4 id="动态权限"><a href="#动态权限" class="headerlink" title="动态权限"></a>动态权限</h4><ul>
+<li>从Android 6.0开始，权限管理采用动态权限模式。用户可以在运行时授予或拒绝权限。</li>
+<li>应用在使用外部存储时，需要在<code>AndroidManifest.xml</code>中声明权限，并在运行时请求权限。</li>
+</ul>
+<p><strong>权限请求代码示例：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (ContextCompat.checkSelfPermission(<span class="built_in">this</span>, Manifest.permission.WRITE_EXTERNAL_STORAGE)</span><br><span class="line">        != PackageManager.PERMISSION_GRANTED) &#123;</span><br><span class="line">    ActivityCompat.requestPermissions(<span class="built_in">this</span>, <span class="keyword">new</span> <span class="title class_">String</span>[]&#123;Manifest.permission.WRITE_EXTERNAL_STORAGE&#125;, REQUEST_CODE);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-Android-7-0-API-Level-24"><a href="#2-Android-7-0-API-Level-24" class="headerlink" title="2. Android 7.0 (API Level 24)"></a>2. Android 7.0 (API Level 24)</h3><h4 id="文件URI策略"><a href="#文件URI策略" class="headerlink" title="文件URI策略"></a>文件URI策略</h4><ul>
+<li>从Android 7.0开始，<code>File</code> URI不再被允许在应用之间共享。必须使用<code>FileProvider</code>来共享文件URI。</li>
+</ul>
+<p><strong><code>FileProvider</code>配置示例：</strong><br>在<code>AndroidManifest.xml</code>中：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">provider</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:name</span>=<span class="string">&quot;androidx.core.content.FileProvider&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:authorities</span>=<span class="string">&quot;$&#123;applicationId&#125;.fileprovider&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:exported</span>=<span class="string">&quot;false&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:grantUriPermissions</span>=<span class="string">&quot;true&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta-data</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:name</span>=<span class="string">&quot;android.support.FILE_PROVIDER_PATHS&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:resource</span>=<span class="string">&quot;@xml/file_paths&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">provider</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>在<code>res/xml/file_paths.xml</code>中：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">paths</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">external-path</span> <span class="attr">name</span>=<span class="string">&quot;external_files&quot;</span> <span class="attr">path</span>=<span class="string">&quot;.&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">paths</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-Android-8-0-API-Level-26"><a href="#3-Android-8-0-API-Level-26" class="headerlink" title="3. Android 8.0 (API Level 26)"></a>3. Android 8.0 (API Level 26)</h3><h4 id="安全性增强"><a href="#安全性增强" class="headerlink" title="安全性增强"></a>安全性增强</h4><ul>
+<li>在后台执行文件操作受到限制，必须在前台任务或通过服务进行文件操作。</li>
+</ul>
+<h3 id="4-Android-9-0-API-Level-28"><a href="#4-Android-9-0-API-Level-28" class="headerlink" title="4. Android 9.0 (API Level 28)"></a>4. Android 9.0 (API Level 28)</h3><h4 id="共享存储访问"><a href="#共享存储访问" class="headerlink" title="共享存储访问"></a>共享存储访问</h4><ul>
+<li>在Android 9.0中引入了新的API，用于访问共享存储，推荐使用<code>ACTION_OPEN_DOCUMENT</code>和<code>ACTION_CREATE_DOCUMENT</code>来访问和创建文件。</li>
+</ul>
+<p><strong>使用示例：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Intent</span> <span class="variable">intent</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Intent</span>(Intent.ACTION_OPEN_DOCUMENT);</span><br><span class="line">intent.addCategory(Intent.CATEGORY_OPENABLE);</span><br><span class="line">intent.setType(<span class="string">&quot;*/*&quot;</span>);</span><br><span class="line">startActivityForResult(intent, REQUEST_CODE_OPEN_DOCUMENT);</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-Android-10-API-Level-29"><a href="#5-Android-10-API-Level-29" class="headerlink" title="5. Android 10 (API Level 29)"></a>5. Android 10 (API Level 29)</h3><h4 id="分区存储-Scoped-Storage"><a href="#分区存储-Scoped-Storage" class="headerlink" title="分区存储 (Scoped Storage)"></a>分区存储 (Scoped Storage)</h4><ul>
+<li>引入了分区存储，应用只能访问其私有的外部存储空间，除非使用特定的API访问公共存储。</li>
+<li>可以通过请求Legacy存储模式来继续使用传统的存储访问方式（直到Android 11）。</li>
+</ul>
+<p><strong>分区存储代码示例：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">File</span> <span class="variable">file</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(getExternalFilesDir(<span class="literal">null</span>), <span class="string">&quot;myfile.txt&quot;</span>);</span><br><span class="line"><span class="type">FileOutputStream</span> <span class="variable">fos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileOutputStream</span>(file);</span><br><span class="line">fos.write(fileContents.getBytes());</span><br><span class="line">fos.close();</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-Android-11-API-Level-30"><a href="#6-Android-11-API-Level-30" class="headerlink" title="6. Android 11 (API Level 30)"></a>6. Android 11 (API Level 30)</h3><h4 id="强制分区存储"><a href="#强制分区存储" class="headerlink" title="强制分区存储"></a>强制分区存储</h4><ul>
+<li>强制启用分区存储，应用无法再使用<code>requestLegacyExternalStorage</code>标志。</li>
+<li>提供了新的访问存储的API，如<code>MediaStore</code>。</li>
+</ul>
+<p><strong>MediaStore使用示例：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">ContentValues</span> <span class="variable">values</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ContentValues</span>();</span><br><span class="line">values.put(MediaStore.MediaColumns.DISPLAY_NAME, <span class="string">&quot;myfile.txt&quot;</span>);</span><br><span class="line">values.put(MediaStore.MediaColumns.MIME_TYPE, <span class="string">&quot;text/plain&quot;</span>);</span><br><span class="line">values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOCUMENTS);</span><br><span class="line"><span class="type">Uri</span> <span class="variable">uri</span> <span class="operator">=</span> getContentResolver().insert(MediaStore.Files.getContentUri(<span class="string">&quot;external&quot;</span>), values);</span><br><span class="line"><span class="keyword">if</span> (uri != <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="type">OutputStream</span> <span class="variable">outputStream</span> <span class="operator">=</span> getContentResolver().openOutputStream(uri);</span><br><span class="line">    outputStream.write(fileContents.getBytes());</span><br><span class="line">    outputStream.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-Android-12-API-Level-31-及更高版本"><a href="#7-Android-12-API-Level-31-及更高版本" class="headerlink" title="7. Android 12 (API Level 31) 及更高版本"></a>7. Android 12 (API Level 31) 及更高版本</h3><h4 id="进一步限制外部存储访问"><a href="#进一步限制外部存储访问" class="headerlink" title="进一步限制外部存储访问"></a>进一步限制外部存储访问</h4><ul>
+<li>在Android 12中，对特定类型的文件访问进行了更多的限制，需要使用特定的API来访问不同类型的文件，如音频、视频和图片等。</li>
+</ul>
+<p><strong>总结：</strong></p>
+<ul>
+<li>Android 6.0及以上版本在权限管理上采用动态权限，需要在运行时请求权限。</li>
+<li>Android 7.0开始引入<code>FileProvider</code>来共享文件URI。</li>
+<li>Android 10引入分区存储，Android 11强制启用分区存储，进一步限制了应用对外部存储的访问。</li>
+<li>使用<code>MediaStore</code>等新的API来进行文件的读写操作，以适应最新的存储策略。</li>
+</ul>
+<p>了解并适应这些变化，可以确保应用在不同Android版本上的文件存储和读取操作安全且有效。</p>
 
       
     </div>
     <footer class="entry-meta entry-footer">
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a>, <a class="article-category-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.1 - 播放器架构方案设计</a>
-
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
-    <article id="post-6 Android编译打包/Android 云编译 gradle 配置"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2023/08/11/6%20Android%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85/Android%20%E4%BA%91%E7%BC%96%E8%AF%91%20gradle%20%E9%85%8D%E7%BD%AE/">Android aar 文件到底是什么</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2023/08/11/6%20Android%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85/Android%20%E4%BA%91%E7%BC%96%E8%AF%91%20gradle%20%E9%85%8D%E7%BD%AE/" class="article-date">
-	  <time datetime="2023-08-10T23:19:04.000Z" itemprop="datePublished">August 11, 2023</time>
-	</a>
-
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a>, <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-2-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.2 - 简单好用的 gradle 云编译设置</a>
- 
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>作者: 朕小猫与GPT4</p>
-<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br></pre></td><td class="code"><pre><span class="line">task downloadApk &#123;</span><br><span class="line">    doLast &#123;</span><br><span class="line">        <span class="keyword">def</span> remoteApkPath = <span class="string">&quot;/home/jason/AndroidStudioProjects/ncmusic/app/build/outputs/apk/debug/app-debug.apk&quot;</span></span><br><span class="line">        <span class="keyword">def</span> localApkDir = System.getProperty(<span class="string">&quot;user.home&quot;</span>) + <span class="string">&quot;/Downloads/&quot;</span></span><br><span class="line">        <span class="keyword">def</span> localApkPath = localApkDir + <span class="string">&quot;app-debug.apk&quot;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 创建本地目录</span></span><br><span class="line">        <span class="keyword">new</span> File(localApkDir).mkdirs()</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 使用 scp 下载远程 APK 文件到本地</span></span><br><span class="line">        <span class="keyword">def</span> command = <span class="string">&quot;sshpass -p &#x27;password&#x27; scp jason@192.168.1.100:$&#123;remoteApkPath&#125; $&#123;localApkPath&#125;&quot;</span></span><br><span class="line">        println <span class="string">&quot;Executing command: $&#123;command&#125;&quot;</span></span><br><span class="line"></span><br><span class="line">        exec &#123;</span><br><span class="line">            commandLine <span class="string">&#x27;bash&#x27;</span>, <span class="string">&#x27;-c&#x27;</span>, command</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">task installAndStart &#123;</span><br><span class="line">    dependsOn downloadApk</span><br><span class="line">    doLast &#123;</span><br><span class="line">        <span class="keyword">def</span> localApkPath = System.getProperty(<span class="string">&quot;user.home&quot;</span>) + <span class="string">&quot;/Downloads/app-debug.apk&quot;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 确保 adb 可用</span></span><br><span class="line">        <span class="keyword">def</span> adbPath = <span class="string">&#x27;/Users/jason/Library/Android/sdk/platform-tools/adb&#x27;</span></span><br><span class="line">        <span class="keyword">if</span> (!<span class="keyword">new</span> File(adbPath).exists()) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> GradleException(<span class="string">&quot;adb command not found at $&#123;adbPath&#125;! Please ensure Android SDK is properly installed.&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 安装 APK</span></span><br><span class="line">        <span class="keyword">def</span> installCommand = <span class="string">&quot;$&#123;adbPath&#125; install -r $&#123;localApkPath&#125;&quot;</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            exec &#123;</span><br><span class="line">                commandLine <span class="string">&#x27;bash&#x27;</span>, <span class="string">&#x27;-c&#x27;</span>, installCommand</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> GradleException(<span class="string">&quot;Failed to install APK: $&#123;e.message&#125;&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 提取包名</span></span><br><span class="line">        <span class="keyword">def</span> manifestFile = file(<span class="string">&quot;$&#123;rootProject.projectDir&#125;/app/src/main/AndroidManifest.xml&quot;</span>)</span><br><span class="line">        <span class="keyword">def</span> packageName = <span class="string">&quot;&quot;</span></span><br><span class="line">        <span class="keyword">if</span> (manifestFile.exists()) &#123;</span><br><span class="line">            manifestFile.eachLine &#123; line -&gt;</span><br><span class="line">                <span class="keyword">if</span> (line.contains(<span class="string">&quot;package=&quot;</span>)) &#123;</span><br><span class="line">                    packageName = line.split(<span class="string">&#x27;package=&#x27;</span>)[<span class="number">1</span>].split(<span class="string">&#x27;&quot;&#x27;</span>)[<span class="number">1</span>]</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (packageName == <span class="string">&quot;&quot;</span>) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> GradleException(<span class="string">&quot;Failed to extract package name from AndroidManifest.xml&quot;</span>)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> GradleException(<span class="string">&quot;AndroidManifest.xml file not found!&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 启动应用</span></span><br><span class="line">        <span class="keyword">def</span> launchCommand = <span class="string">&quot;$&#123;adbPath&#125; shell monkey -p $&#123;packageName&#125; -c android.intent.category.LAUNCHER 1&quot;</span></span><br><span class="line">        println <span class="string">&quot;Executing command: $&#123;launchCommand&#125;&quot;</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            exec &#123;</span><br><span class="line">                commandLine <span class="string">&#x27;bash&#x27;</span>, <span class="string">&#x27;-c&#x27;</span>, launchCommand</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> GradleException(<span class="string">&quot;Failed to launch application: $&#123;e.message&#125;&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">task downloadBuild &#123;</span><br><span class="line">    doLast &#123;</span><br><span class="line">        subprojects.each &#123; subproject -&gt;</span><br><span class="line">            <span class="keyword">def</span> remoteRootPath = <span class="string">&quot;/home/jason/AndroidStudioProjects/&quot;</span></span><br><span class="line">            <span class="keyword">def</span> remoteDirPath = remoteRootPath + <span class="string">&quot;$&#123;rootProject.name&#125;/$&#123;subproject.name&#125;/build&quot;</span></span><br><span class="line">            <span class="keyword">def</span> localDirPath = <span class="string">&quot;$&#123;subproject.projectDir&#125;&quot;</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 创建本地目录</span></span><br><span class="line">            <span class="keyword">new</span> File(localDirPath).mkdirs()</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 使用 rsync 同步远程文件到本地</span></span><br><span class="line">            <span class="keyword">def</span> command = <span class="string">&quot;sshpass -p &#x27;password&#x27; rsync -avz --delete jason@192.168.1.100:$&#123;remoteDirPath&#125; $&#123;localDirPath&#125;&quot;</span></span><br><span class="line">            println <span class="string">&quot;Executing command: $&#123;command&#125;&quot;</span></span><br><span class="line"></span><br><span class="line">            exec &#123;</span><br><span class="line">                commandLine <span class="string">&#x27;bash&#x27;</span>, <span class="string">&#x27;-c&#x27;</span>, command</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">task remoteBuild &#123;</span><br><span class="line">    doLast &#123;</span><br><span class="line">        <span class="comment">// 远程构建命令</span></span><br><span class="line">        <span class="keyword">def</span> command = <span class="string">&quot;sshpass -p &#x27;password&#x27; ssh jason@192.168.1.100 &#x27;cd /home/jason/AndroidStudioProjects/ncmusic/ &amp;&amp; ./gradlew assembleDebug&#x27;&quot;</span></span><br><span class="line">        exec &#123;</span><br><span class="line">            commandLine <span class="string">&#x27;bash&#x27;</span>, <span class="string">&#x27;-c&#x27;</span>, command</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义一个任务来执行远程构建、下载 APK、安装并启动应用，然后同步构建产物</span></span><br><span class="line">task buildDownloadInstallAndStart &#123;</span><br><span class="line">    dependsOn remoteBuild</span><br><span class="line">    finalizedBy installAndStart, downloadBuild</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a>, <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-2-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.2 - 简单好用的 gradle 云编译设置</a>
+    <a class="article-category-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a>, <a class="article-category-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-2-Android-%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.2 - Android 存储文件方案设计</a>
 
       
       
@@ -277,6 +372,54 @@
       
 	<span class="ico-folder"></span>
     <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a>, <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-6 Android编译打包/Android 云编译 gradle 配置"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2023/08/11/6%20Android%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85/Android%20%E4%BA%91%E7%BC%96%E8%AF%91%20gradle%20%E9%85%8D%E7%BD%AE/">Android aar 文件到底是什么</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/11/6%20Android%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85/Android%20%E4%BA%91%E7%BC%96%E8%AF%91%20gradle%20%E9%85%8D%E7%BD%AE/" class="article-date">
+	  <time datetime="2023-08-10T23:19:04.000Z" itemprop="datePublished">August 11, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a>, <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-2-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.2 - 简单好用的 gradle 云编译设置</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>作者: 朕小猫与GPT4</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br></pre></td><td class="code"><pre><span class="line">task downloadApk &#123;</span><br><span class="line">    doLast &#123;</span><br><span class="line">        <span class="keyword">def</span> remoteApkPath = <span class="string">&quot;/home/jason/AndroidStudioProjects/ncmusic/app/build/outputs/apk/debug/app-debug.apk&quot;</span></span><br><span class="line">        <span class="keyword">def</span> localApkDir = System.getProperty(<span class="string">&quot;user.home&quot;</span>) + <span class="string">&quot;/Downloads/&quot;</span></span><br><span class="line">        <span class="keyword">def</span> localApkPath = localApkDir + <span class="string">&quot;app-debug.apk&quot;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 创建本地目录</span></span><br><span class="line">        <span class="keyword">new</span> File(localApkDir).mkdirs()</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 使用 scp 下载远程 APK 文件到本地</span></span><br><span class="line">        <span class="keyword">def</span> command = <span class="string">&quot;sshpass -p &#x27;password&#x27; scp jason@192.168.1.100:$&#123;remoteApkPath&#125; $&#123;localApkPath&#125;&quot;</span></span><br><span class="line">        println <span class="string">&quot;Executing command: $&#123;command&#125;&quot;</span></span><br><span class="line"></span><br><span class="line">        exec &#123;</span><br><span class="line">            commandLine <span class="string">&#x27;bash&#x27;</span>, <span class="string">&#x27;-c&#x27;</span>, command</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">task installAndStart &#123;</span><br><span class="line">    dependsOn downloadApk</span><br><span class="line">    doLast &#123;</span><br><span class="line">        <span class="keyword">def</span> localApkPath = System.getProperty(<span class="string">&quot;user.home&quot;</span>) + <span class="string">&quot;/Downloads/app-debug.apk&quot;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 确保 adb 可用</span></span><br><span class="line">        <span class="keyword">def</span> adbPath = <span class="string">&#x27;/Users/jason/Library/Android/sdk/platform-tools/adb&#x27;</span></span><br><span class="line">        <span class="keyword">if</span> (!<span class="keyword">new</span> File(adbPath).exists()) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> GradleException(<span class="string">&quot;adb command not found at $&#123;adbPath&#125;! Please ensure Android SDK is properly installed.&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 安装 APK</span></span><br><span class="line">        <span class="keyword">def</span> installCommand = <span class="string">&quot;$&#123;adbPath&#125; install -r $&#123;localApkPath&#125;&quot;</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            exec &#123;</span><br><span class="line">                commandLine <span class="string">&#x27;bash&#x27;</span>, <span class="string">&#x27;-c&#x27;</span>, installCommand</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> GradleException(<span class="string">&quot;Failed to install APK: $&#123;e.message&#125;&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 提取包名</span></span><br><span class="line">        <span class="keyword">def</span> manifestFile = file(<span class="string">&quot;$&#123;rootProject.projectDir&#125;/app/src/main/AndroidManifest.xml&quot;</span>)</span><br><span class="line">        <span class="keyword">def</span> packageName = <span class="string">&quot;&quot;</span></span><br><span class="line">        <span class="keyword">if</span> (manifestFile.exists()) &#123;</span><br><span class="line">            manifestFile.eachLine &#123; line -&gt;</span><br><span class="line">                <span class="keyword">if</span> (line.contains(<span class="string">&quot;package=&quot;</span>)) &#123;</span><br><span class="line">                    packageName = line.split(<span class="string">&#x27;package=&#x27;</span>)[<span class="number">1</span>].split(<span class="string">&#x27;&quot;&#x27;</span>)[<span class="number">1</span>]</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (packageName == <span class="string">&quot;&quot;</span>) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> GradleException(<span class="string">&quot;Failed to extract package name from AndroidManifest.xml&quot;</span>)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> GradleException(<span class="string">&quot;AndroidManifest.xml file not found!&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 启动应用</span></span><br><span class="line">        <span class="keyword">def</span> launchCommand = <span class="string">&quot;$&#123;adbPath&#125; shell monkey -p $&#123;packageName&#125; -c android.intent.category.LAUNCHER 1&quot;</span></span><br><span class="line">        println <span class="string">&quot;Executing command: $&#123;launchCommand&#125;&quot;</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            exec &#123;</span><br><span class="line">                commandLine <span class="string">&#x27;bash&#x27;</span>, <span class="string">&#x27;-c&#x27;</span>, launchCommand</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> GradleException(<span class="string">&quot;Failed to launch application: $&#123;e.message&#125;&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">task downloadBuild &#123;</span><br><span class="line">    doLast &#123;</span><br><span class="line">        subprojects.each &#123; subproject -&gt;</span><br><span class="line">            <span class="keyword">def</span> remoteRootPath = <span class="string">&quot;/home/jason/AndroidStudioProjects/&quot;</span></span><br><span class="line">            <span class="keyword">def</span> remoteDirPath = remoteRootPath + <span class="string">&quot;$&#123;rootProject.name&#125;/$&#123;subproject.name&#125;/build&quot;</span></span><br><span class="line">            <span class="keyword">def</span> localDirPath = <span class="string">&quot;$&#123;subproject.projectDir&#125;&quot;</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 创建本地目录</span></span><br><span class="line">            <span class="keyword">new</span> File(localDirPath).mkdirs()</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 使用 rsync 同步远程文件到本地</span></span><br><span class="line">            <span class="keyword">def</span> command = <span class="string">&quot;sshpass -p &#x27;password&#x27; rsync -avz --delete jason@192.168.1.100:$&#123;remoteDirPath&#125; $&#123;localDirPath&#125;&quot;</span></span><br><span class="line">            println <span class="string">&quot;Executing command: $&#123;command&#125;&quot;</span></span><br><span class="line"></span><br><span class="line">            exec &#123;</span><br><span class="line">                commandLine <span class="string">&#x27;bash&#x27;</span>, <span class="string">&#x27;-c&#x27;</span>, command</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">task remoteBuild &#123;</span><br><span class="line">    doLast &#123;</span><br><span class="line">        <span class="comment">// 远程构建命令</span></span><br><span class="line">        <span class="keyword">def</span> command = <span class="string">&quot;sshpass -p &#x27;password&#x27; ssh jason@192.168.1.100 &#x27;cd /home/jason/AndroidStudioProjects/ncmusic/ &amp;&amp; ./gradlew assembleDebug&#x27;&quot;</span></span><br><span class="line">        exec &#123;</span><br><span class="line">            commandLine <span class="string">&#x27;bash&#x27;</span>, <span class="string">&#x27;-c&#x27;</span>, command</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义一个任务来执行远程构建、下载 APK、安装并启动应用，然后同步构建产物</span></span><br><span class="line">task buildDownloadInstallAndStart &#123;</span><br><span class="line">    dependsOn remoteBuild</span><br><span class="line">    finalizedBy installAndStart, downloadBuild</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a>, <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-2-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.2 - 简单好用的 gradle 云编译设置</a>
 
       
       
@@ -409,6 +552,53 @@
 <!-- Table of Contents -->
 
   
+    <article id="post-7复杂代码模版/1 手势分发/拦截 View 触摸事件，判断滑动方向"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2024/03/22/7%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/1%20%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/%E6%8B%A6%E6%88%AA%20View%20%E8%A7%A6%E6%91%B8%E4%BA%8B%E4%BB%B6%EF%BC%8C%E5%88%A4%E6%96%AD%E6%BB%91%E5%8A%A8%E6%96%B9%E5%90%91/">拦截 View 触摸事件，判断滑动方向</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2024/03/22/7%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/1%20%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/%E6%8B%A6%E6%88%AA%20View%20%E8%A7%A6%E6%91%B8%E4%BA%8B%E4%BB%B6%EF%BC%8C%E5%88%A4%E6%96%AD%E6%BB%91%E5%8A%A8%E6%96%B9%E5%90%91/" class="article-date">
+	  <time datetime="2024-03-22T13:47:30.611Z" itemprop="datePublished">March 22, 2024</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a>, <a class="article-category-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-2-%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/">7.2 - 手势分发</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">anyView.setOnTouchListener(<span class="keyword">object</span> : View.OnTouchListener &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">var</span> initialX = <span class="number">0f</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">var</span> initialY = <span class="number">0f</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">var</span> hasScrolled = <span class="literal">false</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onTouch</span><span class="params">(v: <span class="type">View</span>?, event: <span class="type">MotionEvent</span>?)</span></span>: <span class="built_in">Boolean</span> &#123;</span><br><span class="line">        event ?: <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">        <span class="keyword">when</span> (event.action) &#123;</span><br><span class="line">            MotionEvent.ACTION_DOWN -&gt; &#123;</span><br><span class="line">                <span class="comment">// 记录初始触摸位置</span></span><br><span class="line">                initialX = event.x</span><br><span class="line">                initialY = event.y</span><br><span class="line">                hasScrolled = <span class="literal">false</span></span><br><span class="line">            &#125;</span><br><span class="line">            MotionEvent.ACTION_MOVE -&gt; &#123;</span><br><span class="line">                <span class="keyword">if</span> (!hasScrolled) &#123;</span><br><span class="line">                    <span class="keyword">val</span> diffX = event.x - initialX</span><br><span class="line">                    <span class="keyword">val</span> diffY = event.y - initialY</span><br><span class="line"></span><br><span class="line">                    <span class="comment">// 判断滑动方向，确保是水平滑动</span></span><br><span class="line">                    <span class="keyword">if</span> (abs(diffX) &gt; abs(diffY)) &#123;</span><br><span class="line">                        <span class="keyword">val</span> direction = <span class="keyword">if</span> (diffX &lt; <span class="number">0</span>) Direction.LEFT <span class="keyword">else</span> Direction.RIGHT</span><br><span class="line"></span><br><span class="line">                        handleHorizontalScroll(direction)</span><br><span class="line">                        hasScrolled = <span class="literal">true</span></span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -&gt; &#123;</span><br><span class="line">                hasScrolled = <span class="literal">false</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">fun</span> <span class="title">handleHorizontalScroll</span><span class="params">(direction: <span class="type">Direction</span>)</span></span> &#123;</span><br><span class="line">        <span class="keyword">when</span> (direction) &#123;</span><br><span class="line">            Direction.LEFT -&gt; &#123; <span class="comment">// 向左滑动</span></span><br><span class="line">                showToast(<span class="string">&quot;发生向左滑动&quot;</span>)</span><br><span class="line">                <span class="comment">// 在这里处理向左滑动的逻辑</span></span><br><span class="line">            &#125;</span><br><span class="line">            Direction.RIGHT -&gt; &#123; <span class="comment">// 向右滑动</span></span><br><span class="line">                showToast(<span class="string">&quot;发生向右滑动&quot;</span>)</span><br><span class="line">                <span class="comment">// 在这里处理向右滑动的逻辑</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">fun</span> <span class="title">showToast</span><span class="params">(message: <span class="type">String</span>)</span></span> &#123;</span><br><span class="line">        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">enum</span> <span class="keyword">class</span> <span class="title class_">Direction</span> &#123;</span><br><span class="line">        LEFT, RIGHT</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a>, <a class="article-category-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-2-%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/">7.2 - 手势分发</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
     <article id="post-7复杂代码模版/0 UI绘制模版/TextView-layout_constrainedWidth-属性"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
@@ -474,53 +664,6 @@
       
 	<span class="ico-folder"></span>
     <a class="article-category-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a>, <a class="article-category-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a>
-
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
-    <article id="post-7复杂代码模版/1 手势分发/拦截 View 触摸事件，判断滑动方向"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2024/03/22/7%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/1%20%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/%E6%8B%A6%E6%88%AA%20View%20%E8%A7%A6%E6%91%B8%E4%BA%8B%E4%BB%B6%EF%BC%8C%E5%88%A4%E6%96%AD%E6%BB%91%E5%8A%A8%E6%96%B9%E5%90%91/">拦截 View 触摸事件，判断滑动方向</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2024/03/22/7%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/1%20%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/%E6%8B%A6%E6%88%AA%20View%20%E8%A7%A6%E6%91%B8%E4%BA%8B%E4%BB%B6%EF%BC%8C%E5%88%A4%E6%96%AD%E6%BB%91%E5%8A%A8%E6%96%B9%E5%90%91/" class="article-date">
-	  <time datetime="2024-03-22T13:47:30.611Z" itemprop="datePublished">March 22, 2024</time>
-	</a>
-
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a>, <a class="article-category-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-2-%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/">7.2 - 手势分发</a>
- 
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">anyView.setOnTouchListener(<span class="keyword">object</span> : View.OnTouchListener &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">var</span> initialX = <span class="number">0f</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">var</span> initialY = <span class="number">0f</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">var</span> hasScrolled = <span class="literal">false</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onTouch</span><span class="params">(v: <span class="type">View</span>?, event: <span class="type">MotionEvent</span>?)</span></span>: <span class="built_in">Boolean</span> &#123;</span><br><span class="line">        event ?: <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">        <span class="keyword">when</span> (event.action) &#123;</span><br><span class="line">            MotionEvent.ACTION_DOWN -&gt; &#123;</span><br><span class="line">                <span class="comment">// 记录初始触摸位置</span></span><br><span class="line">                initialX = event.x</span><br><span class="line">                initialY = event.y</span><br><span class="line">                hasScrolled = <span class="literal">false</span></span><br><span class="line">            &#125;</span><br><span class="line">            MotionEvent.ACTION_MOVE -&gt; &#123;</span><br><span class="line">                <span class="keyword">if</span> (!hasScrolled) &#123;</span><br><span class="line">                    <span class="keyword">val</span> diffX = event.x - initialX</span><br><span class="line">                    <span class="keyword">val</span> diffY = event.y - initialY</span><br><span class="line"></span><br><span class="line">                    <span class="comment">// 判断滑动方向，确保是水平滑动</span></span><br><span class="line">                    <span class="keyword">if</span> (abs(diffX) &gt; abs(diffY)) &#123;</span><br><span class="line">                        <span class="keyword">val</span> direction = <span class="keyword">if</span> (diffX &lt; <span class="number">0</span>) Direction.LEFT <span class="keyword">else</span> Direction.RIGHT</span><br><span class="line"></span><br><span class="line">                        handleHorizontalScroll(direction)</span><br><span class="line">                        hasScrolled = <span class="literal">true</span></span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -&gt; &#123;</span><br><span class="line">                hasScrolled = <span class="literal">false</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">fun</span> <span class="title">handleHorizontalScroll</span><span class="params">(direction: <span class="type">Direction</span>)</span></span> &#123;</span><br><span class="line">        <span class="keyword">when</span> (direction) &#123;</span><br><span class="line">            Direction.LEFT -&gt; &#123; <span class="comment">// 向左滑动</span></span><br><span class="line">                showToast(<span class="string">&quot;发生向左滑动&quot;</span>)</span><br><span class="line">                <span class="comment">// 在这里处理向左滑动的逻辑</span></span><br><span class="line">            &#125;</span><br><span class="line">            Direction.RIGHT -&gt; &#123; <span class="comment">// 向右滑动</span></span><br><span class="line">                showToast(<span class="string">&quot;发生向右滑动&quot;</span>)</span><br><span class="line">                <span class="comment">// 在这里处理向右滑动的逻辑</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">fun</span> <span class="title">showToast</span><span class="params">(message: <span class="type">String</span>)</span></span> &#123;</span><br><span class="line">        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">enum</span> <span class="keyword">class</span> <span class="title class_">Direction</span> &#123;</span><br><span class="line">        LEFT, RIGHT</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a>, <a class="article-category-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-2-%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/">7.2 - 手势分发</a>
 
       
       
@@ -705,63 +848,6 @@
 <!-- Table of Contents -->
 
   
-    <article id="post-8渲染引擎/02 OpenGL ES 3.0/01 OpenGL ES 3.0 开发（一）：绘制一个三角形"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02%20OpenGL%20ES%203.0/01%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E7%BB%98%E5%88%B6%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/">OpenGL ES 3.0 开发（一）：绘制一个三角形</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02%20OpenGL%20ES%203.0/01%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E7%BB%98%E5%88%B6%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/" class="article-date">
-	  <time datetime="2023-08-23T10:38:36.000Z" itemprop="datePublished">August 23, 2023</time>
-	</a>
-
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a>, <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a>
- 
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-
-          
-          <div class="entry-summary">
-          转载与二次编辑非公开文章
-
-        
-          <p class="article-more-link">
-            <a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02%20OpenGL%20ES%203.0/01%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E7%BB%98%E5%88%B6%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/#more">Continue Reading →</a>
-          </p>
-        </div>
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a>, <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a>
-
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
     <article id="post-8渲染引擎/01 工程结构/01 Android GameProject 中最基础的 Renderer"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
@@ -853,6 +939,63 @@
 <!-- Table of Contents -->
 
   
+    <article id="post-8渲染引擎/02 OpenGL ES 3.0/01 OpenGL ES 3.0 开发（一）：绘制一个三角形"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02%20OpenGL%20ES%203.0/01%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E7%BB%98%E5%88%B6%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/">OpenGL ES 3.0 开发（一）：绘制一个三角形</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02%20OpenGL%20ES%203.0/01%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E7%BB%98%E5%88%B6%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/" class="article-date">
+	  <time datetime="2023-08-23T10:38:36.000Z" itemprop="datePublished">August 23, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a>, <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+
+          
+          <div class="entry-summary">
+          转载与二次编辑非公开文章
+
+        
+          <p class="article-more-link">
+            <a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02%20OpenGL%20ES%203.0/01%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E7%BB%98%E5%88%B6%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/#more">Continue Reading →</a>
+          </p>
+        </div>
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a>, <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
 
 
   <nav id="page-nav">
@@ -915,7 +1058,22 @@
 
     	<ul class="clearfix widget-social-icons">   
     	
-   			<li><a target="_blank" rel="noopener" href="https://github.com/CatJason" title="Github"><i class="fa fa-github" aria-hidden="true"></i></a></li> 
+   			<li><a target="_blank" rel="noopener" href="https://github.com/iTimeTraveler" title="Github"><i class="fa fa-github" aria-hidden="true"></i></a></li> 
+
+   		
+   			<li><a href="" title="Weibo"><i class="fa fa-weibo" aria-hidden="true"></i></a></li> 
+
+   		
+   			<li><a href="" title="Twitter"><i class="fa fa-twitter" aria-hidden="true"></i></a></li> 
+
+   		
+   			<li><a href="" title="Facebook"><i class="fa fa-facebook" aria-hidden="true"></i></a></li> 
+
+   		
+   			<li><a href="" title="Google-plus"><i class="fa fa-google-plus" aria-hidden="true"></i></a></li> 
+
+   		
+   			<li><a href="" title="Instagram"><i class="fa fa-instagram" aria-hidden="true"></i></a></li> 
 
    		
    		</ul>
@@ -931,30 +1089,6 @@
 			<li class="widget-si-instagram"><a target="_blank" rel="noopener" href="http://instagram.com" title="Instagram"><i class="ico-instagram"></i></a></li>
 		</ul> -->
 
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Categories</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%9F%BA%E7%A1%80/">1.1 - Kotlin 基础</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/">11 - 音视频</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/11-1-%E6%92%AD%E6%94%BE%E5%99%A8%E5%AE%9E%E6%88%98/">11.1 - 播放器实战</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">4</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">21</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.1 - 播放器架构方案设计</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-2-Android-%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.2 - Android 存储文件方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-2-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.2 - 简单好用的 gradle 云编译设置</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-2-%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/">7.2 - 手势分发</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">8</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-3-%E5%AE%9E%E6%97%B6%E6%B8%B2%E6%9F%93/">8.3 - 实时渲染</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/03/">March 2026</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/01/">January 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">November 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">March 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">61</span></li></ul>
     </div>
   </div>
 
@@ -1045,6 +1179,32 @@
   </div>
 
   
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%9F%BA%E7%A1%80/">1.1 - Kotlin 基础</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/">11 - 音视频</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/11-1-%E6%92%AD%E6%94%BE%E5%99%A8%E5%AE%9E%E6%88%98/">11.1 - 播放器实战</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">4</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">21</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.1 - 播放器架构方案设计</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-2-Android-%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.2 - Android 存储文件方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-2-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.2 - 简单好用的 gradle 云编译设置</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-2-%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/">7.2 - 手势分发</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">8</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-3-%E5%AE%9E%E6%97%B6%E6%B8%B2%E6%9F%93/">8.3 - 实时渲染</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/03/">March 2026</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/01/">January 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">November 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">March 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">61</span></li></ul>
+    </div>
+  </div>
+
+
+  
 </aside>
         
       </div>
@@ -1077,7 +1237,7 @@
           
       </div>
       <div class="site-credit">
-        Theme by <a href="https://github.com/CatJason" target="_blank">hipaper</a>
+        Theme by <a href="https://github.com/iTimeTraveler/hexo-theme-hipaper" target="_blank">hipaper</a>
       </div>
   </div>
 </footer>
@@ -1094,6 +1254,9 @@
 
 
     <!-- headerblur min height -->
+    
+      var headerblur = document.getElementById("header-blur");
+      headerblur.style.minHeight = window.getComputedStyle(document.getElementById("allheader"), null).height;
     
     
 </script>
