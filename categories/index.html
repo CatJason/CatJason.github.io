@@ -137,10 +137,32 @@
 
 
   
+  
+  <div class="site-header-image">
+    <img id="originBg" width="100%" alt="Hike News" src="">
+  </div>
+
+  <div id="header-blur" class="site-header-image blur" style="position: absolute; top:0; height: 207px; min-height: 207px; min-width: 100%;">
+    <img id="blurBg" width="100%" style="top: 96%" alt="Hike News" src="">
+  </div>
+
+  <script>
+        var imgUrls = "css/images/pose01.jpg,https://source.unsplash.com/collection/954550/1920x1080,https://source.unsplash.com/collection/954550/1920x1081".split(",");
+        var random = Math.floor((Math.random() * imgUrls.length ));
+        if (imgUrls[random].startsWith('http') || imgUrls[random].indexOf('://') >= 0) {
+          document.getElementById("originBg").src=imgUrls[random];
+          document.getElementById("blurBg").src=imgUrls[random];
+        } else {
+          document.getElementById("originBg").src='/' + imgUrls[random];
+          document.getElementById("blurBg").src='/' + imgUrls[random];
+        }
+    </script>
+
+
 
 
 <header id="allheader" class="site-header" role="banner" 
-   >
+   style="width: 100%; position: absolute; top:0; background: rgba(255,255,255,.8);"  >
   <div class="clearfix container">
       <div class="site-branding">
 
@@ -187,7 +209,7 @@
 	<div class="archives-category-wrap">
 		<blockquote>
 		
-		  <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%9F%BA%E7%A1%80/">1.1 - Kotlin 基础</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/">11 - 音视频</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/11-1-%E6%92%AD%E6%94%BE%E5%99%A8%E5%AE%9E%E6%88%98/">11.1 - 播放器实战</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">4</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">21</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.1 - 播放器架构方案设计</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-2-Android-%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.2 - Android 存储文件方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-2-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.2 - 简单好用的 gradle 云编译设置</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-2-%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/">7.2 - 手势分发</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">8</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-3-%E5%AE%9E%E6%97%B6%E6%B8%B2%E6%9F%93/">8.3 - 实时渲染</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
+		  <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%9F%BA%E7%A1%80/">1.1 - Kotlin 基础</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/">11 - 音视频</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/11-1-%E6%92%AD%E6%94%BE%E5%99%A8%E5%AE%9E%E6%88%98/">11.1 - 播放器实战</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-1-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.1 - 多线程</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">21</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.1 - 播放器架构方案设计</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-2-Android-%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.2 - Android 存储文件方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-2-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.2 - 简单好用的 gradle 云编译设置</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-2-%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/">7.2 - 手势分发</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">8</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-3-%E5%AE%9E%E6%97%B6%E6%B8%B2%E6%9F%93/">8.3 - 实时渲染</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
 		
 		</blockquote>
 	</div>
@@ -756,13 +778,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/02%20%E7%BB%9F%E8%AE%A1%E7%B4%A0%E6%95%B0%E4%B8%AA%E6%95%B0%20%E5%9F%83%E6%B0%8F%E7%AD%9B%E9%80%89%E6%B3%95/" class="archive-article-date">
+      <a href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/01%20%E7%BB%9F%E8%AE%A1%E7%B4%A0%E6%95%B0%E4%B8%AA%E6%95%B0%20%E6%9A%B4%E5%8A%9B%E7%AE%97%E6%B3%95/" class="archive-article-date">
 		  <time datetime="2023-08-10T23:14:00.000Z" itemprop="datePublished">Aug 11, 2023</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/02%20%E7%BB%9F%E8%AE%A1%E7%B4%A0%E6%95%B0%E4%B8%AA%E6%95%B0%20%E5%9F%83%E6%B0%8F%E7%AD%9B%E9%80%89%E6%B3%95/">02/80 统计素数个数-埃氏筛选法</a>
+      <a class="archive-article-title" href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/01%20%E7%BB%9F%E8%AE%A1%E7%B4%A0%E6%95%B0%E4%B8%AA%E6%95%B0%20%E6%9A%B4%E5%8A%9B%E7%AE%97%E6%B3%95/">01/80 统计素数个数-暴力算法</a>
     </h1>
   
 
@@ -775,13 +797,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/01%20%E7%BB%9F%E8%AE%A1%E7%B4%A0%E6%95%B0%E4%B8%AA%E6%95%B0%20%E6%9A%B4%E5%8A%9B%E7%AE%97%E6%B3%95/" class="archive-article-date">
+      <a href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/02%20%E7%BB%9F%E8%AE%A1%E7%B4%A0%E6%95%B0%E4%B8%AA%E6%95%B0%20%E5%9F%83%E6%B0%8F%E7%AD%9B%E9%80%89%E6%B3%95/" class="archive-article-date">
 		  <time datetime="2023-08-10T23:14:00.000Z" itemprop="datePublished">Aug 11, 2023</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/01%20%E7%BB%9F%E8%AE%A1%E7%B4%A0%E6%95%B0%E4%B8%AA%E6%95%B0%20%E6%9A%B4%E5%8A%9B%E7%AE%97%E6%B3%95/">01/80 统计素数个数-暴力算法</a>
+      <a class="archive-article-title" href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/02%20%E7%BB%9F%E8%AE%A1%E7%B4%A0%E6%95%B0%E4%B8%AA%E6%95%B0%20%E5%9F%83%E6%B0%8F%E7%AD%9B%E9%80%89%E6%B3%95/">02/80 统计素数个数-埃氏筛选法</a>
     </h1>
   
 
@@ -1551,13 +1573,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/02%20%E7%BB%9F%E8%AE%A1%E7%B4%A0%E6%95%B0%E4%B8%AA%E6%95%B0%20%E5%9F%83%E6%B0%8F%E7%AD%9B%E9%80%89%E6%B3%95/" class="archive-article-date">
+      <a href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/01%20%E7%BB%9F%E8%AE%A1%E7%B4%A0%E6%95%B0%E4%B8%AA%E6%95%B0%20%E6%9A%B4%E5%8A%9B%E7%AE%97%E6%B3%95/" class="archive-article-date">
 		  <time datetime="2023-08-10T23:14:00.000Z" itemprop="datePublished">Aug 11, 2023</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/02%20%E7%BB%9F%E8%AE%A1%E7%B4%A0%E6%95%B0%E4%B8%AA%E6%95%B0%20%E5%9F%83%E6%B0%8F%E7%AD%9B%E9%80%89%E6%B3%95/">02/80 统计素数个数-埃氏筛选法</a>
+      <a class="archive-article-title" href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/01%20%E7%BB%9F%E8%AE%A1%E7%B4%A0%E6%95%B0%E4%B8%AA%E6%95%B0%20%E6%9A%B4%E5%8A%9B%E7%AE%97%E6%B3%95/">01/80 统计素数个数-暴力算法</a>
     </h1>
   
 
@@ -1570,13 +1592,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/01%20%E7%BB%9F%E8%AE%A1%E7%B4%A0%E6%95%B0%E4%B8%AA%E6%95%B0%20%E6%9A%B4%E5%8A%9B%E7%AE%97%E6%B3%95/" class="archive-article-date">
+      <a href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/02%20%E7%BB%9F%E8%AE%A1%E7%B4%A0%E6%95%B0%E4%B8%AA%E6%95%B0%20%E5%9F%83%E6%B0%8F%E7%AD%9B%E9%80%89%E6%B3%95/" class="archive-article-date">
 		  <time datetime="2023-08-10T23:14:00.000Z" itemprop="datePublished">Aug 11, 2023</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/01%20%E7%BB%9F%E8%AE%A1%E7%B4%A0%E6%95%B0%E4%B8%AA%E6%95%B0%20%E6%9A%B4%E5%8A%9B%E7%AE%97%E6%B3%95/">01/80 统计素数个数-暴力算法</a>
+      <a class="archive-article-title" href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/03%20%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%9580%E9%81%93/02%20%E7%BB%9F%E8%AE%A1%E7%B4%A0%E6%95%B0%E4%B8%AA%E6%95%B0%20%E5%9F%83%E6%B0%8F%E7%AD%9B%E9%80%89%E6%B3%95/">02/80 统计素数个数-埃氏筛选法</a>
     </h1>
   
 
@@ -1731,13 +1753,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2023/08/11/1%20Kotlin/02%20Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%E4%B8%AD%E7%9A%84%E6%83%B0%E6%80%A7%E6%93%8D%E4%BD%9C%E5%AE%B9%E5%99%A8%E2%80%94%E2%80%94Sequence/" class="archive-article-date">
+      <a href="/2023/08/11/1%20Kotlin/02%20Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%E4%B8%AD%E6%9C%89%E5%93%AA%E4%BA%9B%E7%B1%BB/" class="archive-article-date">
 		  <time datetime="2023-08-10T23:18:54.000Z" itemprop="datePublished">Aug 11, 2023</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/08/11/1%20Kotlin/02%20Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%E4%B8%AD%E7%9A%84%E6%83%B0%E6%80%A7%E6%93%8D%E4%BD%9C%E5%AE%B9%E5%99%A8%E2%80%94%E2%80%94Sequence/">Kotlin中的惰性操作容器——Sequence</a>
+      <a class="archive-article-title" href="/2023/08/11/1%20Kotlin/02%20Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%E4%B8%AD%E6%9C%89%E5%93%AA%E4%BA%9B%E7%B1%BB/">Kotlin中有哪些类</a>
     </h1>
   
 
@@ -1750,13 +1772,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2023/08/11/1%20Kotlin/02%20Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%E4%B8%AD%E6%9C%89%E5%93%AA%E4%BA%9B%E7%B1%BB/" class="archive-article-date">
+      <a href="/2023/08/11/1%20Kotlin/02%20Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%E4%B8%AD%E7%9A%84%E6%83%B0%E6%80%A7%E6%93%8D%E4%BD%9C%E5%AE%B9%E5%99%A8%E2%80%94%E2%80%94Sequence/" class="archive-article-date">
 		  <time datetime="2023-08-10T23:18:54.000Z" itemprop="datePublished">Aug 11, 2023</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/08/11/1%20Kotlin/02%20Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%E4%B8%AD%E6%9C%89%E5%93%AA%E4%BA%9B%E7%B1%BB/">Kotlin中有哪些类</a>
+      <a class="archive-article-title" href="/2023/08/11/1%20Kotlin/02%20Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%E4%B8%AD%E7%9A%84%E6%83%B0%E6%80%A7%E6%93%8D%E4%BD%9C%E5%AE%B9%E5%99%A8%E2%80%94%E2%80%94Sequence/">Kotlin中的惰性操作容器——Sequence</a>
     </h1>
   
 
@@ -1797,13 +1819,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2023/08/11/1%20Kotlin/02%20Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%E4%B8%AD%E7%9A%84%E6%83%B0%E6%80%A7%E6%93%8D%E4%BD%9C%E5%AE%B9%E5%99%A8%E2%80%94%E2%80%94Sequence/" class="archive-article-date">
+      <a href="/2023/08/11/1%20Kotlin/02%20Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%E4%B8%AD%E6%9C%89%E5%93%AA%E4%BA%9B%E7%B1%BB/" class="archive-article-date">
 		  <time datetime="2023-08-10T23:18:54.000Z" itemprop="datePublished">Aug 11, 2023</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/08/11/1%20Kotlin/02%20Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%E4%B8%AD%E7%9A%84%E6%83%B0%E6%80%A7%E6%93%8D%E4%BD%9C%E5%AE%B9%E5%99%A8%E2%80%94%E2%80%94Sequence/">Kotlin中的惰性操作容器——Sequence</a>
+      <a class="archive-article-title" href="/2023/08/11/1%20Kotlin/02%20Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%E4%B8%AD%E6%9C%89%E5%93%AA%E4%BA%9B%E7%B1%BB/">Kotlin中有哪些类</a>
     </h1>
   
 
@@ -1816,13 +1838,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2023/08/11/1%20Kotlin/02%20Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%E4%B8%AD%E6%9C%89%E5%93%AA%E4%BA%9B%E7%B1%BB/" class="archive-article-date">
+      <a href="/2023/08/11/1%20Kotlin/02%20Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%E4%B8%AD%E7%9A%84%E6%83%B0%E6%80%A7%E6%93%8D%E4%BD%9C%E5%AE%B9%E5%99%A8%E2%80%94%E2%80%94Sequence/" class="archive-article-date">
 		  <time datetime="2023-08-10T23:18:54.000Z" itemprop="datePublished">Aug 11, 2023</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/08/11/1%20Kotlin/02%20Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%E4%B8%AD%E6%9C%89%E5%93%AA%E4%BA%9B%E7%B1%BB/">Kotlin中有哪些类</a>
+      <a class="archive-article-title" href="/2023/08/11/1%20Kotlin/02%20Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%E4%B8%AD%E7%9A%84%E6%83%B0%E6%80%A7%E6%93%8D%E4%BD%9C%E5%AE%B9%E5%99%A8%E2%80%94%E2%80%94Sequence/">Kotlin中的惰性操作容器——Sequence</a>
     </h1>
   
 
@@ -2032,6 +2054,63 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
+      <a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/JVM%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90/" class="archive-article-date">
+		  <time datetime="2026-03-26T16:11:16.679Z" itemprop="datePublished">Mar 27, 2026</time>
+	  </a>
+      
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="archive-article-title" href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/JVM%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90/">JVM 锁膨胀机制深度剖析：自动化路径与开发者影响力</a>
+    </h1>
+  
+
+    </header>
+  </div>
+</article>
+                
+            
+                <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+
+      <a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Android%E5%B9%B6%E5%8F%91%E9%94%81%E9%9D%A2%E8%AF%95%E9%A2%98%E5%BA%93/" class="archive-article-date">
+		  <time datetime="2026-03-26T16:11:05.365Z" itemprop="datePublished">Mar 27, 2026</time>
+	  </a>
+      
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="archive-article-title" href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Android%E5%B9%B6%E5%8F%91%E9%94%81%E9%9D%A2%E8%AF%95%E9%A2%98%E5%BA%93/">Android 面试题库：深度解析并发锁机制与应用实践</a>
+    </h1>
+  
+
+    </header>
+  </div>
+</article>
+                
+            
+                <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+
+      <a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Java%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/" class="archive-article-date">
+		  <time datetime="2026-03-26T16:10:57.620Z" itemprop="datePublished">Mar 27, 2026</time>
+	  </a>
+      
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="archive-article-title" href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Java%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/">深度解析：Java 锁的膨胀机制（偏向锁、轻量级锁、重量级锁）</a>
+    </h1>
+  
+
+    </header>
+  </div>
+</article>
+                
+            
+                <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+
       <a href="/2023/08/11/2%20Java/Java%E7%A8%8B%E5%BA%8F%E5%9F%BA%E7%A1%80/java.util.Stack%20%E7%B1%BB%E4%B8%BA%E4%BB%80%E4%B9%88%E6%98%AF%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8%E7%9A%84_2023_05_28%20%E5%91%A8%E6%97%A5-%205_24_39.15/" class="archive-article-date">
 		  <time datetime="2023-08-10T23:17:24.000Z" itemprop="datePublished">Aug 11, 2023</time>
 	  </a>
@@ -2193,6 +2272,72 @@
     </div>
     
     <div class="archives-wrap">
+        <div class="archive-year-wrap" id="2.1 - 多线程">
+            <h1 class="archive-category">2.1 - 多线程</h1>
+        </div>
+        <div class="archives">
+            
+                <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+
+      <a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/JVM%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90/" class="archive-article-date">
+		  <time datetime="2026-03-26T16:11:16.679Z" itemprop="datePublished">Mar 27, 2026</time>
+	  </a>
+      
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="archive-article-title" href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/JVM%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90/">JVM 锁膨胀机制深度剖析：自动化路径与开发者影响力</a>
+    </h1>
+  
+
+    </header>
+  </div>
+</article>
+                
+            
+                <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+
+      <a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Android%E5%B9%B6%E5%8F%91%E9%94%81%E9%9D%A2%E8%AF%95%E9%A2%98%E5%BA%93/" class="archive-article-date">
+		  <time datetime="2026-03-26T16:11:05.365Z" itemprop="datePublished">Mar 27, 2026</time>
+	  </a>
+      
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="archive-article-title" href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Android%E5%B9%B6%E5%8F%91%E9%94%81%E9%9D%A2%E8%AF%95%E9%A2%98%E5%BA%93/">Android 面试题库：深度解析并发锁机制与应用实践</a>
+    </h1>
+  
+
+    </header>
+  </div>
+</article>
+                
+            
+                <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+
+      <a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Java%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/" class="archive-article-date">
+		  <time datetime="2026-03-26T16:10:57.620Z" itemprop="datePublished">Mar 27, 2026</time>
+	  </a>
+      
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="archive-article-title" href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Java%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/">深度解析：Java 锁的膨胀机制（偏向锁、轻量级锁、重量级锁）</a>
+    </h1>
+  
+
+    </header>
+  </div>
+</article>
+                
+            
+        </div>
+    </div>
+    
+    <div class="archives-wrap">
         <div class="archive-year-wrap" id="3 - Android">
             <h1 class="archive-category">3 - Android</h1>
         </div>
@@ -2202,13 +2347,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/2%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%89)%20/" class="archive-article-date">
+      <a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/0%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%80)/" class="archive-article-date">
 		  <time datetime="2024-03-31T17:32:52.573Z" itemprop="datePublished">Apr 01, 2024</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2024/04/01/3%20Android/Jetpacket/VideoModel/2%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%89)%20/">ViewModel 源代码分析 (三)</a>
+      <a class="archive-article-title" href="/2024/04/01/3%20Android/Jetpacket/VideoModel/0%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%80)/">ViewModel 源代码分析 (一)</a>
     </h1>
   
 
@@ -2240,13 +2385,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/0%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%80)/" class="archive-article-date">
+      <a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/2%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%89)%20/" class="archive-article-date">
 		  <time datetime="2024-03-31T17:32:52.573Z" itemprop="datePublished">Apr 01, 2024</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2024/04/01/3%20Android/Jetpacket/VideoModel/0%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%80)/">ViewModel 源代码分析 (一)</a>
+      <a class="archive-article-title" href="/2024/04/01/3%20Android/Jetpacket/VideoModel/2%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%89)%20/">ViewModel 源代码分析 (三)</a>
     </h1>
   
 
@@ -2316,6 +2461,25 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
+      <a href="/2023/09/10/3%20Android/ARouter/01-ARouter/" class="archive-article-date">
+		  <time datetime="2023-09-09T17:05:06.000Z" itemprop="datePublished">Sep 10, 2023</time>
+	  </a>
+      
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="archive-article-title" href="/2023/09/10/3%20Android/ARouter/01-ARouter/">从零开始写一个 ARouter - router-annotation 路由注解模块</a>
+    </h1>
+  
+
+    </header>
+  </div>
+</article>
+                
+            
+                <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+
       <a href="/2023/09/10/3%20Android/ARouter/02-Arouter/" class="archive-article-date">
 		  <time datetime="2023-09-09T17:05:06.000Z" itemprop="datePublished">Sep 10, 2023</time>
 	  </a>
@@ -2373,13 +2537,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2023/09/10/3%20Android/ARouter/05-Arouter/" class="archive-article-date">
+      <a href="/2023/09/10/3%20Android/ARouter/06-Arouter/" class="archive-article-date">
 		  <time datetime="2023-09-09T17:05:06.000Z" itemprop="datePublished">Sep 10, 2023</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/09/10/3%20Android/ARouter/05-Arouter/">从零开始写一个 ARouter - template 模板</a>
+      <a class="archive-article-title" href="/2023/09/10/3%20Android/ARouter/06-Arouter/">从零开始写一个 ARouter - launcher 启动器</a>
     </h1>
   
 
@@ -2392,13 +2556,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2023/09/10/3%20Android/ARouter/06-Arouter/" class="archive-article-date">
+      <a href="/2023/09/10/3%20Android/ARouter/05-Arouter/" class="archive-article-date">
 		  <time datetime="2023-09-09T17:05:06.000Z" itemprop="datePublished">Sep 10, 2023</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/09/10/3%20Android/ARouter/06-Arouter/">从零开始写一个 ARouter - launcher 启动器</a>
+      <a class="archive-article-title" href="/2023/09/10/3%20Android/ARouter/05-Arouter/">从零开始写一个 ARouter - template 模板</a>
     </h1>
   
 
@@ -2437,25 +2601,6 @@
   
     <h1 class="thumb" itemprop="name">
       <a class="archive-article-title" href="/2023/09/10/3%20Android/ARouter/08-Arouter/">从零开始写一个 ARouter - compiler 编译模块</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-                
-            
-                <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-
-      <a href="/2023/09/10/3%20Android/ARouter/01-ARouter/" class="archive-article-date">
-		  <time datetime="2023-09-09T17:05:06.000Z" itemprop="datePublished">Sep 10, 2023</time>
-	  </a>
-      
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/09/10/3%20Android/ARouter/01-ARouter/">从零开始写一个 ARouter - router-annotation 路由注解模块</a>
     </h1>
   
 
@@ -2818,6 +2963,25 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
+      <a href="/2023/09/10/3%20Android/ARouter/01-ARouter/" class="archive-article-date">
+		  <time datetime="2023-09-09T17:05:06.000Z" itemprop="datePublished">Sep 10, 2023</time>
+	  </a>
+      
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="archive-article-title" href="/2023/09/10/3%20Android/ARouter/01-ARouter/">从零开始写一个 ARouter - router-annotation 路由注解模块</a>
+    </h1>
+  
+
+    </header>
+  </div>
+</article>
+                
+            
+                <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+
       <a href="/2023/09/10/3%20Android/ARouter/02-Arouter/" class="archive-article-date">
 		  <time datetime="2023-09-09T17:05:06.000Z" itemprop="datePublished">Sep 10, 2023</time>
 	  </a>
@@ -2875,13 +3039,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2023/09/10/3%20Android/ARouter/05-Arouter/" class="archive-article-date">
+      <a href="/2023/09/10/3%20Android/ARouter/06-Arouter/" class="archive-article-date">
 		  <time datetime="2023-09-09T17:05:06.000Z" itemprop="datePublished">Sep 10, 2023</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/09/10/3%20Android/ARouter/05-Arouter/">从零开始写一个 ARouter - template 模板</a>
+      <a class="archive-article-title" href="/2023/09/10/3%20Android/ARouter/06-Arouter/">从零开始写一个 ARouter - launcher 启动器</a>
     </h1>
   
 
@@ -2894,13 +3058,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2023/09/10/3%20Android/ARouter/06-Arouter/" class="archive-article-date">
+      <a href="/2023/09/10/3%20Android/ARouter/05-Arouter/" class="archive-article-date">
 		  <time datetime="2023-09-09T17:05:06.000Z" itemprop="datePublished">Sep 10, 2023</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/09/10/3%20Android/ARouter/06-Arouter/">从零开始写一个 ARouter - launcher 启动器</a>
+      <a class="archive-article-title" href="/2023/09/10/3%20Android/ARouter/05-Arouter/">从零开始写一个 ARouter - template 模板</a>
     </h1>
   
 
@@ -2947,25 +3111,6 @@
 </article>
                 
             
-                <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-
-      <a href="/2023/09/10/3%20Android/ARouter/01-ARouter/" class="archive-article-date">
-		  <time datetime="2023-09-09T17:05:06.000Z" itemprop="datePublished">Sep 10, 2023</time>
-	  </a>
-      
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/09/10/3%20Android/ARouter/01-ARouter/">从零开始写一个 ARouter - router-annotation 路由注解模块</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-                
-            
         </div>
     </div>
     
@@ -2979,13 +3124,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/2%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%89)%20/" class="archive-article-date">
+      <a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/0%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%80)/" class="archive-article-date">
 		  <time datetime="2024-03-31T17:32:52.573Z" itemprop="datePublished">Apr 01, 2024</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2024/04/01/3%20Android/Jetpacket/VideoModel/2%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%89)%20/">ViewModel 源代码分析 (三)</a>
+      <a class="archive-article-title" href="/2024/04/01/3%20Android/Jetpacket/VideoModel/0%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%80)/">ViewModel 源代码分析 (一)</a>
     </h1>
   
 
@@ -3017,13 +3162,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/0%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%80)/" class="archive-article-date">
+      <a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/2%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%89)%20/" class="archive-article-date">
 		  <time datetime="2024-03-31T17:32:52.573Z" itemprop="datePublished">Apr 01, 2024</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2024/04/01/3%20Android/Jetpacket/VideoModel/0%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%80)/">ViewModel 源代码分析 (一)</a>
+      <a class="archive-article-title" href="/2024/04/01/3%20Android/Jetpacket/VideoModel/2%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%89)%20/">ViewModel 源代码分析 (三)</a>
     </h1>
   
 
@@ -3045,13 +3190,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2023/08/29/4%20%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/02%20%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/Android-%E9%9F%B3%E8%A7%86%E9%A2%91%E6%9E%B6%E6%9E%84%E4%B8%93%E9%A1%B9/" class="archive-article-date">
+      <a href="/2023/08/29/4%20%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/01%20MVI/Android-%E9%9F%B3%E8%A7%86%E9%A2%91%E6%9E%B6%E6%9E%84%E4%B8%93%E9%A1%B9/" class="archive-article-date">
 		  <time datetime="2023-08-28T18:45:14.000Z" itemprop="datePublished">Aug 29, 2023</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/08/29/4%20%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/02%20%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/Android-%E9%9F%B3%E8%A7%86%E9%A2%91%E6%9E%B6%E6%9E%84%E4%B8%93%E9%A1%B9/">Android 音视频屏幕旋转方案</a>
+      <a class="archive-article-title" href="/2023/08/29/4%20%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/01%20MVI/Android-%E9%9F%B3%E8%A7%86%E9%A2%91%E6%9E%B6%E6%9E%84%E4%B8%93%E9%A1%B9/">Android MVI GPT4 快问快答</a>
     </h1>
   
 
@@ -3064,13 +3209,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2023/08/29/4%20%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/01%20MVI/Android-%E9%9F%B3%E8%A7%86%E9%A2%91%E6%9E%B6%E6%9E%84%E4%B8%93%E9%A1%B9/" class="archive-article-date">
+      <a href="/2023/08/29/4%20%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/02%20%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/Android-%E9%9F%B3%E8%A7%86%E9%A2%91%E6%9E%B6%E6%9E%84%E4%B8%93%E9%A1%B9/" class="archive-article-date">
 		  <time datetime="2023-08-28T18:45:14.000Z" itemprop="datePublished">Aug 29, 2023</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/08/29/4%20%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/01%20MVI/Android-%E9%9F%B3%E8%A7%86%E9%A2%91%E6%9E%B6%E6%9E%84%E4%B8%93%E9%A1%B9/">Android MVI GPT4 快问快答</a>
+      <a class="archive-article-title" href="/2023/08/29/4%20%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/02%20%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/Android-%E9%9F%B3%E8%A7%86%E9%A2%91%E6%9E%B6%E6%9E%84%E4%B8%93%E9%A1%B9/">Android 音视频屏幕旋转方案</a>
     </h1>
   
 
@@ -3439,13 +3584,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2023/08/29/5%20C++/C++%E7%AC%AC%E4%B8%80%E8%AF%BE-%E4%B8%87%E7%89%A9%E7%9A%86%E5%9C%B0%E5%9D%80/" class="archive-article-date">
+      <a href="/2023/08/29/5%20C++/C++%E5%87%BD%E6%95%B0%E6%8C%87%E9%92%88%E4%B8%8E%E6%8C%87%E9%92%88%E5%87%BD%E6%95%B0,C++11%20%E6%96%B0%E7%89%B9%E6%80%A7/" class="archive-article-date">
 		  <time datetime="2023-08-28T18:45:14.000Z" itemprop="datePublished">Aug 29, 2023</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/08/29/5%20C++/C++%E7%AC%AC%E4%B8%80%E8%AF%BE-%E4%B8%87%E7%89%A9%E7%9A%86%E5%9C%B0%E5%9D%80/">C++ 第一课-万物皆地址</a>
+      <a class="archive-article-title" href="/2023/08/29/5%20C++/C++%E5%87%BD%E6%95%B0%E6%8C%87%E9%92%88%E4%B8%8E%E6%8C%87%E9%92%88%E5%87%BD%E6%95%B0,C++11%20%E6%96%B0%E7%89%B9%E6%80%A7/">C++ 函数指针与指针函数,C++11 新特性</a>
     </h1>
   
 
@@ -3458,13 +3603,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2023/08/29/5%20C++/C++%E5%87%BD%E6%95%B0%E6%8C%87%E9%92%88%E4%B8%8E%E6%8C%87%E9%92%88%E5%87%BD%E6%95%B0,C++11%20%E6%96%B0%E7%89%B9%E6%80%A7/" class="archive-article-date">
+      <a href="/2023/08/29/5%20C++/C++%E7%AC%AC%E4%B8%80%E8%AF%BE-%E4%B8%87%E7%89%A9%E7%9A%86%E5%9C%B0%E5%9D%80/" class="archive-article-date">
 		  <time datetime="2023-08-28T18:45:14.000Z" itemprop="datePublished">Aug 29, 2023</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/08/29/5%20C++/C++%E5%87%BD%E6%95%B0%E6%8C%87%E9%92%88%E4%B8%8E%E6%8C%87%E9%92%88%E5%87%BD%E6%95%B0,C++11%20%E6%96%B0%E7%89%B9%E6%80%A7/">C++ 函数指针与指针函数,C++11 新特性</a>
+      <a class="archive-article-title" href="/2023/08/29/5%20C++/C++%E7%AC%AC%E4%B8%80%E8%AF%BE-%E4%B8%87%E7%89%A9%E7%9A%86%E5%9C%B0%E5%9D%80/">C++ 第一课-万物皆地址</a>
     </h1>
   
 
@@ -3493,63 +3638,6 @@
   
     <h1 class="thumb" itemprop="name">
       <a class="archive-article-title" href="/2025/02/05/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/03%20%E5%AE%9E%E6%97%B6%E6%B8%B2%E6%9F%93/01%20%E7%BB%98%E5%88%B6%E7%AC%AC%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/">实时渲染（一）绘制一个三角形</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-                
-            
-                <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-
-      <a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01%20%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/01%20Android%20GameProject%20%E4%B8%AD%E6%9C%80%E5%9F%BA%E7%A1%80%E7%9A%84%20Renderer/" class="archive-article-date">
-		  <time datetime="2023-08-23T10:38:36.000Z" itemprop="datePublished">Aug 23, 2023</time>
-	  </a>
-      
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01%20%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/01%20Android%20GameProject%20%E4%B8%AD%E6%9C%80%E5%9F%BA%E7%A1%80%E7%9A%84%20Renderer/">Android Game Project 核心 Renderer.cpp</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-                
-            
-                <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-
-      <a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01%20%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/02%20Android%20GameProject%20%E7%BB%93%E6%9E%84%E7%9B%AE%E5%BD%95/" class="archive-article-date">
-		  <time datetime="2023-08-23T10:38:36.000Z" itemprop="datePublished">Aug 23, 2023</time>
-	  </a>
-      
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01%20%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/02%20Android%20GameProject%20%E7%BB%93%E6%9E%84%E7%9B%AE%E5%BD%95/">Android Game Project 项目结构</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-                
-            
-                <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-
-      <a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02%20OpenGL%20ES%203.0/03%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9AYUV%20%E6%B8%B2%E6%9F%93/" class="archive-article-date">
-		  <time datetime="2023-08-23T10:38:36.000Z" itemprop="datePublished">Aug 23, 2023</time>
-	  </a>
-      
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02%20OpenGL%20ES%203.0/03%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9AYUV%20%E6%B8%B2%E6%9F%93/">OpenGL ES 3.0 开发（三）：YUV 渲染</a>
     </h1>
   
 
@@ -3600,6 +3688,25 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
+      <a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02%20OpenGL%20ES%203.0/03%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9AYUV%20%E6%B8%B2%E6%9F%93/" class="archive-article-date">
+		  <time datetime="2023-08-23T10:38:36.000Z" itemprop="datePublished">Aug 23, 2023</time>
+	  </a>
+      
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="archive-article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02%20OpenGL%20ES%203.0/03%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9AYUV%20%E6%B8%B2%E6%9F%93/">OpenGL ES 3.0 开发（三）：YUV 渲染</a>
+    </h1>
+  
+
+    </header>
+  </div>
+</article>
+                
+            
+                <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+
       <a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02%20OpenGL%20ES%203.0/04%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E5%9B%9B%EF%BC%89%EF%BC%9AVBO%E3%80%81EBO%20%E5%92%8C%20VAO/" class="archive-article-date">
 		  <time datetime="2023-08-23T10:38:36.000Z" itemprop="datePublished">Aug 23, 2023</time>
 	  </a>
@@ -3634,6 +3741,44 @@
 </article>
                 
             
+                <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+
+      <a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01%20%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/01%20Android%20GameProject%20%E4%B8%AD%E6%9C%80%E5%9F%BA%E7%A1%80%E7%9A%84%20Renderer/" class="archive-article-date">
+		  <time datetime="2023-08-23T10:38:36.000Z" itemprop="datePublished">Aug 23, 2023</time>
+	  </a>
+      
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="archive-article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01%20%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/01%20Android%20GameProject%20%E4%B8%AD%E6%9C%80%E5%9F%BA%E7%A1%80%E7%9A%84%20Renderer/">Android Game Project 核心 Renderer.cpp</a>
+    </h1>
+  
+
+    </header>
+  </div>
+</article>
+                
+            
+                <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+
+      <a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01%20%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/02%20Android%20GameProject%20%E7%BB%93%E6%9E%84%E7%9B%AE%E5%BD%95/" class="archive-article-date">
+		  <time datetime="2023-08-23T10:38:36.000Z" itemprop="datePublished">Aug 23, 2023</time>
+	  </a>
+      
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="archive-article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01%20%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/02%20Android%20GameProject%20%E7%BB%93%E6%9E%84%E7%9B%AE%E5%BD%95/">Android Game Project 项目结构</a>
+    </h1>
+  
+
+    </header>
+  </div>
+</article>
+                
+            
         </div>
     </div>
     
@@ -3647,13 +3792,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2023/08/29/5%20C++/C++%E7%AC%AC%E4%B8%80%E8%AF%BE-%E4%B8%87%E7%89%A9%E7%9A%86%E5%9C%B0%E5%9D%80/" class="archive-article-date">
+      <a href="/2023/08/29/5%20C++/C++%E5%87%BD%E6%95%B0%E6%8C%87%E9%92%88%E4%B8%8E%E6%8C%87%E9%92%88%E5%87%BD%E6%95%B0,C++11%20%E6%96%B0%E7%89%B9%E6%80%A7/" class="archive-article-date">
 		  <time datetime="2023-08-28T18:45:14.000Z" itemprop="datePublished">Aug 29, 2023</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/08/29/5%20C++/C++%E7%AC%AC%E4%B8%80%E8%AF%BE-%E4%B8%87%E7%89%A9%E7%9A%86%E5%9C%B0%E5%9D%80/">C++ 第一课-万物皆地址</a>
+      <a class="archive-article-title" href="/2023/08/29/5%20C++/C++%E5%87%BD%E6%95%B0%E6%8C%87%E9%92%88%E4%B8%8E%E6%8C%87%E9%92%88%E5%87%BD%E6%95%B0,C++11%20%E6%96%B0%E7%89%B9%E6%80%A7/">C++ 函数指针与指针函数,C++11 新特性</a>
     </h1>
   
 
@@ -3666,13 +3811,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2023/08/29/5%20C++/C++%E5%87%BD%E6%95%B0%E6%8C%87%E9%92%88%E4%B8%8E%E6%8C%87%E9%92%88%E5%87%BD%E6%95%B0,C++11%20%E6%96%B0%E7%89%B9%E6%80%A7/" class="archive-article-date">
+      <a href="/2023/08/29/5%20C++/C++%E7%AC%AC%E4%B8%80%E8%AF%BE-%E4%B8%87%E7%89%A9%E7%9A%86%E5%9C%B0%E5%9D%80/" class="archive-article-date">
 		  <time datetime="2023-08-28T18:45:14.000Z" itemprop="datePublished">Aug 29, 2023</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/08/29/5%20C++/C++%E5%87%BD%E6%95%B0%E6%8C%87%E9%92%88%E4%B8%8E%E6%8C%87%E9%92%88%E5%87%BD%E6%95%B0,C++11%20%E6%96%B0%E7%89%B9%E6%80%A7/">C++ 函数指针与指针函数,C++11 新特性</a>
+      <a class="archive-article-title" href="/2023/08/29/5%20C++/C++%E7%AC%AC%E4%B8%80%E8%AF%BE-%E4%B8%87%E7%89%A9%E7%9A%86%E5%9C%B0%E5%9D%80/">C++ 第一课-万物皆地址</a>
     </h1>
   
 
@@ -3741,25 +3886,6 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02%20OpenGL%20ES%203.0/03%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9AYUV%20%E6%B8%B2%E6%9F%93/" class="archive-article-date">
-		  <time datetime="2023-08-23T10:38:36.000Z" itemprop="datePublished">Aug 23, 2023</time>
-	  </a>
-      
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02%20OpenGL%20ES%203.0/03%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9AYUV%20%E6%B8%B2%E6%9F%93/">OpenGL ES 3.0 开发（三）：YUV 渲染</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-                
-            
-                <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-
       <a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02%20OpenGL%20ES%203.0/01%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E7%BB%98%E5%88%B6%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/" class="archive-article-date">
 		  <time datetime="2023-08-23T10:38:36.000Z" itemprop="datePublished">Aug 23, 2023</time>
 	  </a>
@@ -3786,6 +3912,25 @@
   
     <h1 class="thumb" itemprop="name">
       <a class="archive-article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02%20OpenGL%20ES%203.0/02%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E7%BA%B9%E7%90%86%E6%98%A0%E5%B0%84/">OpenGL ES 3.0 开发（二）：纹理映射</a>
+    </h1>
+  
+
+    </header>
+  </div>
+</article>
+                
+            
+                <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+
+      <a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02%20OpenGL%20ES%203.0/03%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9AYUV%20%E6%B8%B2%E6%9F%93/" class="archive-article-date">
+		  <time datetime="2023-08-23T10:38:36.000Z" itemprop="datePublished">Aug 23, 2023</time>
+	  </a>
+      
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="archive-article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02%20OpenGL%20ES%203.0/03%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9AYUV%20%E6%B8%B2%E6%9F%93/">OpenGL ES 3.0 开发（三）：YUV 渲染</a>
     </h1>
   
 
@@ -4008,7 +4153,7 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/JVM%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90/">(no title)</a></h6>
+              <h6 style="margin: 0;"><a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/JVM%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90/">JVM 锁膨胀机制深度剖析：自动化路径与开发者影响力</a></h6>
               <span>March 27, 2026</span>
             </div>
 
@@ -4020,7 +4165,7 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Android%E5%B9%B6%E5%8F%91%E9%94%81%E9%9D%A2%E8%AF%95%E9%A2%98%E5%BA%93/">(no title)</a></h6>
+              <h6 style="margin: 0;"><a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Android%E5%B9%B6%E5%8F%91%E9%94%81%E9%9D%A2%E8%AF%95%E9%A2%98%E5%BA%93/">Android 面试题库：深度解析并发锁机制与应用实践</a></h6>
               <span>March 27, 2026</span>
             </div>
 
@@ -4032,7 +4177,7 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Java%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/">(no title)</a></h6>
+              <h6 style="margin: 0;"><a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Java%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/">深度解析：Java 锁的膨胀机制（偏向锁、轻量级锁、重量级锁）</a></h6>
               <span>March 27, 2026</span>
             </div>
 
@@ -4071,7 +4216,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%9F%BA%E7%A1%80/">1.1 - Kotlin 基础</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/">11 - 音视频</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/11-1-%E6%92%AD%E6%94%BE%E5%99%A8%E5%AE%9E%E6%88%98/">11.1 - 播放器实战</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">4</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">21</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.1 - 播放器架构方案设计</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-2-Android-%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.2 - Android 存储文件方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-2-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.2 - 简单好用的 gradle 云编译设置</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-2-%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/">7.2 - 手势分发</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">8</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-3-%E5%AE%9E%E6%97%B6%E6%B8%B2%E6%9F%93/">8.3 - 实时渲染</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%9F%BA%E7%A1%80/">1.1 - Kotlin 基础</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/">11 - 音视频</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/11-1-%E6%92%AD%E6%94%BE%E5%99%A8%E5%AE%9E%E6%88%98/">11.1 - 播放器实战</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-1-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.1 - 多线程</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">21</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.1 - 播放器架构方案设计</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-2-Android-%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.2 - Android 存储文件方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-2-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.2 - 简单好用的 gradle 云编译设置</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-2-%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/">7.2 - 手势分发</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">8</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-3-%E5%AE%9E%E6%97%B6%E6%B8%B2%E6%9F%93/">8.3 - 实时渲染</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -4142,6 +4287,9 @@
 
 
     <!-- headerblur min height -->
+    
+      var headerblur = document.getElementById("header-blur");
+      headerblur.style.minHeight = window.getComputedStyle(document.getElementById("allheader"), null).height;
     
     
 </script>

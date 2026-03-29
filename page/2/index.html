@@ -135,10 +135,32 @@
 
 
   
+  
+  <div class="site-header-image">
+    <img id="originBg" width="100%" alt="Hike News" src="">
+  </div>
+
+  <div id="header-blur" class="site-header-image blur" style="position: absolute; top:0; height: 207px; min-height: 207px; min-width: 100%;">
+    <img id="blurBg" width="100%" style="top: 96%" alt="Hike News" src="">
+  </div>
+
+  <script>
+        var imgUrls = "css/images/pose01.jpg,https://source.unsplash.com/collection/954550/1920x1080,https://source.unsplash.com/collection/954550/1920x1081".split(",");
+        var random = Math.floor((Math.random() * imgUrls.length ));
+        if (imgUrls[random].startsWith('http') || imgUrls[random].indexOf('://') >= 0) {
+          document.getElementById("originBg").src=imgUrls[random];
+          document.getElementById("blurBg").src=imgUrls[random];
+        } else {
+          document.getElementById("originBg").src='/' + imgUrls[random];
+          document.getElementById("blurBg").src='/' + imgUrls[random];
+        }
+    </script>
+
+
 
 
 <header id="allheader" class="site-header" role="banner" 
-   >
+   style="width: 100%; position: absolute; top:0; background: rgba(255,255,255,.8);"  >
   <div class="clearfix container">
       <div class="site-branding">
 
@@ -182,229 +204,6 @@
       <div id="content" class="outer">
         
           <section id="main">
-  
-    <article id="post-0 算法/01 算法模板/08 找到符合确切条件的子数组数"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/01%20%E7%AE%97%E6%B3%95%E6%A8%A1%E6%9D%BF/08%20%E6%89%BE%E5%88%B0%E7%AC%A6%E5%90%88%E7%A1%AE%E5%88%87%E6%9D%A1%E4%BB%B6%E7%9A%84%E5%AD%90%E6%95%B0%E7%BB%84%E6%95%B0/">08. 找到符合确切条件的子数组数</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/01%20%E7%AE%97%E6%B3%95%E6%A8%A1%E6%9D%BF/08%20%E6%89%BE%E5%88%B0%E7%AC%A6%E5%90%88%E7%A1%AE%E5%88%87%E6%9D%A1%E4%BB%B6%E7%9A%84%E5%AD%90%E6%95%B0%E7%BB%84%E6%95%B0/" class="article-date">
-	  <time datetime="2023-08-10T23:15:02.000Z" itemprop="datePublished">August 11, 2023</time>
-	</a>
-
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a>, <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a>
- 
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>在算法面试中，“找到符合确切条件的子数组数”通常有两种核心解法：<strong>前缀和 + 哈希表</strong>（通用性最强）或 <strong>双指针&#x2F;滑动窗口</strong>（适用于非负数序列）。</p>
-<h4 id="方案一：前缀和-哈希表-通用模板"><a href="#方案一：前缀和-哈希表-通用模板" class="headerlink" title="方案一：前缀和 + 哈希表 (通用模板)"></a>方案一：前缀和 + 哈希表 (通用模板)</h4><p>这是解决该类问题的“银弹”，适用于数组中包含负数的情况。</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">numSubarraysWithSum</span><span class="params">(nums: <span class="type">IntArray</span>, goal: <span class="type">Int</span>)</span></span>: <span class="built_in">Int</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> count = <span class="number">0</span></span><br><span class="line">    <span class="keyword">var</span> prefixSum = <span class="number">0</span></span><br><span class="line">    <span class="comment">// key: 前缀和的值, value: 该前缀和出现的次数</span></span><br><span class="line">    <span class="keyword">val</span> map = mutableMapOf&lt;<span class="built_in">Int</span>, <span class="built_in">Int</span>&gt;()</span><br><span class="line">    <span class="comment">// 初始化：前缀和为 0 已经出现过 1 次</span></span><br><span class="line">    map[<span class="number">0</span>] = <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (num <span class="keyword">in</span> nums) &#123;</span><br><span class="line">        prefixSum += num</span><br><span class="line">        <span class="comment">// 如果 prefixSum - goal 存在于 map 中，说明存在子数组和为 goal</span></span><br><span class="line">        count += map.getOrDefault(prefixSum - goal, <span class="number">0</span>)</span><br><span class="line">        <span class="comment">// 更新当前前缀和的出现次数</span></span><br><span class="line">        map[prefixSum] = map.getOrDefault(prefixSum, <span class="number">0</span>) + <span class="number">1</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> count</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h4 id="方案二：双指针-x2F-滑动窗口-针对非负数优化"><a href="#方案二：双指针-x2F-滑动窗口-针对非负数优化" class="headerlink" title="方案二：双指针 &#x2F; 滑动窗口 (针对非负数优化)"></a>方案二：双指针 &#x2F; 滑动窗口 (针对非负数优化)</h4><p>如果数组中元素全部非负，使用滑动窗口可以将空间复杂度降低到 $O(1)$。</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 统计和正好为 goal 的子数组数量</span></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">numSubarraysWithSumSlidingWindow</span><span class="params">(nums: <span class="type">IntArray</span>, goal: <span class="type">Int</span>)</span></span>: <span class="built_in">Int</span> &#123;</span><br><span class="line">    <span class="comment">// 技巧：正好为 K = 最多为 K - 最多为 K-1</span></span><br><span class="line">    <span class="keyword">return</span> atMost(nums, goal) - atMost(nums, goal - <span class="number">1</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="function"><span class="keyword">fun</span> <span class="title">atMost</span><span class="params">(nums: <span class="type">IntArray</span>, goal: <span class="type">Int</span>)</span></span>: <span class="built_in">Int</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (goal &lt; <span class="number">0</span>) <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">    <span class="keyword">var</span> left = <span class="number">0</span></span><br><span class="line">    <span class="keyword">var</span> sum = <span class="number">0</span></span><br><span class="line">    <span class="keyword">var</span> count = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> (right <span class="keyword">in</span> nums.indices) &#123;</span><br><span class="line">        sum += nums[right]</span><br><span class="line">        <span class="keyword">while</span> (sum &gt; goal) &#123;</span><br><span class="line">            sum -= nums[left]</span><br><span class="line">            left++</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// [left...right] 之间所有以 right 结尾的子数组都符合“和 &lt;= goal”</span></span><br><span class="line">        count += right - left + <span class="number">1</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> count</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="使用说明"><a href="#使用说明" class="headerlink" title="使用说明"></a>使用说明</h3><ol>
-<li><p><strong>为什么原模板中“统计连续的0”比较复杂？</strong><br>在滑动窗口中，如果存在 0，窗口的和不会改变，这会导致统计“确切”数量时变得棘手。<strong>“恰好为 K &#x3D; 最多为 K - 最多为 K-1”</strong> 是处理此类滑动窗口问题最优雅的数学技巧。</p>
-</li>
-<li><p><strong>核心优势</strong>：</p>
-<ul>
-<li><strong>哈希表法</strong>：时间 $O(N)$，空间 $O(N)$。适用于任何数组。</li>
-<li><strong>双指针法</strong>：时间 $O(N)$，空间 $O(1)$。仅适用于非负数组。</li>
-</ul>
-</li>
-<li><p><strong>常见变形</strong>：</p>
-<ul>
-<li>求和为 K 的子数组。</li>
-<li>求奇数个数为 K 的子数组（将奇数看作 1，偶数看作 0）。</li>
-</ul>
-</li>
-</ol>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a>, <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a>
-
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
-    <article id="post-0 算法/01 算法模板/09 单调递增栈"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/01%20%E7%AE%97%E6%B3%95%E6%A8%A1%E6%9D%BF/09%20%E5%8D%95%E8%B0%83%E9%80%92%E5%A2%9E%E6%A0%88/">09. 单调递增栈</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/01%20%E7%AE%97%E6%B3%95%E6%A8%A1%E6%9D%BF/09%20%E5%8D%95%E8%B0%83%E9%80%92%E5%A2%9E%E6%A0%88/" class="article-date">
-	  <time datetime="2023-08-10T23:15:04.000Z" itemprop="datePublished">August 11, 2023</time>
-	</a>
-
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a>, <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a>
- 
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>单调栈（Monotonic Stack）是一种极其重要的数据结构，专门用于解决“下一个更大元素（Next Greater Element）”或“上一个更小元素”这类问题。</p>
-<h4 id="算法模板-寻找下一个更大元素"><a href="#算法模板-寻找下一个更大元素" class="headerlink" title="算法模板 (寻找下一个更大元素)"></a>算法模板 (寻找下一个更大元素)</h4><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">nextGreaterElement</span><span class="params">(nums: <span class="type">IntArray</span>)</span></span>: IntArray &#123;</span><br><span class="line">    <span class="keyword">val</span> n = nums.size</span><br><span class="line">    <span class="keyword">val</span> result = IntArray(n) &#123; -<span class="number">1</span> &#125;</span><br><span class="line">    <span class="comment">// 栈中存储元素的索引（以便更新 result 数组）</span></span><br><span class="line">    <span class="keyword">val</span> stack = mutableListOf&lt;<span class="built_in">Int</span>&gt;()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (i <span class="keyword">in</span> nums.indices) &#123;</span><br><span class="line">        <span class="comment">// 当栈不为空，且当前元素大于栈顶元素时</span></span><br><span class="line">        <span class="keyword">while</span> (stack.isNotEmpty() &amp;&amp; nums[stack.last()] &lt; nums[i]) &#123;</span><br><span class="line">            <span class="comment">// 此时 nums[i] 就是栈顶元素的“下一个更大元素”</span></span><br><span class="line">            <span class="keyword">val</span> index = stack.removeAt(stack.size - <span class="number">1</span>)</span><br><span class="line">            result[index] = nums[i]</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 当前元素入栈（等待属于它的更大元素出现）</span></span><br><span class="line">        stack.add(i)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="使用说明"><a href="#使用说明" class="headerlink" title="使用说明"></a>使用说明</h3><ol>
-<li><p><strong>核心特性</strong>：</p>
-<ul>
-<li><strong>单调递增栈</strong>：栈内元素从底到顶单调递增。用于寻找右侧第一个比自己小的元素（或者左侧第一个比自己小的）。</li>
-<li><strong>单调递减栈</strong>：栈内元素从底到顶单调递减。用于寻找右侧第一个比自己大的元素（即模板写法）。</li>
-</ul>
-</li>
-<li><p><strong>核心优势</strong>：</p>
-<ul>
-<li>将 $O(N^2)$ 的暴力查找优化到 $O(N)$。每个元素最多进栈一次、出栈一次。</li>
-</ul>
-</li>
-<li><p><strong>常见变形</strong>：</p>
-<ul>
-<li><strong>循环数组</strong>：通过遍历两次（<code>i % n</code>）来模拟循环。</li>
-<li><strong>接雨水</strong>：利用单调栈计算低洼处的面积。</li>
-<li><strong>最大矩形面积</strong>：利用单调栈寻找左右两侧的边界。</li>
-</ul>
-</li>
-<li><p><strong>注意点</strong>：</p>
-<ul>
-<li>明确题目要求的是“右侧第一个更大”还是“左侧第一个更小”。</li>
-<li>明确栈里存的是“元素值”还是“元素的下标”（下标通常更通用）。</li>
-</ul>
-</li>
-</ol>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a>, <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a>
-
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
-    <article id="post-0 算法/01 算法模板/10 二叉树-DFS (递归)"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2023/09/08/0%20%E7%AE%97%E6%B3%95/01%20%E7%AE%97%E6%B3%95%E6%A8%A1%E6%9D%BF/10%20%E4%BA%8C%E5%8F%89%E6%A0%91-DFS%20(%E9%80%92%E5%BD%92)/">10. 二叉树-DFS (递归)</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2023/09/08/0%20%E7%AE%97%E6%B3%95/01%20%E7%AE%97%E6%B3%95%E6%A8%A1%E6%9D%BF/10%20%E4%BA%8C%E5%8F%89%E6%A0%91-DFS%20(%E9%80%92%E5%BD%92)/" class="article-date">
-	  <time datetime="2023-09-08T02:21:10.000Z" itemprop="datePublished">September 8, 2023</time>
-	</a>
-
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a>, <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a>
- 
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>二叉树的深度优先搜索（DFS）递归写法是最直观的，其本质是利用了系统的函数调用栈。</p>
-<h4 id="算法模板"><a href="#算法模板" class="headerlink" title="算法模板"></a>算法模板</h4><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">TreeNode</span>(<span class="keyword">var</span> value: <span class="built_in">Int</span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> left: TreeNode? = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">var</span> right: TreeNode? = <span class="literal">null</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">dfs</span><span class="params">(root: <span class="type">TreeNode</span>?)</span></span> &#123;</span><br><span class="line">    <span class="comment">// 递归终止条件</span></span><br><span class="line">    <span class="keyword">if</span> (root == <span class="literal">null</span>) <span class="keyword">return</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 1. 先序遍历 (Pre-order): 根 -&gt; 左 -&gt; 右</span></span><br><span class="line">    <span class="comment">// visit(root)</span></span><br><span class="line">    </span><br><span class="line">    dfs(root.left)  </span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 2. 中序遍历 (In-order): 左 -&gt; 根 -&gt; 右</span></span><br><span class="line">    <span class="comment">// visit(root)</span></span><br><span class="line">    </span><br><span class="line">    dfs(root.right)  </span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 3. 后序遍历 (Post-order): 左 -&gt; 右 -&gt; 根</span></span><br><span class="line">    <span class="comment">// visit(root)</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">visit</span><span class="params">(node: <span class="type">TreeNode</span>)</span></span> &#123;</span><br><span class="line">    println(node.value)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="使用说明"><a href="#使用说明" class="headerlink" title="使用说明"></a>使用说明</h3><ol>
-<li><p><strong>三种遍历顺序</strong>：</p>
-<ul>
-<li><strong>先序</strong>：常用于复制二叉树、序列化二叉树。</li>
-<li><strong>中序</strong>：<strong>二叉搜索树（BST）的中序遍历是有序序列</strong>。</li>
-<li><strong>后序</strong>：常用于计算二叉树的高度、删除二叉树。</li>
-</ul>
-</li>
-<li><p><strong>核心优势</strong>：</p>
-<ul>
-<li>逻辑极其简单，符合人类直觉。</li>
-<li>代码量极少，易于实现。</li>
-</ul>
-</li>
-<li><p><strong>性能分析</strong>：</p>
-<ul>
-<li>时间复杂度：$O(N)$，每个节点访问一次。</li>
-<li>空间复杂度：$O(H)$，其中 $H$ 是树的高度。最坏情况下（倾斜树）为 $O(N)$。</li>
-</ul>
-</li>
-<li><p><strong>注意点</strong>：</p>
-<ul>
-<li>递归必须有明确的终止条件（通常是 <code>root == null</code>）。</li>
-<li>如果树的深度极大，可能会导致 <code>StackOverflowError</code>（栈溢出），此时需考虑迭代写法。</li>
-</ul>
-</li>
-</ol>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a>, <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a>
-
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
   
     <article id="post-0 算法/01 算法模板/11 二叉树-DFS (迭代)"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
@@ -861,6 +660,223 @@
 <!-- Table of Contents -->
 
   
+    <article id="post-0 算法/01 算法模板/18 二分查找-重复元素，最左边的插入点"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/01%20%E7%AE%97%E6%B3%95%E6%A8%A1%E6%9D%BF/18%20%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE-%E9%87%8D%E5%A4%8D%E5%85%83%E7%B4%A0%EF%BC%8C%E6%9C%80%E5%B7%A6%E8%BE%B9%E7%9A%84%E6%8F%92%E5%85%A5%E7%82%B9/">18. 二分查找-重复元素，最左边的插入点</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/01%20%E7%AE%97%E6%B3%95%E6%A8%A1%E6%9D%BF/18%20%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE-%E9%87%8D%E5%A4%8D%E5%85%83%E7%B4%A0%EF%BC%8C%E6%9C%80%E5%B7%A6%E8%BE%B9%E7%9A%84%E6%8F%92%E5%85%A5%E7%82%B9/" class="article-date">
+	  <time datetime="2023-08-10T23:15:40.000Z" itemprop="datePublished">August 11, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a>, <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>当数组中存在重复元素时，标准的二分查找只能随机返回其中一个目标的索引。如果我们需要找到<strong>第一个</strong>出现的目标元素（最左侧边界），或者目标不存在时其应插入的位置，需要使用以下变体。</p>
+<h4 id="算法模板"><a href="#算法模板" class="headerlink" title="算法模板"></a>算法模板</h4><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">searchLeftBound</span><span class="params">(nums: <span class="type">IntArray</span>, target: <span class="type">Int</span>)</span></span>: <span class="built_in">Int</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> left = <span class="number">0</span></span><br><span class="line">    <span class="keyword">var</span> right = nums.size - <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (left &lt;= right) &#123;</span><br><span class="line">        <span class="keyword">val</span> mid = left + (right - left) / <span class="number">2</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> (nums[mid] &gt;= target) &#123;</span><br><span class="line">            <span class="comment">// 如果中间值大于等于目标，说明左边界在左侧（包含当前 mid）</span></span><br><span class="line">            <span class="comment">// 我们继续向左收缩以寻找“第一个”目标</span></span><br><span class="line">            right = mid - <span class="number">1</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            left = mid + <span class="number">1</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 此时 left 就是最左侧的插入点</span></span><br><span class="line">    <span class="comment">// 如果要判断 target 是否存在：</span></span><br><span class="line">    <span class="comment">// if (left &lt; nums.size &amp;&amp; nums[left] == target) return left else return -1</span></span><br><span class="line">    <span class="keyword">return</span> left</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用说明"><a href="#使用说明" class="headerlink" title="使用说明"></a>使用说明</h3><ol>
+<li><p><strong>核心逻辑</strong>：</p>
+<ul>
+<li>关键在于 <code>nums[mid] &gt;= target</code> 时执行 <code>right = mid - 1</code>。即使找到了目标，我们也并不立即返回，而是继续收缩右边界，试图在左侧找到更早出现的目标。</li>
+<li>循环结束后，<code>left</code> 变量的值即为大于等于 <code>target</code> 的第一个元素的索引。</li>
+</ul>
+</li>
+<li><p><strong>适用场景</strong>：</p>
+<ul>
+<li>查找有序数组中第一个等于 <code>target</code> 的元素。</li>
+<li>查找第一个大于等于 <code>target</code> 的元素（Lower Bound）。</li>
+<li>统计重复元素的个数（通过左右边界相减）。</li>
+</ul>
+</li>
+<li><p><strong>注意点</strong>：</p>
+<ul>
+<li>返回值 <code>left</code> 的范围是 <code>[0, nums.size]</code>。如果 <code>target</code> 比数组所有元素都大，<code>left</code> 将等于 <code>nums.size</code>。</li>
+<li>检查是否存在时，务必先判断 <code>left &lt; nums.size</code>。</li>
+</ul>
+</li>
+</ol>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a>, <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-0 算法/01 算法模板/19 二分查找-重复元素，最右边的插入点"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/01%20%E7%AE%97%E6%B3%95%E6%A8%A1%E6%9D%BF/19%20%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE-%E9%87%8D%E5%A4%8D%E5%85%83%E7%B4%A0%EF%BC%8C%E6%9C%80%E5%8F%B3%E8%BE%B9%E7%9A%84%E6%8F%92%E5%85%A5%E7%82%B9/">19. 二分查找-重复元素，最右边的插入点</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/01%20%E7%AE%97%E6%B3%95%E6%A8%A1%E6%9D%BF/19%20%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE-%E9%87%8D%E5%A4%8D%E5%85%83%E7%B4%A0%EF%BC%8C%E6%9C%80%E5%8F%B3%E8%BE%B9%E7%9A%84%E6%8F%92%E5%85%A5%E7%82%B9/" class="article-date">
+	  <time datetime="2023-08-10T23:15:44.000Z" itemprop="datePublished">August 11, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a>, <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>当数组中存在重复元素时，如果我们需要寻找目标元素出现的<strong>最后一次</strong>索引位置（最右侧边界），或者目标不存在时其应插入的位置，需要使用以下变体。</p>
+<h4 id="算法模板"><a href="#算法模板" class="headerlink" title="算法模板"></a>算法模板</h4><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">searchRightBound</span><span class="params">(nums: <span class="type">IntArray</span>, target: <span class="type">Int</span>)</span></span>: <span class="built_in">Int</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> left = <span class="number">0</span></span><br><span class="line">    <span class="keyword">var</span> right = nums.size - <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (left &lt;= right) &#123;</span><br><span class="line">        <span class="keyword">val</span> mid = left + (right - left) / <span class="number">2</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> (nums[mid] &lt;= target) &#123;</span><br><span class="line">            <span class="comment">// 如果中间值小于等于目标，说明右边界可能在右侧</span></span><br><span class="line">            <span class="comment">// 我们继续向右移动以寻找“最后一个”目标</span></span><br><span class="line">            left = mid + <span class="number">1</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            right = mid - <span class="number">1</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 此时 right 就是最右侧的插入点（即最后一个小于等于 target 的元素位置）</span></span><br><span class="line">    <span class="comment">// 或者说 left 是第一个大于 target 的元素位置</span></span><br><span class="line">    <span class="keyword">return</span> right</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用说明"><a href="#使用说明" class="headerlink" title="使用说明"></a>使用说明</h3><ol>
+<li><p><strong>核心逻辑</strong>：</p>
+<ul>
+<li>关键在于 <code>nums[mid] &lt;= target</code> 时执行 <code>left = mid + 1</code>。即使找到了目标，我们也并不立即返回，而是继续收缩左边界，试图在右侧寻找最后一次出现的目标。</li>
+<li>循环结束后，<code>right</code> 指向的是最后一个等于 <code>target</code> 的元素索引。</li>
+</ul>
+</li>
+<li><p><strong>适用场景</strong>：</p>
+<ul>
+<li>查找有序数组中最后一个等于 <code>target</code> 的元素。</li>
+<li>查找最后一个小于等于 <code>target</code> 的元素（Upper Bound 变体）。</li>
+<li>统计重复元素的范围（配合左边界模板）。</li>
+</ul>
+</li>
+<li><p><strong>注意点</strong>：</p>
+<ul>
+<li>返回值 <code>right</code> 的范围是 <code>[-1, nums.size - 1]</code>。如果 <code>target</code> 比数组所有元素都小，<code>right</code> 将为 <code>-1</code>。</li>
+<li>检查是否存在时，务必先判断 <code>right &gt;= 0</code>。</li>
+<li><code>left</code> 的最终位置是第一个<strong>大于</strong> <code>target</code> 的元素位置。</li>
+</ul>
+</li>
+</ol>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a>, <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-0 算法/01 算法模板/20 二分查找-贪心问题"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/01%20%E7%AE%97%E6%B3%95%E6%A8%A1%E6%9D%BF/20%20%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE-%E8%B4%AA%E5%BF%83%E9%97%AE%E9%A2%98/">20. 二分查找-贪心问题</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/01%20%E7%AE%97%E6%B3%95%E6%A8%A1%E6%9D%BF/20%20%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE-%E8%B4%AA%E5%BF%83%E9%97%AE%E9%A2%98/" class="article-date">
+	  <time datetime="2023-08-10T23:15:48.000Z" itemprop="datePublished">August 11, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a>, <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>“二分搜索 + 贪心算法”是一种极高频的进阶算法组合。它通常用于解决“最大化最小值”或“最小化最大值”的问题。这种问题的特点是直接计算很难，但“给定一个答案，验证其是否可行”却非常简单。</p>
+<h4 id="算法模板"><a href="#算法模板" class="headerlink" title="算法模板"></a>算法模板</h4><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">solve</span><span class="params">(nums: <span class="type">IntArray</span>, k: <span class="type">Int</span>)</span></span>: <span class="built_in">Int</span> &#123;</span><br><span class="line">    <span class="comment">// 1. 确定搜索范围 [left, right]</span></span><br><span class="line">    <span class="keyword">var</span> left = <span class="number">1</span> <span class="comment">// 最小值（根据题意调整）</span></span><br><span class="line">    <span class="keyword">var</span> right = nums.sum() <span class="comment">// 最大值（根据题意调整）</span></span><br><span class="line">    <span class="keyword">var</span> ans = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (left &lt;= right) &#123;</span><br><span class="line">        <span class="keyword">val</span> mid = left + (right - left) / <span class="number">2</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 2. 贪心验证：如果以 mid 为标准是可行的</span></span><br><span class="line">        <span class="keyword">if</span> (check(nums, k, mid)) &#123;</span><br><span class="line">            <span class="comment">// 如果 mid 可行，尝试寻找更优解</span></span><br><span class="line">            ans = mid</span><br><span class="line">            <span class="comment">// 若求最大化最小值，向右收缩：left = mid + 1</span></span><br><span class="line">            <span class="comment">// 若求最小化最大值，向左收缩：right = mid - 1</span></span><br><span class="line">            left = mid + <span class="number">1</span> </span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 如果 mid 不行，调整范围</span></span><br><span class="line">            right = mid - <span class="number">1</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> ans</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 贪心验证函数：检查 mid 是否满足题目要求</span></span><br><span class="line"><span class="keyword">private</span> <span class="function"><span class="keyword">fun</span> <span class="title">check</span><span class="params">(nums: <span class="type">IntArray</span>, k: <span class="type">Int</span>, mid: <span class="type">Int</span>)</span></span>: <span class="built_in">Boolean</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> count = <span class="number">0</span></span><br><span class="line">    <span class="comment">// 实现具体的贪心逻辑...</span></span><br><span class="line">    <span class="keyword">return</span> count &gt;= k</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用说明"><a href="#使用说明" class="headerlink" title="使用说明"></a>使用说明</h3><ol>
+<li><p><strong>核心思想</strong>：<br>将搜索对象从“索引”转变为“答案”。我们在答案的可能范围内进行二分，利用贪心策略验证每一个猜测。</p>
+</li>
+<li><p><strong>适用场景</strong>：</p>
+<ul>
+<li><strong>最大化最小值</strong>：如“分割数组的最大值”、“木棍切割问题”、“安排牛舍”。</li>
+<li><strong>最小化最大值</strong>：如“完成任务的最少时间”。</li>
+</ul>
+</li>
+<li><p><strong>核心步骤</strong>：</p>
+<ul>
+<li><strong>Step 1</strong>：明确答案的取值范围（<code>left</code> 和 <code>right</code>）。</li>
+<li><strong>Step 2</strong>：编写 <code>check</code> 函数，通常使用贪心策略在 $O(N)$ 时间内完成验证。</li>
+<li><strong>Step 3</strong>：根据 <code>check</code> 的结果和求最值的类型（最大&#x2F;最小），决定指针移动方向。</li>
+</ul>
+</li>
+<li><p><strong>注意点</strong>：</p>
+<ul>
+<li>确保搜索空间是单调的。</li>
+<li><code>check</code> 函数的逻辑直接决定了算法的正确性。</li>
+<li>对于大数求和，注意 <code>right</code> 的溢出问题（必要时改用 <code>Long</code>）。</li>
+</ul>
+</li>
+</ol>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a>, <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
 
 
   <nav id="page-nav">
@@ -985,7 +1001,7 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/JVM%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90/">(no title)</a></h6>
+              <h6 style="margin: 0;"><a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/JVM%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90/">JVM 锁膨胀机制深度剖析：自动化路径与开发者影响力</a></h6>
               <span>March 27, 2026</span>
             </div>
 
@@ -997,7 +1013,7 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Android%E5%B9%B6%E5%8F%91%E9%94%81%E9%9D%A2%E8%AF%95%E9%A2%98%E5%BA%93/">(no title)</a></h6>
+              <h6 style="margin: 0;"><a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Android%E5%B9%B6%E5%8F%91%E9%94%81%E9%9D%A2%E8%AF%95%E9%A2%98%E5%BA%93/">Android 面试题库：深度解析并发锁机制与应用实践</a></h6>
               <span>March 27, 2026</span>
             </div>
 
@@ -1009,7 +1025,7 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Java%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/">(no title)</a></h6>
+              <h6 style="margin: 0;"><a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Java%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/">深度解析：Java 锁的膨胀机制（偏向锁、轻量级锁、重量级锁）</a></h6>
               <span>March 27, 2026</span>
             </div>
 
@@ -1048,7 +1064,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%9F%BA%E7%A1%80/">1.1 - Kotlin 基础</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/">11 - 音视频</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/11-1-%E6%92%AD%E6%94%BE%E5%99%A8%E5%AE%9E%E6%88%98/">11.1 - 播放器实战</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">4</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">21</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.1 - 播放器架构方案设计</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-2-Android-%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.2 - Android 存储文件方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-2-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.2 - 简单好用的 gradle 云编译设置</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-2-%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/">7.2 - 手势分发</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">8</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-3-%E5%AE%9E%E6%97%B6%E6%B8%B2%E6%9F%93/">8.3 - 实时渲染</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%9F%BA%E7%A1%80/">1.1 - Kotlin 基础</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/">11 - 音视频</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/11-1-%E6%92%AD%E6%94%BE%E5%99%A8%E5%AE%9E%E6%88%98/">11.1 - 播放器实战</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-1-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.1 - 多线程</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">21</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.1 - 播放器架构方案设计</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-2-Android-%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.2 - Android 存储文件方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-2-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.2 - 简单好用的 gradle 云编译设置</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-2-%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/">7.2 - 手势分发</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">8</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-3-%E5%AE%9E%E6%97%B6%E6%B8%B2%E6%9F%93/">8.3 - 实时渲染</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1119,6 +1135,9 @@
 
 
     <!-- headerblur min height -->
+    
+      var headerblur = document.getElementById("header-blur");
+      headerblur.style.minHeight = window.getComputedStyle(document.getElementById("allheader"), null).height;
     
     
 </script>

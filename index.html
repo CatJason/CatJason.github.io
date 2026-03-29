@@ -135,10 +135,32 @@
 
 
   
+  
+  <div class="site-header-image">
+    <img id="originBg" width="100%" alt="Hike News" src="">
+  </div>
+
+  <div id="header-blur" class="site-header-image blur" style="position: absolute; top:0; height: 207px; min-height: 207px; min-width: 100%;">
+    <img id="blurBg" width="100%" style="top: 96%" alt="Hike News" src="">
+  </div>
+
+  <script>
+        var imgUrls = "css/images/pose01.jpg,https://source.unsplash.com/collection/954550/1920x1080,https://source.unsplash.com/collection/954550/1920x1081".split(",");
+        var random = Math.floor((Math.random() * imgUrls.length ));
+        if (imgUrls[random].startsWith('http') || imgUrls[random].indexOf('://') >= 0) {
+          document.getElementById("originBg").src=imgUrls[random];
+          document.getElementById("blurBg").src=imgUrls[random];
+        } else {
+          document.getElementById("originBg").src='/' + imgUrls[random];
+          document.getElementById("blurBg").src='/' + imgUrls[random];
+        }
+    </script>
+
+
 
 
 <header id="allheader" class="site-header" role="banner" 
-   >
+   style="width: 100%; position: absolute; top:0; background: rgba(255,255,255,.8);"  >
   <div class="clearfix container">
       <div class="site-branding">
 
@@ -182,311 +204,6 @@
       <div id="content" class="outer">
         
           <section id="main">
-  
-    <article id="post-2 Java/多线程/JVM锁膨胀机制深度剖析"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-    <div class="article-meta">
-      
-	<a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/JVM%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90/" class="article-date">
-	  <time datetime="2026-03-26T16:11:16.679Z" itemprop="datePublished">March 27, 2026</time>
-	</a>
-
-       
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="JVM-锁膨胀机制深度剖析：自动化路径与开发者影响力"><a href="#JVM-锁膨胀机制深度剖析：自动化路径与开发者影响力" class="headerlink" title="JVM 锁膨胀机制深度剖析：自动化路径与开发者影响力"></a>JVM 锁膨胀机制深度剖析：自动化路径与开发者影响力</h1><p>本篇文档旨在回答一个核心问题：<strong>在 <code>synchronized</code> 的世界里，究竟是 JVM 说了算，还是程序员的写法能改变命运？</strong></p>
-<hr>
-<h2 id="一、-锁升级的自动化流水线：JVM-的“自作主张”"><a href="#一、-锁升级的自动化流水线：JVM-的“自作主张”" class="headerlink" title="一、 锁升级的自动化流水线：JVM 的“自作主张”"></a>一、 锁升级的自动化流水线：JVM 的“自作主张”</h2><p>锁的膨胀过程（无锁 -&gt; 偏向锁 -&gt; 轻量级锁 -&gt; 重量级锁）确实是由 JVM <strong>自动管理</strong>的。程序员无法通过代码直接下令“请使用轻量级锁”，但 JVM 会根据底层硬件状态和实时竞争情况进行“自适应”决策。</p>
-<h3 id="1-膨胀的决策链路"><a href="#1-膨胀的决策链路" class="headerlink" title="1. 膨胀的决策链路"></a>1. 膨胀的决策链路</h3><ol>
-<li><strong>偏向锁阶段</strong>：当一个线程进入 <code>synchronized</code> 时，JVM 检查对象头的 Mark Word。如果是空的，直接记录当前线程 ID。<strong>这是 JVM 对单线程场景的极致偏爱。</strong></li>
-<li><strong>轻量级锁阶段</strong>：当第二个线程试图获取锁， JVM 发现 Mark Word 里不是它，于是通过 <strong>CAS（Compare And Swap）</strong> 尝试抢夺。如果抢到了，说明竞争不激烈，维持在轻量级锁。</li>
-<li><strong>自旋与适应性自旋</strong>：抢不到锁的线程不会立刻放弃，而是在门口“打转”（自旋）。JVM 会根据历史数据判断：如果这个锁以前很容易抢到，它就多自旋一会儿；反之则少自旋。</li>
-<li><strong>重量级锁阶段</strong>：如果自旋多次依然失败，或者竞争线程过多，JVM 认为“场面失控”，会调用操作系统的 <code>mutex</code> 指令，进入重量级锁，将线程挂起。</li>
-</ol>
-<hr>
-<h2 id="二、-程序员的写法：如何“间接”控制锁的命运？"><a href="#二、-程序员的写法：如何“间接”控制锁的命运？" class="headerlink" title="二、 程序员的写法：如何“间接”控制锁的命运？"></a>二、 程序员的写法：如何“间接”控制锁的命运？</h2><p>虽然你不能直接指挥 JVM，但你的<strong>写法逻辑</strong>会直接决定 JVM 走哪条优化路径。</p>
-<h3 id="1-锁的粒度（Granularity）"><a href="#1-锁的粒度（Granularity）" class="headerlink" title="1. 锁的粒度（Granularity）"></a>1. 锁的粒度（Granularity）</h3><ul>
-<li><strong>做法</strong>：<code>synchronized(this)</code> 锁定整个对象 vs <code>synchronized(lockObj)</code> 锁定特定变量。</li>
-<li><strong>影响</strong>：如果你锁定整个大对象，多个无关业务的线程会产生“虚假竞争”，强行让 JVM 将原本可以维持在偏向锁&#x2F;轻量级锁的状态升级为重量级锁。</li>
-<li><strong>建议</strong>：<strong>尽量减小同步块的范围。</strong></li>
-</ul>
-<h3 id="2-持锁时长（Hold-Time）"><a href="#2-持锁时长（Hold-Time）" class="headerlink" title="2. 持锁时长（Hold Time）"></a>2. 持锁时长（Hold Time）</h3><ul>
-<li><strong>做法</strong>：在同步块里做 IO 操作或复杂计算。</li>
-<li><strong>影响</strong>：子线程自旋是有时间限制的。如果你持锁时间太长，正在自旋的线程等不及了，就会触发 JVM 的“锁膨胀”机制，强行升级为重量级锁。</li>
-<li><strong>建议</strong>：<strong>同步块内只做最核心的、快速的状态变更。</strong></li>
-</ul>
-<h3 id="3-对象重用与逃逸分析"><a href="#3-对象重用与逃逸分析" class="headerlink" title="3. 对象重用与逃逸分析"></a>3. 对象重用与逃逸分析</h3><ul>
-<li><strong>做法</strong>：局部变量加锁 vs 成员变量加锁。</li>
-<li><strong>影响</strong>：如果你对一个<strong>永远不会逃逸出当前方法</strong>的对象加锁（例如方法内的局部变量），JVM 的 JIT 编译器会通过逃逸分析触发 <strong>“锁消除”</strong> —— 即使你写了 <code>synchronized</code>，运行的时候根本没锁。</li>
-<li><strong>建议</strong>：<strong>利用局部变量的封闭性减少全局竞争。</strong></li>
-</ul>
-<hr>
-<h2 id="三、-JVM-的“脾气”：你必须知道的潜规则"><a href="#三、-JVM-的“脾气”：你必须知道的潜规则" class="headerlink" title="三、 JVM 的“脾气”：你必须知道的潜规则"></a>三、 JVM 的“脾气”：你必须知道的潜规则</h2><h3 id="1-偏向锁的延迟开启"><a href="#1-偏向锁的延迟开启" class="headerlink" title="1. 偏向锁的延迟开启"></a>1. 偏向锁的延迟开启</h3><p>JVM 启动时，偏向锁通常会有几秒钟的延迟（默认 4s）。</p>
-<ul>
-<li><strong>为什么？</strong> 因为 JVM 启动初期会有大量线程竞争（如加载类），此时偏向锁反而会降低性能（撤销开销大）。</li>
-<li><strong>写法影响</strong>：如果你在 App 刚启动时就做大量同步，它们可能直接从无锁跳到轻量级锁。</li>
-</ul>
-<h3 id="2-锁降级（罕见现象）"><a href="#2-锁降级（罕见现象）" class="headerlink" title="2. 锁降级（罕见现象）"></a>2. 锁降级（罕见现象）</h3><p>虽然通常说锁“只升不降”，但在某些特定的 JVM 实现（如 HotSpot）中，在 <strong>STW（Stop The World）</strong> 进行全局垃圾回收时，可能会尝试将重量级锁降级。但这对程序员来说是不可控且不可感知的。</p>
-<hr>
-<h2 id="🎙-面试官进阶-Q-amp-A"><a href="#🎙-面试官进阶-Q-amp-A" class="headerlink" title="🎙 面试官进阶 Q&amp;A"></a>🎙 面试官进阶 Q&amp;A</h2><p><strong>Q：程序员可以手动干预锁升级吗？</strong></p>
-<ul>
-<li><strong>答</strong>：不能直接干预。但可以通过参数调节（如 <code>-XX:BiasedLockingStartupDelay=0</code>）或者通过<strong>业务逻辑优化</strong>。例如，如果已知某个锁一定会有高并发竞争，我们可以提前让它“热身”，或者干脆改用 <code>ReentrantLock</code> 来获得更确定的控制力。</li>
-</ul>
-<p><strong>Q：为什么 <code>synchronized</code> 块比 <code>synchronized</code> 方法更好？</strong></p>
-<ul>
-<li><strong>答</strong>：核心在于<strong>减小临界区</strong>。锁块可以只包裹那几行真正需要同步的代码，从而缩短持锁时间，给 JVM 留出更多保持在“轻量级锁”状态的空间，避免膨胀到性能低下的重量级锁。</li>
-</ul>
-<hr>
-<h2 id="📌-总结"><a href="#📌-总结" class="headerlink" title="📌 总结"></a>📌 总结</h2><p><strong>锁膨胀是 JVM 的“自动挡”，而程序员的逻辑是“油门和刹车”。</strong> 你写出的竞争频率、持锁时长、逃逸程度，就是 JVM 决定是否切换挡位的唯一依据。</p>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
-    <article id="post-2 Java/多线程/Android并发锁面试题库"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-    <div class="article-meta">
-      
-	<a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Android%E5%B9%B6%E5%8F%91%E9%94%81%E9%9D%A2%E8%AF%95%E9%A2%98%E5%BA%93/" class="article-date">
-	  <time datetime="2026-03-26T16:11:05.365Z" itemprop="datePublished">March 27, 2026</time>
-	</a>
-
-       
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="Android-面试题库：深度解析并发锁机制与应用实践"><a href="#Android-面试题库：深度解析并发锁机制与应用实践" class="headerlink" title="Android 面试题库：深度解析并发锁机制与应用实践"></a>Android 面试题库：深度解析并发锁机制与应用实践</h1><p>在 Android 高级开发面试中，并发锁是考察候选人<strong>底层功底、内存模型理解以及系统架构能力</strong>的核心考点。本文针对 Android 实际开发场景，系统性梳理了各种锁的原理与选型。</p>
-<hr>
-<h2 id="一、-Java-基础锁原语"><a href="#一、-Java-基础锁原语" class="headerlink" title="一、 Java 基础锁原语"></a>一、 Java 基础锁原语</h2><h3 id="1-synchronized-内置锁-x2F-监视器锁"><a href="#1-synchronized-内置锁-x2F-监视器锁" class="headerlink" title="1. synchronized (内置锁&#x2F;监视器锁)"></a>1. <code>synchronized</code> (内置锁&#x2F;监视器锁)</h3><ul>
-<li><strong>特性</strong>：自动获取&#x2F;释放、可重入、非公平。在现代 ART 虚拟机中经过了偏向锁、轻量级锁、重量级锁的膨胀优化。</li>
-<li><strong>面试考点</strong>：<ul>
-<li><strong>对象锁 vs 类锁</strong>：同步代码块与静态同步方法的区别。</li>
-<li><strong>原理</strong>：每个对象关联的 <code>monitor</code> 对象（EntryList, WaitSet）。</li>
-</ul>
-</li>
-<li><strong>应用场景</strong>：本项目的 <code>GLTextureView</code> 中用于状态机的全局调度。</li>
-</ul>
-<h3 id="2-ReentrantLock-显示锁"><a href="#2-ReentrantLock-显示锁" class="headerlink" title="2. ReentrantLock (显示锁)"></a>2. <code>ReentrantLock</code> (显示锁)</h3><ul>
-<li><strong>特性</strong>：基于 AQS（AbstractQueuedSynchronizer）实现。支持公平&#x2F;非公平选型、可中断、支持超时获取、多条件变量（Condition）。</li>
-<li><strong>面试考点</strong>：<ul>
-<li><strong>与 <code>synchronized</code> 区别</strong>：灵活性（tryLock）、性能（高竞争下更稳定）、可扩展性。</li>
-</ul>
-</li>
-<li><strong>应用场景</strong>：复杂的数据结构操作，或需要响应中断的长时间等待场景。</li>
-</ul>
-<hr>
-<h2 id="二、-读写与性能优化锁"><a href="#二、-读写与性能优化锁" class="headerlink" title="二、 读写与性能优化锁"></a>二、 读写与性能优化锁</h2><h3 id="3-ReentrantReadWriteLock-读写锁"><a href="#3-ReentrantReadWriteLock-读写锁" class="headerlink" title="3. ReentrantReadWriteLock (读写锁)"></a>3. <code>ReentrantReadWriteLock</code> (读写锁)</h3><ul>
-<li><strong>核心逻辑</strong>：<strong>读读共享、读写互斥、写写互斥</strong>。</li>
-<li><strong>面试考点</strong>：<ul>
-<li><strong>锁降级</strong>：写锁可以降级为读锁，但读锁不能升级为写锁。</li>
-<li><strong>饥饿问题</strong>：大量读操作可能导致写操作长时间无法获取锁。</li>
-</ul>
-</li>
-<li><strong>应用场景</strong>：App 的内存缓存（LruCache）查询频率远高于更新频率的场景。</li>
-</ul>
-<h3 id="4-StampedLock-乐观读锁"><a href="#4-StampedLock-乐观读锁" class="headerlink" title="4. StampedLock (乐观读锁)"></a>4. <code>StampedLock</code> (乐观读锁)</h3><ul>
-<li><strong>特性</strong>：Java 8 引入。提供了一种<strong>乐观读</strong>模式，读操作不会阻塞写操作。</li>
-<li><strong>面试考点</strong>：<ul>
-<li><strong>对比 ReadWriteLock</strong>：通过版本戳（Stamp）验证数据有效性，在读多写极少的极端场景下性能近乎无锁。</li>
-</ul>
-</li>
-<li><strong>应用场景</strong>：坐标点数据计算、频繁读取的配置信息。</li>
-</ul>
-<hr>
-<h2 id="三、-原子操作与轻量级同步"><a href="#三、-原子操作与轻量级同步" class="headerlink" title="三、 原子操作与轻量级同步"></a>三、 原子操作与轻量级同步</h2><h3 id="5-CAS-Compare-And-Swap"><a href="#5-CAS-Compare-And-Swap" class="headerlink" title="5. CAS (Compare And Swap)"></a>5. <code>CAS</code> (Compare And Swap)</h3><ul>
-<li><strong>原理</strong>：利用 CPU 的 <code>cmpxchg</code> 指令实现无锁原子更新。</li>
-<li><strong>面试考点</strong>：<ul>
-<li><strong>ABA 问题</strong>：如何通过 <code>AtomicStampedReference</code> 解决。</li>
-<li><strong>自旋开销</strong>：高竞争下 CPU 占用率过高。</li>
-</ul>
-</li>
-<li><strong>应用场景</strong>：计数器（AtomicInteger）、状态标记位。</li>
-</ul>
-<h3 id="6-volatile-关键字"><a href="#6-volatile-关键字" class="headerlink" title="6. volatile 关键字"></a>6. <code>volatile</code> 关键字</h3><ul>
-<li><strong>作用</strong>：<strong>可见性、有序性（禁止指令重排）</strong>。不保证原子性。</li>
-<li><strong>面试考点</strong>：<ul>
-<li><strong>DCL（双重检查锁定）单例模式</strong>：为什么必须加 <code>volatile</code>？（防止对象初始化未完成就被引用）。</li>
-</ul>
-</li>
-<li><strong>应用场景</strong>：本项目的 <code>mHasContentToDraw</code> 标志位同步。</li>
-</ul>
-<hr>
-<h2 id="四、-Android-场景下的特有应用"><a href="#四、-Android-场景下的特有应用" class="headerlink" title="四、 Android 场景下的特有应用"></a>四、 Android 场景下的特有应用</h2><h3 id="7-渲染链路同步-本项目核心"><a href="#7-渲染链路同步-本项目核心" class="headerlink" title="7. 渲染链路同步 (本项目核心)"></a>7. 渲染链路同步 (本项目核心)</h3><ul>
-<li><strong>痛点</strong>：GL 线程与 UI 线程的生命周期不同步。</li>
-<li><strong>方案</strong>：使用 <code>synchronized</code> 配合 <code>wait/notifyAll</code> 构建<strong>保护性暂停（Guarded Suspension）</strong>模型。</li>
-<li><strong>面试回答</strong>：参考 <code>GLTEXTUREVIEW_LOCKING.md</code> 中的握手协议描述。</li>
-</ul>
-<h3 id="8-锁的选型指南-横向对比"><a href="#8-锁的选型指南-横向对比" class="headerlink" title="8. 锁的选型指南 (横向对比)"></a>8. 锁的选型指南 (横向对比)</h3><table>
-<thead>
-<tr>
-<th align="left">维度</th>
-<th align="left"><code>synchronized</code></th>
-<th align="left"><code>ReentrantLock</code></th>
-<th align="left"><code>Atomic/CAS</code></th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left"><strong>灵活性</strong></td>
-<td align="left">低（自动）</td>
-<td align="left">高（手动控制）</td>
-<td align="left">极高（无锁）</td>
-</tr>
-<tr>
-<td align="left"><strong>性能</strong></td>
-<td align="left">中（低中竞争优）</td>
-<td align="left">高（高竞争稳定）</td>
-<td align="left">极高（极短操作）</td>
-</tr>
-<tr>
-<td align="left"><strong>功能</strong></td>
-<td align="left">基础</td>
-<td align="left">丰富（Condition&#x2F;公平性）</td>
-<td align="left">仅限原子变量</td>
-</tr>
-<tr>
-<td align="left"><strong>风险</strong></td>
-<td align="left">低</td>
-<td align="left">高（易忘释放）</td>
-<td align="left">容易出现 ABA 问题</td>
-</tr>
-</tbody></table>
-<hr>
-<h2 id="五、-资深面试官进阶追问"><a href="#五、-资深面试官进阶追问" class="headerlink" title="五、 资深面试官进阶追问"></a>五、 资深面试官进阶追问</h2><p><strong>Q1：如何定位 App 线上发生的死锁？</strong></p>
-<ul>
-<li><strong>答</strong>：1. 使用 <code>Thread.getAllStackTraces()</code> 获取堆栈。2. 寻找 <code>BLOCKED</code> 状态的线程。3. 分析锁的循环等待链（A 等 B，B 等 A）。</li>
-</ul>
-<p><strong>Q2：为什么 ConcurrentLinkedQueue 不需要加锁？</strong></p>
-<ul>
-<li><strong>答</strong>：它采用了 <strong>Michael-Scott 非阻塞队列算法</strong>，底层完全基于 CAS 操作头尾指针，实现了极高的并发吞吐量。本项目在 <code>HybridNormalRenderer</code> 中使用它来处理弹幕队列，避免了每一帧渲染都要持锁的开销。</li>
-</ul>
-<p><strong>Q3：什么是偏向锁和锁消除？</strong></p>
-<ul>
-<li><strong>答</strong>：锁消除是 JIT 编译器的优化，若发现对象只会在单线程访问，则直接去掉 <code>synchronized</code>。偏向锁是假设锁一直由同一线程持有，减少 CAS 操作开销。</li>
-</ul>
-<hr>
-<h2 id="📌-总结"><a href="#📌-总结" class="headerlink" title="📌 总结"></a>📌 总结</h2><p>锁不是越多越好，而是<strong>越轻量越好</strong>。在 Android 开发中，首选无锁结构（Concurrent 容器），次选轻量级标记（volatile&#x2F;Atomic），最后才考虑重权重的 Monitor 或显示锁。</p>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
-    <article id="post-2 Java/多线程/Java锁膨胀机制深度解析"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-    <div class="article-meta">
-      
-	<a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Java%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/" class="article-date">
-	  <time datetime="2026-03-26T16:10:57.620Z" itemprop="datePublished">March 27, 2026</time>
-	</a>
-
-       
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="深度解析：Java-锁的膨胀机制（偏向锁、轻量级锁、重量级锁）"><a href="#深度解析：Java-锁的膨胀机制（偏向锁、轻量级锁、重量级锁）" class="headerlink" title="深度解析：Java 锁的膨胀机制（偏向锁、轻量级锁、重量级锁）"></a>深度解析：Java 锁的膨胀机制（偏向锁、轻量级锁、重量级锁）</h1><p>在 Android 的 ART（Android Runtime）和 HotSpot JVM 中，<code>synchronized</code> 关键字的性能优化主要依赖于锁的<strong>膨胀（Inflation）机制</strong>。系统会根据竞争情况，自动在四种状态间转换：<strong>无锁 -&gt; 偏向锁 -&gt; 轻量级锁 -&gt; 重量级锁</strong>。</p>
-<hr>
-<h2 id="一、-锁状态的核心存储：Mark-Word"><a href="#一、-锁状态的核心存储：Mark-Word" class="headerlink" title="一、 锁状态的核心存储：Mark Word"></a>一、 锁状态的核心存储：Mark Word</h2><p>锁的信息存储在 Java 对象的<strong>对象头（Object Header）</strong>中的 <code>Mark Word</code> 字段里。</p>
-<ul>
-<li><strong>Mark Word</strong> 会根据锁状态的变化，复用自己的空间来存储：偏向线程 ID、指向栈中锁记录的指针、或指向互斥量（Monitor）的指针。</li>
-</ul>
-<hr>
-<h2 id="二、-四种锁状态详解"><a href="#二、-四种锁状态详解" class="headerlink" title="二、 四种锁状态详解"></a>二、 四种锁状态详解</h2><h3 id="1-偏向锁-Biased-Locking"><a href="#1-偏向锁-Biased-Locking" class="headerlink" title="1. 偏向锁 (Biased Locking)"></a>1. 偏向锁 (Biased Locking)</h3><ul>
-<li><strong>核心思想</strong>：假设锁总是由<strong>同一个线程</strong>多次获得，那么就没有必要进行同步操作（如 CAS）。</li>
-<li><strong>实现</strong>：在 Mark Word 中记录当前线程的 ID。下次该线程进入时，只需检查 ID 是否一致，完全不需要 CPU 原子指令。</li>
-<li><strong>优缺点</strong>：<ul>
-<li><strong>优点</strong>：单线程执行临界区代码时，性能接近无锁。</li>
-<li><strong>缺点</strong>：一旦出现另一个线程竞争，撤销偏向锁会产生较大的性能开销（需要等待全局安全点 Safe Point）。</li>
-</ul>
-</li>
-<li><strong>Android 现状</strong>：在 Android ART 中，偏向锁的实现逻辑与 HotSpot 略有不同，但在高版本中出于简化系统和减少 Safe Point 停顿的考虑，偏向锁的使用逐渐被弱化甚至在某些场景下默认关闭。</li>
-</ul>
-<h3 id="2-轻量级锁-Lightweight-Locking"><a href="#2-轻量级锁-Lightweight-Locking" class="headerlink" title="2. 轻量级锁 (Lightweight Locking)"></a>2. 轻量级锁 (Lightweight Locking)</h3><ul>
-<li><strong>触发时机</strong>：当偏向锁被撤销，或者有第二个线程尝试获取锁（但竞争不激烈）时。</li>
-<li><strong>实现</strong>：线程在自己的<strong>虚拟机栈</strong>中创建一个名为“锁记录（Lock Record）”的空间，尝试用 <strong>CAS</strong> 操作将对象的 Mark Word 指向这个记录。</li>
-<li><strong>自旋优化</strong>：如果 CAS 失败，线程不会立即阻塞，而是执行一段<strong>自旋（Spinning）</strong>循环，期望持锁线程能迅速释放。</li>
-<li><strong>优点</strong>：避免了操作系统内核态与用户态切换的昂贵开销。</li>
-</ul>
-<h3 id="3-重量级锁-Heavyweight-Locking"><a href="#3-重量级锁-Heavyweight-Locking" class="headerlink" title="3. 重量级锁 (Heavyweight Locking)"></a>3. 重量级锁 (Heavyweight Locking)</h3><ul>
-<li><strong>触发时机</strong>：竞争激烈。如果自旋超过一定次数，或者在轻量级锁状态下又有第三个线程来抢锁。</li>
-<li><strong>实现</strong>：Mark Word 指向堆中的 <strong>Monitor（监视器）</strong> 对象。Monitor 依赖于操作系统的 <code>mutex</code> 指令。</li>
-<li><strong>行为</strong>：未能抢到锁的线程会被<strong>挂起（Park）</strong>，进入阻塞状态，等待操作系统唤醒。</li>
-<li><strong>代价</strong>：涉及内核态切换，上下文切换开销巨大。</li>
-</ul>
-<hr>
-<h2 id="三、-锁的升级（膨胀）流程图"><a href="#三、-锁的升级（膨胀）流程图" class="headerlink" title="三、 锁的升级（膨胀）流程图"></a>三、 锁的升级（膨胀）流程图</h2><ol>
-<li><strong>初始状态</strong>：对象处于“无锁”或“可偏向”状态。</li>
-<li><strong>偏向开启</strong>：线程 A 访问，Mark Word 记录 A 的 ID。</li>
-<li><strong>轻度竞争</strong>：线程 B 访问，发现 ID 不匹配。撤销偏向锁，升级为轻量级锁。</li>
-<li><strong>CAS 竞争</strong>：线程 A 和 B 通过 CAS 争夺锁记录指针。</li>
-<li><strong>激烈竞争</strong>：CAS 失败次数过多，轻量级锁膨胀为重量级锁，线程 B 进入阻塞队列。</li>
-</ol>
-<blockquote>
-<p><strong>注意</strong>：锁的升级通常是<strong>不可逆</strong>的（但在某些 JVM 实现中，在全局垃圾回收 GC 时可能会发生锁降级）。</p>
-</blockquote>
-<hr>
-<h2 id="四、-补充优化：锁消除与锁粗化"><a href="#四、-补充优化：锁消除与锁粗化" class="headerlink" title="四、 补充优化：锁消除与锁粗化"></a>四、 补充优化：锁消除与锁粗化</h2><p>除了状态膨胀，编译器（JIT）还做了以下两项神级优化：</p>
-<h3 id="1-锁消除-Lock-Elimination"><a href="#1-锁消除-Lock-Elimination" class="headerlink" title="1. 锁消除 (Lock Elimination)"></a>1. 锁消除 (Lock Elimination)</h3><ul>
-<li><strong>原理</strong>：通过<strong>逃逸分析</strong>，如果发现一个对象只会在当前线程内部使用（不会被其他线程看到），JIT 编译器会直接把 <code>synchronized</code> 去掉。</li>
-<li><strong>例子</strong>：在方法内部定义的 <code>StringBuffer.append()</code>。</li>
-</ul>
-<h3 id="2-锁粗化-Lock-Coarsening"><a href="#2-锁粗化-Lock-Coarsening" class="headerlink" title="2. 锁粗化 (Lock Coarsening)"></a>2. 锁粗化 (Lock Coarsening)</h3><ul>
-<li><strong>原理</strong>：如果一系列连续的操作都对同一个对象加锁（如循环内加锁），编译器会把加锁的范围扩大到整个操作序列外部，避免频繁开关锁。</li>
-</ul>
-<hr>
-<h2 id="🎙-面试考察点：资深级别回答"><a href="#🎙-面试考察点：资深级别回答" class="headerlink" title="🎙 面试考察点：资深级别回答"></a>🎙 面试考察点：资深级别回答</h2><p><strong>Q：既然重量级锁慢，为什么不一直用轻量级锁自旋？</strong></p>
-<ul>
-<li><strong>答</strong>：自旋是需要<strong>消耗 CPU 算力</strong>的（虽然没挂起，但 CPU 在跑空转指令）。如果持锁线程执行时间很长，让其他线程一直自旋会白白浪费大量 CPU 资源。因此，当自旋达到一定阈值（适应性自旋），必须膨胀为重量级锁，让竞争线程去“睡觉”（挂起），把 CPU 让给真正干活的线程。</li>
-</ul>
-<p><strong>Q：在 Android 开发中，这套机制给我们的启示是什么？</strong></p>
-<ul>
-<li><strong>答</strong>：1. 尽量减少锁的竞争范围（减小临界区）。2. 对于高频调用的代码，优先使用无锁结构（CAS&#x2F;Atomic），因为一旦膨胀到重量级锁，在移动端有限的算力下，性能损耗非常直观。</li>
-</ul>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
   
     <article id="post-0 算法/01 算法模板/01 双指针-只有一个输入, 从两端开始遍历"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
@@ -911,6 +628,229 @@
 <!-- Table of Contents -->
 
   
+    <article id="post-0 算法/01 算法模板/08 找到符合确切条件的子数组数"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/01%20%E7%AE%97%E6%B3%95%E6%A8%A1%E6%9D%BF/08%20%E6%89%BE%E5%88%B0%E7%AC%A6%E5%90%88%E7%A1%AE%E5%88%87%E6%9D%A1%E4%BB%B6%E7%9A%84%E5%AD%90%E6%95%B0%E7%BB%84%E6%95%B0/">08. 找到符合确切条件的子数组数</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/01%20%E7%AE%97%E6%B3%95%E6%A8%A1%E6%9D%BF/08%20%E6%89%BE%E5%88%B0%E7%AC%A6%E5%90%88%E7%A1%AE%E5%88%87%E6%9D%A1%E4%BB%B6%E7%9A%84%E5%AD%90%E6%95%B0%E7%BB%84%E6%95%B0/" class="article-date">
+	  <time datetime="2023-08-10T23:15:02.000Z" itemprop="datePublished">August 11, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a>, <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>在算法面试中，“找到符合确切条件的子数组数”通常有两种核心解法：<strong>前缀和 + 哈希表</strong>（通用性最强）或 <strong>双指针&#x2F;滑动窗口</strong>（适用于非负数序列）。</p>
+<h4 id="方案一：前缀和-哈希表-通用模板"><a href="#方案一：前缀和-哈希表-通用模板" class="headerlink" title="方案一：前缀和 + 哈希表 (通用模板)"></a>方案一：前缀和 + 哈希表 (通用模板)</h4><p>这是解决该类问题的“银弹”，适用于数组中包含负数的情况。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">numSubarraysWithSum</span><span class="params">(nums: <span class="type">IntArray</span>, goal: <span class="type">Int</span>)</span></span>: <span class="built_in">Int</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> count = <span class="number">0</span></span><br><span class="line">    <span class="keyword">var</span> prefixSum = <span class="number">0</span></span><br><span class="line">    <span class="comment">// key: 前缀和的值, value: 该前缀和出现的次数</span></span><br><span class="line">    <span class="keyword">val</span> map = mutableMapOf&lt;<span class="built_in">Int</span>, <span class="built_in">Int</span>&gt;()</span><br><span class="line">    <span class="comment">// 初始化：前缀和为 0 已经出现过 1 次</span></span><br><span class="line">    map[<span class="number">0</span>] = <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (num <span class="keyword">in</span> nums) &#123;</span><br><span class="line">        prefixSum += num</span><br><span class="line">        <span class="comment">// 如果 prefixSum - goal 存在于 map 中，说明存在子数组和为 goal</span></span><br><span class="line">        count += map.getOrDefault(prefixSum - goal, <span class="number">0</span>)</span><br><span class="line">        <span class="comment">// 更新当前前缀和的出现次数</span></span><br><span class="line">        map[prefixSum] = map.getOrDefault(prefixSum, <span class="number">0</span>) + <span class="number">1</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> count</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="方案二：双指针-x2F-滑动窗口-针对非负数优化"><a href="#方案二：双指针-x2F-滑动窗口-针对非负数优化" class="headerlink" title="方案二：双指针 &#x2F; 滑动窗口 (针对非负数优化)"></a>方案二：双指针 &#x2F; 滑动窗口 (针对非负数优化)</h4><p>如果数组中元素全部非负，使用滑动窗口可以将空间复杂度降低到 $O(1)$。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 统计和正好为 goal 的子数组数量</span></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">numSubarraysWithSumSlidingWindow</span><span class="params">(nums: <span class="type">IntArray</span>, goal: <span class="type">Int</span>)</span></span>: <span class="built_in">Int</span> &#123;</span><br><span class="line">    <span class="comment">// 技巧：正好为 K = 最多为 K - 最多为 K-1</span></span><br><span class="line">    <span class="keyword">return</span> atMost(nums, goal) - atMost(nums, goal - <span class="number">1</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="function"><span class="keyword">fun</span> <span class="title">atMost</span><span class="params">(nums: <span class="type">IntArray</span>, goal: <span class="type">Int</span>)</span></span>: <span class="built_in">Int</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (goal &lt; <span class="number">0</span>) <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">    <span class="keyword">var</span> left = <span class="number">0</span></span><br><span class="line">    <span class="keyword">var</span> sum = <span class="number">0</span></span><br><span class="line">    <span class="keyword">var</span> count = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> (right <span class="keyword">in</span> nums.indices) &#123;</span><br><span class="line">        sum += nums[right]</span><br><span class="line">        <span class="keyword">while</span> (sum &gt; goal) &#123;</span><br><span class="line">            sum -= nums[left]</span><br><span class="line">            left++</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// [left...right] 之间所有以 right 结尾的子数组都符合“和 &lt;= goal”</span></span><br><span class="line">        count += right - left + <span class="number">1</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> count</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用说明"><a href="#使用说明" class="headerlink" title="使用说明"></a>使用说明</h3><ol>
+<li><p><strong>为什么原模板中“统计连续的0”比较复杂？</strong><br>在滑动窗口中，如果存在 0，窗口的和不会改变，这会导致统计“确切”数量时变得棘手。<strong>“恰好为 K &#x3D; 最多为 K - 最多为 K-1”</strong> 是处理此类滑动窗口问题最优雅的数学技巧。</p>
+</li>
+<li><p><strong>核心优势</strong>：</p>
+<ul>
+<li><strong>哈希表法</strong>：时间 $O(N)$，空间 $O(N)$。适用于任何数组。</li>
+<li><strong>双指针法</strong>：时间 $O(N)$，空间 $O(1)$。仅适用于非负数组。</li>
+</ul>
+</li>
+<li><p><strong>常见变形</strong>：</p>
+<ul>
+<li>求和为 K 的子数组。</li>
+<li>求奇数个数为 K 的子数组（将奇数看作 1，偶数看作 0）。</li>
+</ul>
+</li>
+</ol>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a>, <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-0 算法/01 算法模板/09 单调递增栈"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/01%20%E7%AE%97%E6%B3%95%E6%A8%A1%E6%9D%BF/09%20%E5%8D%95%E8%B0%83%E9%80%92%E5%A2%9E%E6%A0%88/">09. 单调递增栈</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/01%20%E7%AE%97%E6%B3%95%E6%A8%A1%E6%9D%BF/09%20%E5%8D%95%E8%B0%83%E9%80%92%E5%A2%9E%E6%A0%88/" class="article-date">
+	  <time datetime="2023-08-10T23:15:04.000Z" itemprop="datePublished">August 11, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a>, <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>单调栈（Monotonic Stack）是一种极其重要的数据结构，专门用于解决“下一个更大元素（Next Greater Element）”或“上一个更小元素”这类问题。</p>
+<h4 id="算法模板-寻找下一个更大元素"><a href="#算法模板-寻找下一个更大元素" class="headerlink" title="算法模板 (寻找下一个更大元素)"></a>算法模板 (寻找下一个更大元素)</h4><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">nextGreaterElement</span><span class="params">(nums: <span class="type">IntArray</span>)</span></span>: IntArray &#123;</span><br><span class="line">    <span class="keyword">val</span> n = nums.size</span><br><span class="line">    <span class="keyword">val</span> result = IntArray(n) &#123; -<span class="number">1</span> &#125;</span><br><span class="line">    <span class="comment">// 栈中存储元素的索引（以便更新 result 数组）</span></span><br><span class="line">    <span class="keyword">val</span> stack = mutableListOf&lt;<span class="built_in">Int</span>&gt;()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (i <span class="keyword">in</span> nums.indices) &#123;</span><br><span class="line">        <span class="comment">// 当栈不为空，且当前元素大于栈顶元素时</span></span><br><span class="line">        <span class="keyword">while</span> (stack.isNotEmpty() &amp;&amp; nums[stack.last()] &lt; nums[i]) &#123;</span><br><span class="line">            <span class="comment">// 此时 nums[i] 就是栈顶元素的“下一个更大元素”</span></span><br><span class="line">            <span class="keyword">val</span> index = stack.removeAt(stack.size - <span class="number">1</span>)</span><br><span class="line">            result[index] = nums[i]</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 当前元素入栈（等待属于它的更大元素出现）</span></span><br><span class="line">        stack.add(i)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用说明"><a href="#使用说明" class="headerlink" title="使用说明"></a>使用说明</h3><ol>
+<li><p><strong>核心特性</strong>：</p>
+<ul>
+<li><strong>单调递增栈</strong>：栈内元素从底到顶单调递增。用于寻找右侧第一个比自己小的元素（或者左侧第一个比自己小的）。</li>
+<li><strong>单调递减栈</strong>：栈内元素从底到顶单调递减。用于寻找右侧第一个比自己大的元素（即模板写法）。</li>
+</ul>
+</li>
+<li><p><strong>核心优势</strong>：</p>
+<ul>
+<li>将 $O(N^2)$ 的暴力查找优化到 $O(N)$。每个元素最多进栈一次、出栈一次。</li>
+</ul>
+</li>
+<li><p><strong>常见变形</strong>：</p>
+<ul>
+<li><strong>循环数组</strong>：通过遍历两次（<code>i % n</code>）来模拟循环。</li>
+<li><strong>接雨水</strong>：利用单调栈计算低洼处的面积。</li>
+<li><strong>最大矩形面积</strong>：利用单调栈寻找左右两侧的边界。</li>
+</ul>
+</li>
+<li><p><strong>注意点</strong>：</p>
+<ul>
+<li>明确题目要求的是“右侧第一个更大”还是“左侧第一个更小”。</li>
+<li>明确栈里存的是“元素值”还是“元素的下标”（下标通常更通用）。</li>
+</ul>
+</li>
+</ol>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a>, <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-0 算法/01 算法模板/10 二叉树-DFS (递归)"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2023/09/08/0%20%E7%AE%97%E6%B3%95/01%20%E7%AE%97%E6%B3%95%E6%A8%A1%E6%9D%BF/10%20%E4%BA%8C%E5%8F%89%E6%A0%91-DFS%20(%E9%80%92%E5%BD%92)/">10. 二叉树-DFS (递归)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/09/08/0%20%E7%AE%97%E6%B3%95/01%20%E7%AE%97%E6%B3%95%E6%A8%A1%E6%9D%BF/10%20%E4%BA%8C%E5%8F%89%E6%A0%91-DFS%20(%E9%80%92%E5%BD%92)/" class="article-date">
+	  <time datetime="2023-09-08T02:21:10.000Z" itemprop="datePublished">September 8, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a>, <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>二叉树的深度优先搜索（DFS）递归写法是最直观的，其本质是利用了系统的函数调用栈。</p>
+<h4 id="算法模板"><a href="#算法模板" class="headerlink" title="算法模板"></a>算法模板</h4><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">TreeNode</span>(<span class="keyword">var</span> value: <span class="built_in">Int</span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> left: TreeNode? = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">var</span> right: TreeNode? = <span class="literal">null</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">dfs</span><span class="params">(root: <span class="type">TreeNode</span>?)</span></span> &#123;</span><br><span class="line">    <span class="comment">// 递归终止条件</span></span><br><span class="line">    <span class="keyword">if</span> (root == <span class="literal">null</span>) <span class="keyword">return</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 1. 先序遍历 (Pre-order): 根 -&gt; 左 -&gt; 右</span></span><br><span class="line">    <span class="comment">// visit(root)</span></span><br><span class="line">    </span><br><span class="line">    dfs(root.left)  </span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 2. 中序遍历 (In-order): 左 -&gt; 根 -&gt; 右</span></span><br><span class="line">    <span class="comment">// visit(root)</span></span><br><span class="line">    </span><br><span class="line">    dfs(root.right)  </span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 3. 后序遍历 (Post-order): 左 -&gt; 右 -&gt; 根</span></span><br><span class="line">    <span class="comment">// visit(root)</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">visit</span><span class="params">(node: <span class="type">TreeNode</span>)</span></span> &#123;</span><br><span class="line">    println(node.value)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用说明"><a href="#使用说明" class="headerlink" title="使用说明"></a>使用说明</h3><ol>
+<li><p><strong>三种遍历顺序</strong>：</p>
+<ul>
+<li><strong>先序</strong>：常用于复制二叉树、序列化二叉树。</li>
+<li><strong>中序</strong>：<strong>二叉搜索树（BST）的中序遍历是有序序列</strong>。</li>
+<li><strong>后序</strong>：常用于计算二叉树的高度、删除二叉树。</li>
+</ul>
+</li>
+<li><p><strong>核心优势</strong>：</p>
+<ul>
+<li>逻辑极其简单，符合人类直觉。</li>
+<li>代码量极少，易于实现。</li>
+</ul>
+</li>
+<li><p><strong>性能分析</strong>：</p>
+<ul>
+<li>时间复杂度：$O(N)$，每个节点访问一次。</li>
+<li>空间复杂度：$O(H)$，其中 $H$ 是树的高度。最坏情况下（倾斜树）为 $O(N)$。</li>
+</ul>
+</li>
+<li><p><strong>注意点</strong>：</p>
+<ul>
+<li>递归必须有明确的终止条件（通常是 <code>root == null</code>）。</li>
+<li>如果树的深度极大，可能会导致 <code>StackOverflowError</code>（栈溢出），此时需考虑迭代写法。</li>
+</ul>
+</li>
+</ol>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a>, <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
 
 
   <nav id="page-nav">
@@ -1035,7 +975,7 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/JVM%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90/">(no title)</a></h6>
+              <h6 style="margin: 0;"><a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/JVM%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90/">JVM 锁膨胀机制深度剖析：自动化路径与开发者影响力</a></h6>
               <span>March 27, 2026</span>
             </div>
 
@@ -1047,7 +987,7 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Android%E5%B9%B6%E5%8F%91%E9%94%81%E9%9D%A2%E8%AF%95%E9%A2%98%E5%BA%93/">(no title)</a></h6>
+              <h6 style="margin: 0;"><a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Android%E5%B9%B6%E5%8F%91%E9%94%81%E9%9D%A2%E8%AF%95%E9%A2%98%E5%BA%93/">Android 面试题库：深度解析并发锁机制与应用实践</a></h6>
               <span>March 27, 2026</span>
             </div>
 
@@ -1059,7 +999,7 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Java%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/">(no title)</a></h6>
+              <h6 style="margin: 0;"><a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Java%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/">深度解析：Java 锁的膨胀机制（偏向锁、轻量级锁、重量级锁）</a></h6>
               <span>March 27, 2026</span>
             </div>
 
@@ -1098,7 +1038,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%9F%BA%E7%A1%80/">1.1 - Kotlin 基础</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/">11 - 音视频</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/11-1-%E6%92%AD%E6%94%BE%E5%99%A8%E5%AE%9E%E6%88%98/">11.1 - 播放器实战</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">4</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">21</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.1 - 播放器架构方案设计</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-2-Android-%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.2 - Android 存储文件方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-2-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.2 - 简单好用的 gradle 云编译设置</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-2-%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/">7.2 - 手势分发</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">8</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-3-%E5%AE%9E%E6%97%B6%E6%B8%B2%E6%9F%93/">8.3 - 实时渲染</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%9F%BA%E7%A1%80/">1.1 - Kotlin 基础</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/">11 - 音视频</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/11-1-%E6%92%AD%E6%94%BE%E5%99%A8%E5%AE%9E%E6%88%98/">11.1 - 播放器实战</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-1-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.1 - 多线程</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">21</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.1 - 播放器架构方案设计</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-2-Android-%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.2 - Android 存储文件方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-2-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.2 - 简单好用的 gradle 云编译设置</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-2-%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/">7.2 - 手势分发</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">8</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-3-%E5%AE%9E%E6%97%B6%E6%B8%B2%E6%9F%93/">8.3 - 实时渲染</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1169,6 +1109,9 @@
 
 
     <!-- headerblur min height -->
+    
+      var headerblur = document.getElementById("header-blur");
+      headerblur.style.minHeight = window.getComputedStyle(document.getElementById("allheader"), null).height;
     
     
 </script>

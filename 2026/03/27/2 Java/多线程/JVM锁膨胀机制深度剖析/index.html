@@ -3,21 +3,21 @@
 <head>
   <meta charset="utf-8">
   
-  <title>喵星科技报</title>
+  <title>JVM 锁膨胀机制深度剖析：自动化路径与开发者影响力 | 喵星科技报</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
   
   
   
-  <meta name="description" content="JVM 锁膨胀机制深度剖析：自动化路径与开发者影响力本篇文档旨在回答一个核心问题：在 synchronized 的世界里，究竟是 JVM 说了算，还是程序员的写法能改变命运？  一、 锁升级的自动化流水线：JVM 的“自作主张”锁的膨胀过程（无锁 -&gt; 偏向锁 -&gt; 轻量级锁 -&gt; 重量级锁）确实是由 JVM 自动管理的。程序员无法通过代码直接下令“请使用轻量级锁”，但 JVM">
+  <meta name="description" content="本篇文档旨在回答一个核心问题：在 synchronized 的世界里，究竟是 JVM 说了算，还是程序员的写法能改变命运？  一、 锁升级的自动化流水线：JVM 的“自作主张”锁的膨胀过程（无锁 -&gt; 偏向锁 -&gt; 轻量级锁 -&gt; 重量级锁）确实是由 JVM 自动管理的。程序员无法通过代码直接下令“请使用轻量级锁”，但 JVM 会根据底层硬件状态 and 实时竞争情况进行“自适应">
 <meta property="og:type" content="article">
-<meta property="og:title" content="喵星科技报">
+<meta property="og:title" content="JVM 锁膨胀机制深度剖析：自动化路径与开发者影响力">
 <meta property="og:url" content="http://example.com/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/JVM%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90/index.html">
 <meta property="og:site_name" content="喵星科技报">
-<meta property="og:description" content="JVM 锁膨胀机制深度剖析：自动化路径与开发者影响力本篇文档旨在回答一个核心问题：在 synchronized 的世界里，究竟是 JVM 说了算，还是程序员的写法能改变命运？  一、 锁升级的自动化流水线：JVM 的“自作主张”锁的膨胀过程（无锁 -&gt; 偏向锁 -&gt; 轻量级锁 -&gt; 重量级锁）确实是由 JVM 自动管理的。程序员无法通过代码直接下令“请使用轻量级锁”，但 JVM">
+<meta property="og:description" content="本篇文档旨在回答一个核心问题：在 synchronized 的世界里，究竟是 JVM 说了算，还是程序员的写法能改变命运？  一、 锁升级的自动化流水线：JVM 的“自作主张”锁的膨胀过程（无锁 -&gt; 偏向锁 -&gt; 轻量级锁 -&gt; 重量级锁）确实是由 JVM 自动管理的。程序员无法通过代码直接下令“请使用轻量级锁”，但 JVM 会根据底层硬件状态 and 实时竞争情况进行“自适应">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2026-03-26T16:11:16.679Z">
-<meta property="article:modified_time" content="2026-03-26T16:11:16.694Z">
+<meta property="article:modified_time" content="2026-03-29T09:21:20.062Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
   
@@ -139,10 +139,32 @@
 
 
   
+  
+  <div class="site-header-image">
+    <img id="originBg" width="100%" alt="Hike News" src="">
+  </div>
+
+  <div id="header-blur" class="site-header-image blur" style="position: absolute; top:0; height: 207px; min-height: 207px; min-width: 100%;">
+    <img id="blurBg" width="100%" style="top: 96%" alt="Hike News" src="">
+  </div>
+
+  <script>
+        var imgUrls = "css/images/pose01.jpg,https://source.unsplash.com/collection/954550/1920x1080,https://source.unsplash.com/collection/954550/1920x1081".split(",");
+        var random = Math.floor((Math.random() * imgUrls.length ));
+        if (imgUrls[random].startsWith('http') || imgUrls[random].indexOf('://') >= 0) {
+          document.getElementById("originBg").src=imgUrls[random];
+          document.getElementById("blurBg").src=imgUrls[random];
+        } else {
+          document.getElementById("originBg").src='/' + imgUrls[random];
+          document.getElementById("blurBg").src='/' + imgUrls[random];
+        }
+    </script>
+
+
 
 
 <header id="allheader" class="site-header" role="banner" 
-   >
+   style="width: 100%; position: absolute; top:0; background: rgba(255,255,255,.8);"  >
   <div class="clearfix container">
       <div class="site-branding">
 
@@ -189,13 +211,26 @@
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" class="article-title" itemprop="name">
+      JVM 锁膨胀机制深度剖析：自动化路径与开发者影响力
+    </h1>
+  
+
+      </header>
+    
     <div class="article-meta">
       
 	<a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/JVM%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90/" class="article-date">
 	  <time datetime="2026-03-26T16:11:16.679Z" itemprop="datePublished">March 27, 2026</time>
 	</a>
 
-       
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/2-Java/">2 - Java</a>, <a class="article-category-link" href="/categories/2-Java/2-1-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.1 - 多线程</a>
+ 
       
 	<span id="busuanzi_container_page_pv">
 	  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
@@ -204,9 +239,9 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="JVM-锁膨胀机制深度剖析：自动化路径与开发者影响力"><a href="#JVM-锁膨胀机制深度剖析：自动化路径与开发者影响力" class="headerlink" title="JVM 锁膨胀机制深度剖析：自动化路径与开发者影响力"></a>JVM 锁膨胀机制深度剖析：自动化路径与开发者影响力</h1><p>本篇文档旨在回答一个核心问题：<strong>在 <code>synchronized</code> 的世界里，究竟是 JVM 说了算，还是程序员的写法能改变命运？</strong></p>
+        <p>本篇文档旨在回答一个核心问题：<strong>在 <code>synchronized</code> 的世界里，究竟是 JVM 说了算，还是程序员的写法能改变命运？</strong></p>
 <hr>
-<h2 id="一、-锁升级的自动化流水线：JVM-的“自作主张”"><a href="#一、-锁升级的自动化流水线：JVM-的“自作主张”" class="headerlink" title="一、 锁升级的自动化流水线：JVM 的“自作主张”"></a>一、 锁升级的自动化流水线：JVM 的“自作主张”</h2><p>锁的膨胀过程（无锁 -&gt; 偏向锁 -&gt; 轻量级锁 -&gt; 重量级锁）确实是由 JVM <strong>自动管理</strong>的。程序员无法通过代码直接下令“请使用轻量级锁”，但 JVM 会根据底层硬件状态和实时竞争情况进行“自适应”决策。</p>
+<h2 id="一、-锁升级的自动化流水线：JVM-的“自作主张”"><a href="#一、-锁升级的自动化流水线：JVM-的“自作主张”" class="headerlink" title="一、 锁升级的自动化流水线：JVM 的“自作主张”"></a>一、 锁升级的自动化流水线：JVM 的“自作主张”</h2><p>锁的膨胀过程（无锁 -&gt; 偏向锁 -&gt; 轻量级锁 -&gt; 重量级锁）确实是由 JVM <strong>自动管理</strong>的。程序员无法通过代码直接下令“请使用轻量级锁”，但 JVM 会根据底层硬件状态 and 实时竞争情况进行“自适应”决策。</p>
 <h3 id="1-膨胀的决策链路"><a href="#1-膨胀的决策链路" class="headerlink" title="1. 膨胀的决策链路"></a>1. 膨胀的决策链路</h3><ol>
 <li><strong>偏向锁阶段</strong>：当一个线程进入 <code>synchronized</code> 时，JVM 检查对象头的 Mark Word。如果是空的，直接记录当前线程 ID。<strong>这是 JVM 对单线程场景的极致偏爱。</strong></li>
 <li><strong>轻量级锁阶段</strong>：当第二个线程试图获取锁， JVM 发现 Mark Word 里不是它，于是通过 <strong>CAS（Compare And Swap）</strong> 尝试抢夺。如果抢到了，说明竞争不激烈，维持在轻量级锁。</li>
@@ -253,6 +288,9 @@
     </div>
     <footer class="entry-meta entry-footer">
       
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/2-Java/">2 - Java</a>, <a class="article-category-link" href="/categories/2-Java/2-1-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.1 - 多线程</a>
+
       
       
         
@@ -299,7 +337,7 @@
   
     <a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Android%E5%B9%B6%E5%8F%91%E9%94%81%E9%9D%A2%E8%AF%95%E9%A2%98%E5%BA%93/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title"></div>
+      <div class="article-nav-title">Android 面试题库：深度解析并发锁机制与应用实践</div>
     </a>
   
 </nav>
@@ -313,7 +351,7 @@
     <div id="toc" class="toc-article">
     <strong class="toc-title">Contents</strong>
     
-      <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#JVM-%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90%EF%BC%9A%E8%87%AA%E5%8A%A8%E5%8C%96%E8%B7%AF%E5%BE%84%E4%B8%8E%E5%BC%80%E5%8F%91%E8%80%85%E5%BD%B1%E5%93%8D%E5%8A%9B"><span class="nav-number">1.</span> <span class="nav-text">JVM 锁膨胀机制深度剖析：自动化路径与开发者影响力</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81-%E9%94%81%E5%8D%87%E7%BA%A7%E7%9A%84%E8%87%AA%E5%8A%A8%E5%8C%96%E6%B5%81%E6%B0%B4%E7%BA%BF%EF%BC%9AJVM-%E7%9A%84%E2%80%9C%E8%87%AA%E4%BD%9C%E4%B8%BB%E5%BC%A0%E2%80%9D"><span class="nav-number">1.1.</span> <span class="nav-text">一、 锁升级的自动化流水线：JVM 的“自作主张”</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E8%86%A8%E8%83%80%E7%9A%84%E5%86%B3%E7%AD%96%E9%93%BE%E8%B7%AF"><span class="nav-number">1.1.1.</span> <span class="nav-text">1. 膨胀的决策链路</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81-%E7%A8%8B%E5%BA%8F%E5%91%98%E7%9A%84%E5%86%99%E6%B3%95%EF%BC%9A%E5%A6%82%E4%BD%95%E2%80%9C%E9%97%B4%E6%8E%A5%E2%80%9D%E6%8E%A7%E5%88%B6%E9%94%81%E7%9A%84%E5%91%BD%E8%BF%90%EF%BC%9F"><span class="nav-number">1.2.</span> <span class="nav-text">二、 程序员的写法：如何“间接”控制锁的命运？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E9%94%81%E7%9A%84%E7%B2%92%E5%BA%A6%EF%BC%88Granularity%EF%BC%89"><span class="nav-number">1.2.1.</span> <span class="nav-text">1. 锁的粒度（Granularity）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%8C%81%E9%94%81%E6%97%B6%E9%95%BF%EF%BC%88Hold-Time%EF%BC%89"><span class="nav-number">1.2.2.</span> <span class="nav-text">2. 持锁时长（Hold Time）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%AF%B9%E8%B1%A1%E9%87%8D%E7%94%A8%E4%B8%8E%E9%80%83%E9%80%B8%E5%88%86%E6%9E%90"><span class="nav-number">1.2.3.</span> <span class="nav-text">3. 对象重用与逃逸分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81-JVM-%E7%9A%84%E2%80%9C%E8%84%BE%E6%B0%94%E2%80%9D%EF%BC%9A%E4%BD%A0%E5%BF%85%E9%A1%BB%E7%9F%A5%E9%81%93%E7%9A%84%E6%BD%9C%E8%A7%84%E5%88%99"><span class="nav-number">1.3.</span> <span class="nav-text">三、 JVM 的“脾气”：你必须知道的潜规则</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%81%8F%E5%90%91%E9%94%81%E7%9A%84%E5%BB%B6%E8%BF%9F%E5%BC%80%E5%90%AF"><span class="nav-number">1.3.1.</span> <span class="nav-text">1. 偏向锁的延迟开启</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E9%94%81%E9%99%8D%E7%BA%A7%EF%BC%88%E7%BD%95%E8%A7%81%E7%8E%B0%E8%B1%A1%EF%BC%89"><span class="nav-number">1.3.2.</span> <span class="nav-text">2. 锁降级（罕见现象）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%8E%99-%E9%9D%A2%E8%AF%95%E5%AE%98%E8%BF%9B%E9%98%B6-Q-amp-A"><span class="nav-number">1.4.</span> <span class="nav-text">🎙 面试官进阶 Q&amp;A</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%93%8C-%E6%80%BB%E7%BB%93"><span class="nav-number">1.5.</span> <span class="nav-text">📌 总结</span></a></li></ol></li></ol>
+      <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81-%E9%94%81%E5%8D%87%E7%BA%A7%E7%9A%84%E8%87%AA%E5%8A%A8%E5%8C%96%E6%B5%81%E6%B0%B4%E7%BA%BF%EF%BC%9AJVM-%E7%9A%84%E2%80%9C%E8%87%AA%E4%BD%9C%E4%B8%BB%E5%BC%A0%E2%80%9D"><span class="nav-number">1.</span> <span class="nav-text">一、 锁升级的自动化流水线：JVM 的“自作主张”</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E8%86%A8%E8%83%80%E7%9A%84%E5%86%B3%E7%AD%96%E9%93%BE%E8%B7%AF"><span class="nav-number">1.1.</span> <span class="nav-text">1. 膨胀的决策链路</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81-%E7%A8%8B%E5%BA%8F%E5%91%98%E7%9A%84%E5%86%99%E6%B3%95%EF%BC%9A%E5%A6%82%E4%BD%95%E2%80%9C%E9%97%B4%E6%8E%A5%E2%80%9D%E6%8E%A7%E5%88%B6%E9%94%81%E7%9A%84%E5%91%BD%E8%BF%90%EF%BC%9F"><span class="nav-number">2.</span> <span class="nav-text">二、 程序员的写法：如何“间接”控制锁的命运？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E9%94%81%E7%9A%84%E7%B2%92%E5%BA%A6%EF%BC%88Granularity%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">1. 锁的粒度（Granularity）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%8C%81%E9%94%81%E6%97%B6%E9%95%BF%EF%BC%88Hold-Time%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">2. 持锁时长（Hold Time）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%AF%B9%E8%B1%A1%E9%87%8D%E7%94%A8%E4%B8%8E%E9%80%83%E9%80%B8%E5%88%86%E6%9E%90"><span class="nav-number">2.3.</span> <span class="nav-text">3. 对象重用与逃逸分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81-JVM-%E7%9A%84%E2%80%9C%E8%84%BE%E6%B0%94%E2%80%9D%EF%BC%9A%E4%BD%A0%E5%BF%85%E9%A1%BB%E7%9F%A5%E9%81%93%E7%9A%84%E6%BD%9C%E8%A7%84%E5%88%99"><span class="nav-number">3.</span> <span class="nav-text">三、 JVM 的“脾气”：你必须知道的潜规则</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%81%8F%E5%90%91%E9%94%81%E7%9A%84%E5%BB%B6%E8%BF%9F%E5%BC%80%E5%90%AF"><span class="nav-number">3.1.</span> <span class="nav-text">1. 偏向锁的延迟开启</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E9%94%81%E9%99%8D%E7%BA%A7%EF%BC%88%E7%BD%95%E8%A7%81%E7%8E%B0%E8%B1%A1%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">2. 锁降级（罕见现象）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%8E%99-%E9%9D%A2%E8%AF%95%E5%AE%98%E8%BF%9B%E9%98%B6-Q-amp-A"><span class="nav-number">4.</span> <span class="nav-text">🎙 面试官进阶 Q&amp;A</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%93%8C-%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">📌 总结</span></a></li></ol>
     
     </div>
   </aside>
@@ -366,6 +404,9 @@
 
 
     <!-- headerblur min height -->
+    
+      var headerblur = document.getElementById("header-blur");
+      headerblur.style.minHeight = window.getComputedStyle(document.getElementById("allheader"), null).height;
     
     
 </script>

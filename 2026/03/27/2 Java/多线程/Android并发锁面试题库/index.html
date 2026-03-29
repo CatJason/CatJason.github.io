@@ -3,21 +3,21 @@
 <head>
   <meta charset="utf-8">
   
-  <title>喵星科技报</title>
+  <title>Android 面试题库：深度解析并发锁机制与应用实践 | 喵星科技报</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
   
   
   
-  <meta name="description" content="Android 面试题库：深度解析并发锁机制与应用实践在 Android 高级开发面试中，并发锁是考察候选人底层功底、内存模型理解以及系统架构能力的核心考点。本文针对 Android 实际开发场景，系统性梳理了各种锁的原理与选型。  一、 Java 基础锁原语1. synchronized (内置锁&#x2F;监视器锁) 特性：自动获取&#x2F;释放、可重入、非公平。在现代 ART 虚拟机中经过">
+  <meta name="description" content="在 Android 高级开发面试中，并发锁是考察候选人底层功底、内存模型理解以及系统架构能力的核心考点。本文针对 Android 实际开发场景，系统性梳理了各种锁的原理与选型。  一、 Java 基础锁原语1. synchronized (内置锁&#x2F;监视器锁) 特性：自动获取&#x2F;释放、可重入、非公平。在现代 ART 虚拟机中经过了偏向锁、轻量级锁、重量级锁的膨胀优化。 面试考点：">
 <meta property="og:type" content="article">
-<meta property="og:title" content="喵星科技报">
+<meta property="og:title" content="Android 面试题库：深度解析并发锁机制与应用实践">
 <meta property="og:url" content="http://example.com/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Android%E5%B9%B6%E5%8F%91%E9%94%81%E9%9D%A2%E8%AF%95%E9%A2%98%E5%BA%93/index.html">
 <meta property="og:site_name" content="喵星科技报">
-<meta property="og:description" content="Android 面试题库：深度解析并发锁机制与应用实践在 Android 高级开发面试中，并发锁是考察候选人底层功底、内存模型理解以及系统架构能力的核心考点。本文针对 Android 实际开发场景，系统性梳理了各种锁的原理与选型。  一、 Java 基础锁原语1. synchronized (内置锁&#x2F;监视器锁) 特性：自动获取&#x2F;释放、可重入、非公平。在现代 ART 虚拟机中经过">
+<meta property="og:description" content="在 Android 高级开发面试中，并发锁是考察候选人底层功底、内存模型理解以及系统架构能力的核心考点。本文针对 Android 实际开发场景，系统性梳理了各种锁的原理与选型。  一、 Java 基础锁原语1. synchronized (内置锁&#x2F;监视器锁) 特性：自动获取&#x2F;释放、可重入、非公平。在现代 ART 虚拟机中经过了偏向锁、轻量级锁、重量级锁的膨胀优化。 面试考点：">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2026-03-26T16:11:05.365Z">
-<meta property="article:modified_time" content="2026-03-26T16:11:05.375Z">
+<meta property="article:modified_time" content="2026-03-29T09:21:37.662Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
   
@@ -139,10 +139,32 @@
 
 
   
+  
+  <div class="site-header-image">
+    <img id="originBg" width="100%" alt="Hike News" src="">
+  </div>
+
+  <div id="header-blur" class="site-header-image blur" style="position: absolute; top:0; height: 207px; min-height: 207px; min-width: 100%;">
+    <img id="blurBg" width="100%" style="top: 96%" alt="Hike News" src="">
+  </div>
+
+  <script>
+        var imgUrls = "css/images/pose01.jpg,https://source.unsplash.com/collection/954550/1920x1080,https://source.unsplash.com/collection/954550/1920x1081".split(",");
+        var random = Math.floor((Math.random() * imgUrls.length ));
+        if (imgUrls[random].startsWith('http') || imgUrls[random].indexOf('://') >= 0) {
+          document.getElementById("originBg").src=imgUrls[random];
+          document.getElementById("blurBg").src=imgUrls[random];
+        } else {
+          document.getElementById("originBg").src='/' + imgUrls[random];
+          document.getElementById("blurBg").src='/' + imgUrls[random];
+        }
+    </script>
+
+
 
 
 <header id="allheader" class="site-header" role="banner" 
-   >
+   style="width: 100%; position: absolute; top:0; background: rgba(255,255,255,.8);"  >
   <div class="clearfix container">
       <div class="site-branding">
 
@@ -189,13 +211,26 @@
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" class="article-title" itemprop="name">
+      Android 面试题库：深度解析并发锁机制与应用实践
+    </h1>
+  
+
+      </header>
+    
     <div class="article-meta">
       
 	<a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Android%E5%B9%B6%E5%8F%91%E9%94%81%E9%9D%A2%E8%AF%95%E9%A2%98%E5%BA%93/" class="article-date">
 	  <time datetime="2026-03-26T16:11:05.365Z" itemprop="datePublished">March 27, 2026</time>
 	</a>
 
-       
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/2-Java/">2 - Java</a>, <a class="article-category-link" href="/categories/2-Java/2-1-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.1 - 多线程</a>
+ 
       
 	<span id="busuanzi_container_page_pv">
 	  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
@@ -204,7 +239,7 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="Android-面试题库：深度解析并发锁机制与应用实践"><a href="#Android-面试题库：深度解析并发锁机制与应用实践" class="headerlink" title="Android 面试题库：深度解析并发锁机制与应用实践"></a>Android 面试题库：深度解析并发锁机制与应用实践</h1><p>在 Android 高级开发面试中，并发锁是考察候选人<strong>底层功底、内存模型理解以及系统架构能力</strong>的核心考点。本文针对 Android 实际开发场景，系统性梳理了各种锁的原理与选型。</p>
+        <p>在 Android 高级开发面试中，并发锁是考察候选人<strong>底层功底、内存模型理解以及系统架构能力</strong>的核心考点。本文针对 Android 实际开发场景，系统性梳理了各种锁的原理与选型。</p>
 <hr>
 <h2 id="一、-Java-基础锁原语"><a href="#一、-Java-基础锁原语" class="headerlink" title="一、 Java 基础锁原语"></a>一、 Java 基础锁原语</h2><h3 id="1-synchronized-内置锁-x2F-监视器锁"><a href="#1-synchronized-内置锁-x2F-监视器锁" class="headerlink" title="1. synchronized (内置锁&#x2F;监视器锁)"></a>1. <code>synchronized</code> (内置锁&#x2F;监视器锁)</h3><ul>
 <li><strong>特性</strong>：自动获取&#x2F;释放、可重入、非公平。在现代 ART 虚拟机中经过了偏向锁、轻量级锁、重量级锁的膨胀优化。</li>
@@ -319,6 +354,9 @@
     </div>
     <footer class="entry-meta entry-footer">
       
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/2-Java/">2 - Java</a>, <a class="article-category-link" href="/categories/2-Java/2-1-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.1 - 多线程</a>
+
       
       
         
@@ -357,7 +395,7 @@
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          (no title)
+          JVM 锁膨胀机制深度剖析：自动化路径与开发者影响力
         
       </div>
     </a>
@@ -365,7 +403,7 @@
   
     <a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Java%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title"></div>
+      <div class="article-nav-title">深度解析：Java 锁的膨胀机制（偏向锁、轻量级锁、重量级锁）</div>
     </a>
   
 </nav>
@@ -379,7 +417,7 @@
     <div id="toc" class="toc-article">
     <strong class="toc-title">Contents</strong>
     
-      <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Android-%E9%9D%A2%E8%AF%95%E9%A2%98%E5%BA%93%EF%BC%9A%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90%E5%B9%B6%E5%8F%91%E9%94%81%E6%9C%BA%E5%88%B6%E4%B8%8E%E5%BA%94%E7%94%A8%E5%AE%9E%E8%B7%B5"><span class="nav-number">1.</span> <span class="nav-text">Android 面试题库：深度解析并发锁机制与应用实践</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81-Java-%E5%9F%BA%E7%A1%80%E9%94%81%E5%8E%9F%E8%AF%AD"><span class="nav-number">1.1.</span> <span class="nav-text">一、 Java 基础锁原语</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-synchronized-%E5%86%85%E7%BD%AE%E9%94%81-x2F-%E7%9B%91%E8%A7%86%E5%99%A8%E9%94%81"><span class="nav-number">1.1.1.</span> <span class="nav-text">1. synchronized (内置锁&#x2F;监视器锁)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-ReentrantLock-%E6%98%BE%E7%A4%BA%E9%94%81"><span class="nav-number">1.1.2.</span> <span class="nav-text">2. ReentrantLock (显示锁)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81-%E8%AF%BB%E5%86%99%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E9%94%81"><span class="nav-number">1.2.</span> <span class="nav-text">二、 读写与性能优化锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-ReentrantReadWriteLock-%E8%AF%BB%E5%86%99%E9%94%81"><span class="nav-number">1.2.1.</span> <span class="nav-text">3. ReentrantReadWriteLock (读写锁)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-StampedLock-%E4%B9%90%E8%A7%82%E8%AF%BB%E9%94%81"><span class="nav-number">1.2.2.</span> <span class="nav-text">4. StampedLock (乐观读锁)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81-%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C%E4%B8%8E%E8%BD%BB%E9%87%8F%E7%BA%A7%E5%90%8C%E6%AD%A5"><span class="nav-number">1.3.</span> <span class="nav-text">三、 原子操作与轻量级同步</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-CAS-Compare-And-Swap"><span class="nav-number">1.3.1.</span> <span class="nav-text">5. CAS (Compare And Swap)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-volatile-%E5%85%B3%E9%94%AE%E5%AD%97"><span class="nav-number">1.3.2.</span> <span class="nav-text">6. volatile 关键字</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81-Android-%E5%9C%BA%E6%99%AF%E4%B8%8B%E7%9A%84%E7%89%B9%E6%9C%89%E5%BA%94%E7%94%A8"><span class="nav-number">1.4.</span> <span class="nav-text">四、 Android 场景下的特有应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-%E6%B8%B2%E6%9F%93%E9%93%BE%E8%B7%AF%E5%90%8C%E6%AD%A5-%E6%9C%AC%E9%A1%B9%E7%9B%AE%E6%A0%B8%E5%BF%83"><span class="nav-number">1.4.1.</span> <span class="nav-text">7. 渲染链路同步 (本项目核心)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-%E9%94%81%E7%9A%84%E9%80%89%E5%9E%8B%E6%8C%87%E5%8D%97-%E6%A8%AA%E5%90%91%E5%AF%B9%E6%AF%94"><span class="nav-number">1.4.2.</span> <span class="nav-text">8. 锁的选型指南 (横向对比)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81-%E8%B5%84%E6%B7%B1%E9%9D%A2%E8%AF%95%E5%AE%98%E8%BF%9B%E9%98%B6%E8%BF%BD%E9%97%AE"><span class="nav-number">1.5.</span> <span class="nav-text">五、 资深面试官进阶追问</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%93%8C-%E6%80%BB%E7%BB%93"><span class="nav-number">1.6.</span> <span class="nav-text">📌 总结</span></a></li></ol></li></ol>
+      <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81-Java-%E5%9F%BA%E7%A1%80%E9%94%81%E5%8E%9F%E8%AF%AD"><span class="nav-number">1.</span> <span class="nav-text">一、 Java 基础锁原语</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-synchronized-%E5%86%85%E7%BD%AE%E9%94%81-x2F-%E7%9B%91%E8%A7%86%E5%99%A8%E9%94%81"><span class="nav-number">1.1.</span> <span class="nav-text">1. synchronized (内置锁&#x2F;监视器锁)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-ReentrantLock-%E6%98%BE%E7%A4%BA%E9%94%81"><span class="nav-number">1.2.</span> <span class="nav-text">2. ReentrantLock (显示锁)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81-%E8%AF%BB%E5%86%99%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E9%94%81"><span class="nav-number">2.</span> <span class="nav-text">二、 读写与性能优化锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-ReentrantReadWriteLock-%E8%AF%BB%E5%86%99%E9%94%81"><span class="nav-number">2.1.</span> <span class="nav-text">3. ReentrantReadWriteLock (读写锁)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-StampedLock-%E4%B9%90%E8%A7%82%E8%AF%BB%E9%94%81"><span class="nav-number">2.2.</span> <span class="nav-text">4. StampedLock (乐观读锁)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81-%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C%E4%B8%8E%E8%BD%BB%E9%87%8F%E7%BA%A7%E5%90%8C%E6%AD%A5"><span class="nav-number">3.</span> <span class="nav-text">三、 原子操作与轻量级同步</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-CAS-Compare-And-Swap"><span class="nav-number">3.1.</span> <span class="nav-text">5. CAS (Compare And Swap)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-volatile-%E5%85%B3%E9%94%AE%E5%AD%97"><span class="nav-number">3.2.</span> <span class="nav-text">6. volatile 关键字</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81-Android-%E5%9C%BA%E6%99%AF%E4%B8%8B%E7%9A%84%E7%89%B9%E6%9C%89%E5%BA%94%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">四、 Android 场景下的特有应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-%E6%B8%B2%E6%9F%93%E9%93%BE%E8%B7%AF%E5%90%8C%E6%AD%A5-%E6%9C%AC%E9%A1%B9%E7%9B%AE%E6%A0%B8%E5%BF%83"><span class="nav-number">4.1.</span> <span class="nav-text">7. 渲染链路同步 (本项目核心)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-%E9%94%81%E7%9A%84%E9%80%89%E5%9E%8B%E6%8C%87%E5%8D%97-%E6%A8%AA%E5%90%91%E5%AF%B9%E6%AF%94"><span class="nav-number">4.2.</span> <span class="nav-text">8. 锁的选型指南 (横向对比)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81-%E8%B5%84%E6%B7%B1%E9%9D%A2%E8%AF%95%E5%AE%98%E8%BF%9B%E9%98%B6%E8%BF%BD%E9%97%AE"><span class="nav-number">5.</span> <span class="nav-text">五、 资深面试官进阶追问</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%93%8C-%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">📌 总结</span></a></li></ol>
     
     </div>
   </aside>
@@ -432,6 +470,9 @@
 
 
     <!-- headerblur min height -->
+    
+      var headerblur = document.getElementById("header-blur");
+      headerblur.style.minHeight = window.getComputedStyle(document.getElementById("allheader"), null).height;
     
     
 </script>
