@@ -710,6 +710,94 @@
 <!-- Table of Contents -->
 
   
+    <article id="post-1 Kotlin/01 Kotlin 协程/协程中的取消和异常 （取消操作详解）"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2023/08/11/1%20Kotlin/01%20Kotlin%20%E5%8D%8F%E7%A8%8B/%E5%8D%8F%E7%A8%8B%E4%B8%AD%E7%9A%84%E5%8F%96%E6%B6%88%E5%92%8C%E5%BC%82%E5%B8%B8%20%EF%BC%88%E5%8F%96%E6%B6%88%E6%93%8D%E4%BD%9C%E8%AF%A6%E8%A7%A3%EF%BC%89/">协程中的取消与异常：取消操作详解</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/11/1%20Kotlin/01%20Kotlin%20%E5%8D%8F%E7%A8%8B/%E5%8D%8F%E7%A8%8B%E4%B8%AD%E7%9A%84%E5%8F%96%E6%B6%88%E5%92%8C%E5%BC%82%E5%B8%B8%20%EF%BC%88%E5%8F%96%E6%B6%88%E6%93%8D%E4%BD%9C%E8%AF%A6%E8%A7%A3%EF%BC%89/" class="article-date">
+	  <time datetime="2023-08-10T23:19:12.000Z" itemprop="datePublished">August 11, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在 Android 开发中，及时取消不再需要的协程对于节约设备电量和内存至关重要。协程的取消并非“强制杀死”，而是一种<strong>协作式（Cooperative）</strong>的过程。</p>
+<hr>
+<h3 id="1-取消的层级特性"><a href="#1-取消的层级特性" class="headerlink" title="1. 取消的层级特性"></a>1. 取消的层级特性</h3><h4 id="取消作用域会取消其所有子协程"><a href="#取消作用域会取消其所有子协程" class="headerlink" title="取消作用域会取消其所有子协程"></a>取消作用域会取消其所有子协程</h4><p>当你取消一个 <code>CoroutineScope</code> 时，它会传播并取消该作用域下启动的所有子协程。这在 Activity 销毁时批量清理任务非常有用。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 假设 scope 是一个已经定义好的作用域</span></span><br><span class="line"><span class="keyword">val</span> job1 = scope.launch &#123; <span class="comment">/* ... */</span> &#125;</span><br><span class="line"><span class="keyword">val</span> job2 = scope.launch &#123; <span class="comment">/* ... */</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 取消作用域，job1 和 job2 都会被取消</span></span><br><span class="line">scope.cancel()</span><br></pre></td></tr></table></figure>
+
+<h4 id="单独取消某个协程不影响兄弟协程"><a href="#单独取消某个协程不影响兄弟协程" class="headerlink" title="单独取消某个协程不影响兄弟协程"></a>单独取消某个协程不影响兄弟协程</h4><p>如果你只想停止某个特定的任务，可以单独调用该 Job 的 <code>cancel()</code> 方法，这不会影响同一个作用域下的其他协程。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> job1 = scope.launch &#123; <span class="comment">/* ... */</span> &#125;</span><br><span class="line"><span class="keyword">val</span> job2 = scope.launch &#123; <span class="comment">/* ... */</span> &#125;</span><br><span class="line"> </span><br><span class="line"><span class="comment">// 只取消第一个协程，第二个不受影响</span></span><br><span class="line">job1.cancel()</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="2-取消的底层机制：CancellationException"><a href="#2-取消的底层机制：CancellationException" class="headerlink" title="2. 取消的底层机制：CancellationException"></a>2. 取消的底层机制：CancellationException</h3><p>协程通过抛出一个特殊的异常 <code>CancellationException</code> 来处理取消。</p>
+<ul>
+<li>调用 <code>cancel()</code> 时可以传入原因。</li>
+<li>这是一个静默异常，<strong>不会导致应用崩溃</strong>，但它会沿着协程树向上通知父协程，向下取消子协程。</li>
+</ul>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 源码逻辑片段</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">cancel</span><span class="params">(cause: <span class="type">CancellationException</span>?)</span></span> &#123;</span><br><span class="line">    cancelInternal(cause ?: defaultCancellationException())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="3-为什么我的协程调用了-cancel-却没有停止？"><a href="#3-为什么我的协程调用了-cancel-却没有停止？" class="headerlink" title="3. 为什么我的协程调用了 cancel 却没有停止？"></a>3. 为什么我的协程调用了 cancel 却没有停止？</h3><p>这是初学者最常遇到的坑。协程的取消是<strong>协作式</strong>的。如果你的代码正在执行密集的计算任务且没有检查取消状态，它会一直运行直到任务结束。</p>
+<h4 id="错误示例：不可取消的协程"><a href="#错误示例：不可取消的协程" class="headerlink" title="错误示例：不可取消的协程"></a>错误示例：不可取消的协程</h4><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> job = launch(Dispatchers.Default) &#123;</span><br><span class="line">    <span class="keyword">var</span> i = <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> (i &lt; <span class="number">5</span>) &#123; <span class="comment">// 没有任何地方检查取消状态</span></span><br><span class="line">        <span class="keyword">if</span> (System.currentTimeMillis() &gt;= nextTime) &#123;</span><br><span class="line">            println(<span class="string">&quot;这是第<span class="subst">$&#123;i&#125;</span>次&quot;</span>)</span><br><span class="line">            i++</span><br><span class="line">            nextTime += <span class="number">1000</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">delay(<span class="number">1000</span>)</span><br><span class="line">job.cancel() <span class="comment">// 调用了取消，但上面的 while 循环依然会跑完</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="4-如何让协程变得“可取消”？"><a href="#4-如何让协程变得“可取消”？" class="headerlink" title="4. 如何让协程变得“可取消”？"></a>4. 如何让协程变得“可取消”？</h3><p>要让协程支持取消，你需要定期检查其活跃状态。</p>
+<h4 id="方法-A：检查-isActive-或-ensureActive"><a href="#方法-A：检查-isActive-或-ensureActive" class="headerlink" title="方法 A：检查 isActive 或 ensureActive()"></a>方法 A：检查 <code>isActive</code> 或 <code>ensureActive()</code></h4><p>在循环体中检查 <code>isActive</code> 状态。<code>ensureActive()</code> 的好处是它会在已取消时直接抛出异常。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> job = launch(Dispatchers.Default) &#123;</span><br><span class="line">    <span class="keyword">while</span> (i &lt; <span class="number">5</span> &amp;&amp; isActive) &#123; <span class="comment">// 检查 isActive</span></span><br><span class="line">        <span class="comment">// 执行任务...</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="方法-B：使用-yield"><a href="#方法-B：使用-yield" class="headerlink" title="方法 B：使用 yield()"></a>方法 B：使用 <code>yield()</code></h4><p><code>yield()</code> 会检查当前协程是否已取消。如果是，则抛出 <code>CancellationException</code>。此外，它还会让出 CPU 资源，让其他协程有机会运行。</p>
+<h4 id="方法-C：调用挂起函数"><a href="#方法-C：调用挂起函数" class="headerlink" title="方法 C：调用挂起函数"></a>方法 C：调用挂起函数</h4><p>绝大多数官方挂起函数（如 <code>delay()</code>, <code>withContext()</code>, <code>await()</code>）都是<strong>可取消的</strong>。它们在执行前都会自动检查取消状态。</p>
+<hr>
+<h3 id="5-处理取消后的清理工作"><a href="#5-处理取消后的清理工作" class="headerlink" title="5. 处理取消后的清理工作"></a>5. 处理取消后的清理工作</h3><p>当协程被取消时，你可能需要释放资源或打印日志。</p>
+<h4 id="使用-try-finally"><a href="#使用-try-finally" class="headerlink" title="使用 try-finally"></a>使用 <code>try-finally</code></h4><p>由于取消会抛出异常，<code>finally</code> 块是执行清理逻辑的最佳场所。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> job = launch &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        doWork()</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="comment">// 无论是否被取消，这里都会执行</span></span><br><span class="line">        println(<span class="string">&quot;清理资源...&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="特殊场景：在取消后仍需执行挂起函数"><a href="#特殊场景：在取消后仍需执行挂起函数" class="headerlink" title="特殊场景：在取消后仍需执行挂起函数"></a>特殊场景：在取消后仍需执行挂起函数</h4><p>默认情况下，已经取消的协程无法再次挂起。如果你必须在 <code>finally</code> 中调用挂起函数（例如关闭数据库连接），需要将其包装在 <code>NonCancellable</code> 上下文中：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">finally</span> &#123;</span><br><span class="line">    withContext(NonCancellable) &#123;</span><br><span class="line">        delay(<span class="number">1000L</span>) <span class="comment">// 在已取消的协程中仍能正常挂起</span></span><br><span class="line">        println(<span class="string">&quot;清理完成&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="6-核心面试考点总结"><a href="#6-核心面试考点总结" class="headerlink" title="6. 核心面试考点总结"></a>6. 核心面试考点总结</h3><ol>
+<li><strong>取消是协作的</strong>：协程不会被强行停止，必须在代码中检查 <code>isActive</code> 或调用挂起函数。</li>
+<li><strong>join vs cancel</strong>：调用 <code>cancel()</code> 只是发出取消指令，协程可能还在运行；调用 <code>cancelAndJoin()</code> 则会挂起当前协程，直到目标协程彻底结束。</li>
+<li><strong>NonCancellable 的用途</strong>：专门用于清理逻辑中需要调用挂起函数的场景。</li>
+</ol>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
     <article id="post-1 Kotlin/02 Kotlin 基础/Kotlin中有哪些类"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
@@ -837,7 +925,7 @@
         
   
     <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2023/08/11/1%20Kotlin/01%20Kotlin%20%E5%8D%8F%E7%A8%8B/Kotlin%20%E7%9A%84%E5%8D%8F%E7%A8%8B%E6%9C%AC%E8%B4%A8%E5%88%B0%E5%BA%95%E4%BB%80%E4%B9%88/">Kotlin 的协程本质到底什么</a>
+      <a class="article-title" href="/2023/08/11/1%20Kotlin/01%20Kotlin%20%E5%8D%8F%E7%A8%8B/Kotlin%20%E7%9A%84%E5%8D%8F%E7%A8%8B%E6%9C%AC%E8%B4%A8%E5%88%B0%E5%BA%95%E4%BB%80%E4%B9%88/">协程核心概念的理解与应用(一)--翻译翻译什么是 CoroutineScope</a>
     </h1>
   
 
@@ -846,157 +934,6 @@
     <div class="article-meta">
       
 	<a href="/2023/08/11/1%20Kotlin/01%20Kotlin%20%E5%8D%8F%E7%A8%8B/Kotlin%20%E7%9A%84%E5%8D%8F%E7%A8%8B%E6%9C%AC%E8%B4%A8%E5%88%B0%E5%BA%95%E4%BB%80%E4%B9%88/" class="article-date">
-	  <time datetime="2023-08-10T23:19:04.000Z" itemprop="datePublished">August 11, 2023</time>
-	</a>
-
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a>
- 
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>几乎就是用阻塞的写法来完成非阻塞的任务。<br>Kotlin-JVM中所谓的协程是假协程<br>Kotlin-JVM中所谓的 协程挂起 ，就是开启了一个子线程去执行任务</p>
-<p>对于Java来说，不管你用什么方法，只要你没有魔改JVM，那么最终你代码里start几个线程，操作系统就会创建几个线程，是1比1的关系。<br>Kotlin官网中那个创建10w个Kotlin协程没有oom的例子其实有误导性，本质上那10w个Kotlin协程就是10w个并发任务仅此而已，他下面运行的就是一个单线程的线程池。你往一个线程池里面丢多少个任务都不会OOM的（前提是你的线程池创建的时候设定了对应的拒绝策略，否则无界队列下，任务过多一定会OOM），因为在运行的始终是那几个线程。</p>
-<p>创建协程的方式有五种：</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">GlobalScope<span class="selector-class">.launch</span>&#123;&#125;</span><br><span class="line">launch&#123;&#125;</span><br><span class="line">runBlocking&#123;&#125;</span><br><span class="line">coroutineScope&#123;&#125;</span><br><span class="line">async&#123;&#125;</span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a>
-
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
-    <article id="post-1 Kotlin/01 Kotlin 协程/协程中的取消和异常 （取消操作详解）"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2023/08/11/1%20Kotlin/01%20Kotlin%20%E5%8D%8F%E7%A8%8B/%E5%8D%8F%E7%A8%8B%E4%B8%AD%E7%9A%84%E5%8F%96%E6%B6%88%E5%92%8C%E5%BC%82%E5%B8%B8%20%EF%BC%88%E5%8F%96%E6%B6%88%E6%93%8D%E4%BD%9C%E8%AF%A6%E8%A7%A3%EF%BC%89/">协程中的取消和异常 （取消操作详解）</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2023/08/11/1%20Kotlin/01%20Kotlin%20%E5%8D%8F%E7%A8%8B/%E5%8D%8F%E7%A8%8B%E4%B8%AD%E7%9A%84%E5%8F%96%E6%B6%88%E5%92%8C%E5%BC%82%E5%B8%B8%20%EF%BC%88%E5%8F%96%E6%B6%88%E6%93%8D%E4%BD%9C%E8%AF%A6%E8%A7%A3%EF%BC%89/" class="article-date">
-	  <time datetime="2023-08-10T23:19:12.000Z" itemprop="datePublished">August 11, 2023</time>
-	</a>
-
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a>
- 
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>在开发中，我们要避免不必要的的任务来节约设备的内存和电量的使用，协程也是如此。在使用的过程我们需要控制好它的生命周期，在不需要它的取消它。</p>
-<h3 id="调用cancel方法"><a href="#调用cancel方法" class="headerlink" title="调用cancel方法"></a>调用cancel方法</h3><h4 id="取消作用域会取消它的子协程"><a href="#取消作用域会取消它的子协程" class="headerlink" title="取消作用域会取消它的子协程"></a>取消作用域会取消它的子协程</h4><p>当启动了很多个协程，我们一个个协程的取消比较麻烦，我们可以通过取消整个作用域来解决这个问题，因为取消作用域可以取消该作用域创建的所有协程。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/ 假设我们已经定义了一个作用域</span><br><span class="line"></span><br><span class="line"><span class="type">val</span> <span class="variable">job1</span> <span class="operator">=</span> scope.launch &#123; … &#125;</span><br><span class="line"><span class="type">val</span> <span class="variable">job2</span> <span class="operator">=</span> scope.launch &#123; … &#125;</span><br><span class="line"></span><br><span class="line">scope.cancel()</span><br></pre></td></tr></table></figure>
-
-<p>假设我们创建了一个作用域scope,并创建了两个协程job1和job2。我们通过调用scope.cancel()，取消作用域，将会把job1 和job2两个协程都取消。</p>
-<h4 id="单独取消某个协程，不会影响他的兄弟协程"><a href="#单独取消某个协程，不会影响他的兄弟协程" class="headerlink" title="单独取消某个协程，不会影响他的兄弟协程"></a>单独取消某个协程，不会影响他的兄弟协程</h4><p>我们创建了两个协程，job1和job2.我们单独取消job1，不会影响到job2</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 假设我们已经定义了一个作用域</span></span><br><span class="line"></span><br><span class="line"><span class="type">val</span> <span class="variable">job1</span> <span class="operator">=</span> scope.launch &#123; … &#125;</span><br><span class="line"><span class="type">val</span> <span class="variable">job2</span> <span class="operator">=</span> scope.launch &#123; … &#125;</span><br><span class="line"> </span><br><span class="line"><span class="comment">// 第一个协程将会被取消，而另一个则不受任何影响</span></span><br><span class="line">job1.cancel()</span><br></pre></td></tr></table></figure>
-
-<h4 id="协程通过抛出一个特殊的异常-CancellationException-来处理取消操作"><a href="#协程通过抛出一个特殊的异常-CancellationException-来处理取消操作" class="headerlink" title="协程通过抛出一个特殊的异常 CancellationException 来处理取消操作"></a>协程通过抛出一个特殊的异常 CancellationException 来处理取消操作</h4><p>在调用cancel函数的时候，我们需要传入一个CancellationException对象,如果我们没有传入，那就用默认的defaultCancellationException。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// external cancel with cause, never invoked implicitly from internal machinery</span></span><br><span class="line">   <span class="keyword">public</span> override fun <span class="title function_">cancel</span><span class="params">(cause: CancellationException?)</span> &#123;</span><br><span class="line">       cancelInternal(cause ?: defaultCancellationException())</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
-
-<p>一旦抛出了CancellationException，我们就可以通过这一机制来处理协程的取消。在底层的实现中，子协程会通过抛出异常的方式将取消的情况通知它的父级，父协程通过传入的取消原因决定是否处理该异常。</p>
-<h4 id="不能在已取消的作用域中再次启动新的协程"><a href="#不能在已取消的作用域中再次启动新的协程" class="headerlink" title="不能在已取消的作用域中再次启动新的协程"></a>不能在已取消的作用域中再次启动新的协程</h4><h4 id="调用了-cancel-方法为什么协程处理的任务没有停止？"><a href="#调用了-cancel-方法为什么协程处理的任务没有停止？" class="headerlink" title="调用了 cancel 方法为什么协程处理的任务没有停止？"></a>调用了 cancel 方法为什么协程处理的任务没有停止？</h4><p>不同的Diapatcher不同的区别，下一篇文章将介绍。<br> 我们以Dispatchers.Default为例子</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> kotlinx.coroutines.*</span><br><span class="line"></span><br><span class="line">suspend fun <span class="title function_">main</span><span class="params">()</span> = runBlocking &#123;</span><br><span class="line">    <span class="type">var</span> <span class="variable">startTime</span> <span class="operator">=</span> System.currentTimeMillis()</span><br><span class="line">    <span class="type">val</span> <span class="variable">job</span> <span class="operator">=</span> launch(Dispatchers.Default) &#123;</span><br><span class="line">        <span class="type">var</span> <span class="variable">nextTime</span> <span class="operator">=</span> startTime</span><br><span class="line">        <span class="type">var</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span></span><br><span class="line">        <span class="keyword">while</span> (i &lt; <span class="number">5</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (System.currentTimeMillis() &gt;= nextTime) &#123;</span><br><span class="line">                println(<span class="string">&quot;这是第$&#123;i&#125;次&quot;</span>)</span><br><span class="line">                i++</span><br><span class="line">                <span class="comment">//1000毫秒执行一次</span></span><br><span class="line">                nextTime += <span class="number">1000</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    delay(<span class="number">1000</span>)</span><br><span class="line">    println(<span class="string">&quot;取消&quot;</span>)</span><br><span class="line">    job.cancel()</span><br><span class="line">    println(<span class="string">&quot;取消完毕&quot;</span>)</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">这是第<span class="number">0</span>次</span><br><span class="line">这是第<span class="number">1</span>次</span><br><span class="line">取消</span><br><span class="line">取消完毕</span><br><span class="line">这是第<span class="number">2</span>次</span><br><span class="line">这是第<span class="number">3</span>次</span><br><span class="line">这是第<span class="number">4</span>次</span><br></pre></td></tr></table></figure>
-
-<p>调用cancel方法之后，协程的任务依然在运行。调用cancel方法的时候，此时协程处于cancelling正在取消的状态，接着我们打印了2，3，4，处理任务结束之后，协程变成cancelled已经取消的状态，这是以Default举例，Default调度会等待协程任务处理完毕才取消。</p>
-<h4 id="让协程可以被取消"><a href="#让协程可以被取消" class="headerlink" title="让协程可以被取消"></a>让协程可以被取消</h4><p>协程处理任务都是协作式的，协作的意思就是我们的处理任务要配合协程取消做处理。因此在执行任务期间我们要定时检查协程的状态是否已经取消，例如我们从磁盘读取文件之前我们先检查协程是否被取消了。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">val</span> <span class="variable">job</span> <span class="operator">=</span> launch &#123;</span><br><span class="line">    <span class="keyword">for</span>(file in files) &#123;</span><br><span class="line">        <span class="comment">// TODO 检查协程是否被取消</span></span><br><span class="line">        readFile(file)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>协程中的挂起函数都是可取消的，使用他们的时候，我们不需要检查协程是否已取消。例如withContext，delay 。如果没有这些挂起函数，为了让我们的代码配合协程取消，可以使用一下两种方法：</p>
-<ul>
-<li>检查 job.isActive 或者使用 ensureActive()</li>
-<li>使用 yield() 来让其他任务进行</li>
-</ul>
-<h4 id="检查-job-的活跃状态"><a href="#检查-job-的活跃状态" class="headerlink" title="检查 job 的活跃状态"></a>检查 job 的活跃状态</h4><p>先看一下第一种方法，在我们的 while(i&lt;5) 循环中添加对于协程状态的检查:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 因为处于 launch 的代码块中，可以访问到 job.isActive 属性</span></span><br><span class="line"><span class="keyword">while</span> (i &lt; <span class="number">5</span> &amp;&amp; isActive)</span><br></pre></td></tr></table></figure>
-
-<h4 id="使用-yield-函数运行其他任务"><a href="#使用-yield-函数运行其他任务" class="headerlink" title="使用 yield() 函数运行其他任务"></a>使用 yield() 函数运行其他任务</h4><h4 id="Job-join-和-Deferred-await-cancellation"><a href="#Job-join-和-Deferred-await-cancellation" class="headerlink" title="Job.join 和 Deferred.await cancellation"></a>Job.join 和 Deferred.await cancellation</h4><p>等待协程处理结果有两种方法，launch启动的job可以调用join，async 返回的Deferred 可以调用await方法</p>
-<ul>
-<li>job.join会让协程挂起，直到等待协程处理任务完毕，我们可以配合cancel使用</li>
-<li>deferred.await()如果我们关心协程的处理结果，我们可以使用deferred。结果由deferred.await返回。也是job类型，也可以被取消。</li>
-</ul>
-<h4 id="处理协程取消的副作用"><a href="#处理协程取消的副作用" class="headerlink" title="处理协程取消的副作用"></a>处理协程取消的副作用</h4><p>当我们需要在协程取消 后处理一些清理的工作，或者做一些打印日志。我们有几种办法：</p>
-<ul>
-<li>通过检查协程的状态</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> (i &lt; <span class="number">5</span> &amp;&amp; isActive) &#123;</span><br><span class="line">    <span class="keyword">if</span> (…) &#123;</span><br><span class="line">        println(“Hello $&#123;i++&#125;”)</span><br><span class="line">        nextPrintTime += <span class="number">500L</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="comment">// 协程所处理的任务已经完成，因此我们可以做一些清理工作</span></span><br><span class="line">println(“Clean up!”</span><br></pre></td></tr></table></figure>
-
-<p>当判断协程不是isActive状态的时候，我们可以做一些清理</p>
-<ul>
-<li>try catch finally<br> 我们知道协程的取消会抛出CancellationException 异常，我们可以在协程提中使用try catch finally，在finally中做我们的一些清理的工作，或者打印日志</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">val</span> <span class="variable">job</span> <span class="operator">=</span> launch &#123;</span><br><span class="line">   <span class="keyword">try</span> &#123;</span><br><span class="line">      work()</span><br><span class="line">   &#125; <span class="keyword">catch</span> (e: CancellationException)&#123;</span><br><span class="line">      println(“Work cancelled!”)</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">      println(“Clean up!”)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">delay(<span class="number">1000L</span>)</span><br><span class="line">println(“Cancel!”)</span><br><span class="line">job.cancel()</span><br><span class="line">println(“Done!</span><br></pre></td></tr></table></figure>
-
-<h4 id="已经取消的协程，不能再被挂起"><a href="#已经取消的协程，不能再被挂起" class="headerlink" title="已经取消的协程，不能再被挂起"></a>已经取消的协程，不能再被挂起</h4><p>已经取消的协程，不能再被挂起，但是当我们需要在取消的协程中调用挂起函数，那么我们可以在finally中使用NonCancellable ，意思是让协程挂起，直到处理挂起函数中的代码完毕，协程才会取消。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">val</span> <span class="variable">job</span> <span class="operator">=</span> launch &#123;</span><br><span class="line">   <span class="keyword">try</span> &#123;</span><br><span class="line">      work()</span><br><span class="line">   &#125; <span class="keyword">catch</span> (e: CancellationException)&#123;</span><br><span class="line">      println(“Work cancelled!”)</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">      withContext(NonCancellable)&#123;</span><br><span class="line">         delay(<span class="number">1000L</span>) <span class="comment">// 或一些其他的挂起函数</span></span><br><span class="line">         println(“Cleanup done!”)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">delay(<span class="number">1000L</span>)</span><br><span class="line">println(“Cancel!”)</span><br><span class="line">job.cancel()</span><br><span class="line">println(“Done!</span><br></pre></td></tr></table></figure>
-
-<p>在jetpack中使用viewModelScope 或者lifecycleScope 中定义的作用域，他们在scope完成后取消他们的处理任务。如果我们手动创建自己的作用域CoroutineScope，我们需要协作协程，将我们的作用域和job绑定，在需要的时候取消。</p>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a>
-
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
-    <article id="post-1 Kotlin/01 Kotlin 协程/Kotlin 的协程本质到底什么 copy"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2023/08/11/1%20Kotlin/01%20Kotlin%20%E5%8D%8F%E7%A8%8B/Kotlin%20%E7%9A%84%E5%8D%8F%E7%A8%8B%E6%9C%AC%E8%B4%A8%E5%88%B0%E5%BA%95%E4%BB%80%E4%B9%88%20copy/">协程核心概念的理解与应用(一)--翻译翻译什么是 CoroutineScope</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2023/08/11/1%20Kotlin/01%20Kotlin%20%E5%8D%8F%E7%A8%8B/Kotlin%20%E7%9A%84%E5%8D%8F%E7%A8%8B%E6%9C%AC%E8%B4%A8%E5%88%B0%E5%BA%95%E4%BB%80%E4%B9%88%20copy/" class="article-date">
 	  <time datetime="2023-08-10T23:19:04.000Z" itemprop="datePublished">August 11, 2023</time>
 	</a>
 
@@ -1077,6 +1014,111 @@
       
 	<span class="ico-folder"></span>
     <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-2 Java/多线程/Java锁膨胀机制深度解析"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Java%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/">深度解析：Java 锁的膨胀机制（偏向锁、轻量级锁、重量级锁）</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Java%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/" class="article-date">
+	  <time datetime="2026-03-26T16:10:57.620Z" itemprop="datePublished">March 27, 2026</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/2-Java/">2 - Java</a>, <a class="article-category-link" href="/categories/2-Java/2-1-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.1 - 多线程</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在 Android 的 ART（Android Runtime）和 HotSpot JVM 中，<code>synchronized</code> 关键字的性能优化主要依赖于锁的<strong>膨胀（Inflation）机制</strong>。系统会根据竞争情况，自动在四种状态间转换：<strong>无锁 -&gt; 偏向锁 -&gt; 轻量级锁 -&gt; 重量级锁</strong>。</p>
+<hr>
+<h2 id="一、-锁状态的核心存储：Mark-Word"><a href="#一、-锁状态的核心存储：Mark-Word" class="headerlink" title="一、 锁状态的核心存储：Mark Word"></a>一、 锁状态的核心存储：Mark Word</h2><p>锁的信息存储在 Java 对象的<strong>对象头（Object Header）</strong>中的 <code>Mark Word</code> 字段里。</p>
+<ul>
+<li><strong>Mark Word</strong> 会根据锁状态的变化，复用自己的空间来存储：偏向线程 ID、指向栈中锁记录的指针、或指向互斥量（Monitor）的指针。</li>
+</ul>
+<hr>
+<h2 id="二、-四种锁状态详解"><a href="#二、-四种锁状态详解" class="headerlink" title="二、 四种锁状态详解"></a>二、 四种锁状态详解</h2><h3 id="1-偏向锁-Biased-Locking"><a href="#1-偏向锁-Biased-Locking" class="headerlink" title="1. 偏向锁 (Biased Locking)"></a>1. 偏向锁 (Biased Locking)</h3><ul>
+<li><strong>核心思想</strong>：假设锁总是由<strong>同一个线程</strong>多次获得，那么就没有必要进行同步操作（如 CAS）。</li>
+<li><strong>实现</strong>：在 Mark Word 中记录当前线程的 ID。下次该线程进入时，只需检查 ID 是否一致，完全不需要 CPU 原子指令。</li>
+<li><strong>优缺点</strong>：<ul>
+<li><strong>优点</strong>：单线程执行临界区代码时，性能接近无锁。</li>
+<li><strong>缺点</strong>：一旦出现另一个线程竞争，撤销偏向锁会产生较大的性能开销（需要等待全局安全点 Safe Point）。</li>
+</ul>
+</li>
+<li><strong>Android 现状</strong>：在 Android ART 中，偏向锁的实现逻辑与 HotSpot 略有不同，但在高版本中出于简化系统和减少 Safe Point 停顿的考虑，偏向锁的使用逐渐被弱化甚至在某些场景下默认关闭。</li>
+</ul>
+<h3 id="2-轻量级锁-Lightweight-Locking"><a href="#2-轻量级锁-Lightweight-Locking" class="headerlink" title="2. 轻量级锁 (Lightweight Locking)"></a>2. 轻量级锁 (Lightweight Locking)</h3><ul>
+<li><strong>触发时机</strong>：当偏向锁被撤销，或者有第二个线程尝试获取锁（但竞争不激烈）时。</li>
+<li><strong>实现</strong>：线程在自己的<strong>虚拟机栈</strong>中创建一个名为“锁记录（Lock Record）”的空间，尝试用 <strong>CAS</strong> 操作将对象的 Mark Word 指向这个记录。</li>
+<li><strong>自旋优化</strong>：如果 CAS 失败，线程不会立即阻塞，而是执行一段<strong>自旋（Spinning）</strong>循环，期望持锁线程能迅速释放。</li>
+<li><strong>优点</strong>：避免了操作系统内核态与用户态切换的昂贵开销。</li>
+</ul>
+<h3 id="3-重量级锁-Heavyweight-Locking"><a href="#3-重量级锁-Heavyweight-Locking" class="headerlink" title="3. 重量级锁 (Heavyweight Locking)"></a>3. 重量级锁 (Heavyweight Locking)</h3><ul>
+<li><strong>触发时机</strong>：竞争激烈。如果自旋超过一定次数，或者在轻量级锁状态下又有第三个线程来抢锁。</li>
+<li><strong>实现</strong>：Mark Word 指向堆中的 <strong>Monitor（监视器）</strong> 对象。Monitor 依赖于操作系统的 <code>mutex</code> 指令。</li>
+<li><strong>行为</strong>：未能抢到锁的线程会被<strong>挂起（Park）</strong>，进入阻塞状态，等待操作系统唤醒。</li>
+<li><strong>代价</strong>：涉及内核态切换，上下文切换开销巨大。</li>
+</ul>
+<hr>
+<h2 id="三、-锁的升级（膨胀）流程图"><a href="#三、-锁的升级（膨胀）流程图" class="headerlink" title="三、 锁的升级（膨胀）流程图"></a>三、 锁的升级（膨胀）流程图</h2><ol>
+<li><strong>初始状态</strong>：对象处于“无锁”或“可偏向”状态。</li>
+<li><strong>偏向开启</strong>：线程 A 访问，Mark Word 记录 A 的 ID。</li>
+<li><strong>轻度竞争</strong>：线程 B 访问，发现 ID 不匹配。撤销偏向锁，升级为轻量级锁。</li>
+<li><strong>CAS 竞争</strong>：线程 A 和 B 通过 CAS 争夺锁记录指针。</li>
+<li><strong>激烈竞争</strong>：CAS 失败次数过多，轻量级锁膨胀为重量级锁，线程 B 进入阻塞队列。</li>
+</ol>
+<blockquote>
+<p><strong>注意</strong>：锁的升级通常是<strong>不可逆</strong>的（但在某些 JVM 实现中，在全局垃圾回收 GC 时可能会发生锁降级）。</p>
+</blockquote>
+<hr>
+<h2 id="四、-补充优化：锁消除与锁粗化"><a href="#四、-补充优化：锁消除与锁粗化" class="headerlink" title="四、 补充优化：锁消除与锁粗化"></a>四、 补充优化：锁消除与锁粗化</h2><p>除了状态膨胀，编译器（JIT）还做了以下两项神级优化：</p>
+<h3 id="1-锁消除-Lock-Elimination"><a href="#1-锁消除-Lock-Elimination" class="headerlink" title="1. 锁消除 (Lock Elimination)"></a>1. 锁消除 (Lock Elimination)</h3><ul>
+<li><strong>原理</strong>：通过<strong>逃逸分析</strong>，如果发现一个对象只会在当前线程内部使用（不会被其他线程看到），JIT 编译器会直接把 <code>synchronized</code> 去掉。</li>
+<li><strong>例子</strong>：在方法内部定义的 <code>StringBuffer.append()</code>。</li>
+</ul>
+<h3 id="2-锁粗化-Lock-Coarsening"><a href="#2-锁粗化-Lock-Coarsening" class="headerlink" title="2. 锁粗化 (Lock Coarsening)"></a>2. 锁粗化 (Lock Coarsening)</h3><ul>
+<li><strong>原理</strong>：如果一系列连续的操作都对同一个对象加锁（如循环内加锁），编译器会把加锁的范围扩大到整个操作序列外部，避免频繁开关锁。</li>
+</ul>
+<hr>
+<h2 id="🎙-面试考察点：资深级别回答"><a href="#🎙-面试考察点：资深级别回答" class="headerlink" title="🎙 面试考察点：资深级别回答"></a>🎙 面试考察点：资深级别回答</h2><p><strong>Q：既然重量级锁慢，为什么不一直用轻量级锁自旋？</strong></p>
+<ul>
+<li><strong>答</strong>：自旋是需要<strong>消耗 CPU 算力</strong>的（虽然没挂起，但 CPU 在跑空转指令）。如果持锁线程执行时间很长，让其他线程一直自旋会白白浪费大量 CPU 资源。因此，当自旋达到一定阈值（适应性自旋），必须膨胀为重量级锁，让竞争线程去“睡觉”（挂起），把 CPU 让给真正干活的线程。</li>
+</ul>
+<p><strong>Q：在 Android 开发中，这套机制给我们的启示是什么？</strong></p>
+<ul>
+<li><strong>答</strong>：1. 尽量减少锁的竞争范围（减小临界区）。2. 对于高频调用的代码，优先使用无锁结构（CAS&#x2F;Atomic），因为一旦膨胀到重量级锁，在移动端有限的算力下，性能损耗非常直观。</li>
+</ul>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/2-Java/">2 - Java</a>, <a class="article-category-link" href="/categories/2-Java/2-1-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.1 - 多线程</a>
 
       
       
@@ -1201,8 +1243,8 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2026/03/27/1%20Kotlin/02%20Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%20%E6%B3%9B%E5%9E%8B%E8%BF%9B%E9%98%B6%EF%BC%9Ain,%20out%20%E4%B8%8E%20reified/">Kotlin 泛型进阶：in, out 与 reified</a></h6>
-              <span>March 27, 2026</span>
+              <h6 style="margin: 0;"><a href="/2026/03/29/3%20Android/02%20Framework/04%20Binder/04-Android-Framework-%E4%B8%93%E9%A1%B9-IPC-Binder-%E6%9C%BA%E5%88%B61/">Android Framework 专项 - IPC Binder 机制（一）</a></h6>
+              <span>March 29, 2026</span>
             </div>
 
           </li>
@@ -1213,8 +1255,8 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/JVM%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90/">JVM 锁膨胀机制深度剖析：自动化路径与开发者影响力</a></h6>
-              <span>March 27, 2026</span>
+              <h6 style="margin: 0;"><a href="/2026/03/29/3%20Android/02%20Framework/03%20Binder/04-Android-Framework-%E4%B8%93%E9%A1%B9-IPC-Binder-%E6%9C%BA%E5%88%B61/">Android Framework 专项 - IPC Binder 机制（一）</a></h6>
+              <span>March 29, 2026</span>
             </div>
 
           </li>
@@ -1225,8 +1267,8 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Android%E5%B9%B6%E5%8F%91%E9%94%81%E9%9D%A2%E8%AF%95%E9%A2%98%E5%BA%93/">Android 面试题库：深度解析并发锁机制与应用实践</a></h6>
-              <span>March 27, 2026</span>
+              <h6 style="margin: 0;"><a href="/2026/03/29/3%20Android/02%20Framework/02%20AMS/06-Android-Framework-AMS%E4%B8%93%E9%A1%B9-Activity%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E4%BA%8B%E5%8A%A1%E5%B0%81%E8%A3%85/">Activity 生命周期事务封装 (ClientTransaction)</a></h6>
+              <span>March 29, 2026</span>
             </div>
 
           </li>
@@ -1237,8 +1279,8 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Java%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/">深度解析：Java 锁的膨胀机制（偏向锁、轻量级锁、重量级锁）</a></h6>
-              <span>March 27, 2026</span>
+              <h6 style="margin: 0;"><a href="/2026/03/29/3%20Android/02%20Framework/02%20AMS/05-Android-Framework-AMS%E4%B8%93%E9%A1%B9-Activity%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/">Activity 启动的整体流程与第一个阶段解读参数</a></h6>
+              <span>March 29, 2026</span>
             </div>
 
           </li>
@@ -1249,8 +1291,8 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2025/02/05/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/03%20%E5%AE%9E%E6%97%B6%E6%B8%B2%E6%9F%93/01%20%E7%BB%98%E5%88%B6%E7%AC%AC%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/">实时渲染（一）绘制一个三角形</a></h6>
-              <span>February 5, 2025</span>
+              <h6 style="margin: 0;"><a href="/2026/03/29/3%20Android/02%20Framework/01%20Handler/03-Android-Framework-%E4%B8%93%E9%A1%B9-Handler3/">Android Framework 专项 - Handler（三）</a></h6>
+              <span>March 29, 2026</span>
             </div>
 
           </li>
@@ -1261,8 +1303,8 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2025/01/04/10%E9%9F%B3%E8%A7%86%E9%A2%91/01%20%E6%92%AD%E6%94%BE%E5%99%A8/%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%86%99%E4%B8%80%E4%B8%AA-Android-%E6%92%AD%E6%94%BE%E5%99%A8/">从零开始写一个 Android 播放器（一）</a></h6>
-              <span>January 4, 2025</span>
+              <h6 style="margin: 0;"><a href="/2026/03/29/3%20Android/02%20Framework/01%20Handler/02-Android-Framework-%E4%B8%93%E9%A1%B9-Handler2/">Android Framework 专项 - Handler（二）</a></h6>
+              <span>March 29, 2026</span>
             </div>
 
           </li>
@@ -1276,7 +1318,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%9F%BA%E7%A1%80/">1.1 - Kotlin 基础</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/">11 - 音视频</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/11-1-%E6%92%AD%E6%94%BE%E5%99%A8%E5%AE%9E%E6%88%98/">11.1 - 播放器实战</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-1-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.1 - 多线程</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">21</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.1 - 播放器架构方案设计</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-2-Android-%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.2 - Android 存储文件方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-2-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.2 - 简单好用的 gradle 云编译设置</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-2-%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/">7.2 - 手势分发</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">8</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-3-%E5%AE%9E%E6%97%B6%E6%B8%B2%E6%9F%93/">8.3 - 实时渲染</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%9F%BA%E7%A1%80/">1.1 - Kotlin 基础</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/">11 - 音视频</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/11-1-%E6%92%AD%E6%94%BE%E5%99%A8%E5%AE%9E%E6%88%98/">11.1 - 播放器实战</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-1-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.1 - 多线程</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">23</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">8</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-1-Handler/">3.1.1 - Handler</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-2-AMS/">3.1.2 - AMS</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-2-WMS/">3.1.2 - WMS</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-4-Binder/">3.1.4 - Binder</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.1 - 播放器架构方案设计</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-2-Android-%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.2 - Android 存储文件方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-2-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.2 - 简单好用的 gradle 云编译设置</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-2-%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/">7.2 - 手势分发</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">8</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-3-%E5%AE%9E%E6%97%B6%E6%B8%B2%E6%9F%93/">8.3 - 实时渲染</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1292,7 +1334,7 @@
     <h3 class="widget-title">Archives</h3>
 
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/03/">March 2026</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/01/">January 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">November 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">March 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">61</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/03/">March 2026</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/01/">January 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">November 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">March 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">54</span></li></ul>
     </div>
   </div>
 
