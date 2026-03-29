@@ -959,92 +959,6 @@
 <!-- Table of Contents -->
 
   
-    <article id="post-3 Android/02 Framework/01 WMS/WMS-核心概念与窗口管理流程"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2026/03/29/3%20Android/02%20Framework/01%20WMS/WMS-%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%E4%B8%8E%E7%AA%97%E5%8F%A3%E7%AE%A1%E7%90%86%E6%B5%81%E7%A8%8B/">WMS 核心概念与窗口管理流程</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2026/03/29/3%20Android/02%20Framework/01%20WMS/WMS-%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%E4%B8%8E%E7%AA%97%E5%8F%A3%E7%AE%A1%E7%90%86%E6%B5%81%E7%A8%8B/" class="article-date">
-	  <time datetime="2026-03-29T13:53:03.105Z" itemprop="datePublished">March 29, 2026</time>
-	</a>
-
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-2-WMS/">3.1.2 - WMS</a>
- 
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>WindowManagerService (WMS) 是 Android 系统中负责窗口管理的核心服务。它主要处理窗口的布局、显示次序、窗口动画以及输入事件的派发。</p>
-<h3 id="1-WMS-的职责"><a href="#1-WMS-的职责" class="headerlink" title="1. WMS 的职责"></a>1. WMS 的职责</h3><p>WMS 的主要工作可以概括为以下四个方面：</p>
-<ul>
-<li><strong>窗口管理</strong>：控制窗口的添加、删除、更新，并管理窗口的层级（Z-Order）。</li>
-<li><strong>窗口布局</strong>：根据窗口的属性（LayoutParams）计算窗口的大小和位置。</li>
-<li><strong>输入事件中转</strong>：作为输入系统的中间站，协助 InputManagerService 将事件派发给正确的窗口。</li>
-<li><strong>屏幕亮度与动画</strong>：管理窗口切换动画，并与 SurfaceFlinger 配合完成屏幕内容的渲染绘制。</li>
-</ul>
-<hr>
-<h3 id="2-核心类解析"><a href="#2-核心类解析" class="headerlink" title="2. 核心类解析"></a>2. 核心类解析</h3><p>理解 WMS 的源码，必须先搞清楚这几个核心类及其关系：</p>
-<ul>
-<li>**Window (PhoneWindow)**：是对屏幕窗口的抽象，承载了 ViewTree。</li>
-<li><strong>WindowManager</strong>：应用端操作窗口的入口。</li>
-<li>**WindowManagerService (WMS)**：服务端核心，负责全局调度。</li>
-<li><strong>Session</strong>：应用端与 WMS 通信的单向 Binder 通道。每个应用进程对应一个 Session。</li>
-<li><strong>WindowState</strong>：WMS 中用来表示一个窗口的实体，存储了窗口的所有状态信息。</li>
-<li><strong>WindowToken</strong>：窗口的令牌，用于标识一组窗口（如一个 Activity 的所有窗口）。</li>
-</ul>
-<hr>
-<h3 id="3-窗口的层级管理-Z-Order"><a href="#3-窗口的层级管理-Z-Order" class="headerlink" title="3. 窗口的层级管理 (Z-Order)"></a>3. 窗口的层级管理 (Z-Order)</h3><p>WMS 使用 <code>WindowType</code> 来区分窗口的层级：</p>
-<ol>
-<li>**应用窗口 (1-99)**：如 Activity 窗口。</li>
-<li>**子窗口 (1000-1999)**：如 PopupWindow，必须依附于父窗口。</li>
-<li>**系统窗口 (2000-2999)**：如 StatusBar, Toast, 系统 Alert 窗口。通常需要特定权限。</li>
-</ol>
-<p>层级越高，显示在越上层。</p>
-<hr>
-<h3 id="4-窗口添加流程简述"><a href="#4-窗口添加流程简述" class="headerlink" title="4. 窗口添加流程简述"></a>4. 窗口添加流程简述</h3><p>当我们在 Activity 中调用 <code>setContentView</code> 后，窗口是如何诞生的？</p>
-<ol>
-<li><strong>ViewRootImpl</strong>：创建 <code>ViewRootImpl</code> 实例，它是连接 WindowManager 和 DecorView 的纽带。</li>
-<li><strong>requestLayout</strong>：发起布局请求。</li>
-<li><strong>WMS.addWindow</strong>：通过 <code>IWindowSession.addToDisplay</code> 跨进程调用 WMS，在服务端创建 <code>WindowState</code> 并分配 Z-Order。</li>
-</ol>
-<hr>
-<h3 id="5-接下来我们将深入探讨"><a href="#5-接下来我们将深入探讨" class="headerlink" title="5. 接下来我们将深入探讨"></a>5. 接下来我们将深入探讨</h3><ul>
-<li>WMS 的启动流程</li>
-<li>Surface 的创建与渲染链路</li>
-<li>WMS 动画框架解析</li>
-</ul>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-2-WMS/">3.1.2 - WMS</a>
-
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
     <article id="post-3 Android/02 Framework/02 AMS/06-Android-Framework-AMS专项-Activity生命周期事务封装"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
@@ -1197,6 +1111,175 @@
 <li><strong>协调</strong>: 向上承接 View 系统（App），向下通过 SurfaceFlinger 申请显示资源，同时与 InputManagerService 协作分发触摸事件。</li>
 </ul>
 <hr>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-2-WMS/">3.1.2 - WMS</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-3 Android/02 Framework/01 WMS/WMS-核心概念与窗口管理流程"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2026/03/29/3%20Android/02%20Framework/01%20WMS/WMS-%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%E4%B8%8E%E7%AA%97%E5%8F%A3%E7%AE%A1%E7%90%86%E6%B5%81%E7%A8%8B/">WMS 核心概念与窗口管理流程</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2026/03/29/3%20Android/02%20Framework/01%20WMS/WMS-%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%E4%B8%8E%E7%AA%97%E5%8F%A3%E7%AE%A1%E7%90%86%E6%B5%81%E7%A8%8B/" class="article-date">
+	  <time datetime="2026-03-29T13:53:03.105Z" itemprop="datePublished">March 29, 2026</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-2-WMS/">3.1.2 - WMS</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>WindowManagerService (WMS) 是 Android 系统中负责窗口 management 的核心服务。它主要处理窗口的布局、显示次序、窗口动画以及输入事件的派发。</p>
+<h3 id="1-WMS-的职责"><a href="#1-WMS-的职责" class="headerlink" title="1. WMS 的职责"></a>1. WMS 的职责</h3><p>WMS 的主要工作可以概括为以下四个核心领域：</p>
+<table>
+<thead>
+<tr>
+<th align="left">职责领域</th>
+<th align="left">核心功能描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>窗口管理</strong></td>
+<td align="left">控制窗口的添加、删除、更新，并维护窗口的层级（Z-Order）关系。</td>
+</tr>
+<tr>
+<td align="left"><strong>窗口布局</strong></td>
+<td align="left">根据窗口属性（LayoutParams）动态计算每个窗口在屏幕上的大小和位置。</td>
+</tr>
+<tr>
+<td align="left"><strong>输入事件中转</strong></td>
+<td align="left">作为输入系统的中间站，协助 InputManagerService 将触控等事件派发给正确的窗口。</td>
+</tr>
+<tr>
+<td align="left"><strong>动画与渲染</strong></td>
+<td align="left">管理窗口切换动画，并与 SurfaceFlinger 协作完成最终屏幕内容的渲染绘制。</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="2-核心类解析"><a href="#2-核心类解析" class="headerlink" title="2. 核心类解析"></a>2. 核心类解析</h3><p>理解 WMS 的源码，必须先搞清楚这几个核心类及其职责：</p>
+<table>
+<thead>
+<tr>
+<th align="left">核心类</th>
+<th align="left">职责描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>Window (PhoneWindow)</strong></td>
+<td align="left">屏幕窗口的抽象，承载了 ViewTree 及 DecorView。</td>
+</tr>
+<tr>
+<td align="left"><strong>WindowManager</strong></td>
+<td align="left">应用端操作窗口的入口，负责与 WMS 通信。</td>
+</tr>
+<tr>
+<td align="left"><strong>WMS</strong></td>
+<td align="left">服务端核心，负责全局窗口调度、布局、动画及输入分发。</td>
+</tr>
+<tr>
+<td align="left"><strong>Session</strong></td>
+<td align="left">应用进程与 WMS 通信的单向 Binder 通道。</td>
+</tr>
+<tr>
+<td align="left"><strong>WindowState</strong></td>
+<td align="left">WMS 服务端窗口实体，存储了窗口的几何属性及状态信息。</td>
+</tr>
+<tr>
+<td align="left"><strong>WindowToken</strong></td>
+<td align="left">窗口令牌，用于标识和组织一组相关的窗口（如 Activity 的所有窗口）。</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="3-窗口的层级管理-Z-Order"><a href="#3-窗口的层级管理-Z-Order" class="headerlink" title="3. 窗口的层级管理 (Z-Order)"></a>3. 窗口的层级管理 (Z-Order)</h3><p>WMS 使用 <code>WindowType</code> 来区分窗口的层级。层级越高，显示在越上层：</p>
+<table>
+<thead>
+<tr>
+<th align="left">窗口类型</th>
+<th align="left">层级范围 (Z-Order)</th>
+<th align="left">典型示例</th>
+<th align="left">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>应用窗口</strong></td>
+<td align="left">1 - 99</td>
+<td align="left">Activity 窗口</td>
+<td align="left">基础窗口类型</td>
+</tr>
+<tr>
+<td align="left"><strong>子窗口</strong></td>
+<td align="left">1000 - 1999</td>
+<td align="left">PopupWindow, Dialog</td>
+<td align="left">必须依附于父窗口</td>
+</tr>
+<tr>
+<td align="left"><strong>系统窗口</strong></td>
+<td align="left">2000 - 2999</td>
+<td align="left">StatusBar, Toast, Alert</td>
+<td align="left">通常需要特定系统权限</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="4-窗口添加流程简述"><a href="#4-窗口添加流程简述" class="headerlink" title="4. 窗口添加流程简述"></a>4. 窗口添加流程简述</h3><p>当我们在 Activity 中调用 <code>setContentView</code> 后，窗口诞生的核心步骤如下：</p>
+<table>
+<thead>
+<tr>
+<th align="left">关键步骤</th>
+<th align="left">执行角色</th>
+<th align="left">核心行为</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>创建核心纽带</strong></td>
+<td align="left"><code>ViewRootImpl</code></td>
+<td align="left">创建实例，作为连接 WindowManager 与 DecorView 的纽带。</td>
+</tr>
+<tr>
+<td align="left"><strong>发起布局请求</strong></td>
+<td align="left">应用进程</td>
+<td align="left">调用 <code>requestLayout</code> 触发视图树的测量、布局与绘制流程。</td>
+</tr>
+<tr>
+<td align="left"><strong>跨进程添加</strong></td>
+<td align="left"><code>WMS</code></td>
+<td align="left">通过 <code>IWindowSession</code> 发起 IPC，在服务端创建 <code>WindowState</code> 并分配显示层级。</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="5-接下来我们将深入探讨"><a href="#5-接下来我们将深入探讨" class="headerlink" title="5. 接下来我们将深入探讨"></a>5. 接下来我们将深入探讨</h3><ul>
+<li>WMS 的启动流程</li>
+<li>Surface 的创建与渲染链路</li>
+<li>WMS 动画框架解析</li>
+</ul>
 
       
     </div>
