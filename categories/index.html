@@ -57,91 +57,13 @@
   <body>
 
 
-  <a target="_blank" rel="noopener" href="https://github.com/CatJason" style="position: absolute; left: 0; top: 0; z-index: 9999;">
-    <img decoding="async" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" loading="lazy" data-recalc-dims="1">
+  <!-- GitHub Fork Me Image: Moved to top-right to avoid covering the title -->
+  <a target="_blank" rel="noopener" href="https://github.com/CatJason" style="position: fixed; right: 0; top: 0; z-index: 99999;">
+    <img decoding="async" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_darkblue_121621.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" loading="lazy" data-recalc-dims="1">
   </a>
 
   
-<div style="display: none;">
-  <script src="https://s11.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
-</div>
-
-<!-- mathjax config similar to math.stackexchange -->
-
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    tex2jax: {
-      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
-      processEscapes: true
-    }
-  });
-</script>
-
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-      tex2jax: {
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-      }
-    });
-</script>
-
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Queue(function() {
-        var all = MathJax.Hub.getAllJax(), i;
-        for(i=0; i < all.length; i += 1) {
-            all[i].SourceElement().parentNode.className += ' has-jax';
-        }
-    });
-</script>
-
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
   
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-
-  
-<script src="/fancybox/jquery.fancybox.pack.js"></script>
-
-
-
-
-<script src="/js/script.js"></script>
-
-
-<script src="/js/bootstrap.js"></script>
-
-
-<script src="/js/main.js"></script>
-
-
-
-
-
-
-
-
-  <div style="display: none;">
-    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
-  </div>
-
-
-
-	<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
-	</script>
-
-
-
-
-
-
-  
-  
-  <div class="site-header-image">
-    <img id="originBg" width="100%" alt="Hike News" src="">
-  </div>
-
   <div id="header-blur" class="site-header-image blur" style="position: absolute; top:0; height: 207px; min-height: 207px; min-width: 100%;">
     <img id="blurBg" width="100%" style="top: 96%" alt="Hike News" src="">
   </div>
@@ -150,10 +72,8 @@
         var imgUrls = "css/images/pose01.jpg,https://source.unsplash.com/collection/954550/1920x1080,https://source.unsplash.com/collection/954550/1920x1081".split(",");
         var random = Math.floor((Math.random() * imgUrls.length ));
         if (imgUrls[random].startsWith('http') || imgUrls[random].indexOf('://') >= 0) {
-          document.getElementById("originBg").src=imgUrls[random];
           document.getElementById("blurBg").src=imgUrls[random];
         } else {
-          document.getElementById("originBg").src='/' + imgUrls[random];
           document.getElementById("blurBg").src='/' + imgUrls[random];
         }
     </script>
@@ -166,7 +86,7 @@
   <div class="clearfix container">
       <div class="site-branding">
 
-          <h1 class="site-title">
+          <h1 class="site-title" style="position: relative; z-index: 10;">
             
               <a href="/" title="喵星科技报" rel="home"> 喵星科技报 </a>
             
@@ -2347,13 +2267,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/0%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%80)/" class="archive-article-date">
+      <a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/1%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%BA%8C)/" class="archive-article-date">
 		  <time datetime="2024-03-31T17:32:52.573Z" itemprop="datePublished">Apr 01, 2024</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2024/04/01/3%20Android/Jetpacket/VideoModel/0%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%80)/">ViewModel 源代码分析 (一)</a>
+      <a class="archive-article-title" href="/2024/04/01/3%20Android/Jetpacket/VideoModel/1%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%BA%8C)/">ViewModel 源代码分析 (二)</a>
     </h1>
   
 
@@ -2366,13 +2286,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/1%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%BA%8C)/" class="archive-article-date">
+      <a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/0%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%80)/" class="archive-article-date">
 		  <time datetime="2024-03-31T17:32:52.573Z" itemprop="datePublished">Apr 01, 2024</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2024/04/01/3%20Android/Jetpacket/VideoModel/1%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%BA%8C)/">ViewModel 源代码分析 (二)</a>
+      <a class="archive-article-title" href="/2024/04/01/3%20Android/Jetpacket/VideoModel/0%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%80)/">ViewModel 源代码分析 (一)</a>
     </h1>
   
 
@@ -2404,13 +2324,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2024/02/21/3%20Android/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Android-%E6%80%A7%E8%83%BD%E4%B8%93%E9%A2%98-%E5%90%AF%E5%8A%A8%E4%BC%98%E5%8C%96/" class="archive-article-date">
+      <a href="/2024/02/21/3%20Android/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Android-%E6%80%A7%E8%83%BD%E4%B8%93%E9%A2%98-%E6%8F%92%E4%BB%B6%E5%8C%96%E9%A2%84%E7%83%AD-%E6%8B%BC%E5%A4%9A%E5%A4%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E5%8F%AA%E6%9C%8926M-GPT4%E5%BF%AB%E9%97%AE%E5%BF%AB%E7%AD%94/" class="archive-article-date">
 		  <time datetime="2024-02-20T17:52:23.080Z" itemprop="datePublished">Feb 21, 2024</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2024/02/21/3%20Android/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Android-%E6%80%A7%E8%83%BD%E4%B8%93%E9%A2%98-%E5%90%AF%E5%8A%A8%E4%BC%98%E5%8C%96/">Android 性能专题 - 启动优化（一）启动耗时</a>
+      <a class="archive-article-title" href="/2024/02/21/3%20Android/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Android-%E6%80%A7%E8%83%BD%E4%B8%93%E9%A2%98-%E6%8F%92%E4%BB%B6%E5%8C%96%E9%A2%84%E7%83%AD-%E6%8B%BC%E5%A4%9A%E5%A4%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E5%8F%AA%E6%9C%8926M-GPT4%E5%BF%AB%E9%97%AE%E5%BF%AB%E7%AD%94/">Android 性能专题 - 插件化预热-拼多多为什么只有26M-GPT4快问快答</a>
     </h1>
   
 
@@ -2423,13 +2343,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2024/02/21/3%20Android/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Android-%E6%80%A7%E8%83%BD%E4%B8%93%E9%A2%98-%E6%8F%92%E4%BB%B6%E5%8C%96%E9%A2%84%E7%83%AD-%E6%8B%BC%E5%A4%9A%E5%A4%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E5%8F%AA%E6%9C%8926M-GPT4%E5%BF%AB%E9%97%AE%E5%BF%AB%E7%AD%94/" class="archive-article-date">
+      <a href="/2024/02/21/3%20Android/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Android-%E6%80%A7%E8%83%BD%E4%B8%93%E9%A2%98-%E5%90%AF%E5%8A%A8%E4%BC%98%E5%8C%96/" class="archive-article-date">
 		  <time datetime="2024-02-20T17:52:23.080Z" itemprop="datePublished">Feb 21, 2024</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2024/02/21/3%20Android/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Android-%E6%80%A7%E8%83%BD%E4%B8%93%E9%A2%98-%E6%8F%92%E4%BB%B6%E5%8C%96%E9%A2%84%E7%83%AD-%E6%8B%BC%E5%A4%9A%E5%A4%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E5%8F%AA%E6%9C%8926M-GPT4%E5%BF%AB%E9%97%AE%E5%BF%AB%E7%AD%94/">Android 性能专题 - 插件化预热-拼多多为什么只有26M-GPT4快问快答</a>
+      <a class="archive-article-title" href="/2024/02/21/3%20Android/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Android-%E6%80%A7%E8%83%BD%E4%B8%93%E9%A2%98-%E5%90%AF%E5%8A%A8%E4%BC%98%E5%8C%96/">Android 性能专题 - 启动优化（一）启动耗时</a>
     </h1>
   
 
@@ -2480,25 +2400,6 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2023/09/10/3%20Android/ARouter/02-Arouter/" class="archive-article-date">
-		  <time datetime="2023-09-09T17:05:06.000Z" itemprop="datePublished">Sep 10, 2023</time>
-	  </a>
-      
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/09/10/3%20Android/ARouter/02-Arouter/">从零开始写一个 ARouter - base 基础功能 与 core 核心功能</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-                
-            
-                <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-
       <a href="/2023/09/10/3%20Android/ARouter/03-Arouter/" class="archive-article-date">
 		  <time datetime="2023-09-09T17:05:06.000Z" itemprop="datePublished">Sep 10, 2023</time>
 	  </a>
@@ -2537,13 +2438,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2023/09/10/3%20Android/ARouter/06-Arouter/" class="archive-article-date">
+      <a href="/2023/09/10/3%20Android/ARouter/02-Arouter/" class="archive-article-date">
 		  <time datetime="2023-09-09T17:05:06.000Z" itemprop="datePublished">Sep 10, 2023</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/09/10/3%20Android/ARouter/06-Arouter/">从零开始写一个 ARouter - launcher 启动器</a>
+      <a class="archive-article-title" href="/2023/09/10/3%20Android/ARouter/02-Arouter/">从零开始写一个 ARouter - base 基础功能 与 core 核心功能</a>
     </h1>
   
 
@@ -2563,6 +2464,25 @@
   
     <h1 class="thumb" itemprop="name">
       <a class="archive-article-title" href="/2023/09/10/3%20Android/ARouter/05-Arouter/">从零开始写一个 ARouter - template 模板</a>
+    </h1>
+  
+
+    </header>
+  </div>
+</article>
+                
+            
+                <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+
+      <a href="/2023/09/10/3%20Android/ARouter/06-Arouter/" class="archive-article-date">
+		  <time datetime="2023-09-09T17:05:06.000Z" itemprop="datePublished">Sep 10, 2023</time>
+	  </a>
+      
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="archive-article-title" href="/2023/09/10/3%20Android/ARouter/06-Arouter/">从零开始写一个 ARouter - launcher 启动器</a>
     </h1>
   
 
@@ -2689,25 +2609,6 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2023/08/15/3%20Android/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Android-Bitmap-%E6%80%A7%E8%83%BD%E4%B8%93%E9%A2%98/" class="archive-article-date">
-		  <time datetime="2023-08-15T10:21:30.000Z" itemprop="datePublished">Aug 15, 2023</time>
-	  </a>
-      
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/08/15/3%20Android/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Android-Bitmap-%E6%80%A7%E8%83%BD%E4%B8%93%E9%A2%98/">Android Bitmap 性能专题 - Bitmap 内存从申请到回收</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-                
-            
-                <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-
       <a href="/2023/08/15/3%20Android/Framework/05-Android-Framework-AMS%E4%B8%93%E9%A1%B9-Activity%E5%90%AF%E5%8A%A8%E7%9A%84%E6%95%B4%E4%BD%93%E6%B5%81%E7%A8%8B%E4%B8%8E%E7%AC%AC%E4%B8%80%E4%B8%AA%E9%98%B6%E6%AE%B5%E8%A7%A3%E8%AF%BB%E5%8F%82%E6%95%B0/" class="archive-article-date">
 		  <time datetime="2023-08-15T10:21:30.000Z" itemprop="datePublished">Aug 15, 2023</time>
 	  </a>
@@ -2742,6 +2643,25 @@
 </article>
                 
             
+                <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+
+      <a href="/2023/08/15/3%20Android/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Android-Bitmap-%E6%80%A7%E8%83%BD%E4%B8%93%E9%A2%98/" class="archive-article-date">
+		  <time datetime="2023-08-15T10:21:30.000Z" itemprop="datePublished">Aug 15, 2023</time>
+	  </a>
+      
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="archive-article-title" href="/2023/08/15/3%20Android/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Android-Bitmap-%E6%80%A7%E8%83%BD%E4%B8%93%E9%A2%98/">Android Bitmap 性能专题 - Bitmap 内存从申请到回收</a>
+    </h1>
+  
+
+    </header>
+  </div>
+</article>
+                
+            
         </div>
     </div>
     
@@ -2755,13 +2675,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2024/02/21/3%20Android/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Android-%E6%80%A7%E8%83%BD%E4%B8%93%E9%A2%98-%E5%90%AF%E5%8A%A8%E4%BC%98%E5%8C%96/" class="archive-article-date">
+      <a href="/2024/02/21/3%20Android/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Android-%E6%80%A7%E8%83%BD%E4%B8%93%E9%A2%98-%E6%8F%92%E4%BB%B6%E5%8C%96%E9%A2%84%E7%83%AD-%E6%8B%BC%E5%A4%9A%E5%A4%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E5%8F%AA%E6%9C%8926M-GPT4%E5%BF%AB%E9%97%AE%E5%BF%AB%E7%AD%94/" class="archive-article-date">
 		  <time datetime="2024-02-20T17:52:23.080Z" itemprop="datePublished">Feb 21, 2024</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2024/02/21/3%20Android/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Android-%E6%80%A7%E8%83%BD%E4%B8%93%E9%A2%98-%E5%90%AF%E5%8A%A8%E4%BC%98%E5%8C%96/">Android 性能专题 - 启动优化（一）启动耗时</a>
+      <a class="archive-article-title" href="/2024/02/21/3%20Android/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Android-%E6%80%A7%E8%83%BD%E4%B8%93%E9%A2%98-%E6%8F%92%E4%BB%B6%E5%8C%96%E9%A2%84%E7%83%AD-%E6%8B%BC%E5%A4%9A%E5%A4%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E5%8F%AA%E6%9C%8926M-GPT4%E5%BF%AB%E9%97%AE%E5%BF%AB%E7%AD%94/">Android 性能专题 - 插件化预热-拼多多为什么只有26M-GPT4快问快答</a>
     </h1>
   
 
@@ -2774,13 +2694,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2024/02/21/3%20Android/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Android-%E6%80%A7%E8%83%BD%E4%B8%93%E9%A2%98-%E6%8F%92%E4%BB%B6%E5%8C%96%E9%A2%84%E7%83%AD-%E6%8B%BC%E5%A4%9A%E5%A4%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E5%8F%AA%E6%9C%8926M-GPT4%E5%BF%AB%E9%97%AE%E5%BF%AB%E7%AD%94/" class="archive-article-date">
+      <a href="/2024/02/21/3%20Android/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Android-%E6%80%A7%E8%83%BD%E4%B8%93%E9%A2%98-%E5%90%AF%E5%8A%A8%E4%BC%98%E5%8C%96/" class="archive-article-date">
 		  <time datetime="2024-02-20T17:52:23.080Z" itemprop="datePublished">Feb 21, 2024</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2024/02/21/3%20Android/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Android-%E6%80%A7%E8%83%BD%E4%B8%93%E9%A2%98-%E6%8F%92%E4%BB%B6%E5%8C%96%E9%A2%84%E7%83%AD-%E6%8B%BC%E5%A4%9A%E5%A4%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E5%8F%AA%E6%9C%8926M-GPT4%E5%BF%AB%E9%97%AE%E5%BF%AB%E7%AD%94/">Android 性能专题 - 插件化预热-拼多多为什么只有26M-GPT4快问快答</a>
+      <a class="archive-article-title" href="/2024/02/21/3%20Android/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Android-%E6%80%A7%E8%83%BD%E4%B8%93%E9%A2%98-%E5%90%AF%E5%8A%A8%E4%BC%98%E5%8C%96/">Android 性能专题 - 启动优化（一）启动耗时</a>
     </h1>
   
 
@@ -2982,25 +2902,6 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2023/09/10/3%20Android/ARouter/02-Arouter/" class="archive-article-date">
-		  <time datetime="2023-09-09T17:05:06.000Z" itemprop="datePublished">Sep 10, 2023</time>
-	  </a>
-      
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/09/10/3%20Android/ARouter/02-Arouter/">从零开始写一个 ARouter - base 基础功能 与 core 核心功能</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-                
-            
-                <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-
       <a href="/2023/09/10/3%20Android/ARouter/03-Arouter/" class="archive-article-date">
 		  <time datetime="2023-09-09T17:05:06.000Z" itemprop="datePublished">Sep 10, 2023</time>
 	  </a>
@@ -3039,13 +2940,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2023/09/10/3%20Android/ARouter/06-Arouter/" class="archive-article-date">
+      <a href="/2023/09/10/3%20Android/ARouter/02-Arouter/" class="archive-article-date">
 		  <time datetime="2023-09-09T17:05:06.000Z" itemprop="datePublished">Sep 10, 2023</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/09/10/3%20Android/ARouter/06-Arouter/">从零开始写一个 ARouter - launcher 启动器</a>
+      <a class="archive-article-title" href="/2023/09/10/3%20Android/ARouter/02-Arouter/">从零开始写一个 ARouter - base 基础功能 与 core 核心功能</a>
     </h1>
   
 
@@ -3065,6 +2966,25 @@
   
     <h1 class="thumb" itemprop="name">
       <a class="archive-article-title" href="/2023/09/10/3%20Android/ARouter/05-Arouter/">从零开始写一个 ARouter - template 模板</a>
+    </h1>
+  
+
+    </header>
+  </div>
+</article>
+                
+            
+                <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+
+      <a href="/2023/09/10/3%20Android/ARouter/06-Arouter/" class="archive-article-date">
+		  <time datetime="2023-09-09T17:05:06.000Z" itemprop="datePublished">Sep 10, 2023</time>
+	  </a>
+      
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="archive-article-title" href="/2023/09/10/3%20Android/ARouter/06-Arouter/">从零开始写一个 ARouter - launcher 启动器</a>
     </h1>
   
 
@@ -3124,13 +3044,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/0%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%80)/" class="archive-article-date">
+      <a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/1%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%BA%8C)/" class="archive-article-date">
 		  <time datetime="2024-03-31T17:32:52.573Z" itemprop="datePublished">Apr 01, 2024</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2024/04/01/3%20Android/Jetpacket/VideoModel/0%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%80)/">ViewModel 源代码分析 (一)</a>
+      <a class="archive-article-title" href="/2024/04/01/3%20Android/Jetpacket/VideoModel/1%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%BA%8C)/">ViewModel 源代码分析 (二)</a>
     </h1>
   
 
@@ -3143,13 +3063,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/1%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%BA%8C)/" class="archive-article-date">
+      <a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/0%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%80)/" class="archive-article-date">
 		  <time datetime="2024-03-31T17:32:52.573Z" itemprop="datePublished">Apr 01, 2024</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2024/04/01/3%20Android/Jetpacket/VideoModel/1%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%BA%8C)/">ViewModel 源代码分析 (二)</a>
+      <a class="archive-article-title" href="/2024/04/01/3%20Android/Jetpacket/VideoModel/0%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%80)/">ViewModel 源代码分析 (一)</a>
     </h1>
   
 
@@ -3481,13 +3401,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2024/03/22/7%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/0%20UI%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/TextView-layout_constrainedWidth-%E5%B1%9E%E6%80%A7/" class="archive-article-date">
+      <a href="/2024/03/22/7%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/1%20%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/%E6%8B%A6%E6%88%AA%20View%20%E8%A7%A6%E6%91%B8%E4%BA%8B%E4%BB%B6%EF%BC%8C%E5%88%A4%E6%96%AD%E6%BB%91%E5%8A%A8%E6%96%B9%E5%90%91/" class="archive-article-date">
 		  <time datetime="2024-03-22T13:47:30.611Z" itemprop="datePublished">Mar 22, 2024</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2024/03/22/7%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/0%20UI%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/TextView-layout_constrainedWidth-%E5%B1%9E%E6%80%A7/">TextView layout_constrainedWidth 属性</a>
+      <a class="archive-article-title" href="/2024/03/22/7%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/1%20%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/%E6%8B%A6%E6%88%AA%20View%20%E8%A7%A6%E6%91%B8%E4%BA%8B%E4%BB%B6%EF%BC%8C%E5%88%A4%E6%96%AD%E6%BB%91%E5%8A%A8%E6%96%B9%E5%90%91/">拦截 View 触摸事件，判断滑动方向</a>
     </h1>
   
 
@@ -3500,13 +3420,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2024/03/22/7%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/1%20%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/%E6%8B%A6%E6%88%AA%20View%20%E8%A7%A6%E6%91%B8%E4%BA%8B%E4%BB%B6%EF%BC%8C%E5%88%A4%E6%96%AD%E6%BB%91%E5%8A%A8%E6%96%B9%E5%90%91/" class="archive-article-date">
+      <a href="/2024/03/22/7%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/0%20UI%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/TextView-layout_constrainedWidth-%E5%B1%9E%E6%80%A7/" class="archive-article-date">
 		  <time datetime="2024-03-22T13:47:30.611Z" itemprop="datePublished">Mar 22, 2024</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2024/03/22/7%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/1%20%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/%E6%8B%A6%E6%88%AA%20View%20%E8%A7%A6%E6%91%B8%E4%BA%8B%E4%BB%B6%EF%BC%8C%E5%88%A4%E6%96%AD%E6%BB%91%E5%8A%A8%E6%96%B9%E5%90%91/">拦截 View 触摸事件，判断滑动方向</a>
+      <a class="archive-article-title" href="/2024/03/22/7%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/0%20UI%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/TextView-layout_constrainedWidth-%E5%B1%9E%E6%80%A7/">TextView layout_constrainedWidth 属性</a>
     </h1>
   
 
@@ -3650,6 +3570,44 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
+      <a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01%20%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/01%20Android%20GameProject%20%E4%B8%AD%E6%9C%80%E5%9F%BA%E7%A1%80%E7%9A%84%20Renderer/" class="archive-article-date">
+		  <time datetime="2023-08-23T10:38:36.000Z" itemprop="datePublished">Aug 23, 2023</time>
+	  </a>
+      
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="archive-article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01%20%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/01%20Android%20GameProject%20%E4%B8%AD%E6%9C%80%E5%9F%BA%E7%A1%80%E7%9A%84%20Renderer/">Android Game Project 核心 Renderer.cpp</a>
+    </h1>
+  
+
+    </header>
+  </div>
+</article>
+                
+            
+                <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+
+      <a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01%20%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/02%20Android%20GameProject%20%E7%BB%93%E6%9E%84%E7%9B%AE%E5%BD%95/" class="archive-article-date">
+		  <time datetime="2023-08-23T10:38:36.000Z" itemprop="datePublished">Aug 23, 2023</time>
+	  </a>
+      
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="archive-article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01%20%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/02%20Android%20GameProject%20%E7%BB%93%E6%9E%84%E7%9B%AE%E5%BD%95/">Android Game Project 项目结构</a>
+    </h1>
+  
+
+    </header>
+  </div>
+</article>
+                
+            
+                <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+
       <a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02%20OpenGL%20ES%203.0/01%20OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E7%BB%98%E5%88%B6%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/" class="archive-article-date">
 		  <time datetime="2023-08-23T10:38:36.000Z" itemprop="datePublished">Aug 23, 2023</time>
 	  </a>
@@ -3733,44 +3691,6 @@
   
     <h1 class="thumb" itemprop="name">
       <a class="archive-article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/02%20OpenGL%20ES%203.0/OpenGL%20ES%203.0%20%E5%BC%80%E5%8F%91%EF%BC%88%E4%BA%94%EF%BC%89%EF%BC%9AFBO%20%E7%A6%BB%E5%B1%8F%E6%B8%B2%E6%9F%93/">OpenGL ES 3.0 开发（五）：FBO 离屏渲染</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-                
-            
-                <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-
-      <a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01%20%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/01%20Android%20GameProject%20%E4%B8%AD%E6%9C%80%E5%9F%BA%E7%A1%80%E7%9A%84%20Renderer/" class="archive-article-date">
-		  <time datetime="2023-08-23T10:38:36.000Z" itemprop="datePublished">Aug 23, 2023</time>
-	  </a>
-      
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01%20%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/01%20Android%20GameProject%20%E4%B8%AD%E6%9C%80%E5%9F%BA%E7%A1%80%E7%9A%84%20Renderer/">Android Game Project 核心 Renderer.cpp</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-                
-            
-                <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-
-      <a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01%20%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/02%20Android%20GameProject%20%E7%BB%93%E6%9E%84%E7%9B%AE%E5%BD%95/" class="archive-article-date">
-		  <time datetime="2023-08-23T10:38:36.000Z" itemprop="datePublished">Aug 23, 2023</time>
-	  </a>
-      
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01%20%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/02%20Android%20GameProject%20%E7%BB%93%E6%9E%84%E7%9B%AE%E5%BD%95/">Android Game Project 项目结构</a>
     </h1>
   
 
@@ -4293,6 +4213,81 @@
     
     
 </script>
+    
+<div style="display: none;">
+  <script src="https://s11.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+</div>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+<script src="/js/bootstrap.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+	</script>
+
+
+
+
+
+
   </div>
 
   <a id="rocket" href="#top" class=""></a>
