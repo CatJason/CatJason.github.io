@@ -1117,6 +1117,105 @@
 <!-- Table of Contents -->
 
   
+    <article id="post-3 Android/02 Framework/01 WMS/Android_WMS源码分析"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2026/03/26/3%20Android/02%20Framework/01%20WMS/Android_WMS%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">WMS 源代码流程分析</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2026/03/26/3%20Android/02%20Framework/01%20WMS/Android_WMS%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" class="article-date">
+	  <time datetime="2026-03-26T05:59:15.613Z" itemprop="datePublished">March 26, 2026</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-2-WMS/">3.1.2 - WMS</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本指南将从源代码角度分析 WindowManagerService (WMS) 的核心工作流程，并配合时序图进行说明。</p>
+<h2 id="1-WMS-的启动与初始化-SystemServer"><a href="#1-WMS-的启动与初始化-SystemServer" class="headerlink" title="1. WMS 的启动与初始化 (SystemServer)"></a>1. WMS 的启动与初始化 (SystemServer)</h2><p>WMS 是在 <code>SystemServer</code> 进程中启动的系统核心服务。</p>
+<ul>
+<li><strong>路径</strong>: <code>frameworks/base/services/java/com/android/server/SystemServer.java</code></li>
+<li><strong>代码关键点</strong>:<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 在 startOtherServices 方法中</span></span><br><span class="line">wm = WindowManagerService.main(context, inputManager, !mFirstBoot, mOnlyCore, <span class="keyword">new</span> <span class="title class_">PhoneWindowManager</span>(), mActivityManagerService.getAppTransition());</span><br><span class="line">ServiceManager.addService(Context.WINDOW_SERVICE, wm);</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="2-窗口添加流程-WindowManager-addView"><a href="#2-窗口添加流程-WindowManager-addView" class="headerlink" title="2. 窗口添加流程 (WindowManager.addView)"></a>2. 窗口添加流程 (WindowManager.addView)</h2><p>这是应用进程请求 WMS 显示 UI 的核心路径。</p>
+<h3 id="2-1-时序图：addView-过程"><a href="#2-1-时序图：addView-过程" class="headerlink" title="2.1 时序图：addView 过程"></a>2.1 时序图：addView 过程</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">sequenceDiagram</span><br><span class="line">    participant App as 应用进程 (Activity/View)</span><br><span class="line">    participant WMGlobal as WindowManagerGlobal</span><br><span class="line">    participant VRI as ViewRootImpl</span><br><span class="line">    participant Session as Session (WMS Proxy)</span><br><span class="line">    participant WMS as WindowManagerService</span><br><span class="line"></span><br><span class="line">    App-&gt;&gt;WMGlobal: addView(view, params)</span><br><span class="line">    WMGlobal-&gt;&gt;VRI: new ViewRootImpl()</span><br><span class="line">    VRI-&gt;&gt;VRI: setView()</span><br><span class="line">    VRI-&gt;&gt;Session: addToDisplay()</span><br><span class="line">    Session-&gt;&gt;WMS: addWindow()</span><br><span class="line">    WMS-&gt;&gt;WMS: 验证权限 &amp; Token</span><br><span class="line">    WMS-&gt;&gt;WMS: 创建 WindowState 实例</span><br><span class="line">    WMS--&gt;&gt;VRI: 返回操作结果 (OK/Err)</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-核心步骤解析"><a href="#2-2-核心步骤解析" class="headerlink" title="2.2 核心步骤解析"></a>2.2 核心步骤解析</h3><ol>
+<li><strong>WindowManagerGlobal</strong>: 应用进程内的单例，管理所有窗口的 View 和 ViewRootImpl。</li>
+<li><strong>ViewRootImpl</strong>: 连接 WindowManager 和控制台的纽带，负责触发绘制和与 WMS 通信。</li>
+<li><strong>Session</strong>: 每个应用进程在 WMS 中对应一个 Session 对象，用于跨进程通信。</li>
+<li><strong>addWindow</strong>: WMS 内部方法，负责创建 <code>WindowState</code> 并维护 Z-order 堆栈。</li>
+</ol>
+<h2 id="3-布局与-Surface-分配-Relayout"><a href="#3-布局与-Surface-分配-Relayout" class="headerlink" title="3. 布局与 Surface 分配 (Relayout)"></a>3. 布局与 Surface 分配 (Relayout)</h2><p>窗口添加后，需要确定具体大小并获得绘图“画布”（Surface）。</p>
+<h3 id="3-1-时序图：Relayout-过程"><a href="#3-1-时序图：Relayout-过程" class="headerlink" title="3.1 时序图：Relayout 过程"></a>3.1 时序图：Relayout 过程</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">sequenceDiagram</span><br><span class="line">    participant VRI as ViewRootImpl</span><br><span class="line">    participant Session as Session (WMS Proxy)</span><br><span class="line">    participant WMS as WindowManagerService</span><br><span class="line">    participant WinState as WindowState</span><br><span class="line">    participant SF as SurfaceFlinger</span><br><span class="line"></span><br><span class="line">    VRI-&gt;&gt;VRI: performTraversals()</span><br><span class="line">    VRI-&gt;&gt;Session: relayout()</span><br><span class="line">    Session-&gt;&gt;WMS: relayoutWindow()</span><br><span class="line">    WMS-&gt;&gt;WinState: createSurfaceControl()</span><br><span class="line">    WinState-&gt;&gt;SF: 请求分配 Layer</span><br><span class="line">    SF--&gt;&gt;WinState: 返回 SurfaceControl Native 句柄</span><br><span class="line">    WMS--&gt;&gt;VRI: 填充应用端的 Surface 对象</span><br><span class="line">    VRI-&gt;&gt;VRI: 开始应用层绘制 (Canvas/OpenGL)</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-关键类及其关系"><a href="#4-关键类及其关系" class="headerlink" title="4. 关键类及其关系"></a>4. 关键类及其关系</h2><table>
+<thead>
+<tr>
+<th align="left">类名</th>
+<th align="left">职责</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>IWindowSession</code></td>
+<td align="left">App -&gt; WMS 的单向通道，处理添加、删除、布局请求。</td>
+</tr>
+<tr>
+<td align="left"><code>IWindow</code></td>
+<td align="left">WMS -&gt; App 的回调通道，处理窗口缩放、焦点变化等。</td>
+</tr>
+<tr>
+<td align="left"><code>WindowState</code></td>
+<td align="left">WMS 为每个窗口维护的“身份证”，包含位置、层级、可见性等。</td>
+</tr>
+<tr>
+<td align="left"><code>WindowToken</code></td>
+<td align="left">窗口的归类令牌，用于管理 Activity 或 Dialog 等一组窗口的生命周期。</td>
+</tr>
+<tr>
+<td align="left"><code>DisplayContent</code></td>
+<td align="left">对应一个物理屏幕，管理该屏幕下的所有窗口堆栈。</td>
+</tr>
+</tbody></table>
+<h2 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. 总结</h2><p>WMS 的核心逻辑在于 <strong>管理</strong> 与 <strong>协调</strong>：</p>
+<ul>
+<li><strong>管理</strong>: 维护窗口的大小、位置、层级（Z-Order）。</li>
+<li><strong>协调</strong>: 向上承接 View 系统（App），向下通过 SurfaceFlinger 申请显示资源，同时与 InputManagerService 协作分发触摸事件。</li>
+</ul>
+<hr>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-2-WMS/">3.1.2 - WMS</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
     <article id="post-3 Android/02 Framework/04 Binder/04-Android-Framework-专项-IPC-Binder-机制1"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
@@ -1259,176 +1358,11 @@
 <!-- Table of Contents -->
 
   
-    <article id="post-4 架构方案设计/01 MVI/Android-音视频架构专项"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2023/08/29/4%20%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/01%20MVI/Android-%E9%9F%B3%E8%A7%86%E9%A2%91%E6%9E%B6%E6%9E%84%E4%B8%93%E9%A1%B9/">Android MVI GPT4 快问快答</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2023/08/29/4%20%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/01%20MVI/Android-%E9%9F%B3%E8%A7%86%E9%A2%91%E6%9E%B6%E6%9E%84%E4%B8%93%E9%A1%B9/" class="article-date">
-	  <time datetime="2023-08-28T18:45:14.000Z" itemprop="datePublished">August 29, 2023</time>
-	</a>
-
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a>, <a class="article-category-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a>
- 
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="MVI-层级架构"><a href="#MVI-层级架构" class="headerlink" title="MVI 层级架构"></a>MVI 层级架构</h1><ul>
-<li><strong>App</strong> 用于依赖注入 —— 可以访问所有层</li>
-<li><strong>Data</strong> 负责内部和外部存储 —— 可以访问 <strong>Domain</strong></li>
-<li><strong>Domain</strong> 负责仓库和用例 —— 不访问任何层 </li>
-<li><strong>Presentation</strong> 负责UI逻辑 —— 可以访问 <strong>Domain</strong></li>
-</ul>
-<h1 id="GPT-4-块问快答：究竟什么是-MVI"><a href="#GPT-4-块问快答：究竟什么是-MVI" class="headerlink" title="GPT 4 块问快答：究竟什么是 MVI"></a>GPT 4 块问快答：究竟什么是 MVI</h1><h2 id="为什么-Data-和-Presentation-可以访问领域层，举例子怎么访问的"><a href="#为什么-Data-和-Presentation-可以访问领域层，举例子怎么访问的" class="headerlink" title="为什么 Data 和 Presentation 可以访问领域层，举例子怎么访问的"></a>为什么 Data 和 Presentation 可以访问领域层，举例子怎么访问的</h2><p>在一个典型的分层架构中，每一层都有其独特的职责，而且这种架构通常允许某些层访问其他特定的层。在你提到的结构中，<code>App</code>、<code>Data</code>、<code>Domain</code>和<code>Presentation</code>层各自担负不同的角色，其中<code>Data</code>和<code>Presentation</code>层被允许访问<code>Domain</code>层，主要是因为<code>Domain</code>层包含了应用程序的核心业务逻辑和规则，是其他层依赖的基础。</p>
-<h3 id="Data-层访问-Domain-层"><a href="#Data-层访问-Domain-层" class="headerlink" title="Data 层访问 Domain 层"></a>Data 层访问 Domain 层</h3><ul>
-<li><strong>职责</strong>：<code>Data</code>层负责处理数据的存取，无论是来自内部存储（如SQLite数据库、内存缓存等）还是外部存储（如网络API、远程数据库等）。</li>
-<li><strong>访问方式</strong>：<code>Data</code>层访问<code>Domain</code>层通常是通过实现<code>Domain</code>层定义的仓库接口（Repository Interfaces）。这些仓库接口定义了应用程序需要的数据操作（如获取用户数据、保存订单等），而<code>Data</code>层实现这些接口，具体处理数据的存取逻辑。</li>
-</ul>
-<p><strong>示例</strong>：<br>假设在<code>Domain</code>层有一个<code>UserRepository</code>接口，它定义了获取用户信息的方法。<code>Data</code>层将实现这个接口，通过网络API或本地数据库获取用户信息。</p>
-<h3 id="Presentation-层访问-Domain-层"><a href="#Presentation-层访问-Domain-层" class="headerlink" title="Presentation 层访问 Domain 层"></a>Presentation 层访问 Domain 层</h3><ul>
-<li><strong>职责</strong>：<code>Presentation</code>层负责处理所有与用户界面（UI）相关的逻辑，如显示数据、响应用户操作等。</li>
-<li><strong>访问方式</strong>：<code>Presentation</code>层通过使用<code>Domain</code>层中定义的用例（Use Cases）或服务（Services）来获取所需的数据或执行特定的业务逻辑。用例封装了特定的业务逻辑操作，为<code>Presentation</code>层提供了清晰、简洁的API。</li>
-</ul>
-<p><strong>示例</strong>：<br>如果有一个显示用户个人信息的界面，<code>Presentation</code>层的一个ViewModel或Presenter可能会调用一个<code>GetUserProfile</code>用例（从<code>Domain</code>层获取），该用例封装了获取用户个人信息的业务逻辑。</p>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>通过允许<code>Data</code>和<code>Presentation</code>层访问<code>Domain</code>层，可以确保应用程序的核心业务逻辑集中管理，并且易于测试和维护。同时，这种结构还有助于解耦，使得数据源的更改或UI的修改不会直接影响到业务逻辑的实现，从而提高了应用程序的灵活性和可维护性。</p>
-<h2 id="给出-GetUserProfile-代码例子"><a href="#给出-GetUserProfile-代码例子" class="headerlink" title="给出 GetUserProfile 代码例子"></a>给出 GetUserProfile 代码例子</h2><p>为了提供一个<code>GetUserProfile</code>的示例，我们将遵循典型的分层架构中的<code>Domain</code>、<code>Data</code>和<code>Presentation</code>层的交互方式。这个例子将使用Kotlin语言，因为它是在Android开发中常用的语言，同时也适用于Kotlin多平台移动（KMM）项目。</p>
-<h3 id="Domain-层"><a href="#Domain-层" class="headerlink" title="Domain 层"></a>Domain 层</h3><p>在<code>Domain</code>层，我们定义一个用例（Use Case）<code>GetUserProfile</code>，它是业务逻辑的一部分。这个用例会从仓库（Repository）中获取用户的个人信息。</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Domain层 - 定义用例</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">GetUserProfile</span>(<span class="keyword">private</span> <span class="keyword">val</span> userRepository: UserRepository) &#123;</span><br><span class="line">    <span class="keyword">suspend</span> <span class="function"><span class="keyword">fun</span> <span class="title">execute</span><span class="params">(userId: <span class="type">String</span>)</span></span>: UserProfile &#123;</span><br><span class="line">        <span class="keyword">return</span> userRepository.getUserProfile(userId)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Domain层 - 定义仓库接口</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">UserRepository</span> &#123;</span><br><span class="line">    <span class="keyword">suspend</span> <span class="function"><span class="keyword">fun</span> <span class="title">getUserProfile</span><span class="params">(userId: <span class="type">String</span>)</span></span>: UserProfile</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 用户个人信息的数据模型</span></span><br><span class="line"><span class="keyword">data</span> <span class="keyword">class</span> <span class="title class_">UserProfile</span>(<span class="keyword">val</span> userId: String, <span class="keyword">val</span> name: String, <span class="keyword">val</span> email: String)</span><br></pre></td></tr></table></figure>
-
-<h3 id="Data-层"><a href="#Data-层" class="headerlink" title="Data 层"></a>Data 层</h3><p>在<code>Data</code>层，我们实现了<code>Domain</code>层定义的<code>UserRepository</code>接口，提供了获取用户个人信息的实际逻辑。</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Data层 - 仓库实现</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">UserRepositoryImpl</span> : <span class="type">UserRepository</span> &#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">suspend</span> <span class="function"><span class="keyword">fun</span> <span class="title">getUserProfile</span><span class="params">(userId: <span class="type">String</span>)</span></span>: UserProfile &#123;</span><br><span class="line">        <span class="comment">// 假设这里是从网络或本地数据库获取数据</span></span><br><span class="line">        <span class="keyword">return</span> UserProfile(userId, <span class="string">&quot;John Doe&quot;</span>, <span class="string">&quot;johndoe@example.com&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="Presentation-层"><a href="#Presentation-层" class="headerlink" title="Presentation 层"></a>Presentation 层</h3><p>在<code>Presentation</code>层，我们使用<code>GetUserProfile</code>用例来获取用户个人信息，并展示到UI上。这里以一个简单的ViewModel为例。</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Presentation层 - ViewModel</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">UserProfileViewModel</span>(<span class="keyword">private</span> <span class="keyword">val</span> getUserProfile: GetUserProfile) : ViewModel() &#123;</span><br><span class="line">    <span class="comment">// LiveData用于观察数据变化，更新UI</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> _userProfile = MutableLiveData&lt;UserProfile&gt;()</span><br><span class="line">    <span class="keyword">val</span> userProfile: LiveData&lt;UserProfile&gt; = _userProfile</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">loadUserProfile</span><span class="params">(userId: <span class="type">String</span>)</span></span> &#123;</span><br><span class="line">        viewModelScope.launch &#123;</span><br><span class="line">            _userProfile.value = getUserProfile.execute(userId)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>这个例子演示了在一个分层架构中，如何通过<code>Domain</code>层的用例来协调<code>Data</code>层和<code>Presentation</code>层的交互。<code>Domain</code>层定义了业务逻辑和接口，<code>Data</code>层实现了数据获取的逻辑，而<code>Presentation</code>层负责调用这些逻辑并更新UI。这种分层的方式有助于保持代码的清晰和可维护性。</p>
-<h2 id="描述一下，数据在几个层之间的传递，从起始到结束"><a href="#描述一下，数据在几个层之间的传递，从起始到结束" class="headerlink" title="描述一下，数据在几个层之间的传递，从起始到结束"></a>描述一下，数据在几个层之间的传递，从起始到结束</h2><p>数据在分层架构中的传递通常遵循一个定义良好的流程，确保应用的各个组成部分职责明确、解耦合，同时促进模块间的协作。以下是一个典型的从起始到结束的数据传递流程，以一个简化的用户个人信息获取功能为例，该功能遵循<code>Presentation</code>、<code>Domain</code>和<code>Data</code>层的架构模式：</p>
-<h3 id="1-用户界面触发"><a href="#1-用户界面触发" class="headerlink" title="1. 用户界面触发"></a>1. 用户界面触发</h3><ul>
-<li><strong>起始点</strong>：用户在应用的界面上执行一个动作（比如点击一个按钮），请求查看个人信息。</li>
-<li><strong>处理</strong>：这个动作被<code>Presentation</code>层的一个组件（例如，一个ViewModel或Activity）捕获。</li>
-</ul>
-<h3 id="2-Presentation-层处理"><a href="#2-Presentation-层处理" class="headerlink" title="2. Presentation 层处理"></a>2. Presentation 层处理</h3><ul>
-<li><code>Presentation</code>层的组件调用<code>Domain</code>层定义的用例（Use Case），比如<code>GetUserProfile</code>，来获取用户的个人信息。这个调用通常是异步的，以避免阻塞UI线程。</li>
-<li>ViewModel通过用例接口，向<code>Domain</code>层表达获取数据的需求。</li>
-</ul>
-<h3 id="3-Domain-层中转"><a href="#3-Domain-层中转" class="headerlink" title="3. Domain 层中转"></a>3. Domain 层中转</h3><ul>
-<li><code>Domain</code>层的<code>GetUserProfile</code>用例接收到请求，并将其转发给相应的<code>UserRepository</code>接口。此时，<code>GetUserProfile</code>仅知道需要调用仓库接口来获取数据，但不关心数据的具体来源。</li>
-<li><code>Domain</code>层起到了定义业务规则和操作流程的角色，但本身不处理数据的存取。</li>
-</ul>
-<h3 id="4-Data-层响应"><a href="#4-Data-层响应" class="headerlink" title="4. Data 层响应"></a>4. Data 层响应</h3><ul>
-<li><code>Data</code>层中，具体实现了<code>UserRepository</code>接口的类（如<code>UserRepositoryImpl</code>）负责处理数据的实际获取操作。这可能涉及访问网络API、查询本地数据库或读取缓存等操作。</li>
-<li>一旦数据被成功获取，它会被封装成一个模型（如<code>UserProfile</code>），并返回给调用者——在这个例子中是<code>Domain</code>层的<code>GetUserProfile</code>用例。</li>
-</ul>
-<h3 id="5-数据回流到Presentation层"><a href="#5-数据回流到Presentation层" class="headerlink" title="5. 数据回流到Presentation层"></a>5. 数据回流到Presentation层</h3><ul>
-<li><code>GetUserProfile</code>用例收到<code>Data</code>层提供的用户信息后，将这些信息返回给最初请求它的<code>Presentation</code>层的组件。</li>
-<li><code>Presentation</code>层的ViewModel接收到这些数据后，更新UI绑定的数据模型，通常是通过LiveData或类似机制。</li>
-</ul>
-<h3 id="6-UI更新显示数据"><a href="#6-UI更新显示数据" class="headerlink" title="6. UI更新显示数据"></a>6. UI更新显示数据</h3><ul>
-<li>最后，随着ViewModel中LiveData（或其他观察者模式实现）的更新，UI监听这些变化，并据此刷新显示，向用户展示最新获取的用户个人信息。</li>
-</ul>
-<h3 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h3><p>这个过程展示了数据从用户触发获取请求，通过应用的各层传递，并最终显示回用户界面的完整流程。每一层都有其特定的职责：<code>Presentation</code>层管理UI逻辑和用户交互，<code>Domain</code>层定义业务规则和数据获取的抽象接口，而<code>Data</code>层负责具体的数据存取逻辑。这种分层架构不仅有助于保持代码的组织性和可维护性，还促进了各模块间的清晰分离和互操作性。</p>
-<h2 id="解释-Domain-层如何定义业务规则"><a href="#解释-Domain-层如何定义业务规则" class="headerlink" title="解释 Domain 层如何定义业务规则"></a>解释 Domain 层如何定义业务规则</h2><p><code>Domain</code>层在分层架构中扮演着核心角色，它定义了应用程序的业务规则和逻辑。这一层是独立于用户界面（UI）和数据存储机制的，意味着它不应该依赖于任何特定的框架或库，以便于业务逻辑能够在不同的环境中重用和测试。<code>Domain</code>层的设计主要关注于应用程序的“什么”和“为什么”，而不是“怎么做”。</p>
-<h3 id="业务规则的定义"><a href="#业务规则的定义" class="headerlink" title="业务规则的定义"></a>业务规则的定义</h3><p>业务规则是指那些定义企业如何运作、决策应如何做出、业务流程应如何管理的规则。在软件开发中，这些规则转化为可以执行的代码，用于指导应用程序的行为。业务规则包括但不限于：</p>
-<ul>
-<li><strong>实体（Entities）</strong>：代表业务概念的对象，如用户、订单等，以及这些对象的属性和行为。</li>
-<li><strong>用例（Use Cases）或服务（Services）</strong>：封装了应用程序的核心功能，每个用例代表一个或多个业务操作，如“获取用户信息”、“创建订单”等。</li>
-<li><strong>值对象（Value Objects）</strong>：描述了业务中的值和它们的属性，但没有唯一标识符（与实体不同）。</li>
-<li><strong>仓库接口（Repository Interfaces）</strong>：定义了如何访问外部数据源（如数据库或远程服务）的抽象接口，但不实现具体的数据访问逻辑。</li>
-</ul>
-<h3 id="Domain层的职责"><a href="#Domain层的职责" class="headerlink" title="Domain层的职责"></a><code>Domain</code>层的职责</h3><ul>
-<li><strong>封装业务逻辑</strong>：<code>Domain</code>层包含应用程序的业务逻辑，确保业务操作的正确性、有效性和连贯性。</li>
-<li><strong>定义业务模型</strong>：通过实体和值对象定义业务领域内的数据模型和它们之间的关系。</li>
-<li><strong>业务决策的实现</strong>：实现业务决策逻辑，如验证规则、计算和数据转换等。</li>
-<li><strong>保持独立性</strong>：<code>Domain</code>层的设计应确保它不依赖于特定的UI实现或数据存储策略，使得业务逻辑可以在不同的应用场景下重用。</li>
-</ul>
-<h3 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h3><p>假设有一个在线商店应用，其<code>Domain</code>层可能包含如下定义：</p>
-<ul>
-<li><strong>实体</strong>：<code>Product</code>（产品）、<code>Customer</code>（客户）、<code>Order</code>（订单）。</li>
-<li><strong>用例</strong>：<code>PlaceOrder</code>（下订单）、<code>CancelOrder</code>（取消订单）、<code>UpdateCustomerProfile</code>（更新客户资料）。</li>
-<li><strong>值对象</strong>：<code>Address</code>（地址）、<code>Money</code>（货币）。</li>
-<li><strong>仓库接口</strong>：<code>OrderRepository</code>（提供对订单数据的访问）、<code>CustomerRepository</code>（提供对客户数据的访问）。</li>
-</ul>
-<p>在这个例子中，<code>Domain</code>层定义了在线商店运作的基本规则和逻辑，如何处理订单、如何管理客户信息，以及如何执行业务决策，所有这些都与特定的UI实现或数据持久化机制无关。</p>
-<p>总结，<code>Domain</code>层的设计是为了确保应用程序的核心业务逻辑得到清晰定义、良好封装，从而易于维护和测试，同时提高了代码的可重用性。</p>
-<h2 id="解释-Domain-层定义了基本规则和逻辑，与特定的-UI-实现或数据持久化机制无关"><a href="#解释-Domain-层定义了基本规则和逻辑，与特定的-UI-实现或数据持久化机制无关" class="headerlink" title="解释 Domain 层定义了基本规则和逻辑，与特定的 UI 实现或数据持久化机制无关"></a>解释 Domain 层定义了基本规则和逻辑，与特定的 UI 实现或数据持久化机制无关</h2><p><code>Domain</code>层在软件架构中的作用是封装和实现应用程序的核心业务逻辑，独立于用户界面（UI）和数据持久化（数据库等）的具体实现。这种设计方法使得业务逻辑更加模块化、清晰，并且易于测试和维护。在在线商店的例子中，<code>Domain</code>层定义的业务规则和逻辑涉及以下几个关键方面：</p>
-<h3 id="如何处理订单"><a href="#如何处理订单" class="headerlink" title="如何处理订单"></a>如何处理订单</h3><p>在<code>Domain</code>层中，处理订单的逻辑包括订单的创建、验证、支付、取消等步骤。这些操作反映了订单生命周期中的各个阶段，每个阶段都基于业务规则来执行。例如，订单支付前需要验证订单详情和客户支付信息的有效性；订单一旦支付成功，就不能随意取消，除非满足特定的退款条件。</p>
-<h3 id="如何管理客户信息"><a href="#如何管理客户信息" class="headerlink" title="如何管理客户信息"></a>如何管理客户信息</h3><p>客户信息管理包括客户注册、信息更新、历史订单查询等功能。<code>Domain</code>层通过定义客户实体（<code>Customer</code>）和相关的业务操作（如<code>UpdateCustomerProfile</code>）来实现这一点。这些操作确保了客户信息的一致性和安全性，例如，客户密码需要加密存储，客户信息更新需要验证客户的身份。</p>
-<h3 id="如何执行业务决策"><a href="#如何执行业务决策" class="headerlink" title="如何执行业务决策"></a>如何执行业务决策</h3><p>业务决策涉及到基于特定条件执行的逻辑选择，比如根据库存量决定是否接受订单、根据客户购买历史提供个性化推荐等。这些决策通常通过<code>Domain</code>层中的业务规则来实现，业务规则可能包括各种验证逻辑、计算公式和决策树。</p>
-<h3 id="与UI和数据持久化机制的独立性"><a href="#与UI和数据持久化机制的独立性" class="headerlink" title="与UI和数据持久化机制的独立性"></a>与UI和数据持久化机制的独立性</h3><p><code>Domain</code>层的设计目的是保持对UI层和数据持久化层的独立性。这意味着，不管UI如何变化（无论是移动应用、Web页面还是桌面应用），<code>Domain</code>层的业务逻辑不需要做出改变。同样，数据存储的细节（是使用SQL数据库、NoSQL数据库还是云服务）对<code>Domain</code>层也是透明的。这一层只通过抽象的接口（如<code>Repository</code>接口）与数据交互，具体的实现细节由<code>Data</code>层负责。</p>
-<p>通过将业务逻辑集中在<code>Domain</code>层，应用程序的核心功能和规则得到了清晰的定义和封装，这不仅有助于减少不同层之间的耦合，还使得业务逻辑更容易理解、测试和维护。此外，这种架构设计还增加了应用程序的灵活性，使得未来对应用程序的扩展和修改变得更加容易。</p>
-<h2 id="抽出-domain-层的意义是什么"><a href="#抽出-domain-层的意义是什么" class="headerlink" title="抽出 domain 层的意义是什么"></a>抽出 domain 层的意义是什么</h2><p>抽出<code>Domain</code>层在软件架构中的意义主要体现在以下几个方面：</p>
-<h3 id="1-业务逻辑集中化"><a href="#1-业务逻辑集中化" class="headerlink" title="1. 业务逻辑集中化"></a>1. 业务逻辑集中化</h3><p>将业务逻辑集中在<code>Domain</code>层，有助于明确应用程序的核心功能和规则，使得这些逻辑独立于其他层（如表示层和数据持久化层）的实现。这种集中化有助于保持业务规则的一致性，确保业务操作遵循同一套逻辑，无论是通过何种途径执行。</p>
-<h3 id="2-提高可维护性"><a href="#2-提高可维护性" class="headerlink" title="2. 提高可维护性"></a>2. 提高可维护性</h3><p>通过将业务逻辑与数据访问代码（<code>Data</code>层）和用户界面代码（<code>Presentation</code>层）分离，开发人员可以更容易地理解、修改和扩展业务规则。当业务需求发生变化时，通常只需要修改<code>Domain</code>层的代码，而无需触及到其他层的实现，这大大降低了维护成本和复杂性。</p>
-<h3 id="3-增强可测试性"><a href="#3-增强可测试性" class="headerlink" title="3. 增强可测试性"></a>3. 增强可测试性</h3><p>独立的<code>Domain</code>层使得业务逻辑的单元测试变得更加直接和简单。因为业务逻辑与外部的界面显示和数据存取逻辑解耦，测试可以集中在业务规则的正确性上，而不必担心UI或数据库的具体实现。这有助于提高测试覆盖率和发现潜在的业务逻辑错误。</p>
-<h3 id="4-促进技术栈灵活性"><a href="#4-促进技术栈灵活性" class="headerlink" title="4. 促进技术栈灵活性"></a>4. 促进技术栈灵活性</h3><p>由于<code>Domain</code>层独立于具体的技术实现，因此可以在不影响业务逻辑的前提下更换表示层框架或数据持久化技术。例如，可以从一个数据库系统迁移到另一个，或者在不同的前端技术（如Web、移动应用）之间共享相同的业务逻辑。</p>
-<h3 id="5-便于多团队协作"><a href="#5-便于多团队协作" class="headerlink" title="5. 便于多团队协作"></a>5. 便于多团队协作</h3><p>在大型项目中，不同的团队可以负责不同的应用层，例如一个团队专注于<code>Domain</code>层的业务逻辑开发，而另一个团队专注于用户界面的实现。这种分工有助于提高开发效率，因为团队可以并行工作，而且减少了彼此工作的直接依赖。</p>
-<h3 id="6-支持多种应用场景"><a href="#6-支持多种应用场景" class="headerlink" title="6. 支持多种应用场景"></a>6. 支持多种应用场景</h3><p><code>Domain</code>层的业务逻辑可以被不同的应用场景重用，比如同一个业务逻辑既能服务于Web应用，也能服务于移动应用或桌面应用。这种重用性可以显著降低开发和维护新平台应用的成本和时间。</p>
-<p>总之，抽出<code>Domain</code>层是实现软件架构清晰分层、提高代码质量和维护性的重要策略，它有助于构建更加健壯、灵活和可持续发展的软件系统。</p>
-<h1 id="这样做为什么可以只需要修改Domain层的代码，而无需触及到其他层的实现"><a href="#这样做为什么可以只需要修改Domain层的代码，而无需触及到其他层的实现" class="headerlink" title="这样做为什么可以只需要修改Domain层的代码，而无需触及到其他层的实现"></a>这样做为什么可以只需要修改Domain层的代码，而无需触及到其他层的实现</h1><p>当业务需求发生变化时，通常只需要修改<code>Domain</code>层的代码而无需触及到其他层的实现，这个原理主要是基于软件设计中的分层架构和关注点分离的原则。让我们来详细解释一下为什么这样做是可行的：</p>
-<h3 id="分层架构"><a href="#分层架构" class="headerlink" title="分层架构"></a>分层架构</h3><p>在一个典型的分层架构中，软件被划分为几个层次，每个层次负责处理不同的任务。这些层次通常包括：</p>
-<ul>
-<li><strong>表示层（Presentation Layer）</strong>：负责用户界面和用户交云的处理。</li>
-<li><strong>领域层（Domain Layer）</strong>：包含业务逻辑和业务规则。</li>
-<li><strong>数据访问层（Data Access Layer）</strong>：负责数据持久化和数据检索。</li>
-</ul>
-<h3 id="关注点分离"><a href="#关注点分离" class="headerlink" title="关注点分离"></a>关注点分离</h3><p>分层架构实现了关注点分离（Separation of Concerns, SoC）的原则，即不同的层次关注不同的方面。通过这种方式，每一层都可以独立于其他层变化，只要它们之间的接口保持不变。</p>
-<h3 id="对于业务逻辑的变化"><a href="#对于业务逻辑的变化" class="headerlink" title="对于业务逻辑的变化"></a>对于业务逻辑的变化</h3><ul>
-<li><strong>业务逻辑变化通常发生在Domain层</strong>：因为<code>Domain</code>层封装了应用程序的核心业务规则和逻辑。当业务需求变化时，这些变化几乎总是直接影响到业务规则和逻辑，而这些都是<code>Domain</code>层的职责范畴。</li>
-<li><strong>表示层和数据访问层的独立性</strong>：由于表示层主要负责界面显示和用户交互，数据访问层主要负责数据的持久化和检索，这两层的工作与业务逻辑的具体内容相对独立。它们通过定义良好的接口与<code>Domain</code>层交互，只要这些接口不变，业务逻辑的变更就不会直接影响到它们。</li>
-<li><strong>接口作为契约</strong>：<code>Domain</code>层通过接口与其他层进行交互。当业务需求变化导致<code>Domain</code>层的逻辑变化时，只要接口保持不变，表示层和数据访问层就无需变化。即使接口需要变化，现代编程语言和框架提供的抽象和封装机制也能最小化这种变化的影响。</li>
-</ul>
-<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><p>假设一个电子商务应用，其中有一个计算订单总价的业务逻辑。如果业务规定更改了订单的折扣计算方式，这个变化直接关系到订单总价的计算规则，这是<code>Domain</code>层的一部分。只需修改<code>Domain</code>层中计算总价的代码即可。只要<code>Domain</code>层对外提供的计算总价的接口不变，表示层（可能显示总价的界面）和数据访问层（可能存储订单详情的数据库操作）就不需要任何改动。</p>
-<h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3><p>因此，将业务逻辑封装在<code>Domain</code>层，确保了应用程序在面对业务需求变化时，可以局部化修改影响，减少了需要修改的代码量，从而降低了维护成本和复杂性。这种设计使得软件系统更加灵活和可维护，更容易适应和响应业务变化。</p>
-<h2 id="给出代码例子"><a href="#给出代码例子" class="headerlink" title="给出代码例子"></a>给出代码例子</h2><p>让我们通过一个简化的代码示例来说明当业务需求发生变化时，通常只需要修改<code>Domain</code>层的代码而无需触及到其他层的实现。考虑一个电子商务应用，其中包含一个功能：计算订单总价。我们将展示<code>Domain</code>层、<code>Data</code>层和<code>Presentation</code>层的简化代码，并展示当业务规则（例如，订单折扣规则）变化时，如何只修改<code>Domain</code>层代码来应对这一变化。</p>
-<h3 id="初始实现"><a href="#初始实现" class="headerlink" title="初始实现"></a>初始实现</h3><h4 id="Domain层"><a href="#Domain层" class="headerlink" title="Domain层"></a>Domain层</h4><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Domain层 - 定义业务逻辑接口</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">OrderService</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">calculateTotalPrice</span><span class="params">(items: <span class="type">List</span>&lt;<span class="type">OrderItem</span>&gt;)</span></span>: <span class="built_in">Double</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Domain层 - 实现</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">OrderServiceImpl</span> : <span class="type">OrderService</span> &#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">calculateTotalPrice</span><span class="params">(items: <span class="type">List</span>&lt;<span class="type">OrderItem</span>&gt;)</span></span>: <span class="built_in">Double</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> items.sumOf &#123; it.price * it.quantity &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">data</span> <span class="keyword">class</span> <span class="title class_">OrderItem</span>(<span class="keyword">val</span> price: <span class="built_in">Double</span>, <span class="keyword">val</span> quantity: <span class="built_in">Int</span>)</span><br></pre></td></tr></table></figure>
-
-<h4 id="Data层"><a href="#Data层" class="headerlink" title="Data层"></a>Data层</h4><p>假设数据层处理订单数据的存储和检索，但与计算总价无关，因此在此示例中略过。</p>
-<h4 id="Presentation层"><a href="#Presentation层" class="headerlink" title="Presentation层"></a>Presentation层</h4><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Presentation层 - 使用Domain层的服务展示总价</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">OrderViewModel</span>(<span class="keyword">private</span> <span class="keyword">val</span> orderService: OrderService) &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">displayTotalPrice</span><span class="params">(items: <span class="type">List</span>&lt;<span class="type">OrderItem</span>&gt;)</span></span> &#123;</span><br><span class="line">        <span class="keyword">val</span> totalPrice = orderService.calculateTotalPrice(items)</span><br><span class="line">        println(<span class="string">&quot;Total Price: <span class="variable">$totalPrice</span>&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="业务需求变化"><a href="#业务需求变化" class="headerlink" title="业务需求变化"></a>业务需求变化</h3><p>假设业务需求变化，现在需要对订单总价应用10%的折扣。</p>
-<h4 id="修改Domain层"><a href="#修改Domain层" class="headerlink" title="修改Domain层"></a>修改Domain层</h4><p>我们只需要在<code>Domain</code>层中修改<code>OrderServiceImpl</code>的实现来反映这一变化：</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Domain层 - 修改后的实现</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">OrderServiceImpl</span> : <span class="type">OrderService</span> &#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">calculateTotalPrice</span><span class="params">(items: <span class="type">List</span>&lt;<span class="type">OrderItem</span>&gt;)</span></span>: <span class="built_in">Double</span> &#123;</span><br><span class="line">        <span class="keyword">val</span> originalTotal = items.sumOf &#123; it.price * it.quantity &#125;</span><br><span class="line">        <span class="keyword">val</span> discount = originalTotal * <span class="number">0.1</span> <span class="comment">// 应用10%的折扣</span></span><br><span class="line">        <span class="keyword">return</span> originalTotal - discount</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在这个修改中，我们没有触及<code>Presentation</code>层或<code>Data</code>层的代码。<code>Presentation</code>层仍然以相同的方式调用<code>Domain</code>层的<code>calculateTotalPrice</code>方法，而<code>Data</code>层（假设它负责数据的持久化）也不需要变化，因为它与订单价格的计算逻辑无关。</p>
-<h3 id="结论-1"><a href="#结论-1" class="headerlink" title="结论"></a>结论</h3><p>通过这个简化的例子，我们可以看到，当业务规则变化（如订单折扣规则）时，只需修改<code>Domain</code>层中的业务逻辑实现。<code>Presentation</code>层和<code>Data</code>层不需要修改，因为它们与<code>Domain</code>层通过抽象的接口进行交互，这个接口（在本例中是<code>OrderService.calculateTotalPrice</code>）保持不变。这种设计使得应用程序能够灵活应对业务需求的变化，同时最小化了修改的影响范围，提高了代码的可维护性。</p>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a>, <a class="article-category-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a>
-
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
 
 
   <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/6/">Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><a class="page-number" href="/page/9/">9</a><a class="extend next" rel="next" href="/page/8/">Next</a>
+    <a class="extend prev" rel="prev" href="/page/6/">Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><a class="page-number" href="/page/9/">9</a><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/8/">Next</a>
   </nav>
 
 </section>
@@ -1611,7 +1545,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%9F%BA%E7%A1%80/">1.1 - Kotlin 基础</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/">11 - 音视频</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/11-1-%E6%92%AD%E6%94%BE%E5%99%A8%E5%AE%9E%E6%88%98/">11.1 - 播放器实战</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-1-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.1 - 多线程</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">23</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">8</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-1-Handler/">3.1.1 - Handler</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-2-AMS/">3.1.2 - AMS</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-2-WMS/">3.1.2 - WMS</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-4-Binder/">3.1.4 - Binder</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.1 - 播放器架构方案设计</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-2-Android-%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.2 - Android 存储文件方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-2-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.2 - 简单好用的 gradle 云编译设置</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-2-%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/">7.2 - 手势分发</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">8</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-3-%E5%AE%9E%E6%97%B6%E6%B8%B2%E6%9F%93/">8.3 - 实时渲染</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%9F%BA%E7%A1%80/">1.1 - Kotlin 基础</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/">11 - 音视频</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/11-1-%E6%92%AD%E6%94%BE%E5%99%A8%E5%AE%9E%E6%88%98/">11.1 - 播放器实战</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-1-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.1 - 多线程</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">24</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">9</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-1-Handler/">3.1.1 - Handler</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-2-AMS/">3.1.2 - AMS</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-2-WMS/">3.1.2 - WMS</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-4-Binder/">3.1.4 - Binder</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.1 - 播放器架构方案设计</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-2-Android-%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.2 - Android 存储文件方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-2-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.2 - 简单好用的 gradle 云编译设置</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-2-%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/">7.2 - 手势分发</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">8</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-3-%E5%AE%9E%E6%97%B6%E6%B8%B2%E6%9F%93/">8.3 - 实时渲染</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1627,7 +1561,7 @@
     <h3 class="widget-title">Archives</h3>
 
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/03/">March 2026</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/01/">January 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">November 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">March 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">54</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/03/">March 2026</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/01/">January 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">November 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">March 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">54</span></li></ul>
     </div>
   </div>
 
