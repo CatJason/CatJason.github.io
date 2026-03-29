@@ -22,7 +22,9 @@ if (!hasCurrent) {
 
 
 
-// article toc
+// article toc - Removed redundant JS scroll handler to allow pure CSS sticky behavior
+// This decouples sidebar scroll from page scroll and prevents "resetting" of scroll progress
+/*
 var toc = document.getElementById('toc')
 
 if (toc != null) {
@@ -40,6 +42,7 @@ if (toc != null) {
 		 }
 	}
 }
+*/
 
 
 $('#main-navigation').on('click', function(){

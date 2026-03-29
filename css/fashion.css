@@ -266,9 +266,9 @@ object {
 	}
 
 @keyframes titleGradient {
-	0% { background-position: 200% 50%; }
-	30% { background-position: 0% 50%; }
-	100% { background-position: 0% 50%; }
+	0% { background-position: 120% 50%; }
+	30% { background-position: -20% 50%; }
+	100% { background-position: -20% 50%; }
 }
 
 .site-title a {
@@ -593,6 +593,26 @@ object {
 	float: left;
 	margin: 0 0 0 -300px;
 	}
+
+#sidebar {
+	position: -webkit-sticky;
+	position: sticky;
+	top: 20px;
+	max-height: calc(100vh - 40px);
+	overflow-y: auto;
+	scrollbar-width: thin;
+	scrollbar-color: #1fa0ae transparent;
+	overscroll-behavior: contain;
+}
+
+#sidebar::-webkit-scrollbar {
+	width: 4px;
+}
+
+#sidebar::-webkit-scrollbar-thumb {
+	background-color: #1fa0ae;
+	border-radius: 10px;
+}
 
 /* CONTENT
 ----------------------------------------------- */
