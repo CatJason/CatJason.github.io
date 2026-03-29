@@ -62,28 +62,29 @@
 
   
 
+
   <div id="header-blur" class="site-header-image blur" style="position: absolute; top:0; height: 207px; min-height: 207px; min-width: 100%;">
-    <img id="blurBg" width="100%" style="top: 96%" alt="Hike News" src="">
+    <img id="blurBg" width="100%" style="top: 96%" alt="喵星科技报" src="">
   </div>
 
   <script>
         var imgUrls = "css/images/pose01.jpg,https://source.unsplash.com/collection/954550/1920x1080,https://source.unsplash.com/collection/954550/1920x1081".split(",");
         var random = Math.floor((Math.random() * imgUrls.length ));
-        if (imgUrls[random].startsWith('http') || imgUrls[random].indexOf('://') >= 0) {
-          document.getElementById("blurBg").src=imgUrls[random];
-        } else {
-          document.getElementById("blurBg").src='/' + imgUrls[random];
+        var targetImg = document.getElementById("blurBg");
+        if (targetImg) {
+          if (imgUrls[random].startsWith('http') || imgUrls[random].indexOf('://') >= 0) {
+            targetImg.src = imgUrls[random];
+          } else {
+            targetImg.src = '/' + imgUrls[random];
+          }
         }
     </script>
-
-
 
 
 <header id="allheader" class="site-header" role="banner" 
    style="width: 100%; position: absolute; top:0; background: rgba(255,255,255,.8);"  >
   <div class="clearfix container">
       <div class="site-branding">
-
           <h1 class="site-title">
             
               <a href="/" title="喵星科技报" rel="home"> 喵星科技报 </a>
@@ -97,22 +98,31 @@
             <a class="nav-close">Close</a>
 
             <div class="clearfix sf-menu">
-              <ul id="main-nav" class="menu sf-js-enabled sf-arrows"  style="touch-action: pan-y;">
-                    
-                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="/"> <a class="" href="/">Home</a> </li>
-                    
-                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="archives"> <a class="" href="/archives">Archives</a> </li>
-                    
-                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="categories"> <a class="" href="/categories">Categories</a> </li>
-                    
-                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="tags"> <a class="" href="/tags">Tags</a> </li>
-                    
-                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="about"> <a class="" href="/about">About</a> </li>
-                    
+              <ul id="main-nav" class="menu sf-js-enabled sf-arrows" style="touch-action: pan-y;">
+                
+                  <li class="menu-item menu-item-type-custom menu-item-object-custom" linktext="/">
+                    <a href="/">Home</a>
+                  </li>
+                
+                  <li class="menu-item menu-item-type-custom menu-item-object-custom" linktext="archives">
+                    <a href="/archives">Archives</a>
+                  </li>
+                
+                  <li class="menu-item menu-item-type-custom menu-item-object-custom" linktext="categories">
+                    <a href="/categories">Categories</a>
+                  </li>
+                
+                  <li class="menu-item menu-item-type-custom menu-item-object-custom" linktext="tags">
+                    <a href="/tags">Tags</a>
+                  </li>
+                
+                  <li class="menu-item menu-item-type-custom menu-item-object-custom" linktext="about">
+                    <a href="/about">About</a>
+                  </li>
+                
               </ul>
             </div>
           </nav>
-
       </div>
   </div>
 </header>
@@ -367,13 +377,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/1%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%BA%8C)/" class="archive-article-date">
+      <a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/2%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%89)%20/" class="archive-article-date">
 		  <time datetime="2024-03-31T17:32:52.573Z" itemprop="datePublished">Apr 01, 2024</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2024/04/01/3%20Android/Jetpacket/VideoModel/1%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%BA%8C)/">ViewModel 源代码分析 (二)</a>
+      <a class="archive-article-title" href="/2024/04/01/3%20Android/Jetpacket/VideoModel/2%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%89)%20/">ViewModel 源代码分析 (三)</a>
     </h1>
   
 
@@ -387,13 +397,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/2%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%89)%20/" class="archive-article-date">
+      <a href="/2024/04/01/3%20Android/Jetpacket/VideoModel/1%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%BA%8C)/" class="archive-article-date">
 		  <time datetime="2024-03-31T17:32:52.573Z" itemprop="datePublished">Apr 01, 2024</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2024/04/01/3%20Android/Jetpacket/VideoModel/2%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%89)%20/">ViewModel 源代码分析 (三)</a>
+      <a class="archive-article-title" href="/2024/04/01/3%20Android/Jetpacket/VideoModel/1%20ViewModel%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%BA%8C)/">ViewModel 源代码分析 (二)</a>
     </h1>
   
 

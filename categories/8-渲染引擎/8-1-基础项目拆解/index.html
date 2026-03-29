@@ -62,28 +62,29 @@
 
   
 
+
   <div id="header-blur" class="site-header-image blur" style="position: absolute; top:0; height: 207px; min-height: 207px; min-width: 100%;">
-    <img id="blurBg" width="100%" style="top: 96%" alt="Hike News" src="">
+    <img id="blurBg" width="100%" style="top: 96%" alt="喵星科技报" src="">
   </div>
 
   <script>
         var imgUrls = "css/images/pose01.jpg,https://source.unsplash.com/collection/954550/1920x1080,https://source.unsplash.com/collection/954550/1920x1081".split(",");
         var random = Math.floor((Math.random() * imgUrls.length ));
-        if (imgUrls[random].startsWith('http') || imgUrls[random].indexOf('://') >= 0) {
-          document.getElementById("blurBg").src=imgUrls[random];
-        } else {
-          document.getElementById("blurBg").src='/' + imgUrls[random];
+        var targetImg = document.getElementById("blurBg");
+        if (targetImg) {
+          if (imgUrls[random].startsWith('http') || imgUrls[random].indexOf('://') >= 0) {
+            targetImg.src = imgUrls[random];
+          } else {
+            targetImg.src = '/' + imgUrls[random];
+          }
         }
     </script>
-
-
 
 
 <header id="allheader" class="site-header" role="banner" 
    style="width: 100%; position: absolute; top:0; background: rgba(255,255,255,.8);"  >
   <div class="clearfix container">
       <div class="site-branding">
-
           <h1 class="site-title">
             
               <a href="/" title="喵星科技报" rel="home"> 喵星科技报 </a>
@@ -97,22 +98,31 @@
             <a class="nav-close">Close</a>
 
             <div class="clearfix sf-menu">
-              <ul id="main-nav" class="menu sf-js-enabled sf-arrows"  style="touch-action: pan-y;">
-                    
-                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="/"> <a class="" href="/">Home</a> </li>
-                    
-                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="archives"> <a class="" href="/archives">Archives</a> </li>
-                    
-                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="categories"> <a class="" href="/categories">Categories</a> </li>
-                    
-                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="tags"> <a class="" href="/tags">Tags</a> </li>
-                    
-                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="about"> <a class="" href="/about">About</a> </li>
-                    
+              <ul id="main-nav" class="menu sf-js-enabled sf-arrows" style="touch-action: pan-y;">
+                
+                  <li class="menu-item menu-item-type-custom menu-item-object-custom" linktext="/">
+                    <a href="/">Home</a>
+                  </li>
+                
+                  <li class="menu-item menu-item-type-custom menu-item-object-custom" linktext="archives">
+                    <a href="/archives">Archives</a>
+                  </li>
+                
+                  <li class="menu-item menu-item-type-custom menu-item-object-custom" linktext="categories">
+                    <a href="/categories">Categories</a>
+                  </li>
+                
+                  <li class="menu-item menu-item-type-custom menu-item-object-custom" linktext="tags">
+                    <a href="/tags">Tags</a>
+                  </li>
+                
+                  <li class="menu-item menu-item-type-custom menu-item-object-custom" linktext="about">
+                    <a href="/about">About</a>
+                  </li>
+                
               </ul>
             </div>
           </nav>
-
       </div>
   </div>
 </header>
@@ -141,13 +151,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01%20%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/01%20Android%20GameProject%20%E4%B8%AD%E6%9C%80%E5%9F%BA%E7%A1%80%E7%9A%84%20Renderer/" class="archive-article-date">
+      <a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01%20%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/02%20Android%20GameProject%20%E7%BB%93%E6%9E%84%E7%9B%AE%E5%BD%95/" class="archive-article-date">
 		  <time datetime="2023-08-23T10:38:36.000Z" itemprop="datePublished">Aug 23, 2023</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01%20%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/01%20Android%20GameProject%20%E4%B8%AD%E6%9C%80%E5%9F%BA%E7%A1%80%E7%9A%84%20Renderer/">Android Game Project 核心 Renderer.cpp</a>
+      <a class="archive-article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01%20%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/02%20Android%20GameProject%20%E7%BB%93%E6%9E%84%E7%9B%AE%E5%BD%95/">Android Game Project 项目结构</a>
     </h1>
   
 
@@ -161,13 +171,13 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01%20%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/02%20Android%20GameProject%20%E7%BB%93%E6%9E%84%E7%9B%AE%E5%BD%95/" class="archive-article-date">
+      <a href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01%20%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/01%20Android%20GameProject%20%E4%B8%AD%E6%9C%80%E5%9F%BA%E7%A1%80%E7%9A%84%20Renderer/" class="archive-article-date">
 		  <time datetime="2023-08-23T10:38:36.000Z" itemprop="datePublished">Aug 23, 2023</time>
 	  </a>
       
   
     <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01%20%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/02%20Android%20GameProject%20%E7%BB%93%E6%9E%84%E7%9B%AE%E5%BD%95/">Android Game Project 项目结构</a>
+      <a class="archive-article-title" href="/2023/08/23/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/01%20%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/01%20Android%20GameProject%20%E4%B8%AD%E6%9C%80%E5%9F%BA%E7%A1%80%E7%9A%84%20Renderer/">Android Game Project 核心 Renderer.cpp</a>
     </h1>
   
 

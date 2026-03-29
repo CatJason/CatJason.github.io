@@ -62,28 +62,29 @@
 
   
 
+
   <div id="header-blur" class="site-header-image blur" style="position: absolute; top:0; height: 207px; min-height: 207px; min-width: 100%;">
-    <img id="blurBg" width="100%" style="top: 96%" alt="Hike News" src="">
+    <img id="blurBg" width="100%" style="top: 96%" alt="喵星科技报" src="">
   </div>
 
   <script>
         var imgUrls = "css/images/pose01.jpg,https://source.unsplash.com/collection/954550/1920x1080,https://source.unsplash.com/collection/954550/1920x1081".split(",");
         var random = Math.floor((Math.random() * imgUrls.length ));
-        if (imgUrls[random].startsWith('http') || imgUrls[random].indexOf('://') >= 0) {
-          document.getElementById("blurBg").src=imgUrls[random];
-        } else {
-          document.getElementById("blurBg").src='/' + imgUrls[random];
+        var targetImg = document.getElementById("blurBg");
+        if (targetImg) {
+          if (imgUrls[random].startsWith('http') || imgUrls[random].indexOf('://') >= 0) {
+            targetImg.src = imgUrls[random];
+          } else {
+            targetImg.src = '/' + imgUrls[random];
+          }
         }
     </script>
-
-
 
 
 <header id="allheader" class="site-header" role="banner" 
    style="width: 100%; position: absolute; top:0; background: rgba(255,255,255,.8);"  >
   <div class="clearfix container">
       <div class="site-branding">
-
           <h1 class="site-title">
             
               <a href="/" title="喵星科技报" rel="home"> 喵星科技报 </a>
@@ -97,22 +98,31 @@
             <a class="nav-close">Close</a>
 
             <div class="clearfix sf-menu">
-              <ul id="main-nav" class="menu sf-js-enabled sf-arrows"  style="touch-action: pan-y;">
-                    
-                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="/"> <a class="" href="/">Home</a> </li>
-                    
-                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="archives"> <a class="" href="/archives">Archives</a> </li>
-                    
-                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="categories"> <a class="" href="/categories">Categories</a> </li>
-                    
-                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="tags"> <a class="" href="/tags">Tags</a> </li>
-                    
-                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="about"> <a class="" href="/about">About</a> </li>
-                    
+              <ul id="main-nav" class="menu sf-js-enabled sf-arrows" style="touch-action: pan-y;">
+                
+                  <li class="menu-item menu-item-type-custom menu-item-object-custom" linktext="/">
+                    <a href="/">Home</a>
+                  </li>
+                
+                  <li class="menu-item menu-item-type-custom menu-item-object-custom" linktext="archives">
+                    <a href="/archives">Archives</a>
+                  </li>
+                
+                  <li class="menu-item menu-item-type-custom menu-item-object-custom" linktext="categories">
+                    <a href="/categories">Categories</a>
+                  </li>
+                
+                  <li class="menu-item menu-item-type-custom menu-item-object-custom" linktext="tags">
+                    <a href="/tags">Tags</a>
+                  </li>
+                
+                  <li class="menu-item menu-item-type-custom menu-item-object-custom" linktext="about">
+                    <a href="/about">About</a>
+                  </li>
+                
               </ul>
             </div>
           </nav>
-
       </div>
   </div>
 </header>
@@ -161,26 +171,6 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
 
-      <a href="/2023/09/10/3%20Android/ARouter/02-Arouter/" class="archive-article-date">
-		  <time datetime="2023-09-09T17:05:06.000Z" itemprop="datePublished">Sep 10, 2023</time>
-	  </a>
-      
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="archive-article-title" href="/2023/09/10/3%20Android/ARouter/02-Arouter/">从零开始写一个 ARouter - base 基础功能 与 core 核心功能</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-
       <a href="/2023/09/10/3%20Android/ARouter/03-Arouter/" class="archive-article-date">
 		  <time datetime="2023-09-09T17:05:06.000Z" itemprop="datePublished">Sep 10, 2023</time>
 	  </a>
@@ -208,6 +198,26 @@
   
     <h1 class="thumb" itemprop="name">
       <a class="archive-article-title" href="/2023/09/10/3%20Android/ARouter/04-Arouter/">从零开始写一个 ARouter - service 服务</a>
+    </h1>
+  
+
+    </header>
+  </div>
+</article>
+  
+    
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+
+      <a href="/2023/09/10/3%20Android/ARouter/02-Arouter/" class="archive-article-date">
+		  <time datetime="2023-09-09T17:05:06.000Z" itemprop="datePublished">Sep 10, 2023</time>
+	  </a>
+      
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="archive-article-title" href="/2023/09/10/3%20Android/ARouter/02-Arouter/">从零开始写一个 ARouter - base 基础功能 与 core 核心功能</a>
     </h1>
   
 
