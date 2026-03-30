@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>喵星科技报</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  
+  
+  
+  <meta name="description" content="Kotlin 协程上下文与 CombinedContext 源码解析在 Kotlin 协程中，CoroutineContext 是一组元素的集合，如 Job、Dispatcher、CoroutineName 等。虽然从逻辑上看它像是一个 Map，但为了性能和协程的特殊需求，它的底层并没有使用 java.util.HashMap，而是使用了一种特殊的递归链表结构：**CombinedContext*">
+<meta property="og:type" content="article">
+<meta property="og:title" content="喵星科技报">
+<meta property="og:url" content="http://example.com/2026/03/25/1%20Kotlin/01%20Kotlin%20%E5%8D%8F%E7%A8%8B/%E5%8D%8F%E7%A8%8B%E4%B8%8A%E4%B8%8B%E6%96%87%E4%B8%8E%20CombinedContext%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/index.html">
+<meta property="og:site_name" content="喵星科技报">
+<meta property="og:description" content="Kotlin 协程上下文与 CombinedContext 源码解析在 Kotlin 协程中，CoroutineContext 是一组元素的集合，如 Job、Dispatcher、CoroutineName 等。虽然从逻辑上看它像是一个 Map，但为了性能和协程的特殊需求，它的底层并没有使用 java.util.HashMap，而是使用了一种特殊的递归链表结构：**CombinedContext*">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-03-24T19:59:02.283Z">
+<meta property="article:modified_time" content="2026-03-24T20:01:36.774Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="喵星科技报" type="application/atom+xml">
+  
+  <link rel="icon" href="/css/images/favicon.ico">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+    
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Yanone+Kaffeesatz%3A200%2C300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Oswald%3A300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+<script src="/js/jquery-3.1.1.min.js"></script>
+
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.css" >
+  <link rel="stylesheet" href="/css/fashion.css" >
+  <link rel="stylesheet" href="/css/glyphs.css" >
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  
+    <a target="_blank" rel="noopener" href="https://github.com/CatJason" class="github-corner" aria-label="View source on GitHub">
+      <svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; left: 0; transform: scale(-1, 1); z-index: 9999;" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.5 120.5,78.5 C119.9,75.7 122.6,76.3 122.6,76.3 C127.3,81.2 124.9,88.2 124.9,88.2 C124.3,94.1 120.5,97.5 119.4,105.4" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path>
+      </svg>
+    </a>
+    <style>
+      .github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}
+      @keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}
+      @media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}
+    </style>
+  
+
+  <header id="allheader" class="site-header" role="banner">
+  <div class="clearfix container">
+      <div class="site-branding">
+
+          <h1 class="site-title">
+            
+              <a href="/" title="喵星科技报" rel="home"> 喵星科技报 </a>
+            
+          </h1>
+          
+          
+            
+          <nav id="main-navigation" class="main-navigation" role="navigation">
+            <a class="nav-open">Menu</a>
+            <a class="nav-close">Close</a>
+
+            <div class="clearfix sf-menu">
+              <ul id="main-nav" class="menu sf-js-enabled sf-arrows"  style="touch-action: pan-y;">
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="/"> <a class="" href="/">Home</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="archives"> <a class="" href="/archives">Archives</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="categories"> <a class="" href="/categories">Categories</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="tags"> <a class="" href="/tags">Tags</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="about"> <a class="" href="/about">About</a> </li>
+                    
+              </ul>
+            </div>
+          </nav>
+
+      </div>
+  </div>
+</header>
+
+
+  <div id="container">
+    <div id="wrap">
+            
+      <div id="content" class="outer">
+        
+          <section id="main" class="post-main" style="float:none; width: 100%;"><article id="post-1 Kotlin/01 Kotlin 协程/协程上下文与 CombinedContext 源码解析" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+    <div class="article-meta">
+      
+	<a href="/2026/03/25/1%20Kotlin/01%20Kotlin%20%E5%8D%8F%E7%A8%8B/%E5%8D%8F%E7%A8%8B%E4%B8%8A%E4%B8%8B%E6%96%87%E4%B8%8E%20CombinedContext%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" class="article-date">
+	  <time datetime="2026-03-24T19:59:02.283Z" itemprop="datePublished">March 25, 2026</time>
+	</a>
+
+       
+      
+	<span id="busuanzi_container_page_pv">
+	  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	</span>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Kotlin-协程上下文与-CombinedContext-源码解析"><a href="#Kotlin-协程上下文与-CombinedContext-源码解析" class="headerlink" title="Kotlin 协程上下文与 CombinedContext 源码解析"></a>Kotlin 协程上下文与 CombinedContext 源码解析</h1><p>在 Kotlin 协程中，<code>CoroutineContext</code> 是一组元素的集合，如 <code>Job</code>、<code>Dispatcher</code>、<code>CoroutineName</code> 等。虽然从逻辑上看它像是一个 <code>Map</code>，但为了性能和协程的特殊需求，它的底层并没有使用 <code>java.util.HashMap</code>，而是使用了一种特殊的递归链表结构：**<code>CombinedContext</code>**。</p>
+<h2 id="1-逻辑上的-Map，物理上的链表"><a href="#1-逻辑上的-Map，物理上的链表" class="headerlink" title="1. 逻辑上的 Map，物理上的链表"></a>1. 逻辑上的 Map，物理上的链表</h2><p><code>CoroutineContext</code> 定义了类似 <code>Map</code> 的 API：</p>
+<ul>
+<li><code>get(key)</code>：获取元素。</li>
+<li><code>plus(context)</code>：合并上下文（使用 <code>+</code> 运算符）。</li>
+<li><code>minusKey(key)</code>：移除元素。</li>
+</ul>
+<p>然而，它的实现类只有三种：</p>
+<ol>
+<li>**<code>EmptyCoroutineContext</code>**：空集合。</li>
+<li>**<code>CoroutineContext.Element</code>**：单个元素（如 <code>Dispatchers.Main</code> 本身就是一个 Element）。</li>
+<li>**<code>CombinedContext</code>**：将两个上下文连接在一起的容器。</li>
+</ol>
+<h2 id="2-CombinedContext-的结构"><a href="#2-CombinedContext-的结构" class="headerlink" title="2. CombinedContext 的结构"></a>2. CombinedContext 的结构</h2><p><code>CombinedContext</code> 定义在 Kotlin 标准库中。它通过 <code>left</code> 和 <code>element</code> 两个字段构成一个二叉树状的链表（通常向左倾斜）。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 逻辑示意（标准库实现）</span></span><br><span class="line"><span class="keyword">internal</span> <span class="keyword">class</span> <span class="title class_">CombinedContext</span>(</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> left: CoroutineContext,</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> element: Element</span><br><span class="line">) : CoroutineContext &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>**左侧 (left)**：可以是另一个 <code>CombinedContext</code> 或一个 <code>Element</code>。</li>
+<li>**右侧 (element)**：始终是一个单体 <code>Element</code>。</li>
+</ul>
+<p>这种设计使得上下文的合并（<code>+</code> 运算）非常轻量，不需要像 <code>HashMap</code> 那样计算哈希值或调整数组大小，只需创建一个新的 <code>CombinedContext</code> 节点即可。</p>
+<h2 id="3-为什么不使用-HashMap？"><a href="#3-为什么不使用-HashMap？" class="headerlink" title="3. 为什么不使用 HashMap？"></a>3. 为什么不使用 HashMap？</h2><h3 id="1-元素数量极少"><a href="#1-元素数量极少" class="headerlink" title="1. 元素数量极少"></a>1. 元素数量极少</h3><p>大多数协程上下文只包含 2-4 个元素（例如：Job + Dispatcher + Name）。在元素数量如此之少的情况下，遍历微型链表的开销远小于 <code>HashMap</code> 的维护开销。</p>
+<h3 id="2-不可变性与持久化"><a href="#2-不可变性与持久化" class="headerlink" title="2. 不可变性与持久化"></a>2. 不可变性与持久化</h3><p><code>CoroutineContext</code> 是不可变的。每次 <code>+</code> 运算都会产生新的上下文，而旧的上下文保持不变。<code>CombinedContext</code> 的设计天然支持这种<strong>持久化数据结构（Persistent Data Structure）</strong>，允许新旧上下文共享节点。</p>
+<h4 id="详细示例：节点共享机制"><a href="#详细示例：节点共享机制" class="headerlink" title="详细示例：节点共享机制"></a>详细示例：节点共享机制</h4><p>假设我们有以下代码：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> contextA = Job() + Dispatchers.IO</span><br><span class="line"><span class="keyword">val</span> contextB = contextA + CoroutineName(<span class="string">&quot;MyCoroutine&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>在底层的物理存储中，它们的关系如下：</p>
+<ol>
+<li><p><strong>contextA</strong> 的结构：</p>
+<ul>
+<li><code>CombinedContext(left = Job, element = Dispatchers.IO)</code></li>
+</ul>
+</li>
+<li><p><strong>contextB</strong> 的结构：</p>
+<ul>
+<li><code>CombinedContext(left = contextA, element = CoroutineName(&quot;MyCoroutine&quot;))</code></li>
+</ul>
+</li>
+</ol>
+<p><strong>关键点在于：</strong></p>
+<ul>
+<li><code>contextB</code> 并没有拷贝 <code>Job</code> 和 <code>Dispatchers.IO</code>。</li>
+<li>它的 <code>left</code> 指针直接指向了现有的 <code>contextA</code> 实例。</li>
+<li>如果你启动了 1000 个协程，它们都基于同一个 <code>ParentContext</code> 增加自己的 <code>CoroutineId</code>，那么这 1000 个子上下文的 <code>left</code> 字段都指向内存中同一个 <code>ParentContext</code> 对象。</li>
+</ul>
+<p><strong>对比 HashMap：</strong><br>如果使用 <code>HashMap</code>，每次添加元素（由于不可变性）都需要创建一个新的 <code>Map</code> 实例，并把旧 Map 中的所有 Entry 重新 Put 进去（或者进行复杂的写时复制）。对于频繁创建协程的场景，这会产生大量的垃圾回收压力。而 <code>CombinedContext</code> 只需要创建一个包含两个引用的新对象。</p>
+<h3 id="3-内存效率"><a href="#3-内存效率" class="headerlink" title="3. 内存效率"></a>3. 内存效率</h3><p>对于只有 1-2 个元素的上下文，使用 <code>HashMap</code> 会产生显著的内存浪费（Entry 对象、内部数组等），而 <code>CombinedContext</code> 仅需一个包含两个引用的对象。</p>
+<h2 id="4-特殊优化：ThreadState-与数组缓存"><a href="#4-特殊优化：ThreadState-与数组缓存" class="headerlink" title="4. 特殊优化：ThreadState 与数组缓存"></a>4. 特殊优化：<code>ThreadState</code> 与数组缓存</h2><p>虽然上下文本身是链表结构，但在某些<strong>性能敏感</strong>的场景下，协程库会将其转换为临时数组以加速访问。</p>
+<p>例如在 <code>ThreadContext.kt</code> 中，当需要跨线程恢复多个 <code>ThreadContextElement</code> 时，系统会使用 <code>ThreadState</code>：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">class</span> <span class="title class_">ThreadState</span>(<span class="keyword">val</span> context: CoroutineContext, n: <span class="built_in">Int</span>) &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> values = arrayOfNulls&lt;Any&gt;(n) <span class="comment">// 快速索引数组</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> elements = arrayOfNulls&lt;ThreadContextElement&lt;Any?&gt;&gt;(n)</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这是一种典型的“<strong>空间换时间</strong>”策略：在执行频率极高的切换逻辑中，通过一次性 <code>fold</code> 遍历将链表转为数组缓存，从而避免后续多次递归查找。</p>
+<h2 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. 总结</h2><p>Kotlin 协程上下文巧妙地避开了通用的 <code>HashMap</code>：</p>
+<ol>
+<li><strong>基础存储</strong>：使用递归链表 <code>CombinedContext</code>，通过“引用共享”实现高效的持久化操作。</li>
+<li><strong>查找逻辑</strong>：由于元素极少，线性遍历优于哈希查找。</li>
+<li><strong>极端优化</strong>：在线程切换等关键路径，通过临时数组（<code>ThreadState</code>）进行加速。</li>
+</ol>
+<p>这种“因地制宜”的设计是协程能够胜任数百万级并发的重要基石。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+      
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2026/03/26/3%20Android/02%20Framework/03%20WMS/02-Android-Framework-WMS%E4%B8%93%E9%A1%B9-WMS%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          WMS 源代码流程分析
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2026/03/25/1%20Kotlin/01%20Kotlin%20%E5%8D%8F%E7%A8%8B/%E5%B8%B8%E7%94%A8%20Flow%20%E7%94%A8%E6%B3%95/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Kotlin Flow 常用用法指南</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="sidebar">
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">Contents</strong>
+    
+      <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Kotlin-%E5%8D%8F%E7%A8%8B%E4%B8%8A%E4%B8%8B%E6%96%87%E4%B8%8E-CombinedContext-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90"><span class="nav-number">1.</span> <span class="nav-text">Kotlin 协程上下文与 CombinedContext 源码解析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E9%80%BB%E8%BE%91%E4%B8%8A%E7%9A%84-Map%EF%BC%8C%E7%89%A9%E7%90%86%E4%B8%8A%E7%9A%84%E9%93%BE%E8%A1%A8"><span class="nav-number">1.1.</span> <span class="nav-text">1. 逻辑上的 Map，物理上的链表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-CombinedContext-%E7%9A%84%E7%BB%93%E6%9E%84"><span class="nav-number">1.2.</span> <span class="nav-text">2. CombinedContext 的结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E4%BD%BF%E7%94%A8-HashMap%EF%BC%9F"><span class="nav-number">1.3.</span> <span class="nav-text">3. 为什么不使用 HashMap？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%85%83%E7%B4%A0%E6%95%B0%E9%87%8F%E6%9E%81%E5%B0%91"><span class="nav-number">1.3.1.</span> <span class="nav-text">1. 元素数量极少</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E4%B8%8D%E5%8F%AF%E5%8F%98%E6%80%A7%E4%B8%8E%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">1.3.2.</span> <span class="nav-text">2. 不可变性与持久化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AF%A6%E7%BB%86%E7%A4%BA%E4%BE%8B%EF%BC%9A%E8%8A%82%E7%82%B9%E5%85%B1%E4%BA%AB%E6%9C%BA%E5%88%B6"><span class="nav-number">1.3.2.1.</span> <span class="nav-text">详细示例：节点共享机制</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%86%85%E5%AD%98%E6%95%88%E7%8E%87"><span class="nav-number">1.3.3.</span> <span class="nav-text">3. 内存效率</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E7%89%B9%E6%AE%8A%E4%BC%98%E5%8C%96%EF%BC%9AThreadState-%E4%B8%8E%E6%95%B0%E7%BB%84%E7%BC%93%E5%AD%98"><span class="nav-number">1.4.</span> <span class="nav-text">4. 特殊优化：ThreadState 与数组缓存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E6%80%BB%E7%BB%93"><span class="nav-number">1.5.</span> <span class="nav-text">5. 总结</span></a></li></ol></li></ol>
+    
+    </div>
+  </aside>
+</section>
+        
+      </div>
+
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    <footer id="footer" class="site-footer">
+  
+
+  <div class="clearfix container">
+      <div class="site-info">
+	      &copy; 2026 喵星科技报 All Rights Reserved.
+        
+            <span id="busuanzi_container_site_uv">
+              本站访客数<span id="busuanzi_value_site_uv"></span>人次  
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+          
+      </div>
+      <div class="site-credit">
+        Theme by <a href="https://github.com/iTimeTraveler/hexo-theme-hipaper" target="_blank">hipaper</a>
+      </div>
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var wrapdiv = document.getElementById("wrap");
+    var contentdiv = document.getElementById("content");
+
+    wrapdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+
+
+    <!-- headerblur min height -->
+    
+      var headerblur = document.getElementById("header-blur");
+      headerblur.style.minHeight = window.getComputedStyle(document.getElementById("allheader"), null).height;
+    
+    
+</script>
+    
+<div style="display: none;">
+  <script src="https://s11.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+</div>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+<script src="/js/bootstrap.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+	</script>
+
+
+
+
+
+
+  </div>
+
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js" async=""></script>
+</body>
+</html>
