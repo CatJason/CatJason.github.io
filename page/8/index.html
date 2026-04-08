@@ -115,7 +115,7 @@
         
           <section id="main">
   
-    <article id="post-3 Android/02 Framework/02 AMS/01-Android-Framework-AMS专项-Activity启动流程"  class="article article-type-post" itemscope itemprop="blogPost" >
+    <article id="post-1 Kotlin/03 Kotlin 协程基础/协程进阶_组合_05_结构化并发并发"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -123,7 +123,7 @@
         
   
     <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2026/03/29/3%20Android/02%20Framework/02%20AMS/01-Android-Framework-AMS%E4%B8%93%E9%A1%B9-Activity%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/">Activity 启动的整体流程与第一个阶段解读参数</a>
+      <a class="article-title" href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E7%BB%84%E5%90%88_05_%E7%BB%93%E6%9E%84%E5%8C%96%E5%B9%B6%E5%8F%91%E5%B9%B6%E5%8F%91/">协程进阶：组合 05. 结构化并发并发 (coroutineScope)</a>
     </h1>
   
 
@@ -131,49 +131,253 @@
     
     <div class="article-meta">
       
-	<a href="/2026/03/29/3%20Android/02%20Framework/02%20AMS/01-Android-Framework-AMS%E4%B8%93%E9%A1%B9-Activity%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" class="article-date">
-	  <time datetime="2026-03-29T13:58:51.124Z" itemprop="datePublished">March 29, 2026</time>
+	<a href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E7%BB%84%E5%90%88_05_%E7%BB%93%E6%9E%84%E5%8C%96%E5%B9%B6%E5%8F%91%E5%B9%B6%E5%8F%91/" class="article-date">
+	  <time datetime="2026-03-30T18:57:03.057Z" itemprop="datePublished">March 31, 2026</time>
 	</a>
 
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-2-AMS/">3.1.2 - AMS</a>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
  
       
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Activity 的启动过程是 Android Framework 中最复杂的流程之一，它涉及多个进程间的通信（IPC）。</p>
-<h3 id="1-启动流程涉及的四个角色"><a href="#1-启动流程涉及的四个角色" class="headerlink" title="1. 启动流程涉及的四个角色"></a>1. 启动流程涉及的四个角色</h3><ol>
-<li><strong>Launcher 进程或 App 进程</strong>：发起启动 Activity 的请求（通过 <code>startActivity</code>）。</li>
-<li>**System_Server 进程 (AMS)**：核心控制中心。负责解析 Intent、管理 Activity 栈（Task&#x2F;Stack）、权限检查等。</li>
-<li><strong>Zygote 进程</strong>：孵化器。如果目标 App 进程尚未启动，AMS 会请求 Zygote Fork 出一个新的进程。</li>
-<li><strong>目标 App 进程</strong>：Activity 最终运行的地方。在 <code>ActivityThread</code> 中完成初始化并回调 <code>onCreate</code>。</li>
-</ol>
-<hr>
-<h3 id="2-第一阶段：从-App-到-AMS-的跳转"><a href="#2-第一阶段：从-App-到-AMS-的跳转" class="headerlink" title="2. 第一阶段：从 App 到 AMS 的跳转"></a>2. 第一阶段：从 App 到 AMS 的跳转</h3><p>当我们在代码中调用 <code>startActivity(intent)</code> 时，实际上经历了一系列的“套路”：</p>
-<h4 id="2-1-ContextImpl-startActivity"><a href="#2-1-ContextImpl-startActivity" class="headerlink" title="2.1 ContextImpl.startActivity"></a>2.1 <code>ContextImpl.startActivity</code></h4><p>所有的 <code>Context</code> 子类（Activity, Service 等）最终都会调用到 <code>ContextImpl</code> 的实现中。</p>
-<h4 id="2-2-Instrumentation-execStartActivity"><a href="#2-2-Instrumentation-execStartActivity" class="headerlink" title="2.2 Instrumentation.execStartActivity"></a>2.2 <code>Instrumentation.execStartActivity</code></h4><p><code>Instrumentation</code> 是 Activity 的“管家”，负责监控 App 与系统的所有交互。在这里，它会通过 <code>ActivityTaskManager.getService()</code> 获取到 <strong>IActivityTaskManager</strong> 的 Binder 代理对象。</p>
-<h4 id="2-3-跨进程调用-IPC"><a href="#2-3-跨进程调用-IPC" class="headerlink" title="2.3 跨进程调用 (IPC)"></a>2.3 跨进程调用 (IPC)</h4><p>通过 Binder 机制，请求从当前进程“跳”到了 <code>System_Server</code> 进程中的 <code>ActivityTaskManagerService</code> (ATMS)。</p>
-<hr>
-<h3 id="3-核心参数解读"><a href="#3-核心参数解读" class="headerlink" title="3. 核心参数解读"></a>3. 核心参数解读</h3><p>在进入 AMS 内部前，有几个关键概念必须厘清：</p>
+        <p>本篇解析 <code>example-compose-05.kt</code>。学习一种更安全的并发组织方式。</p>
+<h2 id="1-核心实践：使用-coroutineScope"><a href="#1-核心实践：使用-coroutineScope" class="headerlink" title="1. 核心实践：使用 coroutineScope"></a>1. 核心实践：使用 coroutineScope</h2><p>将一组相关的异步任务封装在 <code>coroutineScope</code> 块中。</p>
+<h3 id="优势："><a href="#优势：" class="headerlink" title="优势："></a>优势：</h3><ul>
+<li><strong>异常级联</strong>：如果作用域内的任何一个 <code>async</code> 抛出异常，整个作用域都会被取消。</li>
+<li><strong>自动等待</strong>：<code>coroutineScope</code> 会自动等待其内部的所有子任务完成。</li>
+</ul>
+<h2 id="2-开发者感悟"><a href="#2-开发者感悟" class="headerlink" title="2. 开发者感悟"></a>2. 开发者感悟</h2><p>这是我最推荐的一种并发编程模式。它不仅让代码逻辑更加清晰，最重要的是通过“父子联动”的机制，极大地降低了由于个别任务失败而导致的资源泄漏风险。在 Android 的 <code>Repository</code> 层中，通过 <code>coroutineScope</code> 组合多个数据请求是处理复杂逻辑的最佳方案。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-1 Kotlin/03 Kotlin 协程基础/协程进阶_上下文_05_Job对象"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E4%B8%8A%E4%B8%8B%E6%96%87_05_Job%E5%AF%B9%E8%B1%A1/">协程进阶：上下文 05. 任务句柄 (Job)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E4%B8%8A%E4%B8%8B%E6%96%87_05_Job%E5%AF%B9%E8%B1%A1/" class="article-date">
+	  <time datetime="2026-03-30T18:54:24.744Z" itemprop="datePublished">March 31, 2026</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本篇解析 <code>example-context-05.kt</code>。探讨协程的标识与管理。</p>
+<h2 id="1-核心概念：Job"><a href="#1-核心概念：Job" class="headerlink" title="1. 核心概念：Job"></a>1. 核心概念：Job</h2><p>每个协程都有一个 <code>Job</code> 对象，它是协程的唯一句柄。</p>
+<h3 id="如何获取？"><a href="#如何获取？" class="headerlink" title="如何获取？"></a>如何获取？</h3><p>你可以通过 <code>coroutineContext[Job]</code> 在协程内部直接获取当前的 Job 实例。</p>
+<h2 id="2-开发者感悟"><a href="#2-开发者感悟" class="headerlink" title="2. 开发者感悟"></a>2. 开发者感悟</h2><p><code>Job</code> 不仅仅是一个 ID。它是你控制协程生命周期的遥控器。你可以通过它查询协程的状态（是否活跃、是否已取消、是否已完成），也可以通过它主动结束任务。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-1 Kotlin/03 Kotlin 协程基础/协程进阶_异常_05_异常聚合"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E5%BC%82%E5%B8%B8_05_%E5%BC%82%E5%B8%B8%E8%81%9A%E5%90%88/">协程进阶：异常 05. 异常聚合 (Aggregation)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E5%BC%82%E5%B8%B8_05_%E5%BC%82%E5%B8%B8%E8%81%9A%E5%90%88/" class="article-date">
+	  <time datetime="2026-03-30T18:50:35.775Z" itemprop="datePublished">March 31, 2026</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本篇解析 <code>example-exceptions-05.kt</code>。探讨当多个子协程同时抛出异常时，协程库是如何处理这些冲突的。</p>
+<h2 id="1-核心概念：第一个异常获胜"><a href="#1-核心概念：第一个异常获胜" class="headerlink" title="1. 核心概念：第一个异常获胜"></a>1. 核心概念：第一个异常获胜</h2><p>当多个子协程因为不同的异常而失败时，基本的聚合规则是：<strong>“取第一个抛出的异常”</strong>。</p>
+<h3 id="特点："><a href="#特点：" class="headerlink" title="特点："></a>特点：</h3><ul>
+<li><strong>第一个异常</strong>：作为主异常，传递给 <code>CoroutineExceptionHandler</code>。</li>
+<li><strong>后续异常</strong>：会被绑定到主异常的 <code>suppressed</code> 列表中（仅限 JDK 7+）。</li>
+</ul>
+<h2 id="2-代码解析"><a href="#2-代码解析" class="headerlink" title="2. 代码解析"></a>2. 代码解析</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> handler = CoroutineExceptionHandler &#123; _, exception -&gt;</span><br><span class="line">    <span class="comment">// 捕获到的是第一个异常：IOException</span></span><br><span class="line">    <span class="comment">// 被抑制的是第二个异常：ArithmeticException</span></span><br><span class="line">    println(<span class="string">&quot;Caught <span class="variable">$exception</span> with suppressed <span class="subst">$&#123;exception.suppressed.contentToString()&#125;</span>&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">val</span> job = GlobalScope.launch(handler) &#123;</span><br><span class="line">    launch &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123; delay(<span class="built_in">Long</span>.MAX_VALUE) &#125; </span><br><span class="line">        <span class="keyword">finally</span> &#123; <span class="keyword">throw</span> ArithmeticException() &#125; <span class="comment">// 后发生的异常</span></span><br><span class="line">    &#125;</span><br><span class="line">    launch &#123;</span><br><span class="line">        delay(<span class="number">100</span>)</span><br><span class="line">        <span class="keyword">throw</span> IOException() <span class="comment">// 先发生的异常</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-开发者感悟"><a href="#3-开发者感悟" class="headerlink" title="3. 开发者感悟"></a>3. 开发者感悟</h2><p>这是一个非常严密的并发错误处理机制。它保证了即便在复杂的并行任务中，也不会漏掉任何一个报错信息。所有的异常都能通过主异常的 <code>suppressed</code> 列表进行溯源。在调试高并发 Bug 时，检查 <code>suppressed</code> 列表是寻找真凶的关键。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-1 Kotlin/03 Kotlin 协程基础/Flow_05_冷流特性"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/Flow_05_%E5%86%B7%E6%B5%81%E7%89%B9%E6%80%A7/">Flow 基础：05. 冷流 (Cold Stream) 特性</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/Flow_05_%E5%86%B7%E6%B5%81%E7%89%B9%E6%80%A7/" class="article-date">
+	  <time datetime="2026-03-30T18:34:46.037Z" itemprop="datePublished">March 31, 2026</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本篇解析 <code>example-flow-05.kt</code>。探讨 Flow 的一个关键特性：<strong>冷流</strong>。</p>
+<h2 id="1-什么是冷流？"><a href="#1-什么是冷流？" class="headerlink" title="1. 什么是冷流？"></a>1. 什么是冷流？</h2><p>Flow 是一种<strong>冷流</strong>。这意味着：<code>flow &#123; ... &#125;</code> 构建器中的代码在调用 <code>collect</code> 之前<strong>不会运行</strong>。</p>
+<h3 id="代码解析"><a href="#代码解析" class="headerlink" title="代码解析"></a>代码解析</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">simple</span><span class="params">()</span></span>: Flow&lt;<span class="built_in">Int</span>&gt; = flow &#123; </span><br><span class="line">    println(<span class="string">&quot;Flow started&quot;</span>)</span><br><span class="line">    <span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">1.</span><span class="number">.3</span>) &#123;</span><br><span class="line">        delay(<span class="number">100</span>)</span><br><span class="line">        emit(i)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">main</span><span class="params">()</span></span> = runBlocking &#123;</span><br><span class="line">    <span class="keyword">val</span> flow = simple() <span class="comment">// 这里只是创建了 flow 对象，不会打印 &quot;Flow started&quot;</span></span><br><span class="line">    flow.collect &#123; println(it) &#125; <span class="comment">// 第一次收集，打印 &quot;Flow started&quot;</span></span><br><span class="line">    flow.collect &#123; println(it) &#125; <span class="comment">// 第二次收集，再次打印 &quot;Flow started&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-特点"><a href="#2-特点" class="headerlink" title="2. 特点"></a>2. 特点</h2><ul>
+<li><strong>重复执行</strong>：每次调用 <code>collect</code>，Flow 都会重新开始从头运行。</li>
+<li><strong>资源节省</strong>：如果不收集，就不会产生任何计算开销。</li>
+</ul>
+<h2 id="3-开发者感悟"><a href="#3-开发者感悟" class="headerlink" title="3. 开发者感悟"></a>3. 开发者感悟</h2><p>冷流就像是“按需播放”的视频。你不点播放（<code>collect</code>），它就不会产生流量。这与 <code>Channel</code>（热流）不同，<code>Channel</code> 无论有没有人在听，都会在后台运行。在 Android 开发中，这种冷流特性非常适合处理数据库订阅或 API 轮询。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-1 Kotlin/03 Kotlin 协程基础/协程进阶_取消_05_资源清理"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E5%8F%96%E6%B6%88_05_%E8%B5%84%E6%BA%90%E6%B8%85%E7%90%86/">协程进阶：05. 资源清理与 finally 块</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E5%8F%96%E6%B6%88_05_%E8%B5%84%E6%BA%90%E6%B8%85%E7%90%86/" class="article-date">
+	  <time datetime="2026-03-30T18:32:14.701Z" itemprop="datePublished">March 31, 2026</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本篇解析 <code>example-cancel-05.kt</code>，探讨协程取消后的收尾工作。</p>
+<h2 id="1-核心机制：finally"><a href="#1-核心机制：finally" class="headerlink" title="1. 核心机制：finally"></a>1. 核心机制：finally</h2><p>由于协程取消会抛出 <code>CancellationException</code>，我们可以利用标准的 <code>try-finally</code> 语法来确保清理逻辑。</p>
 <ul>
-<li><strong>ActivityRecord</strong>：在 AMS 端，每一个 Activity 实例都对应一个 <code>ActivityRecord</code> 对象，它记录了该 Activity 的所有信息。</li>
-<li><strong>TaskRecord</strong>：任务栈。一个 Task 可以包含多个 Activity，遵循后进先出（LIFO）原则。</li>
-<li><strong>ActivityStack</strong>：管理 Task 的层级结构。</li>
+<li><strong>清理时机</strong>：无论协程是正常完成，还是中途被外部取消，<code>finally</code> 块里的代码都保证会被执行。</li>
 </ul>
-<hr>
-<h3 id="4-源码关键点-API-29"><a href="#4-源码关键点-API-29" class="headerlink" title="4. 源码关键点 (API 29+)"></a>4. 源码关键点 (API 29+)</h3><p>在 Android 10 以后，Activity 的启动逻辑从 <code>ActivityManagerService</code> 大量迁移到了 <code>ActivityTaskManagerService</code>。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ATMS 端的入口方法</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="type">int</span> <span class="title function_">startActivity</span><span class="params">(IApplicationThread caller, String callingPackage,</span></span><br><span class="line"><span class="params">        Intent intent, String resolvedType, IBinder resultTo, String resultWho,</span></span><br><span class="line"><span class="params">        <span class="type">int</span> requestCode, <span class="type">int</span> startFlags, ProfilerInfo profilerInfo, Bundle bOptions)</span> &#123;</span><br><span class="line">    <span class="comment">// ... 调用执行链</span></span><br><span class="line">    <span class="keyword">return</span> startActivityAsUser(...);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>接下来的文档中，我们将详细解析 <strong>ActivityStarter</strong> 如何处理 Flag 以及如何决定 Activity 该落入哪个 Task。</p>
+<h2 id="2-实际应用"><a href="#2-实际应用" class="headerlink" title="2. 实际应用"></a>2. 实际应用</h2><ul>
+<li>关闭数据库连接。</li>
+<li>释放文件流。</li>
+<li>停止动画或网络轮询。</li>
+</ul>
+<h2 id="3-开发者感悟"><a href="#3-开发者感悟" class="headerlink" title="3. 开发者感悟"></a>3. 开发者感悟</h2><p>在编写复杂的协程逻辑时，始终要养成“随手关门”的习惯。将重要的资源回收逻辑放在 <code>finally</code> 中，是避免内存泄漏和资源浪费的关键。</p>
 
       
     </div>
     <footer class="entry-meta entry-footer">
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-2-AMS/">3.1.2 - AMS</a>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
 
       
       
@@ -186,7 +390,7 @@
 <!-- Table of Contents -->
 
   
-    <article id="post-3 Android/02 Framework/02 AMS/02-Android-Framework-AMS专项-Activity生命周期事务封装"  class="article article-type-post" itemscope itemprop="blogPost" >
+    <article id="post-1 Kotlin/03 Kotlin 协程基础/协程基础_05_Job生命周期管理"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -194,7 +398,7 @@
         
   
     <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2026/03/29/3%20Android/02%20Framework/02%20AMS/02-Android-Framework-AMS%E4%B8%93%E9%A1%B9-Activity%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E4%BA%8B%E5%8A%A1%E5%B0%81%E8%A3%85/">Activity 生命周期事务封装 (ClientTransaction)</a>
+      <a class="article-title" href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80_05_Job%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%AE%A1%E7%90%86/">Kotlin 协程基础 05：Job 与生命周期控制</a>
     </h1>
   
 
@@ -202,50 +406,42 @@
     
     <div class="article-meta">
       
-	<a href="/2026/03/29/3%20Android/02%20Framework/02%20AMS/02-Android-Framework-AMS%E4%B8%93%E9%A1%B9-Activity%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E4%BA%8B%E5%8A%A1%E5%B0%81%E8%A3%85/" class="article-date">
-	  <time datetime="2026-03-29T13:59:04.292Z" itemprop="datePublished">March 29, 2026</time>
+	<a href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80_05_Job%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%AE%A1%E7%90%86/" class="article-date">
+	  <time datetime="2026-03-30T18:23:48.763Z" itemprop="datePublished">March 31, 2026</time>
 	</a>
 
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-2-AMS/">3.1.2 - AMS</a>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
  
       
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>在 Android 8.0 之后，系统引入了 <strong>ClientTransaction</strong> 机制来重构 Activity 的生命周期管理。这是一种基于“事务”的设计模式，将原本散落在 AMS 中的各种生命周期指令进行了统一封装。</p>
-<h3 id="1-为什么需要事务封装？"><a href="#1-为什么需要事务封装？" class="headerlink" title="1. 为什么需要事务封装？"></a>1. 为什么需要事务封装？</h3><p>在旧版本中，AMS 直接调用应用进程的 <code>IApplicationThread</code> 接口（如 <code>scheduleLaunchActivity</code>）。这种方式扩展性差，且难以处理复杂的复合状态切换。<br>引入事务后，AMS 只需要发送一个 <code>ClientTransaction</code>，其中包含了：</p>
+        <p>本篇文档解析 <code>example-basic-05.kt</code>，探讨如何通过 <code>Job</code> 对象显式管理协程的执行顺序。</p>
+<h2 id="1-核心概念：什么是-Job？"><a href="#1-核心概念：什么是-Job？" class="headerlink" title="1. 核心概念：什么是 Job？"></a>1. 核心概念：什么是 Job？</h2><p>当调用 <code>launch</code> 启动一个协程时，它会返回一个 <code>Job</code> 对象。它是协程的句柄，用于控制协程的生命周期。</p>
+<h3 id="代码解析"><a href="#代码解析" class="headerlink" title="代码解析"></a>代码解析</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> job = launch &#123; </span><br><span class="line">    delay(<span class="number">1000L</span>)</span><br><span class="line">    println(<span class="string">&quot;World!&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line">println(<span class="string">&quot;Hello&quot;</span>)</span><br><span class="line">job.join() <span class="comment">// 挂起并等待子协程完成</span></span><br><span class="line">println(<span class="string">&quot;Done&quot;</span>)</span><br></pre></td></tr></table></figure>
+
 <ul>
-<li><strong>Callback</strong>：如 <code>LaunchActivityItem</code>（创建 Activity）。</li>
-<li><strong>FinalState</strong>：如 <code>ResumeActivityItem</code>（最终状态）。</li>
+<li><strong>异步运行</strong>：<code>launch</code> 启动后立即返回，执行 <code>println(&quot;Hello&quot;)</code>。</li>
+<li><strong>join() 的作用</strong>：<code>join()</code> 会将当前协程（即 main）挂起，直到该 <code>job</code> 内部的逻辑（即 World!）完成。它确保了后续的 <code>println(&quot;Done&quot;)</code> 一定在 <code>World!</code> 之后打印。</li>
 </ul>
-<hr>
-<h3 id="2-核心组件"><a href="#2-核心组件" class="headerlink" title="2. 核心组件"></a>2. 核心组件</h3><ul>
-<li><strong>ClientTransaction</strong>：事务容器。</li>
-<li><strong>ClientTransactionHandler</strong>：在应用进程中（通常是 <code>ActivityThread</code>）负责执行事务。</li>
-<li><strong>TransactionExecutor</strong>：事务执行器，负责按照正确的逻辑顺序（例如先 Create 再 Resume）调度事务中的各项指令。</li>
+<h2 id="2-深入理解：Join-的本质"><a href="#2-深入理解：Join-的本质" class="headerlink" title="2. 深入理解：Join 的本质"></a>2. 深入理解：Join 的本质</h2><ul>
+<li><strong>语义理解</strong>：<code>join</code> 的意思是“加入”。你可以理解为将 <code>join()</code> 之后的代码块“加入”到该 <code>job</code> 的任务流末端。</li>
+<li><strong>非阻塞挂起</strong>：<code>job.join()</code> 是一个挂起函数。它不会阻塞线程（CPU 仍可去处理其他事情），它只是暂停了当前协程的执行流程，等待 <code>job</code> 的信号。</li>
 </ul>
-<hr>
-<h3 id="3-生命周期执行链路"><a href="#3-生命周期执行链路" class="headerlink" title="3. 生命周期执行链路"></a>3. 生命周期执行链路</h3><ol>
-<li><strong>AMS 服务端</strong>：创建 <code>ClientTransaction</code>，并添加对应的生命周期 Item。</li>
-<li><strong>跨进程传递</strong>：通过 <code>IApplicationThread.scheduleTransaction</code> 发送到目标 App 进程。</li>
-<li><strong>App 客户端</strong>：<code>ActivityThread</code> 收到后，交给 <code>TransactionExecutor</code> 执行。</li>
-<li><strong>执行逻辑</strong>：<ul>
-<li><code>executeCallbacks()</code>：执行如 <code>LaunchActivityItem</code> 等初始化操作。</li>
-<li><code>executeLifecycleState()</code>：执行如 <code>ResumeActivityItem</code> 等状态变更操作。</li>
-</ul>
-</li>
+<h2 id="3-开发者总结"><a href="#3-开发者总结" class="headerlink" title="3. 开发者总结"></a>3. 开发者总结</h2><ol>
+<li><code>launch</code> 负责“启动”任务。</li>
+<li><code>Job</code> 负责“管理”任务。</li>
+<li><code>join()</code> 负责“同步”异步任务，使异步流程表现得像同步流程一样。</li>
 </ol>
-<hr>
-<h3 id="4-总结"><a href="#4-总结" class="headerlink" title="4. 总结"></a>4. 总结</h3><p>生命周期事务封装是 Android 系统现代化的重要体现。它不仅让 AMS 的逻辑更加简洁，也为后续的 <strong>多窗口模式</strong> 和 <strong>折叠屏</strong> 复杂状态切换提供了坚实的底层架构支持。</p>
 
       
     </div>
     <footer class="entry-meta entry-footer">
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-2-AMS/">3.1.2 - AMS</a>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
 
       
       
@@ -258,7 +454,7 @@
 <!-- Table of Contents -->
 
   
-    <article id="post-3 Android/02 Framework/03 WMS/02-Android-Framework-WMS专项-WMS源码分析"  class="article article-type-post" itemscope itemprop="blogPost" >
+    <article id="post-1 Kotlin/02 Kotlin 基础/Kotlin 泛型进阶：in, out 与 reified"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -266,7 +462,7 @@
         
   
     <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2026/03/26/3%20Android/02%20Framework/03%20WMS/02-Android-Framework-WMS%E4%B8%93%E9%A1%B9-WMS%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">WMS 源代码流程分析</a>
+      <a class="article-title" href="/2026/03/27/1%20Kotlin/02%20Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%20%E6%B3%9B%E5%9E%8B%E8%BF%9B%E9%98%B6%EF%BC%9Ain,%20out%20%E4%B8%8E%20reified/">Kotlin 泛型进阶：in, out 与 reified</a>
     </h1>
   
 
@@ -274,77 +470,153 @@
     
     <div class="article-meta">
       
-	<a href="/2026/03/26/3%20Android/02%20Framework/03%20WMS/02-Android-Framework-WMS%E4%B8%93%E9%A1%B9-WMS%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" class="article-date">
-	  <time datetime="2026-03-26T05:59:15.613Z" itemprop="datePublished">March 26, 2026</time>
+	<a href="/2026/03/27/1%20Kotlin/02%20Kotlin%20%E5%9F%BA%E7%A1%80/Kotlin%20%E6%B3%9B%E5%9E%8B%E8%BF%9B%E9%98%B6%EF%BC%9Ain,%20out%20%E4%B8%8E%20reified/" class="article-date">
+	  <time datetime="2026-03-26T17:14:44.709Z" itemprop="datePublished">March 27, 2026</time>
 	</a>
 
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-3-WMS/">3.1.3 - WMS</a>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%9F%BA%E7%A1%80/">1.1 - Kotlin 基础</a>
  
       
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>本指南将从源代码角度分析 WindowManagerService (WMS) 的核心工作流程，并配合时序图进行说明。</p>
-<h2 id="1-WMS-的启动与初始化-SystemServer"><a href="#1-WMS-的启动与初始化-SystemServer" class="headerlink" title="1. WMS 的启动与初始化 (SystemServer)"></a>1. WMS 的启动与初始化 (SystemServer)</h2><p>WMS 是在 <code>SystemServer</code> 进程中启动的系统核心服务。</p>
+        <h3 id="1-泛型基础"><a href="#1-泛型基础" class="headerlink" title="1. 泛型基础"></a>1. 泛型基础</h3><p>泛型本质上是<strong>参数化类型</strong>。它让我们能够编写可以处理不同类型数据的代码，同时保持类型安全。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Box</span>&lt;<span class="type">T</span>&gt;(t: T) &#123;</span><br><span class="line">    <span class="keyword">var</span> value = t</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="2-型变-Variance-：out-与-in"><a href="#2-型变-Variance-：out-与-in" class="headerlink" title="2. 型变 (Variance)：out 与 in"></a>2. 型变 (Variance)：out 与 in</h3><p>这是 Kotlin 泛型中最难理解的部分。它的核心是为了解决：**<code>List&lt;String&gt;</code> 是否是 <code>List&lt;Any&gt;</code> 的子类？**</p>
+<h4 id="2-1-协变-Covariance-：out"><a href="#2-1-协变-Covariance-：out" class="headerlink" title="2.1 协变 (Covariance)：out"></a>2.1 协变 (Covariance)：<code>out</code></h4><ul>
+<li><strong>定义</strong>：如果 <code>String</code> 是 <code>Any</code> 的子类，那么 <code>Producer&lt;String&gt;</code> 也是 <code>Producer&lt;Any&gt;</code> 的子类。</li>
+<li><strong>限制</strong>：只能从对象中<strong>读取</strong>（Produce），不能写入（Consume）。</li>
+<li><strong>关键字</strong>：<code>out</code></li>
+</ul>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 声明处型变</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">Producer</span>&lt;<span class="type">out T</span>&gt; &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">produce</span><span class="params">()</span></span>: T <span class="comment">// OK</span></span><br><span class="line">    <span class="comment">// fun consume(item: T) // 编译错误：Type parameter T is declared as &#x27;out&#x27;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-2-逆变-Contravariance-：in"><a href="#2-2-逆变-Contravariance-：in" class="headerlink" title="2.2 逆变 (Contravariance)：in"></a>2.2 逆变 (Contravariance)：<code>in</code></h4><ul>
+<li><strong>定义</strong>：如果 <code>String</code> 是 <code>Any</code> 的子类，那么 <code>Consumer&lt;Any&gt;</code> 反而是 <code>Consumer&lt;String&gt;</code> 的子类。</li>
+<li><strong>限制</strong>：只能向对象中<strong>写入</strong>（Consume），不能读取（Produce）。</li>
+<li><strong>关键字</strong>：<code>in</code></li>
+</ul>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> <span class="title class_">Consumer</span>&lt;<span class="type">in T</span>&gt; &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">consume</span><span class="params">(item: <span class="type">T</span>)</span></span> <span class="comment">// OK</span></span><br><span class="line">    <span class="comment">// fun produce(): T // 编译错误：Type parameter T is declared as &#x27;in&#x27;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-3-为什么需要型变？"><a href="#2-3-为什么需要型变？" class="headerlink" title="2.3 为什么需要型变？"></a>2.3 为什么需要型变？</h4><p>Java 的泛型是不型变的（Invariant）。在 Java 中，<code>List&lt;Object&gt; list = new ArrayList&lt;String&gt;();</code> 是不允许的。Kotlin 通过 <code>out</code> 和 <code>in</code> 优雅地解决了生产与消费场景下的类型兼容问题。</p>
+<hr>
+<h3 id="3-类型擦除与实化类型参数-reified"><a href="#3-类型擦除与实化类型参数-reified" class="headerlink" title="3. 类型擦除与实化类型参数 (reified)"></a>3. 类型擦除与实化类型参数 (reified)</h3><h4 id="3-1-类型擦除"><a href="#3-1-类型擦除" class="headerlink" title="3.1 类型擦除"></a>3.1 类型擦除</h4><p>在运行时，泛型信息会被擦除。这意味着你不能在运行时直接判断一个对象的泛型类型：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 错误示例</span></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="type">&lt;T&gt;</span> <span class="title">isType</span><span class="params">(value: <span class="type">Any</span>)</span></span> = value <span class="keyword">is</span> T <span class="comment">// 编译错误：Cannot check for instance of erased type: T</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="3-2-reified-关键字"><a href="#3-2-reified-关键字" class="headerlink" title="3.2 reified 关键字"></a>3.2 <code>reified</code> 关键字</h4><p>Kotlin 引入了 <code>inline</code> 函数配合 <code>reified</code> 关键字，使得我们可以在运行时访问泛型类型。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">inline</span> <span class="function"><span class="keyword">fun</span> <span class="type">&lt;<span class="keyword">reified</span> T&gt;</span> <span class="title">isType</span><span class="params">(value: <span class="type">Any</span>)</span></span>: <span class="built_in">Boolean</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> value <span class="keyword">is</span> T <span class="comment">// 此时是合法的！</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实际应用场景：启动 Activity</span></span><br><span class="line"><span class="keyword">inline</span> <span class="function"><span class="keyword">fun</span> <span class="type">&lt;<span class="keyword">reified</span> T : Activity&gt;</span> Context.<span class="title">startActivity</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">val</span> intent = Intent(<span class="keyword">this</span>, T::<span class="keyword">class</span>.java)</span><br><span class="line">    startActivity(intent)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="4-泛型约束-Upper-Bounds"><a href="#4-泛型约束-Upper-Bounds" class="headerlink" title="4. 泛型约束 (Upper Bounds)"></a>4. 泛型约束 (Upper Bounds)</h3><p>我们可以通过 <code>:</code> 来限制泛型必须是某个类的子类。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// T 必须是 Number 或其子类</span></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="type">&lt;T : Number&gt;</span> <span class="title">sum</span><span class="params">(a: <span class="type">T</span>, b: <span class="type">T</span>)</span></span> &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 多个约束使用 where 关键字</span></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="type">&lt;T&gt;</span> <span class="title">copyData</span><span class="params">(source: <span class="type">T</span>)</span></span> <span class="keyword">where</span> T : CharSequence, T : Appendable &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="5-星投影-Star-projections"><a href="#5-星投影-Star-projections" class="headerlink" title="5. 星投影 (Star-projections) *"></a>5. 星投影 (Star-projections) <code>*</code></h3><p>当你不知道或者不关心泛型的具体类型时，可以使用 <code>*</code>。</p>
 <ul>
-<li><strong>路径</strong>: <code>frameworks/base/services/java/com/android/server/SystemServer.java</code></li>
-<li><strong>代码关键点</strong>:<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 在 startOtherServices 方法中</span></span><br><span class="line">wm = WindowManagerService.main(context, inputManager, !mFirstBoot, mOnlyCore, <span class="keyword">new</span> <span class="title class_">PhoneWindowManager</span>(), mActivityManagerService.getAppTransition());</span><br><span class="line">ServiceManager.addService(Context.WINDOW_SERVICE, wm);</span><br></pre></td></tr></table></figure></li>
+<li><code>List&lt;*&gt;</code> 代表“我不知道这里面是什么类型，但我知道它一定是 <code>Any?</code> 的子类”。</li>
+<li>它是只读的（类似 <code>out Any?</code>）。</li>
 </ul>
-<h2 id="2-窗口添加流程-WindowManager-addView"><a href="#2-窗口添加流程-WindowManager-addView" class="headerlink" title="2. 窗口添加流程 (WindowManager.addView)"></a>2. 窗口添加流程 (WindowManager.addView)</h2><p>这是应用进程请求 WMS 显示 UI 的核心路径。</p>
-<h3 id="2-1-时序图：addView-过程"><a href="#2-1-时序图：addView-过程" class="headerlink" title="2.1 时序图：addView 过程"></a>2.1 时序图：addView 过程</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">sequenceDiagram</span><br><span class="line">    participant App as 应用进程 (Activity/View)</span><br><span class="line">    participant WMGlobal as WindowManagerGlobal</span><br><span class="line">    participant VRI as ViewRootImpl</span><br><span class="line">    participant Session as Session (WMS Proxy)</span><br><span class="line">    participant WMS as WindowManagerService</span><br><span class="line"></span><br><span class="line">    App-&gt;&gt;WMGlobal: addView(view, params)</span><br><span class="line">    WMGlobal-&gt;&gt;VRI: new ViewRootImpl()</span><br><span class="line">    VRI-&gt;&gt;VRI: setView()</span><br><span class="line">    VRI-&gt;&gt;Session: addToDisplay()</span><br><span class="line">    Session-&gt;&gt;WMS: addWindow()</span><br><span class="line">    WMS-&gt;&gt;WMS: 验证权限 &amp; Token</span><br><span class="line">    WMS-&gt;&gt;WMS: 创建 WindowState 实例</span><br><span class="line">    WMS--&gt;&gt;VRI: 返回操作结果 (OK/Err)</span><br></pre></td></tr></table></figure>
+<hr>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
+<li>**<code>out</code> (协变)**：生产者，子类到父类，只读。</li>
+<li>**<code>in</code> (逆变)**：消费者，父类到子类，只写。</li>
+<li>**<code>reified</code>**：打破类型擦除，运行时获取类型信息。</li>
+<li>**<code>:</code>**：类型约束。</li>
+</ul>
 
-<h3 id="2-2-核心步骤解析"><a href="#2-2-核心步骤解析" class="headerlink" title="2.2 核心步骤解析"></a>2.2 核心步骤解析</h3><ol>
-<li><strong>WindowManagerGlobal</strong>: 应用进程内的单例，管理所有窗口的 View 和 ViewRootImpl。</li>
-<li><strong>ViewRootImpl</strong>: 连接 WindowManager 和控制台的纽带，负责触发绘制和与 WMS 通信。</li>
-<li><strong>Session</strong>: 每个应用进程在 WMS 中对应一个 Session 对象，用于跨进程通信。</li>
-<li><strong>addWindow</strong>: WMS 内部方法，负责创建 <code>WindowState</code> 并维护 Z-order 堆栈。</li>
-</ol>
-<h2 id="3-布局与-Surface-分配-Relayout"><a href="#3-布局与-Surface-分配-Relayout" class="headerlink" title="3. 布局与 Surface 分配 (Relayout)"></a>3. 布局与 Surface 分配 (Relayout)</h2><p>窗口添加后，需要确定具体大小并获得绘图“画布”（Surface）。</p>
-<h3 id="3-1-时序图：Relayout-过程"><a href="#3-1-时序图：Relayout-过程" class="headerlink" title="3.1 时序图：Relayout 过程"></a>3.1 时序图：Relayout 过程</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">sequenceDiagram</span><br><span class="line">    participant VRI as ViewRootImpl</span><br><span class="line">    participant Session as Session (WMS Proxy)</span><br><span class="line">    participant WMS as WindowManagerService</span><br><span class="line">    participant WinState as WindowState</span><br><span class="line">    participant SF as SurfaceFlinger</span><br><span class="line"></span><br><span class="line">    VRI-&gt;&gt;VRI: performTraversals()</span><br><span class="line">    VRI-&gt;&gt;Session: relayout()</span><br><span class="line">    Session-&gt;&gt;WMS: relayoutWindow()</span><br><span class="line">    WMS-&gt;&gt;WinState: createSurfaceControl()</span><br><span class="line">    WinState-&gt;&gt;SF: 请求分配 Layer</span><br><span class="line">    SF--&gt;&gt;WinState: 返回 SurfaceControl Native 句柄</span><br><span class="line">    WMS--&gt;&gt;VRI: 填充应用端的 Surface 对象</span><br><span class="line">    VRI-&gt;&gt;VRI: 开始应用层绘制 (Canvas/OpenGL)</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%9F%BA%E7%A1%80/">1.1 - Kotlin 基础</a>
 
-<h2 id="4-关键类及其关系"><a href="#4-关键类及其关系" class="headerlink" title="4. 关键类及其关系"></a>4. 关键类及其关系</h2><table>
-<thead>
-<tr>
-<th align="left">类名</th>
-<th align="left">职责</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left"><code>IWindowSession</code></td>
-<td align="left">App -&gt; WMS 的单向通道，处理添加、删除、布局请求。</td>
-</tr>
-<tr>
-<td align="left"><code>IWindow</code></td>
-<td align="left">WMS -&gt; App 的回调通道，处理窗口缩放、焦点变化等。</td>
-</tr>
-<tr>
-<td align="left"><code>WindowState</code></td>
-<td align="left">WMS 为每个窗口维护的“身份证”，包含位置、层级、可见性等。</td>
-</tr>
-<tr>
-<td align="left"><code>WindowToken</code></td>
-<td align="left">窗口的归类令牌，用于管理 Activity 或 Dialog 等一组窗口的生命周期。</td>
-</tr>
-<tr>
-<td align="left"><code>DisplayContent</code></td>
-<td align="left">对应一个物理屏幕，管理该屏幕下的所有窗口堆栈。</td>
-</tr>
-</tbody></table>
-<h2 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. 总结</h2><p>WMS 的核心逻辑在于 <strong>管理</strong> 与 <strong>协调</strong>：</p>
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-0 算法/02 算法题目/5 最长回文子串"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/02%20%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/5%20%E6%9C%80%E9%95%BF%E5%9B%9E%E6%96%87%E5%AD%90%E4%B8%B2/">5. 最长回文子串</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/02%20%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/5%20%E6%9C%80%E9%95%BF%E5%9B%9E%E6%96%87%E5%AD%90%E4%B8%B2/" class="article-date">
+	  <time datetime="2023-08-10T23:16:26.000Z" itemprop="datePublished">August 11, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a>, <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a>, <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h3><p>给你一个字符串 <code>s</code>，找到 <code>s</code> 中最长的回文子串。</p>
+<p>如果字符串的反序与原始字符串相同，则该字符串称为回文字符串。</p>
+<p><strong>示例 1：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：s = &quot;babad&quot;</span><br><span class="line">输出：&quot;bab&quot;</span><br><span class="line">解释：&quot;aba&quot; 同样是符合题意的答案。</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 2：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入：s = &quot;cbbd&quot;</span><br><span class="line">输出：&quot;bb&quot;</span><br></pre></td></tr></table></figure>
+
+<p><strong>提示：</strong></p>
 <ul>
-<li><strong>管理</strong>: 维护窗口的大小、位置、层级（Z-Order）。</li>
-<li><strong>协调</strong>: 向上承接 View 系统（App），向下通过 SurfaceFlinger 申请显示资源，同时与 InputManagerService 协作分发触摸事件。</li>
+<li><code>1 &lt;= s.length &lt;= 1000</code></li>
+<li><code>s</code> 仅由数字和英文字母组成</li>
 </ul>
-<hr>
+<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">介绍 Manacher 算法</span><br><span class="line">理解回文串的对称性，减少与回文串相交的字符串的计算量</span><br><span class="line">关键词</span><br><span class="line">情况一：完全包含，直接赋值</span><br><span class="line">情况二：部分相交。直接从后一位接续计算</span><br></pre></td></tr></table></figure>
 
+<h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>数据预处理： 首先回文子串有两种形式 奇数 与 偶数 也就有两种对应的指针操作方式</p>
+<p>假定有字符数组 ababaabc 改成 # a # b # a # b # a # a # b # c # 将偶数数组变成奇数统一处理 索性改成 ^ # a # b # a # b # a # a # b # c # $，头尾清晰<br>这样就可以通过把每个字符作为回文子串的中心向两边扩展，找出最长回文子串 时间复杂度是 O(n^2)</p>
+<p>现在需要我们观察回文子串的规律，简化计算</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">      <span class="number">0</span> <span class="number">1</span> <span class="number">2</span> <span class="number">3</span> <span class="number">4</span> <span class="number">5</span> <span class="number">6</span> <span class="number">7</span> <span class="number">8</span> <span class="number">9</span> <span class="number">0</span> <span class="number">1</span> <span class="number">2</span> <span class="number">3</span> <span class="number">4</span> <span class="number">5</span> <span class="number">6</span> <span class="number">7</span> <span class="number">8</span></span><br><span class="line">      ^ # <span class="selector-tag">a</span> # <span class="selector-tag">b</span> # <span class="selector-tag">a</span> # <span class="selector-tag">b</span> # <span class="selector-tag">a</span> # <span class="selector-tag">a</span> # <span class="selector-tag">b</span> # c # $</span><br><span class="line"><span class="number">0</span>     ^                                      <span class="selector-tag">P</span><span class="selector-attr">[0]</span>  = <span class="number">0</span></span><br><span class="line"><span class="number">1</span>       ^                                    <span class="selector-tag">P</span><span class="selector-attr">[1]</span>  = <span class="number">0</span></span><br><span class="line"><span class="number">2</span>       --^--                                <span class="selector-tag">p</span><span class="selector-attr">[2]</span>  = <span class="number">1</span></span><br><span class="line"><span class="number">3</span>           ^                                <span class="selector-tag">P</span><span class="selector-attr">[3]</span>  = <span class="number">0</span></span><br><span class="line"><span class="number">4</span>       ------^------                        <span class="selector-tag">P</span><span class="selector-attr">[4]</span>  = <span class="number">3</span></span><br><span class="line"><span class="number">5</span>               ^                            <span class="selector-tag">P</span><span class="selector-attr">[5]</span>  = <span class="number">0</span></span><br><span class="line"><span class="number">6</span>       ----------^----------                <span class="selector-tag">P</span><span class="selector-attr">[6]</span>  = <span class="number">5</span></span><br><span class="line"><span class="number">7</span>                   ^                        <span class="selector-tag">P</span><span class="selector-attr">[7]</span>  = <span class="number">0</span></span><br><span class="line"><span class="number">8</span>               ------^------                <span class="selector-tag">P</span><span class="selector-attr">[8]</span>  = <span class="number">3</span></span><br><span class="line"><span class="number">9</span>                       ^                    <span class="selector-tag">P</span><span class="selector-attr">[9]</span>  = <span class="number">0</span></span><br><span class="line"><span class="number">10</span>                      --^--                <span class="selector-tag">P</span><span class="selector-attr">[10]</span> = <span class="number">1</span></span><br><span class="line"><span class="number">11</span>                  --------^--------        <span class="selector-tag">P</span><span class="selector-attr">[11]</span> = <span class="number">2</span></span><br><span class="line"><span class="number">12</span>                          --^--            <span class="selector-tag">P</span><span class="selector-attr">[12]</span> = <span class="number">0</span></span><br><span class="line"><span class="number">13</span>                              ^            <span class="selector-tag">P</span><span class="selector-attr">[13]</span> = <span class="number">0</span></span><br><span class="line"><span class="number">14</span>                              --^--        <span class="selector-tag">P</span><span class="selector-attr">[14]</span> = <span class="number">1</span></span><br><span class="line"><span class="number">15</span>                                  ^        <span class="selector-tag">P</span><span class="selector-attr">[15]</span> = <span class="number">0</span></span><br><span class="line"><span class="number">16</span>                                  --^--    <span class="selector-tag">P</span><span class="selector-attr">[16]</span> = <span class="number">1</span></span><br><span class="line"><span class="number">17</span>                                      ^    <span class="selector-tag">P</span><span class="selector-attr">[17]</span> = <span class="number">0</span></span><br><span class="line"><span class="number">18</span>                                        ^  <span class="selector-tag">P</span><span class="selector-attr">[18]</span> = <span class="number">0</span> </span><br></pre></td></tr></table></figure>
+<p>情况一：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">10</span>                      --^--                <span class="selector-tag">P</span><span class="selector-attr">[10]</span> = <span class="number">1</span></span><br><span class="line"><span class="number">11</span>                  --------^--------        <span class="selector-tag">P</span><span class="selector-attr">[11]</span> = <span class="number">2</span></span><br><span class="line"><span class="number">12</span>                          --^--            <span class="selector-tag">P</span><span class="selector-attr">[12]</span> = <span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+<p>第 10 行，第 12 行 都是 第 11 行 的子串，完全包含在 第 11 行 之中，由于回文串的对称性 此时直接有 P[10] &#x3D; P[12]</p>
+<p>情况二：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">4</span>       ------^------                        <span class="selector-tag">P</span><span class="selector-attr">[4]</span>  = <span class="number">3</span></span><br><span class="line"><span class="number">6</span>       ----------^----------                <span class="selector-tag">P</span><span class="selector-attr">[6]</span>  = <span class="number">5</span></span><br><span class="line"><span class="number">8</span>               ------^------                <span class="selector-tag">P</span><span class="selector-attr">[8]</span>  = <span class="number">3</span></span><br></pre></td></tr></table></figure>
+
+<p>第 4 行，第 8 行 都是 第 6 行 的子串，分别位于字符串的两端，当我们知道 第 4 行 的信息之后，我们知道 第 8 行 至少有 第 4 行 那么长，至于会不会更长，继续试着向两边扩展即可 此时需要干两件事 1. 将 P[8] &#x3D; P[4]; 2. 继续向外扩展</p>
+<p>情况三： 8 ——^—— P[8] &#x3D; 3 11 ——–^——– P[11] &#x3D; 2 14 –^– P[14] &#x3D; 1 第 8 行 部分与 第 11 行 重叠，第 14 行 是 第 11 行 的子串，非常简单，舍弃超出部分 8 –^– P[8] &#x3D; 3 11 ——–^——– P[11] &#x3D; 2 14 –^– P[14] &#x3D; 1 当成这样处理即可 定义遍历指针 i ，指向回文的中心的指针 center 和 指向回文串右边界的指针 r 此时需要干两件事 1. 将 P[8] &#x3D; r - i ; 2. 继续向外扩展</p>
+<p>好，我们现在已经理解了 Manacher 算法的精髓了 我们思考一下算法该怎么写</p>
+<p>P[i] 计算过程</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">      <span class="number">0</span> <span class="number">1</span> <span class="number">2</span> <span class="number">3</span> <span class="number">4</span> <span class="number">5</span> <span class="number">6</span> <span class="number">7</span> <span class="number">8</span> <span class="number">9</span> <span class="number">0</span> <span class="number">1</span> <span class="number">2</span> <span class="number">3</span> <span class="number">4</span> <span class="number">5</span> <span class="number">6</span> <span class="number">7</span> <span class="number">8</span></span><br><span class="line">      ^ # <span class="selector-tag">a</span> # <span class="selector-tag">b</span> # <span class="selector-tag">a</span> # <span class="selector-tag">b</span> # <span class="selector-tag">a</span> # <span class="selector-tag">a</span> # <span class="selector-tag">b</span> # c # $</span><br><span class="line"><span class="number">0</span>     ^                                      <span class="selector-tag">P</span><span class="selector-attr">[0]</span>  = <span class="number">0</span>  -- 起始，不必计算，更新 r</span><br><span class="line"><span class="number">1</span>       ^                                    <span class="selector-tag">P</span><span class="selector-attr">[1]</span>  = <span class="number">0</span>  -- 暴力计算，一次计算，更新 r</span><br><span class="line"><span class="number">2</span>       --^--                                <span class="selector-tag">p</span><span class="selector-attr">[2]</span>  = <span class="number">1</span>  -- 暴力计算，二次计算，更新 r</span><br><span class="line"><span class="number">3</span>           ^                                <span class="selector-tag">P</span><span class="selector-attr">[3]</span>  = <span class="number">0</span>  -- 情况二，一次计算</span><br><span class="line"><span class="number">4</span>       ------^------                        <span class="selector-tag">P</span><span class="selector-attr">[4]</span>  = <span class="number">3</span>  -- 暴力计算，四次计算，更新 r</span><br><span class="line"><span class="number">5</span>               ^                            <span class="selector-tag">P</span><span class="selector-attr">[5]</span>  = <span class="number">0</span>  -- 情况一，零次计算</span><br><span class="line"><span class="number">6</span>       ----------^----------                <span class="selector-tag">P</span><span class="selector-attr">[6]</span>  = <span class="number">5</span>  -- 情况二，六次计算，更新 r</span><br><span class="line"><span class="number">7</span>                   ^                        <span class="selector-tag">P</span><span class="selector-attr">[7]</span>  = <span class="number">0</span>  -- 情况一，零次计算</span><br><span class="line"><span class="number">8</span>               ------^------                <span class="selector-tag">P</span><span class="selector-attr">[8]</span>  = <span class="number">3</span>  -- 情况二，一次计算</span><br><span class="line"><span class="number">9</span>                       ^                    <span class="selector-tag">P</span><span class="selector-attr">[9]</span>  = <span class="number">0</span>  -- 情况一，零次计算</span><br><span class="line"><span class="number">10</span>                      --^--                <span class="selector-tag">P</span><span class="selector-attr">[10]</span> = <span class="number">1</span>  -- 情况二，一次计算</span><br><span class="line"><span class="number">11</span>                  --------^--------        <span class="selector-tag">P</span><span class="selector-attr">[11]</span> = <span class="number">2</span>  -- 情况二，五次计算，更新 r</span><br><span class="line"><span class="number">12</span>                          --^--            <span class="selector-tag">P</span><span class="selector-attr">[12]</span> = <span class="number">0</span>  -- 情况一，零次计算</span><br><span class="line"><span class="number">13</span>                              ^            <span class="selector-tag">P</span><span class="selector-attr">[13]</span> = <span class="number">0</span>  -- 情况一，零次计算</span><br><span class="line"><span class="number">14</span>                              --^--        <span class="selector-tag">P</span><span class="selector-attr">[14]</span> = <span class="number">1</span>  -- 情况三，一次计算</span><br><span class="line"><span class="number">15</span>                                  ^        <span class="selector-tag">P</span><span class="selector-attr">[15]</span> = <span class="number">0</span>  -- 情况二，一次计算</span><br><span class="line"><span class="number">16</span>                                  --^--    <span class="selector-tag">P</span><span class="selector-attr">[16]</span> = <span class="number">1</span>  -- 暴力计算，两次计算，更新 r</span><br><span class="line"><span class="number">17</span>                                      ^    <span class="selector-tag">P</span><span class="selector-attr">[17]</span> = <span class="number">0</span>  -- 情况二，一次计算</span><br><span class="line"><span class="number">18</span>                                        ^  <span class="selector-tag">P</span><span class="selector-attr">[18]</span> = <span class="number">0</span>  -- 终止</span><br></pre></td></tr></table></figure>
+
+<p>我列出了每次计算面对的情况，计算的次数以及是否需要 r 我希望大家思考 当新计算出的 r 与旧的 r 相等时，是否应该更新 center ？ 当然不应该，我们肯定更倾向于选择更长的回文串</p>
+<p>是这样吗？ 我们思考一种情况</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">2</span>       --^--                                <span class="selector-tag">p</span><span class="selector-attr">[2]</span>  = <span class="number">1</span></span><br><span class="line"><span class="number">3</span>           ^                                <span class="selector-tag">P</span><span class="selector-attr">[3]</span>  = <span class="number">0</span></span><br><span class="line"><span class="number">4</span>       ------^------                        <span class="selector-tag">P</span><span class="selector-attr">[4]</span>  = <span class="number">3</span></span><br><span class="line"><span class="number">5</span>               ^                            <span class="selector-tag">P</span><span class="selector-attr">[5]</span>  = <span class="number">0</span></span><br><span class="line"><span class="number">6</span>       ----------^----------                <span class="selector-tag">P</span><span class="selector-attr">[6]</span>  = <span class="number">5</span></span><br><span class="line"><span class="number">7</span>                   ^                        <span class="selector-tag">P</span><span class="selector-attr">[7]</span>  = <span class="number">0</span></span><br><span class="line"><span class="number">8</span>               ------^------                <span class="selector-tag">P</span><span class="selector-attr">[8]</span>  = <span class="number">3</span></span><br><span class="line"><span class="number">9</span>                       ^                    <span class="selector-tag">P</span><span class="selector-attr">[9]</span>  = <span class="number">0</span></span><br><span class="line"><span class="number">10</span>                      --^--                <span class="selector-tag">P</span><span class="selector-attr">[10]</span> = <span class="number">1</span> </span><br></pre></td></tr></table></figure>
+
+<p>第 6 行 较长有什么用呢，有用的只是 i 到 r 这一小截而已，不更新是因为都一样，没必要更新，所以只有当我们发现了更右边的 r 更新即可</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">fun</span> <span class="title">formatString</span><span class="params">(s: <span class="type">String</span>)</span></span>: String&#123;</span><br><span class="line">        <span class="keyword">val</span> tString : StringBuffer = StringBuffer(<span class="string">&quot;^#&quot;</span>)</span><br><span class="line">        <span class="keyword">for</span> ( i <span class="keyword">in</span> s.indices )&#123;</span><br><span class="line">            tString.append(s[i])</span><br><span class="line">            tString.append(<span class="string">&#x27;#&#x27;</span>)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> tString.append(<span class="string">&#x27;$&#x27;</span>).toString()</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">fun</span> <span class="title">extend</span><span class="params">(s: <span class="type">String</span>, leftIndex: <span class="type">Int</span>, rightIndex: <span class="type">Int</span>)</span></span>: <span class="built_in">Int</span> &#123;</span><br><span class="line">        <span class="keyword">var</span> r = <span class="number">0</span></span><br><span class="line">        <span class="keyword">var</span> left = leftIndex</span><br><span class="line">        <span class="keyword">var</span> right = rightIndex</span><br><span class="line">        <span class="keyword">while</span> (left &gt; <span class="number">0</span> &amp;&amp; right &lt; s.length &amp;&amp; s[left] == s[right])&#123;</span><br><span class="line">           r ++</span><br><span class="line">           left --</span><br><span class="line">           right ++</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> r</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">longestPalindrome</span><span class="params">(s: <span class="type">String</span>)</span></span>: String &#123;</span><br><span class="line">        <span class="keyword">val</span> tString = formatString(s)</span><br><span class="line">        <span class="keyword">var</span> maxR = <span class="number">0</span></span><br><span class="line">        <span class="keyword">var</span> maxCenter = <span class="number">0</span></span><br><span class="line">        <span class="keyword">var</span> center = -<span class="number">1</span></span><br><span class="line">        <span class="keyword">var</span> R = <span class="number">0</span></span><br><span class="line">        <span class="keyword">val</span> p = Array&lt;<span class="built_in">Int</span>&gt;(tString.length) &#123; <span class="number">0</span> &#125;</span><br><span class="line">    </span><br><span class="line">        <span class="keyword">for</span> ( i <span class="keyword">in</span> tString.indices )&#123;</span><br><span class="line">            <span class="keyword">val</span> iMirror = center - (i - center)</span><br><span class="line">            <span class="keyword">var</span> rightIndex = i</span><br><span class="line">            <span class="keyword">var</span> leftIndex = i</span><br><span class="line">            <span class="keyword">val</span> maxLength = R - i</span><br><span class="line">    </span><br><span class="line">            <span class="keyword">val</span> hasMirrorIndex = i &lt; R &amp;&amp; center - maxLength &gt; <span class="number">0</span></span><br><span class="line">            <span class="keyword">val</span> case1CompletelyIncluded = hasMirrorIndex &amp;&amp; i &gt; center &amp;&amp; p[iMirror] &lt; R - i</span><br><span class="line">            <span class="keyword">val</span> case2NotCompletelyInclude = hasMirrorIndex &amp;&amp; !case1CompletelyIncluded</span><br><span class="line">            </span><br><span class="line">            <span class="keyword">if</span>(!hasMirrorIndex)&#123;</span><br><span class="line">                p[i] = <span class="number">0</span></span><br><span class="line">                rightIndex = i + <span class="number">1</span></span><br><span class="line">                leftIndex = i - <span class="number">1</span></span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">if</span>(case1CompletelyIncluded) &#123;</span><br><span class="line">                    p[i] = p[iMirror]</span><br><span class="line">                    <span class="keyword">continue</span></span><br><span class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (case2NotCompletelyInclude) &#123;</span><br><span class="line">                    p[i] = maxLength</span><br><span class="line">                    rightIndex = R + <span class="number">1</span></span><br><span class="line">                    leftIndex = i - (rightIndex - i)</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            </span><br><span class="line">            p[i] += extend(tString, leftIndex, rightIndex)</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 更新最右边的 R 和 center</span></span><br><span class="line">            <span class="keyword">if</span>(i + p[i] &gt; R)&#123;</span><br><span class="line">                R = i + p[i]</span><br><span class="line">                center = i</span><br><span class="line">            &#125;</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 判断是不是最长的回文串</span></span><br><span class="line">            <span class="keyword">if</span>(p[i] &gt; maxR)&#123;</span><br><span class="line">                maxR = p[i]</span><br><span class="line">                maxCenter = i</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    </span><br><span class="line">        <span class="keyword">if</span>(maxR == <span class="number">0</span>) <span class="keyword">return</span> <span class="string">&quot;&quot;</span></span><br><span class="line">    </span><br><span class="line">        <span class="keyword">val</span> start = maxCenter - maxR</span><br><span class="line">        <span class="keyword">val</span> end = maxCenter + maxR</span><br><span class="line">        <span class="keyword">return</span> tString.substring(start..end).replace(<span class="string">&quot;#&quot;</span>, <span class="string">&quot;&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
       
     </div>
     <footer class="entry-meta entry-footer">
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-3-WMS/">3.1.3 - WMS</a>
+    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a>, <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a>, <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a>
 
       
       
@@ -357,7 +629,7 @@
 <!-- Table of Contents -->
 
   
-    <article id="post-3 Android/02 Framework/02 AMS/03-Android-Framework-AMS专项-AMS与ATMS的区别解析"  class="article article-type-post" itemscope itemprop="blogPost" >
+    <article id="post-1 Kotlin/03 Kotlin 协程基础/协程进阶_同步_06_互斥锁"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -365,7 +637,7 @@
         
   
     <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2026/03/29/3%20Android/02%20Framework/02%20AMS/03-Android-Framework-AMS%E4%B8%93%E9%A1%B9-AMS%E4%B8%8EATMS%E7%9A%84%E5%8C%BA%E5%88%AB%E8%A7%A3%E6%9E%90/">AMS 与 ATMS 的区别解析</a>
+      <a class="article-title" href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E5%90%8C%E6%AD%A5_06_%E4%BA%92%E6%96%A5%E9%94%81/">协程进阶：同步 06. 互斥锁 (Mutex)</a>
     </h1>
   
 
@@ -373,497 +645,36 @@
     
     <div class="article-meta">
       
-	<a href="/2026/03/29/3%20Android/02%20Framework/02%20AMS/03-Android-Framework-AMS%E4%B8%93%E9%A1%B9-AMS%E4%B8%8EATMS%E7%9A%84%E5%8C%BA%E5%88%AB%E8%A7%A3%E6%9E%90/" class="article-date">
-	  <time datetime="2026-03-29T14:34:31.412Z" itemprop="datePublished">March 29, 2026</time>
+	<a href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E5%90%8C%E6%AD%A5_06_%E4%BA%92%E6%96%A5%E9%94%81/" class="article-date">
+	  <time datetime="2026-03-30T19:03:00.757Z" itemprop="datePublished">March 31, 2026</time>
 	</a>
 
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-2-AMS/">3.1.2 - AMS</a>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
  
       
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>自 Android 10 (API 29) 开始，Google 对原本庞大的 <code>ActivityManagerService</code> (AMS) 进行了结构性重构，将其核心的 Activity 管理职能抽离出来，成立了 <code>ActivityTaskManagerService</code> (ATMS)。</p>
-<h3 id="1-为什么要进行拆分？"><a href="#1-为什么要进行拆分？" class="headerlink" title="1. 为什么要进行拆分？"></a>1. 为什么要进行拆分？</h3><p>在早期的 Android 版本中，AMS 承载了太多的职责。这种“巨石”设计导致了严重的工程问题：</p>
-<table>
-<thead>
-<tr>
-<th align="left">核心痛点</th>
-<th align="left">详细解析与举例</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left"><strong>代码耦合严重</strong></td>
-<td align="left"><strong>现象</strong>：Activity 栈管理逻辑与广播分发逻辑共用同一个线程&#x2F;锁。<br><strong>举例</strong>：在计算复杂的 Task 切换（如分屏模式下的 Activity 移动）时，如果逻辑出错产生死锁或耗时过长，会直接阻塞同一进程内的广播分发 <code>Handler</code>，导致无关的广播接收者出现 ANR。</td>
-</tr>
-<tr>
-<td align="left"><strong>职责不清晰</strong></td>
-<td align="left"><strong>现象</strong>：WMS 需要频繁跨模块获取 Activity 状态。<br><strong>举例</strong>：WMS 在准备窗口切换动画时，必须知道 Activity 是否可见。旧版 WMS 需通过繁琐的 IPC 调用 AMS 的 <code>ActivityRecord</code> 状态，这不仅产生了大量的跨模块冗余代码，还增加了同步状态时的延迟。拆分后，ATMS 与 WMS 深度融合，共同管理 <code>WindowContainer</code> 层级结构。</td>
-</tr>
-<tr>
-<td align="left"><strong>维护成本极高</strong></td>
-<td align="left"><strong>现象</strong>：单文件行数爆炸，合并冲突不断。<br><strong>举例</strong>：<code>ActivityManagerService.java</code> 的源码量曾一度突破 30,000 行。开发者 A 在修复 <code>Service</code> 粘性启动的 Bug，开发者 B 在优化 <code>Activity</code> 的启动速度，由于两人都在操作同一个文件，导致每次版本合并时都会产生极其复杂的代码冲突。</td>
-</tr>
-</tbody></table>
-<h4 id="核心管理对象：Record-体系"><a href="#核心管理对象：Record-体系" class="headerlink" title="核心管理对象：Record 体系"></a>核心管理对象：Record 体系</h4><p>为了实现职责分离，AMS 与 ATMS 分别维护了不同的核心数据对象：</p>
-<table>
-<thead>
-<tr>
-<th align="left">对象名称</th>
-<th align="left">所属服务</th>
-<th align="left">核心职责</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left"><strong>ProcessRecord</strong></td>
-<td align="left"><strong>AMS</strong></td>
-<td align="left"><strong>进程管家</strong>。描述一个应用进程的实体，记录了进程的 PID、UID、包含的组件（Service, Receiver）、进程优先级（Adj）以及内存状态。AMS 通过它来决定系统内存不足时该“杀掉”哪个进程。</td>
-</tr>
-<tr>
-<td align="left"><strong>ActivityRecord</strong></td>
-<td align="left"><strong>ATMS</strong></td>
-<td align="left"><strong>Activity 档案</strong>。描述一个 Activity 实例的最小单位。记录了 Intent、所属 Task、状态（Resumed, Paused 等）、对应的 WindowToken。它与应用端的 Activity 实例一一对应。</td>
-</tr>
-<tr>
-<td align="left"><strong>TaskRecord</strong></td>
-<td align="left"><strong>ATMS</strong></td>
-<td align="left"><strong>任务容器</strong>。描述一个“最近任务”或“任务栈”。管理一组相关的 <code>ActivityRecord</code>，决定了 Activity 的回退顺序（LIFO，后进先出）以及在多窗口模式下的显示分组。</td>
-</tr>
-</tbody></table>
-<hr>
-<h3 id="2-AMS-vs-ATMS-职责对比"><a href="#2-AMS-vs-ATMS-职责对比" class="headerlink" title="2. AMS vs ATMS 职责对比"></a>2. AMS vs ATMS 职责对比</h3><table>
-<thead>
-<tr>
-<th align="left">维度</th>
-<th align="left">ActivityManagerService (AMS)</th>
-<th align="left">ActivityTaskManagerService (ATMS)</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left"><strong>核心职责</strong></td>
-<td align="left">管理应用生命周期（进程、四大组件中的后三者）。</td>
-<td align="left">专门管理 Activity 及其容器（Task, Stack, Display）。</td>
-</tr>
-<tr>
-<td align="left"><strong>组件管理</strong></td>
-<td align="left">Service, BroadcastReceiver, ContentProvider。</td>
-<td align="left">Activity 启动、生命周期、Task 切换。</td>
-</tr>
-<tr>
-<td align="left"><strong>进程管理</strong></td>
-<td align="left">负责 OOM Adjuster、进程启动与回收。</td>
-<td align="left">不直接参与进程管理。</td>
-</tr>
-<tr>
-<td align="left"><strong>交互对象</strong></td>
-<td align="left">主要与 <code>ProcessRecord</code> 交互。</td>
-<td align="left">主要与 <code>ActivityRecord</code>、<code>TaskRecord</code> 交互。</td>
-</tr>
-<tr>
-<td align="left"><strong>WMS 关系</strong></td>
-<td align="left">间接交互。</td>
-<td align="left"><strong>强绑定</strong>。与 WMS 共同管理窗口 and Activity。</td>
-</tr>
-</tbody></table>
-<hr>
-<h3 id="3-架构演进的关键点"><a href="#3-架构演进的关键点" class="headerlink" title="3. 架构演进的关键点"></a>3. 架构演进的关键点</h3><h4 id="3-1-跨进程通信的变化"><a href="#3-1-跨进程通信的变化" class="headerlink" title="3.1 跨进程通信的变化"></a>3.1 跨进程通信的变化</h4><ul>
-<li><strong>Android 9 以前</strong>：App -&gt; AMS (startActivity)。</li>
-<li><strong>Android 10 以后</strong>：App -&gt; ATMS (startActivity)。</li>
+        <p>本篇解析 <code>example-sync-06.kt</code>。学习如何在协程中安全地保护共享状态。</p>
+<h2 id="1-核心工具：Mutex"><a href="#1-核心工具：Mutex" class="headerlink" title="1. 核心工具：Mutex"></a>1. 核心工具：Mutex</h2><p><code>Mutex</code>（Mutual Exclusion）是协程中的互斥锁，类似于 Java 的 <code>synchronized</code> 或 <code>ReentrantLock</code>。</p>
+<h3 id="关键区别："><a href="#关键区别：" class="headerlink" title="关键区别："></a>关键区别：</h3><ul>
+<li><strong>非阻塞挂起</strong>：不同于 <code>ReentrantLock</code> 会阻塞线程，<code>Mutex</code> 的 <code>lock()</code> 是一个挂起函数。当锁被占用时，协程会挂起并释放线程，而不会死等。</li>
+<li><strong>withLock</strong>：便捷的扩展函数，保证了即使在业务逻辑报错时，锁也能被正确释放。</li>
 </ul>
-<h4 id="3-2-内部协作流程"><a href="#3-2-内部协作流程" class="headerlink" title="3.2 内部协作流程"></a>3.2 内部协作流程</h4><ol>
-<li><strong>ATMS</strong> 负责判断 Activity 应该在哪个 Task 启动，并管理其生命周期状态。</li>
-<li>当需要启动一个新的进程来承载 Activity 时，<strong>ATMS</strong> 会回调 <strong>AMS</strong> 的 <code>startProcessAsync</code> 方法。</li>
-<li><strong>AMS</strong> 负责与 Zygote 通信并完成进程的创建。</li>
-</ol>
-<hr>
-<h3 id="4-总结：一句话区分"><a href="#4-总结：一句话区分" class="headerlink" title="4. 总结：一句话区分"></a>4. 总结：一句话区分</h3><ul>
-<li><strong>ATMS</strong> 是“<strong>Activity 管家</strong>”：只关心 Activity 怎么跳、怎么显示、怎么分组。</li>
-<li><strong>AMS</strong> 是“<strong>应用管家</strong>”：关心进程还在不在、Service 跑没跑、广播发没发。</li>
-</ul>
-<p>这种拆分使得 Android 系统在支持 <strong>多窗口模式 (Multi-Window)</strong> 和 <strong>折叠屏 (Foldables)</strong> 时，逻辑更加清晰和独立。</p>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-2-AMS/">3.1.2 - AMS</a>
-
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
-    <article id="post-3 Android/02 Framework/02 AMS/04-Android-Framework-AMS专项-Handler与ActivityThread的协作机制"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2026/03/29/3%20Android/02%20Framework/02%20AMS/04-Android-Framework-AMS%E4%B8%93%E9%A1%B9-Handler%E4%B8%8EActivityThread%E7%9A%84%E5%8D%8F%E4%BD%9C%E6%9C%BA%E5%88%B6/">Handler 与 ActivityThread 的协作机制</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2026/03/29/3%20Android/02%20Framework/02%20AMS/04-Android-Framework-AMS%E4%B8%93%E9%A1%B9-Handler%E4%B8%8EActivityThread%E7%9A%84%E5%8D%8F%E4%BD%9C%E6%9C%BA%E5%88%B6/" class="article-date">
-	  <time datetime="2026-03-29T15:10:42.550Z" itemprop="datePublished">March 29, 2026</time>
-	</a>
-
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-2-AMS/">3.1.2 - AMS</a>
- 
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>在 AMS 管理 Activity 生命周期的过程中，<code>Handler</code> 扮演了“线程切换器”的关键角色。理解 ActivityThread 如何通过 Handler 接收并执行来自 AMS 的指令，是掌握 Framework 通信模型的核心。</p>
-<h3 id="1-协作模型：从-Binder-线程到主线程"><a href="#1-协作模型：从-Binder-线程到主线程" class="headerlink" title="1. 协作模型：从 Binder 线程到主线程"></a>1. 协作模型：从 Binder 线程到主线程</h3><p>AMS 运行在 <code>system_server</code> 进程中，通过 <strong>IApplicationThread</strong> (Binder 接口) 向应用进程发送指令。</p>
-<table>
-<thead>
-<tr>
-<th align="left">步骤</th>
-<th align="left">运行环境</th>
-<th align="left">执行动作</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left"><strong>1. 跨进程调用</strong></td>
-<td align="left">Binder 线程池</td>
-<td align="left">应用进程收到 AMS 的 Binder 调用（如 <code>scheduleTransaction</code>）。</td>
-</tr>
-<tr>
-<td align="left"><strong>2. 线程切换</strong></td>
-<td align="left">Handler 发送消息</td>
-<td align="left">Binder 线程不直接操作 UI，而是将任务通过 <code>H</code> (Handler) 发送到主线程。</td>
-</tr>
-<tr>
-<td align="left"><strong>3. 消息排队</strong></td>
-<td align="left"><code>MessageQueue</code></td>
-<td align="left">任务作为 <code>Message</code> 进入主线程的消息队列，遵循优先级排序。</td>
-</tr>
-<tr>
-<td align="left"><strong>4. 执行任务</strong></td>
-<td align="left">主线程 (Looper)</td>
-<td align="left"><code>Looper</code> 取出消息并回调 <code>handleMessage</code>，最终执行 Activity 的生命周期。</td>
-</tr>
-</tbody></table>
-<hr>
-<h3 id="2-ActivityThread-内部的管家：类-H"><a href="#2-ActivityThread-内部的管家：类-H" class="headerlink" title="2. ActivityThread 内部的管家：类 H"></a>2. ActivityThread 内部的管家：类 <code>H</code></h3><p>在 <code>ActivityThread</code> 源码中，定义了一个内部类 <code>H</code>，它继承自 <code>Handler</code>。它是应用进程中最重要的消息处理中心。</p>
-<table>
-<thead>
-<tr>
-<th align="left">核心消息常量 (Message Type)</th>
-<th align="left">对应场景</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left"><strong>EXECUTE_TRANSACTION</strong></td>
-<td align="left">Android 9.0+ 引入，统一处理绝大多数生命周期事务（Start, Resume 等）。</td>
-</tr>
-<tr>
-<td align="left"><strong>BIND_APPLICATION</strong></td>
-<td align="left">应用进程启动后的初始化指令。</td>
-</tr>
-<tr>
-<td align="left"><strong>EXIT_APPLICATION</strong></td>
-<td align="left">请求应用退出。</td>
-</tr>
-<tr>
-<td align="left"><strong>RECEIVER</strong></td>
-<td align="left">广播处理指令。</td>
-</tr>
-</tbody></table>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ActivityThread.java 中的内部类 H</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">H</span> <span class="keyword">extends</span> <span class="title class_">Handler</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">handleMessage</span><span class="params">(Message msg)</span> &#123;</span><br><span class="line">        <span class="keyword">switch</span> (msg.what) &#123;</span><br><span class="line">            <span class="keyword">case</span> EXECUTE_TRANSACTION:</span><br><span class="line">                <span class="keyword">final</span> <span class="type">ClientTransaction</span> <span class="variable">transaction</span> <span class="operator">=</span> (ClientTransaction) msg.obj;</span><br><span class="line">                mTransactionExecutor.execute(transaction);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="comment">// ... 其他消息处理</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h3 id="3-同步屏障-Sync-Barrier-在-AMS-场景下的应用"><a href="#3-同步屏障-Sync-Barrier-在-AMS-场景下的应用" class="headerlink" title="3. 同步屏障 (Sync Barrier) 在 AMS 场景下的应用"></a>3. 同步屏障 (Sync Barrier) 在 AMS 场景下的应用</h3><p>当 AMS 请求启动一个 Activity 或执行渲染任务时，为了保证 UI 能够以 60fps&#x2F;120fps 的频率流畅刷新，系统会使用<strong>同步屏障</strong>机制。</p>
-<table>
-<thead>
-<tr>
-<th align="left">概念</th>
-<th align="left">作用机制</th>
-<th align="left">在 AMS 场景的应用</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left"><strong>插入屏障</strong></td>
-<td align="left">在 <code>MessageQueue</code> 头部插入一个 <code>target</code> 为空的特殊消息。</td>
-<td align="left">当 <code>Choreographer</code> 接收到 VSync 信号，或者 AMS 触发界面刷新时发送。</td>
-</tr>
-<tr>
-<td align="left"><strong>优先异步</strong></td>
-<td align="left">此时 Looper 会跳过普通消息，只执行标记为 <code>isAsynchronous</code> 的消息。</td>
-<td align="left">确保 UI 绘制任务、某些关键生命周期事务不会被队列中积压的普通消息（如日志、数据上报）阻塞。</td>
-</tr>
-<tr>
-<td align="left"><strong>移除屏障</strong></td>
-<td align="left">渲染完成后移除，恢复普通消息的处理。</td>
-<td align="left">保证系统吞吐量与 UI 流畅度的平衡。</td>
-</tr>
-</tbody></table>
-<hr>
-<h3 id="4-总结：为什么要通过-Handler？"><a href="#4-总结：为什么要通过-Handler？" class="headerlink" title="4. 总结：为什么要通过 Handler？"></a>4. 总结：为什么要通过 Handler？</h3><ol>
-<li><strong>线程安全</strong>：Android 的 UI 控件是非线程安全的，必须保证所有对 Activity 状态的修改都在主线程完成。</li>
-<li><strong>异步缓冲</strong>：AMS 往往是“发后即忘”的异步调用。Handler 提供的消息队列可以缓冲来自系统的密集请求，防止应用进程因瞬间过载而崩溃。</li>
-<li><strong>优先级调度</strong>：配合同步屏障，Handler 机制能确保最重要的“显示”任务永远被优先执行。</li>
-</ol>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-2-AMS/">3.1.2 - AMS</a>
-
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
-    <article id="post-3 Android/02 Framework/02 AMS/05-Android-Framework-AMS专项-ActivityThread接收与处理指令全过程"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2026/03/30/3%20Android/02%20Framework/02%20AMS/05-Android-Framework-AMS%E4%B8%93%E9%A1%B9-ActivityThread%E6%8E%A5%E6%94%B6%E4%B8%8E%E5%A4%84%E7%90%86%E6%8C%87%E4%BB%A4%E5%85%A8%E8%BF%87%E7%A8%8B/">ActivityThread 接收并处理 AMS 指令全过程</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2026/03/30/3%20Android/02%20Framework/02%20AMS/05-Android-Framework-AMS%E4%B8%93%E9%A1%B9-ActivityThread%E6%8E%A5%E6%94%B6%E4%B8%8E%E5%A4%84%E7%90%86%E6%8C%87%E4%BB%A4%E5%85%A8%E8%BF%87%E7%A8%8B/" class="article-date">
-	  <time datetime="2026-03-29T18:07:20.793Z" itemprop="datePublished">March 30, 2026</time>
-	</a>
-
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-2-AMS/">3.1.2 - AMS</a>
- 
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>在 Android 的系统架构中，AMS（System Server 进程）与 ActivityThread（应用进程）之间的通信是典型的 <strong>C&#x2F;S 架构</strong>。AMS 作为服务端下发指令，ActivityThread 作为客户端接收并执行。</p>
-<h3 id="1-通信架构：Binder-边界"><a href="#1-通信架构：Binder-边界" class="headerlink" title="1. 通信架构：Binder 边界"></a>1. 通信架构：Binder 边界</h3><p>AMS 并不直接持有 <code>ActivityThread</code> 对象，而是通过 <code>IApplicationThread</code> 这一 Binder 接口进行通信。</p>
-<table>
-<thead>
-<tr>
-<th align="left">角色</th>
-<th align="left">实现类</th>
-<th align="left">物理位置</th>
-<th align="left">职责</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left"><strong>Binder 服务端</strong></td>
-<td align="left"><code>ActivityThread.ApplicationThread</code></td>
-<td align="left">应用进程</td>
-<td align="left">继承自 <code>IApplicationThread.Stub</code>，开启 Binder 线程池等待调用。</td>
-</tr>
-<tr>
-<td align="left"><strong>Binder 代理端</strong></td>
-<td align="left"><code>ApplicationThreadProxy</code></td>
-<td align="left">System Server 进程</td>
-<td align="left">AMS 持有该代理，用于向 App 进程发送指令。</td>
-</tr>
-</tbody></table>
-<hr>
-<h3 id="2-指令接收流程：从-Binder-线程到主线程"><a href="#2-指令接收流程：从-Binder-线程到主线程" class="headerlink" title="2. 指令接收流程：从 Binder 线程到主线程"></a>2. 指令接收流程：从 Binder 线程到主线程</h3><p>当 AMS 发起一个指令（如启动 Activity）时，数据流转如下：</p>
-<h4 id="第一步：Binder-线程接收"><a href="#第一步：Binder-线程接收" class="headerlink" title="第一步：Binder 线程接收"></a>第一步：Binder 线程接收</h4><p>AMS 调用 <code>app.thread.scheduleTransaction(transaction)</code>。此时，App 进程中的 <strong>Binder 线程池</strong> 会随机选择一个线程来执行 <code>ApplicationThread</code> 对应的接口方法。</p>
-<h4 id="第二步：向主线程分发"><a href="#第二步：向主线程分发" class="headerlink" title="第二步：向主线程分发"></a>第二步：向主线程分发</h4><p>由于 Binder 线程不能直接操作 UI 或执行 Activity 生命周期，<code>ApplicationThread</code> 会通过内部类 <code>H</code>（Handler）将任务发送到主线程。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ActivityThread.java 内部代码逻辑</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">scheduleTransaction</span><span class="params">(ClientTransaction transaction)</span> &#123;</span><br><span class="line">    <span class="comment">// 这里的 this 指向 H (Handler)</span></span><br><span class="line">    sendMessage(ActivityThread.H.EXECUTE_TRANSACTION, transaction);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h4 id="第三步：主线程消息循环-Looper"><a href="#第三步：主线程消息循环-Looper" class="headerlink" title="第三步：主线程消息循环 (Looper)"></a>第三步：主线程消息循环 (Looper)</h4><p>主线程的 <code>Looper</code> 不断从 <code>MessageQueue</code> 中取出消息。当收到 <code>EXECUTE_TRANSACTION</code> 时，回调 <code>H</code> 的 <code>handleMessage</code>。</p>
-<h4 id="第四步：执行具体逻辑"><a href="#第四步：执行具体逻辑" class="headerlink" title="第四步：执行具体逻辑"></a>第四步：执行具体逻辑</h4><p>对于生命周期相关的指令，<code>ActivityThread</code> 会委派给 <code>TransactionExecutor</code> 执行，最终调用到 <code>Activity</code> 的 <code>onCreate/onStart</code> 等方法。</p>
-<hr>
-<h3 id="3-核心处理中心：类-H"><a href="#3-核心处理中心：类-H" class="headerlink" title="3. 核心处理中心：类 H"></a>3. 核心处理中心：类 <code>H</code></h3><p><code>ActivityThread</code> 内部维护的 Handler <code>H</code> 是所有系统指令的汇聚点。它处理的消息类型决定了应用的行为。</p>
-<table>
-<thead>
-<tr>
-<th align="left">关键消息 (What)</th>
-<th align="left">来源与作用</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left"><strong>BIND_APPLICATION</strong></td>
-<td align="left">AMS 要求进程进行初始化（创建 Application, 加载 Provider）。</td>
-</tr>
-<tr>
-<td align="left"><strong>EXECUTE_TRANSACTION</strong></td>
-<td align="left">Android 9.0+ 引入，聚合了几乎所有生命周期回调（Launch, Resume, Stop 等）。</td>
-</tr>
-<tr>
-<td align="left"><strong>RECEIVER</strong></td>
-<td align="left">处理非动态注册的广播接收者。</td>
-</tr>
-<tr>
-<td align="left"><strong>SERVICE_ARGS</strong></td>
-<td align="left">启动或分发 Service 任务。</td>
-</tr>
-</tbody></table>
-<hr>
-<h3 id="4-协作机制总结"><a href="#4-协作机制总结" class="headerlink" title="4. 协作机制总结"></a>4. 协作机制总结</h3><table>
-<thead>
-<tr>
-<th align="left">关键环节</th>
-<th align="left">核心机制</th>
-<th align="left">核心目的</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left"><strong>跨进程传输</strong></td>
-<td align="left">Binder</td>
-<td align="left">实现 System Server 与 App 进程的通信边界。</td>
-</tr>
-<tr>
-<td align="left"><strong>线程切换</strong></td>
-<td align="left">Handler (类 H)</td>
-<td align="left">将异步的系统指令切换到单线程的 UI 线程执行，确保线程安全。</td>
-</tr>
-<tr>
-<td align="left"><strong>顺序保证</strong></td>
-<td align="left">MessageQueue</td>
-<td align="left">确保来自系统的多个指令（如先 Create 后 Resume）按序执行。</td>
-</tr>
-<tr>
-<td align="left"><strong>事务封装</strong></td>
-<td align="left">ClientTransaction</td>
-<td align="left">在现代 Android 版本中简化生命周期管理，支持复杂的组合状态切换。</td>
-</tr>
-</tbody></table>
-<hr>
-<h3 id="💡-面试要点："><a href="#💡-面试要点：" class="headerlink" title="💡 面试要点："></a>💡 面试要点：</h3><ol>
-<li><strong>ActivityThread 的主线程循环是什么？</strong><br>答：是 <code>Looper.loop()</code>，它不仅处理用户交互，还处理来自 AMS 的所有生命周期指令。</li>
-<li><strong>为什么 ApplicationThread 里的方法不直接改 UI？</strong><br>答：因为 ApplicationThread 的方法运行在 <strong>Binder 线程</strong> 中，而 Android 的 UI 系统是<strong>非线程安全</strong>的，必须通过 Handler 切换到主线程。</li>
-<li><strong>Handler H 的作用？</strong><br>答：它是应用进程的“神经中枢”，负责将系统的异步调用同步化到主线程执行。</li>
-</ol>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-2-AMS/">3.1.2 - AMS</a>
-
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
-    <article id="post-3 Android/02 Framework/02 AMS/07-Android-Framework-AMS专项-Activity启动之栈管理逻辑"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2026/03/30/3%20Android/02%20Framework/02%20AMS/07-Android-Framework-AMS%E4%B8%93%E9%A1%B9-Activity%E5%90%AF%E5%8A%A8%E4%B9%8B%E6%A0%88%E7%AE%A1%E7%90%86%E9%80%BB%E8%BE%91/">Activity 启动之栈管理与 LaunchMode 判定</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2026/03/30/3%20Android/02%20Framework/02%20AMS/07-Android-Framework-AMS%E4%B8%93%E9%A1%B9-Activity%E5%90%AF%E5%8A%A8%E4%B9%8B%E6%A0%88%E7%AE%A1%E7%90%86%E9%80%BB%E8%BE%91/" class="article-date">
-	  <time datetime="2026-03-29T18:34:46.465Z" itemprop="datePublished">March 30, 2026</time>
-	</a>
-
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-2-AMS/">3.1.2 - AMS</a>
- 
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>当 Activity 的启动请求进入 ATMS 后，最核心的逻辑就是：<strong>这个 Activity 应该放在哪个任务栈（Task）里？</strong> 这涉及到对 LaunchMode、Intent Flags 以及 TaskAffinity 的综合判定。</p>
-<h3 id="1-核心角色：ActivityStarter"><a href="#1-核心角色：ActivityStarter" class="headerlink" title="1. 核心角色：ActivityStarter"></a>1. 核心角色：ActivityStarter</h3><p><code>ActivityStarter</code> 是启动流程中的“决策者”。它负责解析启动参数，并调用 <code>startActivityUnchecked</code> 开始处理栈逻辑。</p>
-<h3 id="2-LaunchMode-与-栈分配逻辑表"><a href="#2-LaunchMode-与-栈分配逻辑表" class="headerlink" title="2. LaunchMode 与 栈分配逻辑表"></a>2. LaunchMode 与 栈分配逻辑表</h3><table>
-<thead>
-<tr>
-<th align="left">启动模式</th>
-<th align="left">ATMS 的核心逻辑</th>
-<th align="left">典型表现</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left"><strong>standard</strong></td>
-<td align="left">不做检查，直接创建新实例。</td>
-<td align="left">每次启动都会压入当前栈顶。</td>
-</tr>
-<tr>
-<td align="left"><strong>singleTop</strong></td>
-<td align="left">检查目标栈顶。若已是该实例，回调 <code>onNewIntent</code>。</td>
-<td align="left">防止栈顶重复创建。</td>
-</tr>
-<tr>
-<td align="left"><strong>singleTask</strong></td>
-<td align="left">在全局寻找是否存在对应 <code>taskAffinity</code> 的栈。若有则移至前台并清理其上方所有 Activity (Clear Top)。</td>
-<td align="left">确保一个任务栈中只有一个实例。</td>
-</tr>
-<tr>
-<td align="left"><strong>singleInstance</strong></td>
-<td align="left">强制创建一个新的任务栈，且该栈只能有这一个实例。</td>
-<td align="left">独占一个任务栈（如电话界面）。</td>
-</tr>
-</tbody></table>
-<hr>
-<h3 id="3-Intent-Flags-的影响"><a href="#3-Intent-Flags-的影响" class="headerlink" title="3. Intent Flags 的影响"></a>3. Intent Flags 的影响</h3><p>代码中通过 <code>Intent.setFlags()</code> 设置的参数优先级高于 XML 定义。</p>
+<h2 id="2-代码解析"><a href="#2-代码解析" class="headerlink" title="2. 代码解析"></a>2. 代码解析</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> mutex = Mutex()</span><br><span class="line">massiveRun &#123;</span><br><span class="line">    mutex.withLock &#123; <span class="comment">// 保护临界区</span></span><br><span class="line">        counter++</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <ul>
-<li><strong>FLAG_ACTIVITY_NEW_TASK</strong>：对应 <code>singleTask</code> 的基本行为，寻找或创建新栈。</li>
-<li><strong>FLAG_ACTIVITY_CLEAR_TOP</strong>：如果栈中已存在该实例，销毁其上的所有 Activity。</li>
-<li><strong>FLAG_ACTIVITY_REORDER_TO_FRONT</strong>：将已存在的实例移到栈顶，不销毁中间的 Activity。</li>
+<li><strong>结果</strong>：Counter &#x3D; 100000 (准确)。</li>
 </ul>
-<hr>
-<h3 id="4-栈管理的关键步骤"><a href="#4-栈管理的关键步骤" class="headerlink" title="4. 栈管理的关键步骤"></a>4. 栈管理的关键步骤</h3><ol>
-<li><strong>findTask</strong>：根据 <code>taskAffinity</code> 和 <code>Flags</code> 寻找匹配的 <code>TaskRecord</code>。</li>
-<li><strong>computeStack</strong>：确定目标 Activity 应该落在哪个 <code>ActivityStack</code>（在 Android 10+ 主要是 <code>DisplayContent</code> 下的容器）。</li>
-<li><strong>resumeFocusedStacksTopActivities</strong>：将目标栈移到最前台，准备执行显示逻辑。</li>
-</ol>
-<hr>
-<h3 id="5-调试技巧"><a href="#5-调试技巧" class="headerlink" title="5. 调试技巧"></a>5. 调试技巧</h3><p>使用以下命令可以实时观察栈的变化，这是理解栈管理逻辑的“神技”：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb shell dumpsys activity activities</span><br></pre></td></tr></table></figure>
-<p><strong>关注点：</strong> 寻找 <code>TaskRecord</code> 节点，查看其内部的 <code>ActivityRecord</code> 列表及其 <code>intent</code> 信息。</p>
+<h2 id="3-开发者感悟"><a href="#3-开发者感悟" class="headerlink" title="3. 开发者感悟"></a>3. 开发者感悟</h2><p><code>Mutex</code> 是处理复杂并发逻辑（例如读写文件、数据库事务）时的终极武器。它保证了同一时间只有一个协程能进入“临界区”。由于它是非阻塞挂起的，它在性能上通常优于传统的线程锁。</p>
 
       
     </div>
     <footer class="entry-meta entry-footer">
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-2-AMS/">3.1.2 - AMS</a>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
 
       
       
@@ -876,7 +687,7 @@
 <!-- Table of Contents -->
 
   
-    <article id="post-3 Android/02 Framework/02 AMS/08-Android-Framework-AMS专项-Activity启动之进程创建流程"  class="article article-type-post" itemscope itemprop="blogPost" >
+    <article id="post-1 Kotlin/03 Kotlin 协程基础/协程进阶_通道_06_扇出"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -884,7 +695,7 @@
         
   
     <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2026/03/30/3%20Android/02%20Framework/02%20AMS/08-Android-Framework-AMS%E4%B8%93%E9%A1%B9-Activity%E5%90%AF%E5%8A%A8%E4%B9%8B%E8%BF%9B%E7%A8%8B%E5%88%9B%E5%BB%BA%E6%B5%81%E7%A8%8B/">Activity 启动之进程创建流程（AMS 与 Zygote 的握手）</a>
+      <a class="article-title" href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E9%80%9A%E9%81%93_06_%E6%89%87%E5%87%BA/">协程进阶：通道 06. 扇出模式 (Fan-out)</a>
     </h1>
   
 
@@ -892,336 +703,34 @@
     
     <div class="article-meta">
       
-	<a href="/2026/03/30/3%20Android/02%20Framework/02%20AMS/08-Android-Framework-AMS%E4%B8%93%E9%A1%B9-Activity%E5%90%AF%E5%8A%A8%E4%B9%8B%E8%BF%9B%E7%A8%8B%E5%88%9B%E5%BB%BA%E6%B5%81%E7%A8%8B/" class="article-date">
-	  <time datetime="2026-03-29T18:34:52.953Z" itemprop="datePublished">March 30, 2026</time>
+	<a href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E9%80%9A%E9%81%93_06_%E6%89%87%E5%87%BA/" class="article-date">
+	  <time datetime="2026-03-30T18:59:30.613Z" itemprop="datePublished">March 31, 2026</time>
 	</a>
 
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-2-AMS/">3.1.2 - AMS</a>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
  
       
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>在启动 Activity 时，如果 ATMS 发现目标进程（ProcessRecord）不存在，就会触发进程创建流程。这是 Android 系统中典型的“按需启动”机制。</p>
-<h3 id="1-触发点：AMS-startProcessLocked"><a href="#1-触发点：AMS-startProcessLocked" class="headerlink" title="1. 触发点：AMS.startProcessLocked"></a>1. 触发点：AMS.startProcessLocked</h3><p>当 ATMS 判定需要新进程来承载 Activity 时，会跨模块回调 AMS：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 核心逻辑简述</span></span><br><span class="line"><span class="keyword">if</span> (app == <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="comment">// 进程不存在，开始启动进程</span></span><br><span class="line">    mService.startProcessLocked(processName, info, ...);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="2-AMS-与-Zygote-的通信流程表"><a href="#2-AMS-与-Zygote-的通信流程表" class="headerlink" title="2. AMS 与 Zygote 的通信流程表"></a>2. AMS 与 Zygote 的通信流程表</h3><table>
-<thead>
-<tr>
-<th align="left">阶段</th>
-<th align="left">核心方法</th>
-<th align="left">动作描述</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left"><strong>1. 决策</strong></td>
-<td align="left"><code>startProcessLocked</code></td>
-<td align="left">AMS 确定进程参数（UID, GID, 启动类 <code>ActivityThread</code>）。</td>
-</tr>
-<tr>
-<td align="left"><strong>2. 发起请求</strong></td>
-<td align="left"><code>Process.start</code></td>
-<td align="left">通过 <code>ZygoteProcess</code> 建立与 Zygote 的 Socket 连接。</td>
-</tr>
-<tr>
-<td align="left"><strong>3. 通信</strong></td>
-<td align="left"><code>ZygoteState.connect</code></td>
-<td align="left">向 <code>/dev/socket/zygote</code> 写入启动参数字符串。</td>
-</tr>
-<tr>
-<td align="left"><strong>4. 孵化</strong></td>
-<td align="left"><code>Zygote.fork()</code></td>
-<td align="left">Zygote 接收信号，Fork 自身进程（利用 COW 机制）。</td>
-</tr>
-<tr>
-<td align="left"><strong>5. 诞生</strong></td>
-<td align="left"><code>RuntimeInit</code></td>
-<td align="left">子进程初始化运行环境，并抛出 <code>MethodAndArgsCaller</code> 异常以进入 Java 入口。</td>
-</tr>
-</tbody></table>
-<hr>
-<h3 id="3-为什么是-Socket-而不是-Binder？"><a href="#3-为什么是-Socket-而不是-Binder？" class="headerlink" title="3. 为什么是 Socket 而不是 Binder？"></a>3. 为什么是 Socket 而不是 Binder？</h3><p>这是一个经典考点。Zygote 使用 <strong>LocalSocket</strong> 监听请求而非 Binder，主要是为了规避 <strong>Fork 机制与多线程锁冲突</strong> 导致的死锁风险。在 <code>fork</code> 瞬间，子进程只会拷贝发起调用的线程，其他线程持有的锁将永远无法在子进程中释放。</p>
-<hr>
-<h3 id="4-子进程的“觉醒”：ActivityThread-main"><a href="#4-子进程的“觉醒”：ActivityThread-main" class="headerlink" title="4. 子进程的“觉醒”：ActivityThread.main()"></a>4. 子进程的“觉醒”：ActivityThread.main()</h3><p>当 <code>fork</code> 成功后，子进程会执行 <code>ActivityThread.main()</code> 方法，这标志着应用主线程正式开始工作：</p>
-<ol>
-<li>**Looper.prepareMainLooper()**：初始化主线程消息循环。</li>
-<li><strong>attach</strong>：跨进程向 AMS 报告：“我启动好了（<code>attachApplication</code>）”。</li>
-<li><strong>BIND_APPLICATION</strong>：AMS 发回应用配置信息，App 开始创建 <code>Application</code> 实例并调用 <code>onCreate</code>。</li>
-<li>**Looper.loop()**：主线程进入死循环，开始处理 AMS 发来的生命周期指令（如 <code>LAUNCH_ACTIVITY</code>）。</li>
-</ol>
-<hr>
-<h3 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. 总结</h3><p>进程创建是一个“从 C++ 到 Java”的过程，也是“从系统服务到应用代码”的过程。掌握了从 <code>startProcessLocked</code> 到 <code>attachApplication</code> 的闭环，就掌握了 Android 进程管理的精髓。</p>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-2-AMS/">3.1.2 - AMS</a>
-
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
-    <article id="post-3 Android/02 Framework/03 WMS/00-Android-Framework-WMS专项-学习路线指南"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2026/03/29/3%20Android/02%20Framework/03%20WMS/00-Android-Framework-WMS%E4%B8%93%E9%A1%B9-%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF%E6%8C%87%E5%8D%97/">Android Framework 专项 - WMS 学习路线指南</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2026/03/29/3%20Android/02%20Framework/03%20WMS/00-Android-Framework-WMS%E4%B8%93%E9%A1%B9-%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF%E6%8C%87%E5%8D%97/" class="article-date">
-	  <time datetime="2026-03-29T14:47:08.187Z" itemprop="datePublished">March 29, 2026</time>
-	</a>
-
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-3-WMS/">3.1.3 - WMS</a>
- 
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>WindowManagerService (WMS) 是 Android 系统中负责窗口管理的核心服务。与 AMS 相比，WMS 与图形显示、输入系统及 View 系统的交互更为紧密。设计一套科学的 WMS 学习路线，建议遵循“从基础支撑到核心模型，再到显示原理”的原则。</p>
-<hr>
-<h3 id="第一阶段：支撑系统（底层依赖知识）"><a href="#第一阶段：支撑系统（底层依赖知识）" class="headerlink" title="第一阶段：支撑系统（底层依赖知识）"></a>第一阶段：支撑系统（底层依赖知识）</h3><p>在深入 WMS 源码前，必须掌握 WMS 运行的基础设施。</p>
-<table>
-<thead>
-<tr>
-<th align="left">模块</th>
-<th align="left">关键考点</th>
-<th align="left">学习目的</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left"><strong>SurfaceFlinger</strong></td>
-<td align="left">图形缓冲区、Layer、合成原理</td>
-<td align="left">理解 WMS 最终的渲染产物是如何被合成并显示的。</td>
-</tr>
-<tr>
-<td align="left"><strong>Input 系统</strong></td>
-<td align="left">IMS、事件分发、InputChannel</td>
-<td align="left">理解 WMS 如何协助将点击事件派发到正确的窗口。</td>
-</tr>
-<tr>
-<td align="left"><strong>View 系统</strong></td>
-<td align="left">ViewRootImpl、DecorView、Measure&#x2F;Layout</td>
-<td align="left">理解应用端是如何通过 View 系统与 WMS 建立联系的。</td>
-</tr>
-</tbody></table>
-<hr>
-<h3 id="第二阶段：核心模型（窗口的骨架）"><a href="#第二阶段：核心模型（窗口的骨架）" class="headerlink" title="第二阶段：核心模型（窗口的骨架）"></a>第二阶段：核心模型（窗口的骨架）</h3><p>WMS 服务端通过一组对象来维护窗口的层级、属性和状态。</p>
-<table>
-<thead>
-<tr>
-<th align="left">核心类</th>
-<th align="left">职责描述</th>
-<th align="left">对应现实模型</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left"><strong>WindowToken</strong></td>
-<td align="left">标识一组窗口（如 Activity 下的所有 Window），用于权限和组织。</td>
-<td align="left"><strong>分组标签</strong></td>
-</tr>
-<tr>
-<td align="left"><strong>WindowState</strong></td>
-<td align="left">服务端对单个窗口的建模，存储大小、位置、可见性等信息。</td>
-<td align="left"><strong>窗口本体</strong></td>
-</tr>
-<tr>
-<td align="left"><strong>DisplayContent</strong></td>
-<td align="left">对应物理或虚拟屏幕，管理该屏幕下的所有窗口。</td>
-<td align="left"><strong>整个屏幕</strong></td>
-</tr>
-<tr>
-<td align="left"><strong>Session</strong></td>
-<td align="left">应用进程与 WMS 之间的 Binder 通道，每个进程一个。</td>
-<td align="left"><strong>通信信道</strong></td>
-</tr>
-</tbody></table>
-<hr>
-<h3 id="第三阶段：核心流程（窗口的诞生与消亡）"><a href="#第三阶段：核心流程（窗口的诞生与消亡）" class="headerlink" title="第三阶段：核心流程（窗口的诞生与消亡）"></a>第三阶段：核心流程（窗口的诞生与消亡）</h3><p>通过追踪一个 Activity 窗口从无到有的过程，理清 WMS 的运行逻辑。</p>
-<table>
-<thead>
-<tr>
-<th align="left">学习步骤</th>
-<th align="left">核心关键点</th>
-<th align="left">关注重点</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left"><strong>1. 窗口添加 (Add)</strong></td>
-<td align="left"><code>WindowManagerGlobal</code> -&gt; <code>WMS.addWindow</code></td>
-<td align="left">权限校验、WindowState 创建、Z-Order 分配。</td>
-</tr>
-<tr>
-<td align="left"><strong>2. 布局计算 (Relayout)</strong></td>
-<td align="left"><code>WMS.relayoutWindow</code></td>
-<td align="left">窗口框架计算（Frame）、显示区域（Insets）的处理。</td>
-</tr>
-<tr>
-<td align="left"><strong>3. Surface 分配</strong></td>
-<td align="left"><code>WindowSurfaceController</code></td>
-<td align="left">理解 Surface 如何从 WMS 传递到应用进程。</td>
-</tr>
-<tr>
-<td align="left"><strong>4. 窗口移除 (Remove)</strong></td>
-<td align="left"><code>removeWindow</code></td>
-<td align="left">状态同步、资源清理、窗口退出动画。</td>
-</tr>
-</tbody></table>
-<hr>
-<h3 id="第四阶段：进阶专题（高级显示控制）"><a href="#第四阶段：进阶专题（高级显示控制）" class="headerlink" title="第四阶段：进阶专题（高级显示控制）"></a>第四阶段：进阶专题（高级显示控制）</h3><p>了解现代 Android 在复杂显示场景下的处理机制。</p>
-<table>
-<thead>
-<tr>
-<th align="left">进阶专题</th>
-<th align="left">核心内容</th>
-<th align="left">学习意义</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left"><strong>层级管理 (Z-Order)</strong></td>
-<td align="left">BaseLayer、SubLayer 计算规则。</td>
-<td align="left">理解窗口遮挡关系与叠加顺序。</td>
-</tr>
-<tr>
-<td align="left"><strong>窗口动画</strong></td>
-<td align="left"><code>WindowAnimationSpec</code>、Remote Animation。</td>
-<td align="left">掌握 App 切换动画及系统动画的底层实现。</td>
-</tr>
-<tr>
-<td align="left"><strong>多窗口与分屏</strong></td>
-<td align="left">TaskStack 组织、多任务焦点管理。</td>
-<td align="left">适配大屏、折叠屏等现代设备。</td>
-</tr>
-<tr>
-<td align="left"><strong>输入法窗口 (IME)</strong></td>
-<td align="left">IME 窗口的特殊层级与生命周期。</td>
-<td align="left">解决输入法遮挡及交互的疑难杂症。</td>
-</tr>
-</tbody></table>
-<hr>
-<h3 id="💡-学习建议："><a href="#💡-学习建议：" class="headerlink" title="💡 学习建议："></a>💡 学习建议：</h3><ol>
-<li><strong>结合 Winscope 工具</strong>：利用 Android 提供的 Winscope 录制并查看窗口层级和 Surface 状态，将抽象代码可视化。</li>
-<li><strong>理解 Insets 机制</strong>：现代 Android 窗口管理很大一部分精力在于处理状态栏、导航栏、挖孔屏等带来的 <code>WindowInsets</code>。</li>
-<li><strong>分层阅读</strong>：WMS 源码逻辑分散在 <code>services</code> 的核心包中，建议从 <code>WindowManagerService.java</code> 入手，先理清 <code>addWindow</code> 这一条主线。</li>
-</ol>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-3-WMS/">3.1.3 - WMS</a>
-
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
-    <article id="post-3 Android/02 Framework/01 WMS/01-Android-Framework-WMS专项-窗口添加流程解析"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2026/03/30/3%20Android/02%20Framework/01%20WMS/01-Android-Framework-WMS%E4%B8%93%E9%A1%B9-%E7%AA%97%E5%8F%A3%E6%B7%BB%E5%8A%A0%E6%B5%81%E7%A8%8B%E8%A7%A3%E6%9E%90/">WMS 专项 - 窗口添加流程解析 (AddWindow)</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2026/03/30/3%20Android/02%20Framework/01%20WMS/01-Android-Framework-WMS%E4%B8%93%E9%A1%B9-%E7%AA%97%E5%8F%A3%E6%B7%BB%E5%8A%A0%E6%B5%81%E7%A8%8B%E8%A7%A3%E6%9E%90/" class="article-date">
-	  <time datetime="2026-03-29T18:36:53.064Z" itemprop="datePublished">March 30, 2026</time>
-	</a>
-
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-3-WMS/">3.1.3 - WMS</a>
- 
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>当应用端调用 <code>WindowManager.addView</code> 时，窗口的添加流程正式开启。这是一个跨越应用进程与 WMS 服务端的重要 IPC 过程。</p>
-<h3 id="1-应用端：ViewRootImpl-的建立"><a href="#1-应用端：ViewRootImpl-的建立" class="headerlink" title="1. 应用端：ViewRootImpl 的建立"></a>1. 应用端：ViewRootImpl 的建立</h3><p>在 <code>WindowManagerGlobal</code> 中，每添加一个窗口都会创建一个对应的 <code>ViewRootImpl</code>。它负责：</p>
-<ul>
-<li>触发第一次 <code>requestLayout</code>。</li>
-<li>通过 <code>mWindowSession.addToDisplay</code> 向 WMS 发起跨进程调用。</li>
+        <p>本篇解析 <code>example-channel-06.kt</code>。学习如何将一个生产者的任务分发给多个消费者。</p>
+<h2 id="1-核心概念：一发多收"><a href="#1-核心概念：一发多收" class="headerlink" title="1. 核心概念：一发多收"></a>1. 核心概念：一发多收</h2><p>扇出模式指：<strong>一个</strong>生产者向通道发送数据，<strong>多个</strong>消费者同时从同一个通道接收数据。</p>
+<h3 id="特点："><a href="#特点：" class="headerlink" title="特点："></a>特点：</h3><ul>
+<li><strong>负载均衡</strong>：多个消费者并发运行，每个消费者取走一部分数据。</li>
+<li><strong>数据不重复</strong>：一个元素只能被其中一个消费者接收，绝不会被重复处理。</li>
 </ul>
-<h3 id="2-服务端：WMS-addWindow-核心逻辑"><a href="#2-服务端：WMS-addWindow-核心逻辑" class="headerlink" title="2. 服务端：WMS.addWindow 核心逻辑"></a>2. 服务端：WMS.addWindow 核心逻辑</h3><table>
-<thead>
-<tr>
-<th align="left">关键步骤</th>
-<th align="left">内部行为</th>
-<th align="left">目的</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left"><strong>1. 权限与令牌校验</strong></td>
-<td align="left">检查 <code>WindowToken</code> 是否合法。</td>
-<td align="left">确保如子窗口、Activity 窗口拥有正确的宿主权限。</td>
-</tr>
-<tr>
-<td align="left"><strong>2. 创建 WindowState</strong></td>
-<td align="left">在 WMS 内部为该窗口建立“档案”。</td>
-<td align="left">存储窗口的所有几何属性、标志位及父子关系。</td>
-</tr>
-<tr>
-<td align="left"><strong>3. Z-Order 计算</strong></td>
-<td align="left">根据 <code>WindowType</code> 分配显示层级。</td>
-<td align="left">决定窗口在垂直方向上谁盖住谁。</td>
-</tr>
-<tr>
-<td align="left"><strong>4. 关联 Session</strong></td>
-<td align="left">将窗口与发起进程的 <code>Session</code> 绑定。</td>
-<td align="left">便于后续的 IPC 通信与异常清理。</td>
-</tr>
-</tbody></table>
-<hr>
-<h3 id="3-核心对象关系图"><a href="#3-核心对象关系图" class="headerlink" title="3. 核心对象关系图"></a>3. 核心对象关系图</h3><p><strong>App 进程 (ViewRootImpl)</strong> &lt;— <code>IWindowSession</code> (Binder) —&gt; <strong>SystemServer (WMS)</strong></p>
-<ul>
-<li><strong>WMS</strong> 持有 <code>WindowToken</code> (管理组)</li>
-<li><strong>WindowToken</strong> 包含多个 <code>WindowState</code> (管理个体)</li>
-</ul>
+<h2 id="2-代码解析"><a href="#2-代码解析" class="headerlink" title="2. 代码解析"></a>2. 代码解析</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> producer = produceNumbers() <span class="comment">// 生产者每 100ms 发一个数</span></span><br><span class="line">repeat(<span class="number">5</span>) &#123; launchProcessor(it, producer) &#125; <span class="comment">// 启动 5 个并发消费者</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-开发者感悟"><a href="#3-开发者感悟" class="headerlink" title="3. 开发者感悟"></a>3. 开发者感悟</h2><p>在 Android 实际开发中，扇出模式常用于处理海量图片下载或并发网络请求。你只需要一个请求通道，后台启动 5-10 个协程作为消费者，就能极大地提高系统的整体吞吐量。</p>
 
       
     </div>
     <footer class="entry-meta entry-footer">
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-3-WMS/">3.1.3 - WMS</a>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
 
       
       
@@ -1238,7 +747,7 @@
 
   <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/7/">Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/9/">Next</a>
+    <a class="extend prev" rel="prev" href="/page/7/">Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><a class="page-number" href="/page/10/">10</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" href="/page/9/">Next</a>
   </nav>
 
 </section>
@@ -1346,7 +855,43 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2026/03/31/3%20Android/02%20Framework/07%20NNAPI/01-Android-Framework-%E4%B8%93%E9%A1%B9-NNAPI%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6/">Android Framework 专项 - NNAPI 核心机制</a></h6>
+              <h6 style="margin: 0;"><a href="/2026/04/09/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E9%80%9A%E9%81%93_05_%E7%B4%A0_%E6%95%B0%E5%BA%8F%E5%88%97/">协程进阶：通道 05. 管道案例：素数序列 (Primes)</a></h6>
+              <span>April 9, 2026</span>
+            </div>
+
+          </li>
+        
+          <li class="clearfix">
+
+            
+              <div class="widget-entry-summary" style="margin: 0;">
+            
+
+              <h6 style="margin: 0;"><a href="/2026/04/09/3%20Android/02%20Framework/08%20HWUI/Android%20HWUI%20%E7%A1%AC%E4%BB%B6%E5%8A%A0%E9%80%9F%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90/">Android Bitmap 创建流程深度分析</a></h6>
+              <span>April 9, 2026</span>
+            </div>
+
+          </li>
+        
+          <li class="clearfix">
+
+            
+              <div class="widget-entry-summary" style="margin: 0;">
+            
+
+              <h6 style="margin: 0;"><a href="/2026/04/09/3%20Android/02%20Framework/08%20HWUI/Android%20Bitmap%20%E5%88%9B%E5%BB%BA%E6%B5%81%E7%A8%8B%E6%B7%B1%E5%BA%A6%E5%88%86%E6%9E%90/">Android Bitmap 创建流程深度分析</a></h6>
+              <span>April 9, 2026</span>
+            </div>
+
+          </li>
+        
+          <li class="clearfix">
+
+            
+              <div class="widget-entry-summary" style="margin: 0;">
+            
+
+              <h6 style="margin: 0;"><a href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E7%9B%91%E7%9D%A3_03_%E7%9B%91%E7%9D%A3%E4%B8%8B%E7%9A%84%E5%BC%82%E5%B8%B8%E6%8D%95%E8%8E%B7/">协程进阶：监督 03. 监督环境下的异常捕获</a></h6>
               <span>March 31, 2026</span>
             </div>
 
@@ -1358,8 +903,8 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2026/03/30/3%20Android/02%20Framework/06%20GUI/01-Android-Framework-%E4%B8%93%E9%A1%B9-GUI%E6%B8%B2%E6%9F%93%E7%B3%BB%E7%BB%9F%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6/">Android Framework 专项 - GUI 渲染系统核心机制</a></h6>
-              <span>March 30, 2026</span>
+              <h6 style="margin: 0;"><a href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E7%9B%91%E7%9D%A3_02_supervisorScope/">协程进阶：监督 02. supervisorScope 作用域</a></h6>
+              <span>March 31, 2026</span>
             </div>
 
           </li>
@@ -1370,44 +915,8 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2026/03/30/3%20Android/02%20Framework/03%20WMS/05-Android-Framework-WMS%E4%B8%93%E9%A1%B9-%E5%BA%95%E5%B1%82%E6%94%AF%E6%92%91%E7%B3%BB%E7%BB%9F/">WMS 专项 - 底层支撑系统 (SurfaceFlinger, Input, View)</a></h6>
-              <span>March 30, 2026</span>
-            </div>
-
-          </li>
-        
-          <li class="clearfix">
-
-            
-              <div class="widget-entry-summary" style="margin: 0;">
-            
-
-              <h6 style="margin: 0;"><a href="/2026/03/30/3%20Android/02%20Framework/01%20WMS/03-Android-Framework-WMS%E4%B8%93%E9%A1%B9-Surface%E5%88%9B%E5%BB%BA%E4%B8%8E%E6%B8%B2%E6%9F%93%E9%93%BE%E8%B7%AF/">WMS 专项 - Surface 创建与渲染链路</a></h6>
-              <span>March 30, 2026</span>
-            </div>
-
-          </li>
-        
-          <li class="clearfix">
-
-            
-              <div class="widget-entry-summary" style="margin: 0;">
-            
-
-              <h6 style="margin: 0;"><a href="/2026/03/30/3%20Android/02%20Framework/01%20WMS/02-Android-Framework-WMS%E4%B8%93%E9%A1%B9-%E7%AA%97%E5%8F%A3%E5%B8%83%E5%B1%80%E4%B8%8ERelayout/">WMS 专项 - 窗口布局与 Relayout 机制</a></h6>
-              <span>March 30, 2026</span>
-            </div>
-
-          </li>
-        
-          <li class="clearfix">
-
-            
-              <div class="widget-entry-summary" style="margin: 0;">
-            
-
-              <h6 style="margin: 0;"><a href="/2026/03/30/3%20Android/02%20Framework/01%20WMS/01-Android-Framework-WMS%E4%B8%93%E9%A1%B9-%E7%AA%97%E5%8F%A3%E6%B7%BB%E5%8A%A0%E6%B5%81%E7%A8%8B%E8%A7%A3%E6%9E%90/">WMS 专项 - 窗口添加流程解析 (AddWindow)</a></h6>
-              <span>March 30, 2026</span>
+              <h6 style="margin: 0;"><a href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E7%9B%91%E7%9D%A3_01_SupervisorJob/">协程进阶：监督 01. SupervisorJob</a></h6>
+              <span>March 31, 2026</span>
             </div>
 
           </li>
@@ -1421,7 +930,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">9</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%9F%BA%E7%A1%80/">1.1 - Kotlin 基础</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/">11 - 音视频</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/11-1-%E6%92%AD%E6%94%BE%E5%99%A8%E5%AE%9E%E6%88%98/">11.1 - 播放器实战</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-1-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.1 - 多线程</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">39</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">24</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-1-Handler/">3.1.1 - Handler</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-2-AMS/">3.1.2 - AMS</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-3-WMS/">3.1.3 - WMS</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-4-Binder/">3.1.4 - Binder</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-5-Zygote/">3.1.5 - Zygote</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-6-GUI/">3.1.6 - GUI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-7-NNAPI/">3.1.7 - NNAPI</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-2-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.2 - 播放器架构方案设计</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-3-Android-%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.3 - Android 存储文件方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-2-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.2 - 简单好用的 gradle 云编译设置</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-2-%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/">7.2 - 手势分发</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">8</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-3-%E5%AE%9E%E6%97%B6%E6%B8%B2%E6%9F%93/">8.3 - 实时渲染</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">114</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%9F%BA%E7%A1%80/">1.1 - Kotlin 基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a><span class="category-list-count">104</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/">11 - 音视频</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/11-1-%E6%92%AD%E6%94%BE%E5%99%A8%E5%AE%9E%E6%88%98/">11.1 - 播放器实战</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-1-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.1 - 多线程</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">41</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">26</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-1-Handler/">3.1.1 - Handler</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-2-AMS/">3.1.2 - AMS</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-3-WMS/">3.1.3 - WMS</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-4-Binder/">3.1.4 - Binder</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-5-Zygote/">3.1.5 - Zygote</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-6-GUI/">3.1.6 - GUI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-7-NNAPI/">3.1.7 - NNAPI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-8-HWUI/">3.1.8 - HWUI</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-2-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.2 - 播放器架构方案设计</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-3-Android-%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.3 - Android 存储文件方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-2-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.2 - 简单好用的 gradle 云编译设置</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-2-%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/">7.2 - 手势分发</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">8</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-3-%E5%AE%9E%E6%97%B6%E6%B8%B2%E6%9F%93/">8.3 - 实时渲染</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1437,7 +946,7 @@
     <h3 class="widget-title">Archives</h3>
 
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/03/">March 2026</a><span class="archive-list-count">32</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/01/">January 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">November 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">March 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">54</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/04/">April 2026</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/03/">March 2026</a><span class="archive-list-count">135</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/01/">January 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">November 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">March 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">54</span></li></ul>
     </div>
   </div>
 

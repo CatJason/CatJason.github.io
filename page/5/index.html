@@ -115,7 +115,7 @@
         
           <section id="main">
   
-    <article id="post-1 Kotlin/01 Kotlin 协程/协程异常处理机制"  class="article article-type-post" itemscope itemprop="blogPost" >
+    <article id="post-1 Kotlin/03 Kotlin 协程基础/协程进阶_异常_02_ExceptionHandler"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -123,7 +123,7 @@
         
   
     <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2026/03/25/1%20Kotlin/01%20Kotlin%20%E5%8D%8F%E7%A8%8B/%E5%8D%8F%E7%A8%8B%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6/">Kotlin 协程异常处理与上报机制</a>
+      <a class="article-title" href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E5%BC%82%E5%B8%B8_02_ExceptionHandler/">协程进阶：异常 02. CoroutineExceptionHandler</a>
     </h1>
   
 
@@ -131,55 +131,37 @@
     
     <div class="article-meta">
       
-	<a href="/2026/03/25/1%20Kotlin/01%20Kotlin%20%E5%8D%8F%E7%A8%8B/%E5%8D%8F%E7%A8%8B%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6/" class="article-date">
-	  <time datetime="2026-03-24T19:36:38.636Z" itemprop="datePublished">March 25, 2026</time>
+	<a href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E5%BC%82%E5%B8%B8_02_ExceptionHandler/" class="article-date">
+	  <time datetime="2026-03-30T18:50:20.006Z" itemprop="datePublished">March 31, 2026</time>
 	</a>
 
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
  
       
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>在 <code>kotlinx.coroutines</code> 项目中，异常的处理和上报遵循结构化并发（Structured Concurrency）的原则。异常并非简单的 <code>try-catch</code> 就能捕获，而是有一套从子协程到父协程层层上报的机制。</p>
-<h2 id="1-异常传播的核心规则"><a href="#1-异常传播的核心规则" class="headerlink" title="1. 异常传播的核心规则"></a>1. 异常传播的核心规则</h2><p>协程构建器分为两类，它们处理异常的方式不同：</p>
-<ul>
-<li><strong>自动传播（launch &#x2F; produce）</strong>：这些构建器将异常视为<strong>未捕获异常</strong>。它们会立即将异常向上传播给父协程，最终由 <code>CoroutineExceptionHandler</code> 或线程的未捕获异常处理器处理。</li>
-<li><strong>暴露给用户（async &#x2F; broadcast）</strong>：这些构建器依赖用户最终消费异常。例如，通过 <code>await()</code> 或 <code>receive()</code> 来捕获。如果未被消费，异常会被封装在 <code>Deferred</code> 对象中。</li>
+        <p>本篇解析 <code>example-exceptions-02.kt</code>。学习如何全局捕获未处理的协程异常。</p>
+<h2 id="1-核心概念：最后防线"><a href="#1-核心概念：最后防线" class="headerlink" title="1. 核心概念：最后防线"></a>1. 核心概念：最后防线</h2><p><code>CoroutineExceptionHandler</code> 是协程中的 <code>Thread.UncaughtExceptionHandler</code>。</p>
+<h3 id="特点："><a href="#特点：" class="headerlink" title="特点："></a>特点：</h3><ul>
+<li><strong>全局捕获</strong>：用于处理那些没有被 <code>try-catch</code> 捕获且向上传播到根协程的异常。</li>
+<li><strong>不可恢复</strong>：当它被触发时，协程已经由于异常而终止。你无法在其中“恢复”协程运行。</li>
+<li><strong>生效位置</strong>：它必须设置在<strong>根协程</strong>（由 <code>GlobalScope</code> 或 <code>CoroutineScope()</code> 创建的顶级协程）中。</li>
 </ul>
-<h2 id="2-异常上报的层层传递过程"><a href="#2-异常上报的层层传递过程" class="headerlink" title="2. 异常上报的层层传递过程"></a>2. 异常上报的层层传递过程</h2><p>当一个子协程抛出非 <code>CancellationException</code> 的异常时，会发生以下过程：</p>
-<ol>
-<li><strong>子协程失败</strong>：子协程捕获到异常。</li>
-<li><strong>上报父协程</strong>：子协程将异常传递给它的父 Job。</li>
-<li><strong>父协程取消</strong>：父协程接收到异常后，会首先取消自身，并同时取消其它的子协程。</li>
-<li><strong>继续向上传递</strong>：父协程继续将异常上报给它的父协程，直到到达根协程（Root Coroutine）。</li>
-<li><strong>最终处理</strong>：一旦到达根协程，异常将通过上下文中的 <code>CoroutineExceptionHandler</code> 进行处理。如果没有安装处理器，则由 platform 相关的默认机制处理（如 Android 的应用崩溃或 JVM 的标准错误输出）。</li>
-</ol>
-<h2 id="3-监督机制（Supervision）：阻断上报"><a href="#3-监督机制（Supervision）：阻断上报" class="headerlink" title="3. 监督机制（Supervision）：阻断上报"></a>3. 监督机制（Supervision）：阻断上报</h2><p>有时我们不希望一个子协程的失败导致整个协程树崩溃，这时可以使用监督机制：</p>
-<ul>
-<li><strong>SupervisorJob</strong>：父协程使用 <code>SupervisorJob</code> 时，子协程的失败不会导致父协程取消，也不会影响兄弟协程。异常会直接由子协程尝试在自己的上下文中使用 <code>CoroutineExceptionHandler</code> 处理（如果存在）。</li>
-<li><strong>supervisorScope</strong>：创建一个监督作用域，其内部发生的异常不会向上传播给作用域外的父协程。</li>
+<h2 id="2-规则解析"><a href="#2-规则解析" class="headerlink" title="2. 规则解析"></a>2. 规则解析</h2><ul>
+<li><strong>子协程无效</strong>：如果你在子协程（在另一个 Job 上下文中创建的协程）设置处理者，它不会生效。因为子协程总会将异常委托给父协程处理。</li>
+<li><strong>async 无效</strong>：<code>async</code> 产生的异常由 <code>deferred.await()</code> 负责，即使在 <code>GlobalScope.async</code> 中设置了 <code>handler</code>，它也不会在后台静默触发打印。</li>
 </ul>
-<h2 id="4-异常聚合（Exception-Aggregation）"><a href="#4-异常聚合（Exception-Aggregation）" class="headerlink" title="4. 异常聚合（Exception Aggregation）"></a>4. 异常聚合（Exception Aggregation）</h2><p>如果多个子协程同时抛出异常：</p>
-<ul>
-<li><strong>第一个异常胜出</strong>：第一个抛出的异常会被上报并处理。</li>
-<li><strong>后续异常被抑制</strong>：在第一个异常之后发生的其它异常会被附加到第一个异常的 <code>suppressed</code> 列表中，不会丢失，但也不会触发多次处理逻辑。</li>
-</ul>
-<h2 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. 总结</h2><p>在本项目中，<code>try-catch</code> 的有效性取决于你在哪里使用它：</p>
-<ul>
-<li>在 <code>launch</code> 内部：可以捕获并内部消化。</li>
-<li>在 <code>async</code> 的 <code>await()</code> 调用处：可以捕获该异步任务的异常。</li>
-<li>在协程外部或父协程级别：通常无法直接通过普通的 <code>try-catch</code> 拦截子协程的异常，必须依赖 <code>CoroutineExceptionHandler</code> 或 <code>supervisorScope</code>。</li>
-</ul>
+<h2 id="3-开发者感悟"><a href="#3-开发者感悟" class="headerlink" title="3. 开发者感悟"></a>3. 开发者感悟</h2><p><code>CoroutineExceptionHandler</code> 通常用于记录异常日志或弹出全局错误对话框。在 Android 开发中，不要期望用它来“挽救”崩溃，它的作用是让你在应用退出前知道发生了什么。</p>
 
       
     </div>
     <footer class="entry-meta entry-footer">
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
 
       
       
@@ -192,7 +174,7 @@
 <!-- Table of Contents -->
 
   
-    <article id="post-1 Kotlin/01 Kotlin 协程/协程异常处理源码解析"  class="article article-type-post" itemscope itemprop="blogPost" >
+    <article id="post-1 Kotlin/03 Kotlin 协程基础/Flow_02_Sequence同步惰性序列"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -200,7 +182,7 @@
         
   
     <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2026/03/25/1%20Kotlin/01%20Kotlin%20%E5%8D%8F%E7%A8%8B/%E5%8D%8F%E7%A8%8B%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">Kotlin 协程异常处理源码解析：从抛出到拦截的全链路追踪</a>
+      <a class="article-title" href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/Flow_02_Sequence%E5%90%8C%E6%AD%A5%E6%83%B0%E6%80%A7%E5%BA%8F%E5%88%97/">Flow 基础：02. Sequence 同步惰性序列</a>
     </h1>
   
 
@@ -208,153 +190,38 @@
     
     <div class="article-meta">
       
-	<a href="/2026/03/25/1%20Kotlin/01%20Kotlin%20%E5%8D%8F%E7%A8%8B/%E5%8D%8F%E7%A8%8B%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" class="article-date">
-	  <time datetime="2026-03-24T19:41:23.346Z" itemprop="datePublished">March 25, 2026</time>
+	<a href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/Flow_02_Sequence%E5%90%8C%E6%AD%A5%E6%83%B0%E6%80%A7%E5%BA%8F%E5%88%97/" class="article-date">
+	  <time datetime="2026-03-30T18:33:54.006Z" itemprop="datePublished">March 31, 2026</time>
 	</a>
 
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
  
       
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>本文将深入 <code>kotlinx.coroutines</code> 源码，解析一个异常是如何从子协程产生，并一步步通过 <code>Job</code> 层次结构向上汇报，最终被拦截或导致程序崩溃的。</p>
-<h2 id="1-异常的源头：协程体的执行"><a href="#1-异常的源头：协程体的执行" class="headerlink" title="1. 异常的源头：协程体的执行"></a>1. 异常的源头：协程体的执行</h2><p>在 <code>launch</code> 或 <code>async</code> 中，协程体被包装在 <code>AbstractCoroutine</code> 的实现类中。当协程体执行抛出异常时，由于它运行在 <code>Continuation</code> 的环境下，异常会被 <code>resumeWith</code> 捕获。</p>
-<h3 id="什么是-Continuation"><a href="#什么是-Continuation" class="headerlink" title="什么是 Continuation"></a>什么是 Continuation</h3><p>在 Kotlin 协程中，<code>Continuation</code> 是实现挂起和恢复的核心接口。它本质上是一个<strong>通用的回调接口</strong>，代表了程序运行到某个挂起点之后“接下来的逻辑”。</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Continuation</span>&lt;<span class="type">in T</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">val</span> context: CoroutineContext</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">fun</span> <span class="title">resumeWith</span><span class="params">(result: <span class="type">Result</span>&lt;<span class="type">T</span>&gt;)</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
+        <p>本篇解析 <code>example-flow-02.kt</code>。探讨 Kotlin 标准库中的 <code>Sequence</code>（序列）。</p>
+<h2 id="1-什么是-Sequence？"><a href="#1-什么是-Sequence？" class="headerlink" title="1. 什么是 Sequence？"></a>1. 什么是 Sequence？</h2><p><code>Sequence&lt;T&gt;</code> 提供了一种<strong>惰性求值</strong>的机制。</p>
+<h3 id="特点："><a href="#特点：" class="headerlink" title="特点："></a>特点：</h3><ul>
+<li><strong>按需计算</strong>：只有在真正需要下一个元素（如调用 <code>forEach</code>）时，才会执行 <code>sequence &#123; ... &#125;</code> 块内的代码。</li>
+<li><strong>节省内存</strong>：不需要像 <code>List</code> 那样一次性在内存中存储所有元素。</li>
+<li>**yield()**：在 <code>sequence</code> 构建器中，使用 <code>yield(n)</code> 来产出值。</li>
+</ul>
+<h2 id="2-局限性：同步阻塞"><a href="#2-局限性：同步阻塞" class="headerlink" title="2. 局限性：同步阻塞"></a>2. 局限性：同步阻塞</h2><p>虽然 <code>Sequence</code> 是惰性的，但它是<strong>同步</strong>的。</p>
 <ul>
-<li>**resumeWith(result: Result<T>)**：这是核心方法。当异步操作完成或协程体执行结束时，会调用此方法。如果操作成功，<code>result</code> 携带结果值；如果发生了异常，<code>result</code> 则携带异常信息（<code>Result.failure</code>）。</T></li>
+<li>在 <code>sequence &#123; ... &#125;</code> 块内，你<strong>不能调用挂起函数</strong>（如 <code>delay</code>）。</li>
+<li>如果你在其中调用了 <code>Thread.sleep</code>（如本例所示），它会<strong>阻塞当前执行线程</strong>。</li>
 </ul>
-<p>简单来说，<code>Continuation</code> 就像是一个<strong>信使</strong>，它不仅知道该去哪（Context），还负责把信（Result）送到目的地。</p>
-<h3 id="Continuation-是如何实现挂起的"><a href="#Continuation-是如何实现挂起的" class="headerlink" title="Continuation 是如何实现挂起的"></a>Continuation 是如何实现挂起的</h3><p>挂起（Suspend）并不是阻塞线程，而是<strong>函数在执行过程中，保存当前的执行状态（Continuation），然后退出当前的栈帧，将线程控制权交还给调度器。</strong></p>
-<p>其实现机制的核心在于 <strong>CPS（Continuation-Passing-Style）变换</strong>：</p>
-<ol>
-<li><strong>状态机拆分</strong>：Kotlin 编译器会将带有 <code>suspend</code> 关键字的函数转换成一个内部状态机。每一个挂起点（如 <code>delay</code> 或其他挂起函数）都会将函数体拆分成不同的状态。</li>
-<li><strong>传递 Continuation</strong>：每一个挂起函数在编译后，都会在参数列表的最后多出一个 <code>Continuation</code> 参数。</li>
-<li><strong>COROUTINE_SUSPENDED 标记</strong>：当挂起函数被调用时，它会检查是否需要真正挂起。如果需要，它会返回一个特殊值 <code>COROUTINE_SUSPENDED</code>。此时，调用方的状态机就会感知到挂起，并立即返回，从而释放线程。</li>
-<li><strong>恢复执行</strong>：当异步操作完成时，会调用之前保存的 <code>Continuation.resumeWith</code>。这会触发状态机进入下一个状态，协程从而在之前挂起的地方“复活”。</li>
-</ol>
-<h4 id="补充理解：保存状态与“复活”的本质"><a href="#补充理解：保存状态与“复活”的本质" class="headerlink" title="补充理解：保存状态与“复活”的本质"></a>补充理解：保存状态与“复活”的本质</h4><p>很多开发者对“保存状态” and “复活”感到抽象，我们可以从 JVM 内存模型的角度来拆解这个过程：</p>
-<ul>
-<li><strong>保存状态（堆内存化）</strong>：在普通的 JVM 函数中，局部变量和执行进度（程序计数器）都保存在<strong>栈帧（Stack Frame）</strong>中。一旦函数返回，栈帧就被销毁。<ul>
-<li>在协程中，当遇到挂起点时，编译器生成的代码会将栈帧里的局部变量、参数以及当前的“执行进度标记”（label）全部拷贝到 <strong><code>Continuation</code> 对象的成员变量</strong>中。</li>
-<li>因为 <code>Continuation</code> 实例存储在<strong>堆（Heap）</strong>上，所以即使函数返回、栈帧销毁，这些数据依然存在。</li>
-</ul>
-</li>
-<li><strong>退出栈帧</strong>：函数通过 <code>return COROUTINE_SUSPENDED</code> 结束执行。此时，当前线程被释放，可以去处理其他的任务，实现了非阻塞。</li>
-<li><strong>“复活”（重入状态机）</strong>：<ul>
-<li>当 <code>resumeWith</code> 被调用时，协程的代码块（状态机函数）会<strong>被再次调用</strong>。</li>
-<li>函数重新进入后，第一步就是从堆上的 <code>Continuation</code> 对象中读取之前保存的成员变量，重新赋值给局部变量。</li>
-<li>随后，根据保存的 <code>label</code> 进行跳转（类似于 <code>switch-case</code>），直接跳到上次挂起的位置继续执行。</li>
-</ul>
-</li>
-</ul>
-<p>通过这种“<strong>数据从栈到堆的迁移与回填</strong>”，协程模拟出了函数暂停和恢复的神奇效果。</p>
-<h4 id="伪代码模拟：编译器对挂起函数的改造"><a href="#伪代码模拟：编译器对挂起函数的改造" class="headerlink" title="伪代码模拟：编译器对挂起函数的改造"></a>伪代码模拟：编译器对挂起函数的改造</h4><p>为了让“保存状态”和“复活”更好理解，我们可以通过伪代码看看编译器是如何将一个普通的挂起函数转换成<strong>状态机</strong>的：</p>
-<p><strong>原始代码：</strong></p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">suspend</span> <span class="function"><span class="keyword">fun</span> <span class="title">showInfo</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">val</span> user = <span class="string">&quot;Jason&quot;</span>  <span class="comment">// 局部变量</span></span><br><span class="line">    delay(<span class="number">1000</span>)        <span class="comment">// 挂起点</span></span><br><span class="line">    println(user)       <span class="comment">// 恢复后需要用到 user</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>编译器改造后的伪代码：</strong></p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 自动生成一个包装类（存档文件），存储在堆上</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ShowInfoContinuation</span>(<span class="keyword">val</span> completion: Continuation&lt;Any?&gt;) : ContinuationImpl(...) &#123;</span><br><span class="line">    <span class="keyword">var</span> user: String? = <span class="literal">null</span> <span class="comment">// 用于保存局部变量</span></span><br><span class="line">    <span class="keyword">var</span> label: <span class="built_in">Int</span> = <span class="number">0</span>       <span class="comment">// 用于保存执行进度（状态）</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">resumeWith</span><span class="params">(result: <span class="type">Result</span>&lt;<span class="type">Any</span>?&gt;)</span></span> &#123;</span><br><span class="line">        showInfo(<span class="keyword">this</span>) <span class="comment">// 恢复时再次调用原函数，并传入自己</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 原函数被改造，增加了一个 Continuation 参数</span></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">showInfo</span><span class="params">(completion: <span class="type">Continuation</span>&lt;<span class="type">Any</span>?&gt;)</span></span> &#123;</span><br><span class="line">    <span class="comment">// 检查是否是第一次运行，还是从存档恢复</span></span><br><span class="line">    <span class="keyword">val</span> cont = completion <span class="keyword">as</span>? ShowInfoContinuation ?: ShowInfoContinuation(completion)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 核心状态机切换</span></span><br><span class="line">    <span class="keyword">when</span> (cont.label) &#123;</span><br><span class="line">        <span class="number">0</span> -&gt; &#123;</span><br><span class="line">            <span class="comment">// --- 第一阶段：初次运行 ---</span></span><br><span class="line">            cont.user = <span class="string">&quot;Jason&quot;</span> <span class="comment">// 【保存状态】将局部变量存入堆对象</span></span><br><span class="line">            cont.label = <span class="number">1</span>      <span class="comment">// 【记录进度】标记下一步该从哪开始</span></span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 尝试执行 delay</span></span><br><span class="line">            <span class="keyword">if</span> (delay(<span class="number">1000</span>, cont) == COROUTINE_SUSPENDED) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="comment">// 【退出栈帧】直接返回，不阻塞当前线程</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="number">1</span> -&gt; &#123;</span><br><span class="line">            <span class="comment">// --- 第二阶段：复活 ---</span></span><br><span class="line">            <span class="comment">// 函数重新进入后，根据 label 直接跳到这里执行</span></span><br><span class="line">            <span class="keyword">val</span> user = cont.user <span class="comment">// 【恢复数据】从堆中读回局部变量</span></span><br><span class="line">            println(user)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>总结“复活”的逻辑</strong></p>
-<ol>
-<li><strong>挂起时</strong>：函数执行到一半，发现需要等待（如 <code>delay</code>）。它把当前的局部变量 <code>user</code> 和进度 <code>label = 1</code> 存进堆里的 <code>cont</code> 对象，然后直接 <code>return</code>。</li>
-<li><strong>等待中</strong>：当前线程空闲了，去干别的事了（比如处理其他的协程）。</li>
-<li><strong>时间到</strong>：<code>delay</code> 定时器触发，它会调用 <code>cont.resumeWith()</code>。</li>
-<li><strong>复活时</strong>：<code>resumeWith</code> 内部再次触发 <code>showInfo(cont)</code>。因为 <code>cont.label</code> 已经是 <code>1</code> 了，函数通过 <code>when</code> 分支<strong>直接跳过了第一阶段</strong>，从第二阶段开始执行，并通过 <code>cont.user</code> 拿回了之前的数据。</li>
-</ol>
-<p>这就是协程能够“复活”的奥秘：<strong>它不是在同一个函数调用里死等，而是通过多次“重新进入”函数，并配合堆内存中的数据备份，模拟出了暂停的效果。</strong></p>
-<h3 id="深入理解：AbstractCoroutine-也是-Continuation"><a href="#深入理解：AbstractCoroutine-也是-Continuation" class="headerlink" title="深入理解：AbstractCoroutine 也是 Continuation"></a>深入理解：AbstractCoroutine 也是 Continuation</h3><p>在 Kotlin 协程底层，每一个协程块最终都被编译为一个 <code>Continuation</code>。在调用 <code>launch</code> 或 <code>async</code> 时，创建的 <code>AbstractCoroutine</code> 实例本身就实现了 <code>Continuation&lt;T&gt;</code> 接口。</p>
-<p><strong>源码解析：</strong><br>当协程体（<code>block</code>）执行结束（无论是正常返回还是抛出异常）时，Kotlin 编译器生成的代码会调用该协程所属的 <code>completion.resumeWith(result)</code>。对于协程库来说，这个 <code>completion</code> 就是 <code>AbstractCoroutine</code>。</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// AbstractCoroutine.kt</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">AbstractCoroutine</span>&lt;<span class="type">in T</span>&gt;(...) : JobSupport(active), Job, Continuation&lt;T&gt;, CoroutineScope &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 当协程体抛出异常，编译器会自动调用此方法，result 此时为 Result.failure(exception)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">resumeWith</span><span class="params">(result: <span class="type">Result</span>&lt;<span class="type">T</span>&gt;)</span></span> &#123;</span><br><span class="line">        <span class="comment">// result.toState() 会将异常包装成 CompletedExceptionally 对象</span></span><br><span class="line">        <span class="keyword">val</span> state = makeCompletingOnce(result.toState())</span><br><span class="line">        <span class="keyword">if</span> (state === COMPLETING_WAITING_CHILDREN) <span class="keyword">return</span></span><br><span class="line">        afterResume(state)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这意味着，<strong>协程体外部并没有一个传统意义上的 JVM <code>try-catch</code> 块来捕获异常</strong>。相反，它是通过 <code>Continuation</code> 的回调机制，将异常作为“结果”传递给了 <code>AbstractCoroutine</code> 的 <code>resumeWith</code> 方法，并由此开启了后续的异常上报流程。</p>
-<h2 id="2-状态机流转：JobSupport-makeCompletingOnce"><a href="#2-状态机流转：JobSupport-makeCompletingOnce" class="headerlink" title="2. 状态机流转：JobSupport.makeCompletingOnce"></a>2. 状态机流转：<code>JobSupport.makeCompletingOnce</code></h2><p><code>resumeWith</code> 调用 <code>makeCompletingOnce</code> 进入 <code>JobSupport</code> 的状态机处理逻辑。如果 <code>result</code> 是失败的，它会携带一个 <code>CompletedExceptionally</code> 状态。</p>
-<p><strong>核心代码位置：</strong> <code>JobSupport.kt</code></p>
-<p>在 <code>tryMakeCompletingSlowPath</code> 中，如果发现有异常，会进入异常处理流程：</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// JobSupport.kt</span></span><br><span class="line"><span class="keyword">val</span> notifyRootCause: Throwable?</span><br><span class="line">synchronized(finishing) &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="comment">// 添加异常到 Finishing 状态中</span></span><br><span class="line">    (proposedUpdate <span class="keyword">as</span>? CompletedExceptionally)?.let &#123; finishing.addExceptionLocked(it.cause) &#125;</span><br><span class="line">    <span class="comment">// 如果是第一次变更为取消状态，则记录 rootCause</span></span><br><span class="line">    notifyRootCause = finishing.rootCause.takeIf &#123; !wasCancelling &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 触发取消通知</span></span><br><span class="line">notifyRootCause?.let &#123; notifyCancelling(list, it) &#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="3-向上汇报：childCancelled-与-parentHandle"><a href="#3-向上汇报：childCancelled-与-parentHandle" class="headerlink" title="3. 向上汇报：childCancelled 与 parentHandle"></a>3. 向上汇报：<code>childCancelled</code> 与 <code>parentHandle</code></h2><h3 id="核心枢纽：parentHandle-的建立"><a href="#核心枢纽：parentHandle-的建立" class="headerlink" title="核心枢纽：parentHandle 的建立"></a>核心枢纽：<code>parentHandle</code> 的建立</h3><p>在协程的层级结构中，每一个子 Job 都持有一个指向父 Job 的引用，这个引用被封装在 <strong><code>parentHandle</code></strong> 成员变量中。</p>
-<p><strong>源码解析：</strong> <code>JobSupport.kt</code></p>
-<p>当一个子协程被创建时（例如通过 <code>launch</code>），它会调用 <code>initParentJob</code> 方法：</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// JobSupport.kt</span></span><br><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">fun</span> <span class="title">initParentJob</span><span class="params">(parent: <span class="type">Job</span>?)</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (parent == <span class="literal">null</span>) &#123;</span><br><span class="line">        parentHandle = NonDisposableHandle</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 关键：将当前子 Job 挂载到父 Job 上</span></span><br><span class="line">    <span class="comment">// attachChild 会返回一个 ChildHandle 对象，子 Job 将其保存为 parentHandle</span></span><br><span class="line">    parentHandle = parent.attachChild(<span class="keyword">this</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这个 <code>parentHandle</code> 类型为 <code>ChildHandle</code>，它是双向通信的桥梁：</p>
-<ol>
-<li><strong>父到子</strong>：父协程取消时，通过这个 Handle 通知子协程取消（调用 <code>parentCancelled</code>）。</li>
-<li><strong>子到父</strong>：子协程发生异常时，通过调用 <code>parentHandle.childCancelled(cause)</code> 向上汇报。</li>
-</ol>
-<h3 id="异常的上报过程"><a href="#异常的上报过程" class="headerlink" title="异常的上报过程"></a>异常的上报过程</h3><p>一旦子协程通过 <code>resumeWith</code> 捕获到异常并进入取消状态，它会立即通过 <code>parentHandle</code> 寻找它的“家长”。</p>
-<p>在 <code>JobSupport</code> 中，子 Job 通过 <code>ChildHandleNode</code>（<code>ChildHandle</code> 的具体实现）与父 Job 关联。</p>
-<p><strong>核心代码位置：</strong> <code>JobSupport.kt</code> 中的 <code>ChildHandleNode</code></p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">class</span> <span class="title class_">ChildHandleNode</span>(</span><br><span class="line">    <span class="meta">@JvmField</span> <span class="keyword">val</span> childJob: ChildJob</span><br><span class="line">) : JobNode(), ChildHandle &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="comment">// 当子 Job 发生异常调用时，实质上是调用了父 Job 的 childCancelled</span></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">childCancelled</span><span class="params">(cause: <span class="type">Throwable</span>)</span></span>: <span class="built_in">Boolean</span> = job.childCancelled(cause)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>父 Job 的 <code>childCancelled</code> 方法会被触发：</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">open</span> <span class="function"><span class="keyword">fun</span> <span class="title">childCancelled</span><span class="params">(cause: <span class="type">Throwable</span>)</span></span>: <span class="built_in">Boolean</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (cause <span class="keyword">is</span> CancellationException) <span class="keyword">return</span> <span class="literal">true</span> <span class="comment">// 正常取消不向上汇报</span></span><br><span class="line">    <span class="comment">// 关键：尝试取消自身并看是否能处理</span></span><br><span class="line">    <span class="keyword">return</span> cancelImpl(cause) &amp;&amp; handlesException </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>如果父 Job 是普通的 <code>Job</code>，<code>cancelImpl</code> 会返回 <code>true</code> 并在内部继续调用自己的父 Job 的 <code>childCancelled</code>，实现<strong>层层上报</strong>。</li>
-<li>如果父 Job 是 <code>SupervisorJob</code>，它会重写此逻辑或返回 <code>false</code>，从而<strong>切断异常向上传播</strong>。</li>
-</ul>
-<h4 id="什么是-SupervisorJob？"><a href="#什么是-SupervisorJob？" class="headerlink" title="什么是 SupervisorJob？"></a>什么是 SupervisorJob？</h4><p>从源码上看，<code>SupervisorJob</code> 的实现极其简单且暴力。</p>
-<p><strong>源码解析：</strong> <code>Supervisor.kt</code></p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">class</span> <span class="title class_">SupervisorJobImpl</span>(parent: Job?) : JobImpl(parent) &#123;</span><br><span class="line">    <span class="comment">// 直接重写 childCancelled，永远返回 false</span></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">childCancelled</span><span class="params">(cause: <span class="type">Throwable</span>)</span></span>: <span class="built_in">Boolean</span> = <span class="literal">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>当子协程报错并通过 <code>parentHandle.childCancelled(cause)</code> 通知 <code>SupervisorJob</code> 时：</p>
-<ol>
-<li>它执行重写后的方法，直接返回 <code>false</code>。</li>
-<li>它不会调用 <code>cancelImpl</code> 导致自己取消。</li>
-<li>因为它自己没有被取消，所以也就不会去取消它的其他子协程。</li>
-</ol>
-<p>这就是为什么 <code>SupervisorJob</code> 能够实现“子协程故障互不干扰”的根本原因。</p>
-<h2 id="4-根协程的终点：handleJobException"><a href="#4-根协程的终点：handleJobException" class="headerlink" title="4. 根协程的终点：handleJobException"></a>4. 根协程的终点：<code>handleJobException</code></h2><p>异常上报到最顶层的根协程（没有父 Job 的协程）后，<code>cancelImpl</code> 流程结束。此时，协程会进入完成阶段，并调用 <code>handleJobException</code>。</p>
-<p>对于 <code>launch</code> 启动的协程，其实际实现类是 <code>StandaloneCoroutine</code>。</p>
-<p><strong>核心代码位置：</strong> <code>Builders.common.kt</code></p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">open</span> <span class="keyword">class</span> <span class="title class_">StandaloneCoroutine</span>(...) : AbstractCoroutine&lt;<span class="built_in">Unit</span>&gt;(...) &#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">handleJobException</span><span class="params">(exception: <span class="type">Throwable</span>)</span></span>: <span class="built_in">Boolean</span> &#123;</span><br><span class="line">        <span class="comment">// 最终调用全局的异常处理器</span></span><br><span class="line">        handleCoroutineException(context, exception)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="5-最后的拦截：handleCoroutineException"><a href="#5-最后的拦截：handleCoroutineException" class="headerlink" title="5. 最后的拦截：handleCoroutineException"></a>5. 最后的拦截：<code>handleCoroutineException</code></h2><p>这是异常处理的最后一站。它会检查协程上下文中是否有用户定义的 <code>CoroutineExceptionHandler</code>。</p>
-<p><strong>核心代码位置：</strong> <code>CoroutineExceptionHandler.kt</code></p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">fun</span> <span class="title">handleCoroutineException</span><span class="params">(context: <span class="type">CoroutineContext</span>, exception: <span class="type">Throwable</span>)</span></span> &#123;</span><br><span class="line">    <span class="comment">// 1. 尝试从上下文中获取拦截器</span></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        context[CoroutineExceptionHandler]?.let &#123;</span><br><span class="line">            it.handleException(context, exception)</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (t: Throwable) &#123;</span><br><span class="line">        <span class="comment">// 如果拦截器本身抛出异常，则交给全局兜底</span></span><br><span class="line">        handleUncaughtCoroutineException(context, handlerException(exception, t))</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 2. 如果没找到，交给平台相关的兜底处理器 (如 JVM 的 ServiceLoader 查找或 Thread.uncaughtExceptionHandler)</span></span><br><span class="line">    handleUncaughtCoroutineException(context, exception)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="6-源码解析总结：调用链图示"><a href="#6-源码解析总结：调用链图示" class="headerlink" title="6. 源码解析总结：调用链图示"></a>6. 源码解析总结：调用链图示</h2><p>当子协程发生 <code>Exception</code> 时：</p>
-<ol>
-<li><code>AbstractCoroutine.resumeWith(Result.failure)</code></li>
-<li><code>JobSupport.makeCompletingOnce</code> -&gt; 状态变为 <code>Cancelling/Finishing</code></li>
-<li><code>JobSupport.notifyCancelling</code> -&gt; 取消所有子协程</li>
-<li><code>parentHandle.childCancelled(exception)</code> -&gt; <strong>向父 Job 汇报</strong></li>
-<li><em>(循环上报直至 Root)</em></li>
-<li><code>Root Coroutine</code> 调用 <code>handleJobException</code></li>
-<li><code>handleCoroutineException(context, exception)</code></li>
-<li><code>CoroutineExceptionHandler.handleException(...)</code> -&gt; <strong>用户代码拦截点</strong></li>
-</ol>
-<h2 id="7-SupervisorJob-的使用场景与示例"><a href="#7-SupervisorJob-的使用场景与示例" class="headerlink" title="7. SupervisorJob 的使用场景与示例"></a>7. SupervisorJob 的使用场景与示例</h2><p>在理解了 <code>SupervisorJob</code> 的源码原理后，我们来看它在实际开发中的典型应用。</p>
-<h3 id="场景一：UI-组件的生命周期作用域"><a href="#场景一：UI-组件的生命周期作用域" class="headerlink" title="场景一：UI 组件的生命周期作用域"></a>场景一：UI 组件的生命周期作用域</h3><p>在 Android 开发中，一个 <code>ViewModel</code> 可能同时发起多个不相关的请求（如用户信息、配置信息、广告位信息）。如果其中一个接口报错，我们通常不希望导致整个页面崩溃或者其它正在进行的请求被取消。</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使用 SupervisorJob 确保子协程互不影响</span></span><br><span class="line"><span class="keyword">val</span> viewModelScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">fetchData</span><span class="params">()</span></span> &#123;</span><br><span class="line">    viewModelScope.launch &#123;</span><br><span class="line">        <span class="comment">// 请求 A 失败，由于父 Job 是 SupervisorJob，不会影响请求 B</span></span><br><span class="line">        <span class="keyword">throw</span> IOException(<span class="string">&quot;Failed to load ads&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    viewModelScope.launch &#123;</span><br><span class="line">        <span class="comment">// 请求 B 继续运行</span></span><br><span class="line">        <span class="keyword">val</span> <span class="keyword">data</span> = api.getUserInfo()</span><br><span class="line">        println(<span class="string">&quot;User info loaded: <span class="variable">$data</span>&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="场景二：使用-supervisorScope-处理局部故障"><a href="#场景二：使用-supervisorScope-处理局部故障" class="headerlink" title="场景二：使用 supervisorScope 处理局部故障"></a>场景二：使用 <code>supervisorScope</code> 处理局部故障</h3><p>如果你只想在某个特定的业务逻辑块中实现故障隔离，可以使用 <code>supervisorScope</code>。它会创建一个临时的监督作用域。</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">suspend</span> <span class="function"><span class="keyword">fun</span> <span class="title">processTasks</span><span class="params">()</span></span> = supervisorScope &#123;</span><br><span class="line">    <span class="keyword">val</span> job1 = launch &#123;</span><br><span class="line">        println(<span class="string">&quot;Task 1 started&quot;</span>)</span><br><span class="line">        <span class="keyword">throw</span> RuntimeException(<span class="string">&quot;Task 1 crashed&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">val</span> job2 = launch &#123;</span><br><span class="line">        println(<span class="string">&quot;Task 2 started&quot;</span>)</span><br><span class="line">        delay(<span class="number">100</span>)</span><br><span class="line">        println(<span class="string">&quot;Task 2 completed successfully&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// supervisorScope 会等待 job1 和 job2 全部完成</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="关键区别：SupervisorJob-vs-supervisorScope"><a href="#关键区别：SupervisorJob-vs-supervisorScope" class="headerlink" title="关键区别：SupervisorJob vs supervisorScope"></a>关键区别：SupervisorJob vs supervisorScope</h3><ul>
-<li><strong>SupervisorJob</strong>：通常用于定义一个<strong>长生命周期</strong>的作用域（Scope），作为整个作用域的根 Job（如全局 Scope 或 ViewModel Scope）。</li>
-<li><strong>supervisorScope</strong>：是一个<strong>挂起函数</strong>。它会创建一个子 Job 并将其设为 Supervisor，然后等待内部所有协程完成。它适合在现有的协程流中临时开启一段并行的、容错的任务。</li>
-</ul>
-<h3 id="注意事项：异常依然需要处理"><a href="#注意事项：异常依然需要处理" class="headerlink" title="注意事项：异常依然需要处理"></a>注意事项：异常依然需要处理</h3><p>虽然 <code>SupervisorJob</code> 阻止了异常向上传播，但异常本身<strong>并没有消失</strong>。</p>
-<ol>
-<li>如果子协程使用 <code>launch</code> 启动，且没有内部 <code>try-catch</code>，异常最终会触发 <code>handleCoroutineException</code>。</li>
-<li>如果此时没有配置 <code>CoroutineExceptionHandler</code>，在 Android 等平台上仍然可能导致程序崩溃。</li>
-<li><strong>结论</strong>：<code>SupervisorJob</code> 只是保护了“邻居”不被牵连，你仍然需要为每个子任务提供异常处理逻辑。</li>
-</ol>
+<h2 id="3-开发者感悟"><a href="#3-开发者感悟" class="headerlink" title="3. 开发者感悟"></a>3. 开发者感悟</h2><p><code>Sequence</code> 非常适合处理 CPU 密集型的大数据集合，但不适合处理包含等待逻辑的异步任务。如果你需要在流式产出数据的同时不阻塞线程，那么你需要的是 <code>Flow</code>。</p>
 
       
     </div>
     <footer class="entry-meta entry-footer">
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
 
       
       
@@ -367,7 +234,7 @@
 <!-- Table of Contents -->
 
   
-    <article id="post-1 Kotlin/01 Kotlin 协程/常用 Flow 用法"  class="article article-type-post" itemscope itemprop="blogPost" >
+    <article id="post-1 Kotlin/03 Kotlin 协程基础/协程进阶_取消_02_计算任务无法取消"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -375,7 +242,7 @@
         
   
     <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2026/03/25/1%20Kotlin/01%20Kotlin%20%E5%8D%8F%E7%A8%8B/%E5%B8%B8%E7%94%A8%20Flow%20%E7%94%A8%E6%B3%95/">Kotlin Flow 常用用法指南</a>
+      <a class="article-title" href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E5%8F%96%E6%B6%88_02_%E8%AE%A1%E7%AE%97%E4%BB%BB%E5%8A%A1%E6%97%A0%E6%B3%95%E5%8F%96%E6%B6%88/">协程进阶：02. 计算任务无法取消</a>
     </h1>
   
 
@@ -383,75 +250,36 @@
     
     <div class="article-meta">
       
-	<a href="/2026/03/25/1%20Kotlin/01%20Kotlin%20%E5%8D%8F%E7%A8%8B/%E5%B8%B8%E7%94%A8%20Flow%20%E7%94%A8%E6%B3%95/" class="article-date">
-	  <time datetime="2026-03-24T19:47:49.509Z" itemprop="datePublished">March 25, 2026</time>
+	<a href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E5%8F%96%E6%B6%88_02_%E8%AE%A1%E7%AE%97%E4%BB%BB%E5%8A%A1%E6%97%A0%E6%B3%95%E5%8F%96%E6%B6%88/" class="article-date">
+	  <time datetime="2026-03-30T18:32:03.192Z" itemprop="datePublished">March 31, 2026</time>
 	</a>
 
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
  
       
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="Kotlin-Flow-常用用法指南"><a href="#Kotlin-Flow-常用用法指南" class="headerlink" title="Kotlin Flow 常用用法指南"></a>Kotlin Flow 常用用法指南</h1><p>Kotlin Flow 是基于协程的异步流，用于按顺序发出多个值。以下是项目中常用的 Flow 操作与模式总结。</p>
-<h2 id="1-创建-Flow"><a href="#1-创建-Flow" class="headerlink" title="1. 创建 Flow"></a>1. 创建 Flow</h2><p>常用的创建方式包括 <code>flow</code> 构建器、<code>flowOf</code> 和扩展函数 <code>asFlow</code>。</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 使用 flow &#123;&#125; 构建器</span></span><br><span class="line"><span class="keyword">val</span> simpleFlow = flow &#123;</span><br><span class="line">    <span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">1.</span><span class="number">.3</span>) &#123;</span><br><span class="line">        delay(<span class="number">100</span>)</span><br><span class="line">        emit(i) <span class="comment">// 发送值</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 使用 flowOf() 发送固定值</span></span><br><span class="line"><span class="keyword">val</span> fixedFlow = flowOf(<span class="string">&quot;A&quot;</span>, <span class="string">&quot;B&quot;</span>, <span class="string">&quot;C&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 将集合或序列转换为 Flow</span></span><br><span class="line"><span class="keyword">val</span> collectionFlow = listOf(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>).asFlow()</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-末端操作符-Terminal-Operators"><a href="#2-末端操作符-Terminal-Operators" class="headerlink" title="2. 末端操作符 (Terminal Operators)"></a>2. 末端操作符 (Terminal Operators)</h2><p>末端操作符会触发 Flow 的收集。</p>
+        <p>本篇解析 <code>example-cancel-02.kt</code>，探讨为什么有些协程在调用 <code>cancel</code> 后依然继续运行。</p>
+<h2 id="1-核心现象"><a href="#1-核心现象" class="headerlink" title="1. 核心现象"></a>1. 核心现象</h2><p>在这个例子中，协程执行的是一个纯 CPU 计算的 <code>while</code> 循环。</p>
 <ul>
-<li><strong>collect</strong>: 最基础的收集操作。</li>
-<li><strong>toList &#x2F; toSet</strong>: 将 Flow 转换为集合。</li>
-<li><strong>first</strong>: 获取第一个值（并取消后续发送）。</li>
-<li><strong>reduce &#x2F; fold</strong>: 对流中的值进行累加计算。</li>
+<li><strong>结果</strong>：即使主线程调用了 <code>job.cancelAndJoin()</code>，协程依然会完整跑完 5 次循环打印，直到任务自行结束。</li>
 </ul>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> sum = (<span class="number">1.</span><span class="number">.5</span>).asFlow()</span><br><span class="line">    .reduce &#123; a, b -&gt; a + b &#125; <span class="comment">// 结果为 15</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="3-中间操作符-Intermediate-Operators"><a href="#3-中间操作符-Intermediate-Operators" class="headerlink" title="3. 中间操作符 (Intermediate Operators)"></a>3. 中间操作符 (Intermediate Operators)</h2><p>用于对流进行变换，它们是冷操作符，不会立即触发执行。</p>
+<h2 id="2-为什么取消失效？"><a href="#2-为什么取消失效？" class="headerlink" title="2. 为什么取消失效？"></a>2. 为什么取消失效？</h2><p>协程的取消是<strong>协作式</strong>的。</p>
 <ul>
-<li><strong>map</strong>: 转换每个值。</li>
-<li><strong>filter</strong>: 过滤值。</li>
-<li><strong>transform</strong>: 最通用的变换操作符，可以多次调用 <code>emit</code>。</li>
-<li><strong>take</strong>: 限制发送数量。</li>
+<li>如果协程内部没有调用任何“挂起函数”（如 <code>delay</code>），或者没有手动检查“取消状态”，它就无法感知外部的取消请求。</li>
+<li>传统的 <code>while (i &lt; 5)</code> 循环是阻塞式的 CPU 操作，它会一直霸占执行权。</li>
 </ul>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">(<span class="number">1.</span><span class="number">.10</span>).asFlow()</span><br><span class="line">    .filter &#123; it % <span class="number">2</span> == <span class="number">0</span> &#125;</span><br><span class="line">    .map &#123; <span class="string">&quot;Number <span class="variable">$it</span>&quot;</span> &#125;</span><br><span class="line">    .take(<span class="number">2</span>)</span><br><span class="line">    .collect &#123; println(it) &#125; <span class="comment">// 输出 Number 2, Number 4</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="4-线程切换-flowOn"><a href="#4-线程切换-flowOn" class="headerlink" title="4. 线程切换 (flowOn)"></a>4. 线程切换 (flowOn)</h2><p>Flow 遵循上下文保存原则。使用 <code>flowOn</code> 改变<strong>上游</strong>操作符执行的协程上下文。</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">flow &#123;</span><br><span class="line">    <span class="comment">// 这部分将运行在 Dispatchers.Default</span></span><br><span class="line">    emit(computeResult())</span><br><span class="line">&#125;.flowOn(Dispatchers.Default)</span><br><span class="line"> .collect &#123; value -&gt;</span><br><span class="line">    <span class="comment">// 这部分运行在收集器的上下文中（如 Dispatchers.Main）</span></span><br><span class="line">    updateUI(value)</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="5-背压处理-Buffering-amp-Conflation"><a href="#5-背压处理-Buffering-amp-Conflation" class="headerlink" title="5. 背压处理 (Buffering &amp; Conflation)"></a>5. 背压处理 (Buffering &amp; Conflation)</h2><p>当生产者速度快于消费者时，可以使用以下方式：</p>
-<ul>
-<li><strong>buffer()</strong>: 缓冲发送，让生产者和消费者并发运行。</li>
-<li><strong>conflate()</strong>: 合并发送，消费者只处理最新的值，跳过中间值。</li>
-<li><strong>collectLatest</strong>: 当有新值发出时，取消当前的收集处理并开始处理新值。</li>
-</ul>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">simpleFlow()</span><br><span class="line">    .buffer() <span class="comment">// 并发处理，提高效率</span></span><br><span class="line">    .collect &#123; value -&gt; </span><br><span class="line">        delay(<span class="number">300</span>) </span><br><span class="line">        println(value) </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="6-组合多个-Flow"><a href="#6-组合多个-Flow" class="headerlink" title="6. 组合多个 Flow"></a>6. 组合多个 Flow</h2><ul>
-<li><strong>zip</strong>: 一对一合并两个流的值。</li>
-<li><strong>combine</strong>: 只要任何一个流发出新值，就使用两个流最新的值进行合并计算。</li>
-</ul>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> nums = (<span class="number">1.</span><span class="number">.3</span>).asFlow()</span><br><span class="line"><span class="keyword">val</span> strs = flowOf(<span class="string">&quot;One&quot;</span>, <span class="string">&quot;Two&quot;</span>, <span class="string">&quot;Three&quot;</span>)</span><br><span class="line">nums.zip(strs) &#123; a, b -&gt; <span class="string">&quot;<span class="variable">$a</span> -&gt; <span class="variable">$b</span>&quot;</span> &#125;.collect &#123; println(it) &#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="7-展平流-Flattening"><a href="#7-展平流-Flattening" class="headerlink" title="7. 展平流 (Flattening)"></a>7. 展平流 (Flattening)</h2><p>当流的值本身也是流时（<code>Flow&lt;Flow&lt;T&gt;&gt;</code>）：</p>
-<ul>
-<li><strong>flatMapConcat</strong>: 按顺序连接（等待前一个内部流完成）。</li>
-<li><strong>flatMapMerge</strong>: 并发合并内部流。</li>
-<li><strong>flatMapLatest</strong>: 只要外部流发出新值，就取消前一个内部流的收集。</li>
-</ul>
-<h2 id="8-异常处理与完成"><a href="#8-异常处理与完成" class="headerlink" title="8. 异常处理与完成"></a>8. 异常处理与完成</h2><ul>
-<li><strong>catch</strong>: 捕获上游抛出的异常。</li>
-<li><strong>onCompletion</strong>: 在流完成（无论正常还是异常）时执行。</li>
-</ul>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">simpleFlow()</span><br><span class="line">    .onCompletion &#123; cause -&gt; println(<span class="string">&quot;Done with <span class="variable">$cause</span>&quot;</span>) &#125;</span><br><span class="line">    .<span class="keyword">catch</span> &#123; e -&gt; emit(-<span class="number">1</span>) &#125; <span class="comment">// 捕获异常并发送默认值</span></span><br><span class="line">    .collect &#123; println(it) &#125;</span><br></pre></td></tr></table></figure>
+<h2 id="3-开发者感悟"><a href="#3-开发者感悟" class="headerlink" title="3. 开发者感悟"></a>3. 开发者感悟</h2><p>协程不是线程的强制终止（Thread.stop），它更像是一种“请假”机制。如果你不看手机（不检查取消状态），你就不知道假被取消了。在处理密集型计算任务时，必须考虑到这一点。</p>
 
       
     </div>
     <footer class="entry-meta entry-footer">
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
 
       
       
@@ -464,7 +292,7 @@
 <!-- Table of Contents -->
 
   
-    <article id="post-2 Java/多线程/Java锁膨胀机制深度解析"  class="article article-type-post" itemscope itemprop="blogPost" >
+    <article id="post-1 Kotlin/03 Kotlin 协程基础/协程基础_02_挂起函数"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -472,7 +300,7 @@
         
   
     <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Java%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/">深度解析：Java 锁的膨胀机制（偏向锁、轻量级锁、重量级锁）</a>
+      <a class="article-title" href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80_02_%E6%8C%82%E8%B5%B7%E5%87%BD%E6%95%B0/">Kotlin 协程基础 02：挂起函数 (Suspending Functions)</a>
     </h1>
   
 
@@ -480,159 +308,117 @@
     
     <div class="article-meta">
       
-	<a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Java%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/" class="article-date">
-	  <time datetime="2026-03-26T16:10:57.620Z" itemprop="datePublished">March 27, 2026</time>
+	<a href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80_02_%E6%8C%82%E8%B5%B7%E5%87%BD%E6%95%B0/" class="article-date">
+	  <time datetime="2026-03-30T18:24:50.758Z" itemprop="datePublished">March 31, 2026</time>
 	</a>
 
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/2-Java/">2 - Java</a>, <a class="article-category-link" href="/categories/2-Java/2-1-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.1 - 多线程</a>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
  
       
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>在 Android 的 ART（Android Runtime）和 HotSpot JVM 中，<code>synchronized</code> 关键字的性能优化主要依赖于锁的<strong>膨胀（Inflation）机制</strong>。系统会根据竞争情况，自动在四种状态间转换：<strong>无锁 -&gt; 偏向锁 -&gt; 轻量级锁 -&gt; 重量级锁</strong>。</p>
-<hr>
-<h2 id="一、-锁状态的核心存储：Mark-Word"><a href="#一、-锁状态的核心存储：Mark-Word" class="headerlink" title="一、 锁状态的核心存储：Mark Word"></a>一、 锁状态的核心存储：Mark Word</h2><p>锁的信息存储在 Java 对象的<strong>对象头（Object Header）</strong>中的 <code>Mark Word</code> 字段里。</p>
+        <p>本篇文档解析 <code>example-basic-02.kt</code>，探讨协程中最核心的代码组织单位：挂起函数。</p>
+<h2 id="1-什么是挂起函数？"><a href="#1-什么是挂起函数？" class="headerlink" title="1. 什么是挂起函数？"></a>1. 什么是挂起函数？</h2><p>挂起函数是使用 <code>suspend</code> 关键字修饰的函数。它是协程的逻辑单元。</p>
+<h3 id="特性："><a href="#特性：" class="headerlink" title="特性："></a>特性：</h3><ul>
+<li><strong>非阻塞</strong>：挂起函数在执行到某些异步操作（如 <code>delay</code>）时，会释放当前线程，让线程去处理其他任务。</li>
+<li><strong>可恢复</strong>：当异步操作完成后，挂起函数会从刚才暂停的地方恢复执行。</li>
+<li><strong>调用限制</strong>：挂起函数只能在<strong>协程</strong>或其他<strong>挂起函数</strong>中调用。</li>
+</ul>
+<h2 id="2-代码解析"><a href="#2-代码解析" class="headerlink" title="2. 代码解析"></a>2. 代码解析</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">main</span><span class="params">()</span></span> = runBlocking &#123; </span><br><span class="line">    launch &#123; doWorld() &#125;</span><br><span class="line">    println(<span class="string">&quot;Hello&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 这是一个挂起函数</span></span><br><span class="line"><span class="keyword">suspend</span> <span class="function"><span class="keyword">fun</span> <span class="title">doWorld</span><span class="params">()</span></span> &#123;</span><br><span class="line">    delay(<span class="number">1000L</span>)</span><br><span class="line">    println(<span class="string">&quot;World!&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <ul>
-<li><strong>Mark Word</strong> 会根据锁状态的变化，复用自己的空间来存储：偏向线程 ID、指向栈中锁记录的指针、或指向互斥量（Monitor）的指针。</li>
+<li><strong>提炼逻辑</strong>：<code>doWorld()</code> 将原来直接写在 <code>launch</code> 里的逻辑提取了出来。</li>
+<li><strong>代码整洁</strong>：通过挂起函数，我们可以像写同步代码一样组织复杂的异步逻辑，避免了传统嵌套回调（Callback Hell）。</li>
+</ul>
+<h2 id="3-开发者感悟"><a href="#3-开发者感悟" class="headerlink" title="3. 开发者感悟"></a>3. 开发者感悟</h2><p><code>suspend</code> 关键字是一个信号，它告诉编译器：“这个函数可能会挂起当前协程”。它并不代表这个函数会自动在后台运行，它只是允许该函数内部调用其他的挂起函数。这是协程实现“顺序编写异步代码”的基础。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-0 算法/02 算法题目/2 两数相加"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/02%20%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/2%20%E4%B8%A4%E6%95%B0%E7%9B%B8%E5%8A%A0/">2. 两数相加</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2023/08/11/0%20%E7%AE%97%E6%B3%95/02%20%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/2%20%E4%B8%A4%E6%95%B0%E7%9B%B8%E5%8A%A0/" class="article-date">
+	  <time datetime="2023-08-10T23:16:16.000Z" itemprop="datePublished">August 11, 2023</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a>, <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a>, <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h3><p>给你两个 <strong>非空</strong> 的链表，表示两个非负的整数。它们每位数字都是按照 <strong>逆序</strong> 的方式存储的，并且每个节点只能存储 <strong>一位</strong> 数字。</p>
+<p>请你将两个数相加，并以相同形式返回一个表示和的链表。</p>
+<p>你可以假设除了数字 0 之外，这两个数都不会以 0 开头。</p>
+<hr>
+<h3 id="核心思路：数学模拟"><a href="#核心思路：数学模拟" class="headerlink" title="核心思路：数学模拟"></a>核心思路：数学模拟</h3><p>这道题的本质是<strong>模拟手动加法运算</strong>。由于链表已经是逆序存储（个位在头），我们直接按顺序遍历并相加即可，不需要额外反转链表。</p>
+<h4 id="1-关键变量"><a href="#1-关键变量" class="headerlink" title="1. 关键变量"></a>1. 关键变量</h4><ul>
+<li>**进位 (carry)**：相加结果大于等于 10 时，需要将 <code>1</code> 传递到下一位。</li>
+<li>**虚拟头节点 (dummyHead)**：用于简化链表的构建逻辑，最后返回 <code>dummyHead.next</code>。</li>
+<li><strong>双指针同步遍历</strong>：同时推移两个链表的指针。</li>
+</ul>
+<h4 id="2-边界处理"><a href="#2-边界处理" class="headerlink" title="2. 边界处理"></a>2. 边界处理</h4><ul>
+<li><strong>长度不等</strong>：当其中一个链表遍历结束时，其值视为 <code>0</code>。</li>
+<li><strong>最终进位</strong>：如果最高位相加后产生进位（如 5 + 5 &#x3D; 10），需在链表末尾新增一个值为 <code>1</code> 的节点。</li>
 </ul>
 <hr>
-<h2 id="二、-四种锁状态详解"><a href="#二、-四种锁状态详解" class="headerlink" title="二、 四种锁状态详解"></a>二、 四种锁状态详解</h2><h3 id="1-偏向锁-Biased-Locking"><a href="#1-偏向锁-Biased-Locking" class="headerlink" title="1. 偏向锁 (Biased Locking)"></a>1. 偏向锁 (Biased Locking)</h3><ul>
-<li><strong>核心思想</strong>：假设锁总是由<strong>同一个线程</strong>多次获得，那么就没有必要进行同步操作（如 CAS）。</li>
-<li><strong>实现</strong>：在 Mark Word 中记录当前线程的 ID。下次该线程进入时，只需检查 ID 是否一致，完全不需要 CPU 原子指令。</li>
-<li><strong>优缺点</strong>：<ul>
-<li><strong>优点</strong>：单线程执行临界区代码时，性能接近无锁。</li>
-<li><strong>缺点</strong>：一旦出现另一个线程竞争，撤销偏向锁会产生较大的性能开销（需要等待全局安全点 Safe Point）。</li>
-</ul>
-</li>
-<li><strong>Android 现状</strong>：在 Android ART 中，偏向锁的实现逻辑与 HotSpot 略有不同，但在高版本中出于简化系统和减少 Safe Point 停顿的考虑，偏向锁的使用逐渐被弱化甚至在某些场景下默认关闭。</li>
-</ul>
-<h3 id="2-轻量级锁-Lightweight-Locking"><a href="#2-轻量级锁-Lightweight-Locking" class="headerlink" title="2. 轻量级锁 (Lightweight Locking)"></a>2. 轻量级锁 (Lightweight Locking)</h3><ul>
-<li><strong>触发时机</strong>：当偏向锁被撤销，或者有第二个线程尝试获取锁（但竞争不激烈）时。</li>
-<li><strong>实现</strong>：线程在自己的<strong>虚拟机栈</strong>中创建一个名为“锁记录（Lock Record）”的空间，尝试用 <strong>CAS</strong> 操作将对象的 Mark Word 指向这个记录。</li>
-<li><strong>自旋优化</strong>：如果 CAS 失败，线程不会立即阻塞，而是执行一段<strong>自旋（Spinning）</strong>循环，期望持锁线程能迅速释放。</li>
-<li><strong>优点</strong>：避免了操作系统内核态与用户态切换的昂贵开销。</li>
-</ul>
-<h3 id="3-重量级锁-Heavyweight-Locking"><a href="#3-重量级锁-Heavyweight-Locking" class="headerlink" title="3. 重量级锁 (Heavyweight Locking)"></a>3. 重量级锁 (Heavyweight Locking)</h3><ul>
-<li><strong>触发时机</strong>：竞争激烈。如果自旋超过一定次数，或者在轻量级锁状态下又有第三个线程来抢锁。</li>
-<li><strong>实现</strong>：Mark Word 指向堆中的 <strong>Monitor（监视器）</strong> 对象。Monitor 依赖于操作系统的 <code>mutex</code> 指令。</li>
-<li><strong>行为</strong>：未能抢到锁的线程会被<strong>挂起（Park）</strong>，进入阻塞状态，等待操作系统唤醒。</li>
-<li><strong>代价</strong>：涉及内核态切换，上下文切换开销巨大。</li>
-</ul>
-<hr>
-<h2 id="三、-锁的升级（膨胀）流程图"><a href="#三、-锁的升级（膨胀）流程图" class="headerlink" title="三、 锁的升级（膨胀）流程图"></a>三、 锁的升级（膨胀）流程图</h2><ol>
-<li><strong>初始状态</strong>：对象处于“无锁”或“可偏向”状态。</li>
-<li><strong>偏向开启</strong>：线程 A 访问，Mark Word 记录 A 的 ID。</li>
-<li><strong>轻度竞争</strong>：线程 B 访问，发现 ID 不匹配。撤销偏向锁，升级为轻量级锁。</li>
-<li><strong>CAS 竞争</strong>：线程 A 和 B 通过 CAS 争夺锁记录指针。</li>
-<li><strong>激烈竞争</strong>：CAS 失败次数过多，轻量级锁膨胀为重量级锁，线程 B 进入阻塞队列。</li>
-</ol>
-<blockquote>
-<p><strong>注意</strong>：锁的升级通常是<strong>不可逆</strong>的（但在某些 JVM 实现中，在全局垃圾回收 GC 时可能会发生锁降级）。</p>
+<h3 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h3><blockquote>
+<p><strong>注意</strong>：我们将常见的 <code>`val`</code> 命名修改为 <code>nodeValue</code>，以避免与 Kotlin 关键字冲突并提高代码可读性。</p>
 </blockquote>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 链表节点定义</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ListNode</span>(<span class="keyword">var</span> nodeValue: <span class="built_in">Int</span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> next: ListNode? = <span class="literal">null</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">addTwoNumbers</span><span class="params">(l1: <span class="type">ListNode</span>?, l2: <span class="type">ListNode</span>?)</span></span>: ListNode? &#123;</span><br><span class="line">        <span class="comment">// 创建虚拟头节点，其 next 存储真正的结果</span></span><br><span class="line">        <span class="keyword">val</span> dummyHead = ListNode(<span class="number">0</span>)</span><br><span class="line">        <span class="keyword">var</span> tail = dummyHead</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 进位标识</span></span><br><span class="line">        <span class="keyword">var</span> carry = <span class="number">0</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 两个链表的遍历指针</span></span><br><span class="line">        <span class="keyword">var</span> p1 = l1</span><br><span class="line">        <span class="keyword">var</span> p2 = l2</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 只要还有节点未处理，或还有进位需要结算，就继续循环</span></span><br><span class="line">        <span class="keyword">while</span> (p1 != <span class="literal">null</span> || p2 != <span class="literal">null</span> || carry != <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="comment">// 取出当前位的值，若已空则取 0 (等长化处理)</span></span><br><span class="line">            <span class="keyword">val</span> digit1 = p1?.nodeValue ?: <span class="number">0</span></span><br><span class="line">            <span class="keyword">val</span> digit2 = p2?.nodeValue ?: <span class="number">0</span></span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 计算当前位总和 (包含前一位的进位)</span></span><br><span class="line">            <span class="keyword">val</span> totalSum = digit1 + digit2 + carry</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 计算新的进位</span></span><br><span class="line">            carry = totalSum / <span class="number">10</span></span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 创建新节点存储当前位的结果 (取模) 并连接到结果链表</span></span><br><span class="line">            tail.next = ListNode(totalSum % <span class="number">10</span>)</span><br><span class="line">            tail = tail.next!!</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 向后推移指针</span></span><br><span class="line">            p1 = p1?.next</span><br><span class="line">            p2 = p2?.next</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> dummyHead.next</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <hr>
-<h2 id="四、-补充优化：锁消除与锁粗化"><a href="#四、-补充优化：锁消除与锁粗化" class="headerlink" title="四、 补充优化：锁消除与锁粗化"></a>四、 补充优化：锁消除与锁粗化</h2><p>除了状态膨胀，编译器（JIT）还做了以下两项神级优化：</p>
-<h3 id="1-锁消除-Lock-Elimination"><a href="#1-锁消除-Lock-Elimination" class="headerlink" title="1. 锁消除 (Lock Elimination)"></a>1. 锁消除 (Lock Elimination)</h3><ul>
-<li><strong>原理</strong>：通过<strong>逃逸分析</strong>，如果发现一个对象只会在当前线程内部使用（不会被其他线程看到），JIT 编译器会直接把 <code>synchronized</code> 去掉。</li>
-<li><strong>例子</strong>：在方法内部定义的 <code>StringBuffer.append()</code>。</li>
-</ul>
-<h3 id="2-锁粗化-Lock-Coarsening"><a href="#2-锁粗化-Lock-Coarsening" class="headerlink" title="2. 锁粗化 (Lock Coarsening)"></a>2. 锁粗化 (Lock Coarsening)</h3><ul>
-<li><strong>原理</strong>：如果一系列连续的操作都对同一个对象加锁（如循环内加锁），编译器会把加锁的范围扩大到整个操作序列外部，避免频繁开关锁。</li>
+<h3 id="复杂度分析"><a href="#复杂度分析" class="headerlink" title="复杂度分析"></a>复杂度分析</h3><ul>
+<li><strong>时间复杂度</strong>：$O(\max(m, n))$。其中 $m$ 和 $n$ 分别为两个链表的节点数。我们需要完整遍历较长的那个链表。</li>
+<li><strong>空间复杂度</strong>：$O(1)$。除了用于存储答案的链表外，我们只使用了常数级别的额外空间（进位变量、临时指针等）。</li>
 </ul>
 <hr>
-<h2 id="🎙-面试考察点：资深级别回答"><a href="#🎙-面试考察点：资深级别回答" class="headerlink" title="🎙 面试考察点：资深级别回答"></a>🎙 面试考察点：资深级别回答</h2><p><strong>Q：既然重量级锁慢，为什么不一直用轻量级锁自旋？</strong></p>
-<ul>
-<li><strong>答</strong>：自旋是需要<strong>消耗 CPU 算力</strong>的（虽然没挂起，但 CPU 在跑空转指令）。如果持锁线程执行时间很长，让其他线程一直自旋会白白浪费大量 CPU 资源。因此，当自旋达到一定阈值（适应性自旋），必须膨胀为重量级锁，让竞争线程去“睡觉”（挂起），把 CPU 让给真正干活的线程。</li>
-</ul>
-<p><strong>Q：在 Android 开发中，这套机制给我们的启示是什么？</strong></p>
-<ul>
-<li><strong>答</strong>：1. 尽量减少锁的竞争范围（减小临界区）。2. 对于高频调用的代码，优先使用无锁结构（CAS&#x2F;Atomic），因为一旦膨胀到重量级锁，在移动端有限的算力下，性能损耗非常直观。</li>
-</ul>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/2-Java/">2 - Java</a>, <a class="article-category-link" href="/categories/2-Java/2-1-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.1 - 多线程</a>
-
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
-    <article id="post-2 Java/Java程序基础/ArrayDeque 的接口"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2023/08/11/2%20Java/Java%E7%A8%8B%E5%BA%8F%E5%9F%BA%E7%A1%80/ArrayDeque%20%E7%9A%84%E6%8E%A5%E5%8F%A3/">ArrayDeque 的接口</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2023/08/11/2%20Java/Java%E7%A8%8B%E5%BA%8F%E5%9F%BA%E7%A1%80/ArrayDeque%20%E7%9A%84%E6%8E%A5%E5%8F%A3/" class="article-date">
-	  <time datetime="2023-08-10T23:17:10.000Z" itemprop="datePublished">August 11, 2023</time>
-	</a>
-
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/2-Java/">2 - Java</a>, <a class="article-category-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a>
- 
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p><code>ArrayDeque</code> 实现了 <code>Deque</code> 接口，该接口继承自 <code>Queue</code> 接口。下面是 <code>Deque</code> 接口中定义的一些主要方法：</p>
-<ol>
-<li><p>添加元素操作：</p>
-<ul>
-<li><code>addFirst(element: E)</code>：将元素添加到双端队列的开头。</li>
-<li><code>addLast(element: E)</code>：将元素添加到双端队列的末尾。</li>
-<li><code>offerFirst(element: E)</code>：将元素添加到双端队列的开头，并返回是否成功。</li>
-<li><code>offerLast(element: E)</code>：将元素添加到双端队列的末尾，并返回是否成功。</li>
-</ul>
-</li>
-<li><p>获取元素操作：</p>
-<ul>
-<li><code>getFirst(): E</code>：获取双端队列的第一个元素，但不删除它。</li>
-<li><code>getLast(): E</code>：获取双端队列的最后一个元素，但不删除它。</li>
-<li><code>peekFirst(): E</code>：获取双端队列的第一个元素，如果队列为空则返回 null。</li>
-<li><code>peekLast(): E</code>：获取双端队列的最后一个元素，如果队列为空则返回 null。</li>
-</ul>
-</li>
-<li><p>移除元素操作：</p>
-<ul>
-<li><code>removeFirst(): E</code>：移除并返回双端队列的第一个元素。</li>
-<li><code>removeLast(): E</code>：移除并返回双端队列的最后一个元素。</li>
-<li><code>pollFirst(): E</code>：移除并返回双端队列的第一个元素，如果队列为空则返回 null。</li>
-<li><code>pollLast(): E</code>：移除并返回双端队列的最后一个元素，如果队列为空则返回 null。</li>
-</ul>
-</li>
+<h3 id="技巧总结"><a href="#技巧总结" class="headerlink" title="技巧总结"></a>技巧总结</h3><ol>
+<li>**虚拟头节点 (Dummy Head)**：链表题“必备神器”。它消除了对“头节点是否为空”的特殊处理逻辑。</li>
+<li><strong>逻辑合并</strong>：将 <code>while</code> 循环条件设为 <code>p1 != null || p2 != null || carry != 0</code>，可以一次性处理完所有计算，包括最后一位产生的额外进位。</li>
+<li><strong>命名优化</strong>：在 Kotlin 中，LeetCode 默认的 <code>`val`</code> 属性由于是关键字，必须加反引号，可读性极差。将其改名为 <code>nodeValue</code> 或 <code>value</code> 是更符合现代工程实践的做法。</li>
 </ol>
-<p>此外，<code>ArrayDeque</code> 还实现了 <code>Queue</code> 接口中定义的方法，如 <code>offer(element: E)</code>、<code>remove(): E</code>、<code>poll(): E</code> 等。</p>
-<p>需要注意的是，<code>ArrayDeque</code> 是一个可变大小的数组双端队列，可以在队列的两端进行高效的插入和删除操作，同时也支持随机访问。</p>
 
       
     </div>
     <footer class="entry-meta entry-footer">
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/2-Java/">2 - Java</a>, <a class="article-category-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a>
+    <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a>, <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a>, <a class="article-category-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a>
 
       
       
@@ -645,7 +431,7 @@
 <!-- Table of Contents -->
 
   
-    <article id="post-2 Java/多线程/Android并发锁面试题库"  class="article article-type-post" itemscope itemprop="blogPost" >
+    <article id="post-1 Kotlin/03 Kotlin 协程基础/协程进阶_监督_03_监督下的异常捕获"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -653,7 +439,7 @@
         
   
     <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Android%E5%B9%B6%E5%8F%91%E9%94%81%E9%9D%A2%E8%AF%95%E9%A2%98%E5%BA%93/">Android 面试题库：深度解析并发锁机制与应用实践</a>
+      <a class="article-title" href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E7%9B%91%E7%9D%A3_03_%E7%9B%91%E7%9D%A3%E4%B8%8B%E7%9A%84%E5%BC%82%E5%B8%B8%E6%8D%95%E8%8E%B7/">协程进阶：监督 03. 监督环境下的异常捕获</a>
     </h1>
   
 
@@ -661,135 +447,34 @@
     
     <div class="article-meta">
       
-	<a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Android%E5%B9%B6%E5%8F%91%E9%94%81%E9%9D%A2%E8%AF%95%E9%A2%98%E5%BA%93/" class="article-date">
-	  <time datetime="2026-03-26T16:11:05.365Z" itemprop="datePublished">March 27, 2026</time>
+	<a href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E7%9B%91%E7%9D%A3_03_%E7%9B%91%E7%9D%A3%E4%B8%8B%E7%9A%84%E5%BC%82%E5%B8%B8%E6%8D%95%E8%8E%B7/" class="article-date">
+	  <time datetime="2026-03-30T19:05:14.788Z" itemprop="datePublished">March 31, 2026</time>
 	</a>
 
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/2-Java/">2 - Java</a>, <a class="article-category-link" href="/categories/2-Java/2-1-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.1 - 多线程</a>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
  
       
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>在 Android 高级开发面试中，并发锁是考察候选人<strong>底层功底、内存模型理解以及系统架构能力</strong>的核心考点。本文针对 Android 实际开发场景，系统性梳理了各种锁的原理与选型。</p>
-<hr>
-<h2 id="一、-Java-基础锁原语"><a href="#一、-Java-基础锁原语" class="headerlink" title="一、 Java 基础锁原语"></a>一、 Java 基础锁原语</h2><h3 id="1-synchronized-内置锁-x2F-监视器锁"><a href="#1-synchronized-内置锁-x2F-监视器锁" class="headerlink" title="1. synchronized (内置锁&#x2F;监视器锁)"></a>1. <code>synchronized</code> (内置锁&#x2F;监视器锁)</h3><ul>
-<li><strong>特性</strong>：自动获取&#x2F;释放、可重入、非公平。在现代 ART 虚拟机中经过了偏向锁、轻量级锁、重量级锁的膨胀优化。</li>
-<li><strong>面试考点</strong>：<ul>
-<li><strong>对象锁 vs 类锁</strong>：同步代码块与静态同步方法的区别。</li>
-<li><strong>原理</strong>：每个对象关联的 <code>monitor</code> 对象（EntryList, WaitSet）。</li>
+        <p>本篇解析 <code>example-supervision-03.kt</code>。探讨在 <code>supervisorScope</code> 中如何正确地处理子任务的报错。</p>
+<h2 id="1-核心概念：独立责任"><a href="#1-核心概念：独立责任" class="headerlink" title="1. 核心概念：独立责任"></a>1. 核心概念：独立责任</h2><p>在 <code>supervisorScope</code> 中，由于子任务的异常不会自动向上传播给父作用域，因此每个子协程必须通过 <code>CoroutineExceptionHandler</code> 来处理自己的错误。</p>
+<h3 id="执行流程："><a href="#执行流程：" class="headerlink" title="执行流程："></a>执行流程：</h3><ul>
+<li><strong>子协程报错</strong>：它会触发自己上下文中的 <code>handler</code>，然后安静地终止。</li>
+<li><strong>作用域正常</strong>：由于使用了监督机制，<code>supervisorScope</code> 本身会保持活跃，并正常完成所有的逻辑输出。</li>
 </ul>
-</li>
-<li><strong>应用场景</strong>：本项目的 <code>GLTextureView</code> 中用于状态机的全局调度。</li>
-</ul>
-<h3 id="2-ReentrantLock-显示锁"><a href="#2-ReentrantLock-显示锁" class="headerlink" title="2. ReentrantLock (显示锁)"></a>2. <code>ReentrantLock</code> (显示锁)</h3><ul>
-<li><strong>特性</strong>：基于 AQS（AbstractQueuedSynchronizer）实现。支持公平&#x2F;非公平选型、可中断、支持超时获取、多条件变量（Condition）。</li>
-<li><strong>面试考点</strong>：<ul>
-<li><strong>与 <code>synchronized</code> 区别</strong>：灵活性（tryLock）、性能（高竞争下更稳定）、可扩展性。</li>
-</ul>
-</li>
-<li><strong>应用场景</strong>：复杂的数据结构操作，或需要响应中断的长时间等待场景。</li>
-</ul>
-<hr>
-<h2 id="二、-读写与性能优化锁"><a href="#二、-读写与性能优化锁" class="headerlink" title="二、 读写与性能优化锁"></a>二、 读写与性能优化锁</h2><h3 id="3-ReentrantReadWriteLock-读写锁"><a href="#3-ReentrantReadWriteLock-读写锁" class="headerlink" title="3. ReentrantReadWriteLock (读写锁)"></a>3. <code>ReentrantReadWriteLock</code> (读写锁)</h3><ul>
-<li><strong>核心逻辑</strong>：<strong>读读共享、读写互斥、写写互斥</strong>。</li>
-<li><strong>面试考点</strong>：<ul>
-<li><strong>锁降级</strong>：写锁可以降级为读锁，但读锁不能升级为写锁。</li>
-<li><strong>饥饿问题</strong>：大量读操作可能导致写操作长时间无法获取锁。</li>
-</ul>
-</li>
-<li><strong>应用场景</strong>：App 的内存缓存（LruCache）查询频率远高于更新频率的场景。</li>
-</ul>
-<h3 id="4-StampedLock-乐观读锁"><a href="#4-StampedLock-乐观读锁" class="headerlink" title="4. StampedLock (乐观读锁)"></a>4. <code>StampedLock</code> (乐观读锁)</h3><ul>
-<li><strong>特性</strong>：Java 8 引入。提供了一种<strong>乐观读</strong>模式，读操作不会阻塞写操作。</li>
-<li><strong>面试考点</strong>：<ul>
-<li><strong>对比 ReadWriteLock</strong>：通过版本戳（Stamp）验证数据有效性，在读多写极少的极端场景下性能近乎无锁。</li>
-</ul>
-</li>
-<li><strong>应用场景</strong>：坐标点数据计算、频繁读取的配置信息。</li>
-</ul>
-<hr>
-<h2 id="三、-原子操作与轻量级同步"><a href="#三、-原子操作与轻量级同步" class="headerlink" title="三、 原子操作与轻量级同步"></a>三、 原子操作与轻量级同步</h2><h3 id="5-CAS-Compare-And-Swap"><a href="#5-CAS-Compare-And-Swap" class="headerlink" title="5. CAS (Compare And Swap)"></a>5. <code>CAS</code> (Compare And Swap)</h3><ul>
-<li><strong>原理</strong>：利用 CPU 的 <code>cmpxchg</code> 指令实现无锁原子更新。</li>
-<li><strong>面试考点</strong>：<ul>
-<li><strong>ABA 问题</strong>：如何通过 <code>AtomicStampedReference</code> 解决。</li>
-<li><strong>自旋开销</strong>：高竞争下 CPU 占用率过高。</li>
-</ul>
-</li>
-<li><strong>应用场景</strong>：计数器（AtomicInteger）、状态标记位。</li>
-</ul>
-<h3 id="6-volatile-关键字"><a href="#6-volatile-关键字" class="headerlink" title="6. volatile 关键字"></a>6. <code>volatile</code> 关键字</h3><ul>
-<li><strong>作用</strong>：<strong>可见性、有序性（禁止指令重排）</strong>。不保证原子性。</li>
-<li><strong>面试考点</strong>：<ul>
-<li><strong>DCL（双重检查锁定）单例模式</strong>：为什么必须加 <code>volatile</code>？（防止对象初始化未完成就被引用）。</li>
-</ul>
-</li>
-<li><strong>应用场景</strong>：本项目的 <code>mHasContentToDraw</code> 标志位同步。</li>
-</ul>
-<hr>
-<h2 id="四、-Android-场景下的特有应用"><a href="#四、-Android-场景下的特有应用" class="headerlink" title="四、 Android 场景下的特有应用"></a>四、 Android 场景下的特有应用</h2><h3 id="7-渲染链路同步-本项目核心"><a href="#7-渲染链路同步-本项目核心" class="headerlink" title="7. 渲染链路同步 (本项目核心)"></a>7. 渲染链路同步 (本项目核心)</h3><ul>
-<li><strong>痛点</strong>：GL 线程与 UI 线程的生命周期不同步。</li>
-<li><strong>方案</strong>：使用 <code>synchronized</code> 配合 <code>wait/notifyAll</code> 构建<strong>保护性暂停（Guarded Suspension）</strong>模型。</li>
-<li><strong>面试回答</strong>：参考 <code>GLTEXTUREVIEW_LOCKING.md</code> 中的握手协议描述。</li>
-</ul>
-<h3 id="8-锁的选型指南-横向对比"><a href="#8-锁的选型指南-横向对比" class="headerlink" title="8. 锁的选型指南 (横向对比)"></a>8. 锁的选型指南 (横向对比)</h3><table>
-<thead>
-<tr>
-<th align="left">维度</th>
-<th align="left"><code>synchronized</code></th>
-<th align="left"><code>ReentrantLock</code></th>
-<th align="left"><code>Atomic/CAS</code></th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left"><strong>灵活性</strong></td>
-<td align="left">低（自动）</td>
-<td align="left">高（手动控制）</td>
-<td align="left">极高（无锁）</td>
-</tr>
-<tr>
-<td align="left"><strong>性能</strong></td>
-<td align="left">中（低中竞争优）</td>
-<td align="left">高（高竞争稳定）</td>
-<td align="left">极高（极短操作）</td>
-</tr>
-<tr>
-<td align="left"><strong>功能</strong></td>
-<td align="left">基础</td>
-<td align="left">丰富（Condition&#x2F;公平性）</td>
-<td align="left">仅限原子变量</td>
-</tr>
-<tr>
-<td align="left"><strong>风险</strong></td>
-<td align="left">低</td>
-<td align="left">高（易忘释放）</td>
-<td align="left">容易出现 ABA 问题</td>
-</tr>
-</tbody></table>
-<hr>
-<h2 id="五、-资深面试官进阶追问"><a href="#五、-资深面试官进阶追问" class="headerlink" title="五、 资深面试官进阶追问"></a>五、 资深面试官进阶追问</h2><p><strong>Q1：如何定位 App 线上发生的死锁？</strong></p>
-<ul>
-<li><strong>答</strong>：1. 使用 <code>Thread.getAllStackTraces()</code> 获取堆栈。2. 寻找 <code>BLOCKED</code> 状态的线程。3. 分析锁的循环等待链（A 等 B，B 等 A）。</li>
-</ul>
-<p><strong>Q2：为什么 ConcurrentLinkedQueue 不需要加锁？</strong></p>
-<ul>
-<li><strong>答</strong>：它采用了 <strong>Michael-Scott 非阻塞队列算法</strong>，底层完全基于 CAS 操作头尾指针，实现了极高的并发吞吐量。本项目在 <code>HybridNormalRenderer</code> 中使用它来处理弹幕队列，避免了每一帧渲染都要持锁的开销。</li>
-</ul>
-<p><strong>Q3：什么是偏向锁和锁消除？</strong></p>
-<ul>
-<li><strong>答</strong>：锁消除是 JIT 编译器的优化，若发现对象只会在单线程访问，则直接去掉 <code>synchronized</code>。偏向锁是假设锁一直由同一线程持有，减少 CAS 操作开销。</li>
-</ul>
-<hr>
-<h2 id="📌-总结"><a href="#📌-总结" class="headerlink" title="📌 总结"></a>📌 总结</h2><p>锁不是越多越好，而是<strong>越轻量越好</strong>。在 Android 开发中，首选无锁结构（Concurrent 容器），次选轻量级标记（volatile&#x2F;Atomic），最后才考虑重权重的 Monitor 或显示锁。</p>
+<h2 id="2-代码解析"><a href="#2-代码解析" class="headerlink" title="2. 代码解析"></a>2. 代码解析</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> handler = CoroutineExceptionHandler &#123; _, exception -&gt; </span><br><span class="line">    println(<span class="string">&quot;CoroutineExceptionHandler got <span class="variable">$exception</span>&quot;</span>) </span><br><span class="line">&#125;</span><br><span class="line">supervisorScope &#123;</span><br><span class="line">    <span class="keyword">val</span> child = launch(handler) &#123; <span class="comment">// 必须在这里传入处理者</span></span><br><span class="line">        println(<span class="string">&quot;The child throws an exception&quot;</span>)</span><br><span class="line">        <span class="keyword">throw</span> AssertionError()</span><br><span class="line">    &#125;</span><br><span class="line">    println(<span class="string">&quot;The scope is completing&quot;</span>) <span class="comment">// 这里会正常执行</span></span><br><span class="line">&#125;</span><br><span class="line">println(<span class="string">&quot;The scope is completed&quot;</span>) <span class="comment">// 这里也会正常执行</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-开发者感悟"><a href="#3-开发者感悟" class="headerlink" title="3. 开发者感悟"></a>3. 开发者感悟</h2><p><code>supervisorScope</code> 结合 <code>CoroutineExceptionHandler</code> 是处理复杂并行任务的最佳搭档。它不仅让各个子任务之间互不干扰（“隔离”），还保证了每一个失败的任务都能被优雅地记录。在 Android 中，如果你同时发起三个并行的 API 请求，并希望其中一个报错能显示特定的提示而不影响其他两个正常显示，这套组合就是你的核心武器。</p>
 
       
     </div>
     <footer class="entry-meta entry-footer">
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/2-Java/">2 - Java</a>, <a class="article-category-link" href="/categories/2-Java/2-1-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.1 - 多线程</a>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
 
       
       
@@ -802,7 +487,7 @@
 <!-- Table of Contents -->
 
   
-    <article id="post-2 Java/Java程序基础/ArrayDeque 和 java.util.Stack 和 MutableList 实现与扩容策略_2023_05_28 周日- 5_24_39.07"  class="article article-type-post" itemscope itemprop="blogPost" >
+    <article id="post-1 Kotlin/03 Kotlin 协程基础/协程进阶_同步_03_原子操作"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -810,7 +495,7 @@
         
   
     <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2023/08/11/2%20Java/Java%E7%A8%8B%E5%BA%8F%E5%9F%BA%E7%A1%80/ArrayDeque%20%E5%92%8C%20java.util.Stack%20%E5%92%8C%20MutableList%20%E5%AE%9E%E7%8E%B0%E4%B8%8E%E6%89%A9%E5%AE%B9%E7%AD%96%E7%95%A5_2023_05_28%20%E5%91%A8%E6%97%A5-%205_24_39.07/">ArrayDeque 和 java.util.Stack 和 MutableList 实现与扩容策略</a>
+      <a class="article-title" href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E5%90%8C%E6%AD%A5_03_%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C/">协程进阶：同步 03. 原子操作 (Atomic)</a>
     </h1>
   
 
@@ -818,237 +503,202 @@
     
     <div class="article-meta">
       
-	<a href="/2023/08/11/2%20Java/Java%E7%A8%8B%E5%BA%8F%E5%9F%BA%E7%A1%80/ArrayDeque%20%E5%92%8C%20java.util.Stack%20%E5%92%8C%20MutableList%20%E5%AE%9E%E7%8E%B0%E4%B8%8E%E6%89%A9%E5%AE%B9%E7%AD%96%E7%95%A5_2023_05_28%20%E5%91%A8%E6%97%A5-%205_24_39.07/" class="article-date">
-	  <time datetime="2023-08-10T23:17:16.000Z" itemprop="datePublished">August 11, 2023</time>
+	<a href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E5%90%8C%E6%AD%A5_03_%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C/" class="article-date">
+	  <time datetime="2026-03-30T19:02:45.245Z" itemprop="datePublished">March 31, 2026</time>
 	</a>
 
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/2-Java/">2 - Java</a>, <a class="article-category-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
  
       
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="ArrayDeque-和-java-util-Stack-和-MutableList-的区别是什么"><a href="#ArrayDeque-和-java-util-Stack-和-MutableList-的区别是什么" class="headerlink" title="ArrayDeque 和 java.util.Stack 和 MutableList 的区别是什么"></a><code>ArrayDeque</code> 和 <code>java.util.Stack</code> 和 <code>MutableList</code> 的区别是什么</h3><p><code>ArrayDeque</code>、<code>java.util.Stack</code> 和 <code>MutableList</code>（如 <code>ArrayList</code>）是实现栈的不同方式，它们有一些区别：</p>
-<ol>
-<li>实现接口：<code>ArrayDeque</code> 实现了 <code>Deque</code> 接口，而 <code>java.util.Stack</code> 继承自 <code>Vector</code> 类，<code>MutableList</code> 则是 Kotlin 标准库中的可变列表接口。</li>
-<li>内部数据结构：<code>ArrayDeque</code> 使用循环数组（circular array）作为内部数据结构，而 <code>java.util.Stack</code> 内部使用数组（Array），<code>MutableList</code> 则可以使用数组、链表或其他数据结构。</li>
-<li>动态扩容：<code>ArrayDeque</code> 和 <code>MutableList</code> 都支持动态扩容，可以根据需要自动调整容量，而 <code>java.util.Stack</code> 不支持动态扩容，需要手动调整容量。</li>
-<li>性能：<code>ArrayDeque</code> 在大多数操作上具有更好的性能，因为它使用了循环数组和更优化的实现。而 <code>java.util.Stack</code> 是一个遗留类，性能可能相对较差。<code>MutableList</code> 的性能取决于具体实现。</li>
+        <p>本篇解析 <code>example-sync-03.kt</code>。探讨如何利用 Java 的原子类解决并发累加问题。</p>
+<h2 id="1-核心工具：AtomicInteger"><a href="#1-核心工具：AtomicInteger" class="headerlink" title="1. 核心工具：AtomicInteger"></a>1. 核心工具：AtomicInteger</h2><p>在 Java&#x2F;Kotlin 中，<code>AtomicInteger</code> 利用了底层的 CAS（Compare-And-Swap）机制，保证了操作的原子性。</p>
+<h3 id="代码解析"><a href="#代码解析" class="headerlink" title="代码解析"></a>代码解析</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> counter = AtomicInteger()</span><br><span class="line">withContext(Dispatchers.Default) &#123;</span><br><span class="line">    massiveRun &#123;</span><br><span class="line">        counter.incrementAndGet() <span class="comment">// 这是一个原子操作</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 结果：Counter = 100000 (准确)</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="2-开发者感悟"><a href="#2-开发者感悟" class="headerlink" title="2. 开发者感悟"></a>2. 开发者感悟</h2><p>对于简单的计数器或状态位，原子类是最轻量且高效的选择。它比使用锁（Lock）开销更小。但在处理复杂的业务逻辑（不仅是简单的加法）时，原子类的局限性就会体现出来，我们需要更通用的方案。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-1 Kotlin/03 Kotlin 协程基础/协程进阶_选择_03_在发送上选择"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E9%80%89%E6%8B%A9_03_%E5%9C%A8%E5%8F%91%E9%80%81%E4%B8%8A%E9%80%89%E6%8B%A9/">协程进阶：选择 03. 在发送上选择 (onSend)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E9%80%89%E6%8B%A9_03_%E5%9C%A8%E5%8F%91%E9%80%81%E4%B8%8A%E9%80%89%E6%8B%A9/" class="article-date">
+	  <time datetime="2026-03-30T19:01:17.565Z" itemprop="datePublished">March 31, 2026</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本篇解析 <code>example-select-03.kt</code>。探讨 <code>select</code> 如何决定数据该发送给谁。</p>
+<h2 id="1-核心操作：onSend"><a href="#1-核心操作：onSend" class="headerlink" title="1. 核心操作：onSend"></a>1. 核心操作：onSend</h2><p><code>select</code> 不仅可以监听接收，也可以监听发送。<code>onSend</code> 子句用于将一个元素发送到一个可用的通道中。</p>
+<h3 id="特点："><a href="#特点：" class="headerlink" title="特点："></a>特点：</h3><ul>
+<li><strong>负载均衡</strong>：如果主通道正忙（缓冲区满），<code>select</code> 会尝试发送到备用通道。</li>
+<li><strong>多路分流</strong>：它能自动将产出的数据分流到第一个准备好接收的通道中。</li>
+</ul>
+<h2 id="2-代码解析"><a href="#2-代码解析" class="headerlink" title="2. 代码解析"></a>2. 代码解析</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">select&lt;<span class="built_in">Unit</span>&gt; &#123;</span><br><span class="line">    onSend(num) &#123; <span class="comment">/* 发送到主通道成功后的逻辑 */</span> &#125; </span><br><span class="line">    side.onSend(num) &#123; <span class="comment">/* 发送到备用通道成功后的逻辑 */</span> &#125;     </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>执行逻辑</strong>：生产者产出一个数，如果消费者 1 慢，消费者 2 快，这个数就会被发送给消费者 2。</li>
+</ul>
+<h2 id="3-开发者感悟"><a href="#3-开发者感悟" class="headerlink" title="3. 开发者感悟"></a>3. 开发者感悟</h2><p><code>onSend</code> 是处理“拥塞控制”的有力武器。在 Android 的网络上传场景下，如果你有两个上传接口（如 Wi-Fi 和 5G），你可以用 <code>select</code> 尝试先发给响应更快的那个，从而实现动态的链路负载均衡。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-1 Kotlin/03 Kotlin 协程基础/协程进阶_通道_03_生产者构建器"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E9%80%9A%E9%81%93_03_%E7%94%9F%E4%BA%A7%E8%80%85%E6%9E%84%E5%BB%BA%E5%99%A8/">协程进阶：通道 03. 生产者构建器 (produce)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E9%80%9A%E9%81%93_03_%E7%94%9F%E4%BA%A7%E8%80%85%E6%9E%84%E5%BB%BA%E5%99%A8/" class="article-date">
+	  <time datetime="2026-03-30T18:59:07.786Z" itemprop="datePublished">March 31, 2026</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本篇解析 <code>example-channel-03.kt</code>。学习一种更简便的通道创建方式。</p>
+<h2 id="1-核心构建器：produce"><a href="#1-核心构建器：produce" class="headerlink" title="1. 核心构建器：produce"></a>1. 核心构建器：produce</h2><p><code>produce</code> 是一个协程构建器，它会启动一个新的协程并返回一个 <code>ReceiveChannel</code>。</p>
+<h3 id="优点："><a href="#优点：" class="headerlink" title="优点："></a>优点：</h3><ul>
+<li><strong>封装性</strong>：它将“启动协程”与“发送逻辑”封装在一起。</li>
+<li><strong>自动关闭</strong>：当 <code>produce</code> 块内的代码执行完毕后，它会**自动调用 <code>close()</code>**。</li>
+</ul>
+<h2 id="2-核心操作：consumeEach"><a href="#2-核心操作：consumeEach" class="headerlink" title="2. 核心操作：consumeEach"></a>2. 核心操作：consumeEach</h2><p><code>consumeEach</code> 是一个扩展函数，用于替代传统的 <code>for</code> 循环。</p>
+<ul>
+<li><strong>安全消费</strong>：它保证了在消费完数据后，不论成功还是异常，都会自动处理资源释放。</li>
+</ul>
+<h2 id="3-开发者感悟"><a href="#3-开发者感悟" class="headerlink" title="3. 开发者感悟"></a>3. 开发者感悟</h2><p><code>produce</code> 是处理异步流的工业级选择。它就像是协程里的“工厂”，源源不断地生产零件并直接交付给消费者，且自带“完工关机”功能，极大减少了由于忘记关闭 Channel 导致的资源泄漏。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-1 Kotlin/03 Kotlin 协程基础/协程进阶_组合_03_惰性并发"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E7%BB%84%E5%90%88_03_%E6%83%B0%E6%80%A7%E5%B9%B6%E5%8F%91/">协程进阶：组合 03. 惰性并发 (CoroutineStart.LAZY)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E7%BB%84%E5%90%88_03_%E6%83%B0%E6%80%A7%E5%B9%B6%E5%8F%91/" class="article-date">
+	  <time datetime="2026-03-30T18:56:54.569Z" itemprop="datePublished">March 31, 2026</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本篇解析 <code>example-compose-03.kt</code>。探讨如何延迟启动一个并发任务。</p>
+<h2 id="1-核心概念：惰性启动"><a href="#1-核心概念：惰性启动" class="headerlink" title="1. 核心概念：惰性启动"></a>1. 核心概念：惰性启动</h2><p>在 <code>async</code> 中，通过设置 <code>start = CoroutineStart.LAZY</code>，协程在调用时<strong>不会立即启动</strong>。</p>
+<h3 id="启动方式："><a href="#启动方式：" class="headerlink" title="启动方式："></a>启动方式：</h3><ol>
+<li>**await()**：如果直接调用 <code>await()</code>，协程会开始运行并挂起等待结果（这会导致任务变成顺序执行）。</li>
+<li>**start()**：在 <code>await()</code> 之前手动调用 <code>start()</code>，可以实现并发启动。</li>
 </ol>
-<p>综上所述，如果你想要使用性能较好且功能丰富的栈实现，推荐使用 <code>ArrayDeque</code>。如果你需要与现有的代码兼容或使用特定的接口，可以选择 <code>java.util.Stack</code> 或 <code>MutableList</code>。</p>
-<h1 id="ArrayDeque-怎么用循环数组实现的"><a href="#ArrayDeque-怎么用循环数组实现的" class="headerlink" title="ArrayDeque 怎么用循环数组实现的"></a>ArrayDeque 怎么用循环数组实现的</h1><p><code>ArrayDeque</code> 使用循环数组（circular array）实现，它在内部维护了一个固定大小的数组来存储元素。下面是简单介绍 <code>ArrayDeque</code> 如何使用循环数组实现的一些关键点：</p>
-<ol>
-<li>内部数组：<code>ArrayDeque</code> 内部有一个对象数组来存储元素，通常使用 <code>elements</code> 或 <code>array</code> 字段表示。</li>
-<li>头部和尾部指针：<code>ArrayDeque</code> 有两个指针，分别指向头部和尾部。通常使用 <code>head</code> 和 <code>tail</code> 字段表示。</li>
-<li>循环数组特性：<code>ArrayDeque</code> 的关键之处在于利用循环数组的性质。当头部或尾部指针到达数组的边界时，它们会回绕到数组的另一侧，形成循环效果。</li>
-<li>扩容和缩容：当元素数量达到数组容量时，<code>ArrayDeque</code> 会自动扩容。在扩容时，会创建一个更大的数组，并将原始数组中的元素按照循环顺序复制到新数组中。类似地，当元素数量较少时，<code>ArrayDeque</code> 也会自动缩容。</li>
-<li>添加和移除元素：添加元素时，头部指针向前移动一个位置，并将元素放入头部位置。移除元素时，头部指针向后移动一个位置，并返回头部位置的元素。</li>
-</ol>
-<p>通过这种方式，<code>ArrayDeque</code> 可以在不断添加和移除元素的过程中高效地利用数组空间，并保持循环数组的特性。这使得 <code>ArrayDeque</code> 在栈和队列等数据结构的实现中具有较高的性能和灵活性。</p>
-<h3 id="ArrayList-和-ArrayDeque-的区别"><a href="#ArrayList-和-ArrayDeque-的区别" class="headerlink" title="ArrayList 和 ArrayDeque 的区别"></a>ArrayList 和 ArrayDeque 的区别</h3><p>两种实现之间的主要区别在于调整大小的策略。</p>
-<p>ArrayList 的调整大小策略是将其调整为 oldCapacity + (oldCapacity &gt;&gt; 1) 的新大小，增加了约 50%。默认容量为 10，在调整大小后的容量为 15、22、33、49、73、109、163、244、366…</p>
-<p>ArrayDeque 总是调整为 2 的幂次方。在调整大小时，容量会加倍。从默认值 16 开始，调整大小后的容量为 32、64、128、256…</p>
-<p>因此，ArrayDeque 达到了更高的容量，而调整大小的操作更少，这是因为数组的复制操作很耗费资源。例如，要在默认大小的 ArrayList 中存储 256，需要进行 9 次调整大小操作，而 ArrayDeque 只需要 4 次。数组的复制操作可能很快，但也可能需要 GC 来释放一些空间用于新的数据集，此外还需要进行内存复制操作（ArrayDeque 可能在这方面表现更好，因为它对齐到 2 的幂次方）。</p>
-<p>这两种数据结构的最佳情况复杂度为 O(1)。ArrayList 的 push 和 pop 操作通过直接访问头部和尾部（ArrayDeque）来实现，而 add 和 removeLast 操作（ArrayList）则是通过直接访问大小来实现。</p>
+<h2 id="2-代码解析"><a href="#2-代码解析" class="headerlink" title="2. 代码解析"></a>2. 代码解析</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> one = async(start = CoroutineStart.LAZY) &#123; doSomethingUsefulOne() &#125;</span><br><span class="line"><span class="keyword">val</span> two = async(start = CoroutineStart.LAZY) &#123; doSomethingUsefulTwo() &#125;</span><br><span class="line"></span><br><span class="line">one.start() <span class="comment">// 提前启动</span></span><br><span class="line">two.start() <span class="comment">// 提前启动</span></span><br><span class="line">println(<span class="string">&quot;The answer is <span class="subst">$&#123;one.await() + two.await()&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-开发者感悟"><a href="#3-开发者感悟" class="headerlink" title="3. 开发者感悟"></a>3. 开发者感悟</h2><p><code>LAZY</code> 模式就像是“按需加载”。它可以让你先定义好复杂的并发逻辑，在真正需要的地方才一键启动。但要小心，如果不先调用 <code>start()</code> 就直接 <code>await()</code>，你的多个任务就会变成串行，从而失去并发的优势。</p>
 
       
     </div>
     <footer class="entry-meta entry-footer">
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/2-Java/">2 - Java</a>, <a class="article-category-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a>
-
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
-    <article id="post-2 Java/多线程/JVM锁膨胀机制深度剖析"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/JVM%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90/">JVM 锁膨胀机制深度剖析：自动化路径与开发者影响力</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/JVM%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90/" class="article-date">
-	  <time datetime="2026-03-26T16:11:16.679Z" itemprop="datePublished">March 27, 2026</time>
-	</a>
-
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/2-Java/">2 - Java</a>, <a class="article-category-link" href="/categories/2-Java/2-1-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.1 - 多线程</a>
- 
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>本篇文档旨在回答一个核心问题：<strong>在 <code>synchronized</code> 的世界里，究竟是 JVM 说了算，还是程序员的写法能改变命运？</strong></p>
-<hr>
-<h2 id="一、-锁升级的自动化流水线：JVM-的“自作主张”"><a href="#一、-锁升级的自动化流水线：JVM-的“自作主张”" class="headerlink" title="一、 锁升级的自动化流水线：JVM 的“自作主张”"></a>一、 锁升级的自动化流水线：JVM 的“自作主张”</h2><p>锁的膨胀过程（无锁 -&gt; 偏向锁 -&gt; 轻量级锁 -&gt; 重量级锁）确实是由 JVM <strong>自动管理</strong>的。程序员无法通过代码直接下令“请使用轻量级锁”，但 JVM 会根据底层硬件状态 and 实时竞争情况进行“自适应”决策。</p>
-<h3 id="1-膨胀的决策链路"><a href="#1-膨胀的决策链路" class="headerlink" title="1. 膨胀的决策链路"></a>1. 膨胀的决策链路</h3><ol>
-<li><strong>偏向锁阶段</strong>：当一个线程进入 <code>synchronized</code> 时，JVM 检查对象头的 Mark Word。如果是空的，直接记录当前线程 ID。<strong>这是 JVM 对单线程场景的极致偏爱。</strong></li>
-<li><strong>轻量级锁阶段</strong>：当第二个线程试图获取锁， JVM 发现 Mark Word 里不是它，于是通过 <strong>CAS（Compare And Swap）</strong> 尝试抢夺。如果抢到了，说明竞争不激烈，维持在轻量级锁。</li>
-<li><strong>自旋与适应性自旋</strong>：抢不到锁的线程不会立刻放弃，而是在门口“打转”（自旋）。JVM 会根据历史数据判断：如果这个锁以前很容易抢到，它就多自旋一会儿；反之则少自旋。</li>
-<li><strong>重量级锁阶段</strong>：如果自旋多次依然失败，或者竞争线程过多，JVM 认为“场面失控”，会调用操作系统的 <code>mutex</code> 指令，进入重量级锁，将线程挂起。</li>
-</ol>
-<hr>
-<h2 id="二、-程序员的写法：如何“间接”控制锁的命运？"><a href="#二、-程序员的写法：如何“间接”控制锁的命运？" class="headerlink" title="二、 程序员的写法：如何“间接”控制锁的命运？"></a>二、 程序员的写法：如何“间接”控制锁的命运？</h2><p>虽然你不能直接指挥 JVM，但你的<strong>写法逻辑</strong>会直接决定 JVM 走哪条优化路径。</p>
-<h3 id="1-锁的粒度（Granularity）"><a href="#1-锁的粒度（Granularity）" class="headerlink" title="1. 锁的粒度（Granularity）"></a>1. 锁的粒度（Granularity）</h3><ul>
-<li><strong>做法</strong>：<code>synchronized(this)</code> 锁定整个对象 vs <code>synchronized(lockObj)</code> 锁定特定变量。</li>
-<li><strong>影响</strong>：如果你锁定整个大对象，多个无关业务的线程会产生“虚假竞争”，强行让 JVM 将原本可以维持在偏向锁&#x2F;轻量级锁的状态升级为重量级锁。</li>
-<li><strong>建议</strong>：<strong>尽量减小同步块的范围。</strong></li>
-</ul>
-<h3 id="2-持锁时长（Hold-Time）"><a href="#2-持锁时长（Hold-Time）" class="headerlink" title="2. 持锁时长（Hold Time）"></a>2. 持锁时长（Hold Time）</h3><ul>
-<li><strong>做法</strong>：在同步块里做 IO 操作或复杂计算。</li>
-<li><strong>影响</strong>：子线程自旋是有时间限制的。如果你持锁时间太长，正在自旋的线程等不及了，就会触发 JVM 的“锁膨胀”机制，强行升级为重量级锁。</li>
-<li><strong>建议</strong>：<strong>同步块内只做最核心的、快速的状态变更。</strong></li>
-</ul>
-<h3 id="3-对象重用与逃逸分析"><a href="#3-对象重用与逃逸分析" class="headerlink" title="3. 对象重用与逃逸分析"></a>3. 对象重用与逃逸分析</h3><ul>
-<li><strong>做法</strong>：局部变量加锁 vs 成员变量加锁。</li>
-<li><strong>影响</strong>：如果你对一个<strong>永远不会逃逸出当前方法</strong>的对象加锁（例如方法内的局部变量），JVM 的 JIT 编译器会通过逃逸分析触发 <strong>“锁消除”</strong> —— 即使你写了 <code>synchronized</code>，运行的时候根本没锁。</li>
-<li><strong>建议</strong>：<strong>利用局部变量的封闭性减少全局竞争。</strong></li>
-</ul>
-<hr>
-<h2 id="三、-JVM-的“脾气”：你必须知道的潜规则"><a href="#三、-JVM-的“脾气”：你必须知道的潜规则" class="headerlink" title="三、 JVM 的“脾气”：你必须知道的潜规则"></a>三、 JVM 的“脾气”：你必须知道的潜规则</h2><h3 id="1-偏向锁的延迟开启"><a href="#1-偏向锁的延迟开启" class="headerlink" title="1. 偏向锁的延迟开启"></a>1. 偏向锁的延迟开启</h3><p>JVM 启动时，偏向锁通常会有几秒钟的延迟（默认 4s）。</p>
-<ul>
-<li><strong>为什么？</strong> 因为 JVM 启动初期会有大量线程竞争（如加载类），此时偏向锁反而会降低性能（撤销开销大）。</li>
-<li><strong>写法影响</strong>：如果你在 App 刚启动时就做大量同步，它们可能直接从无锁跳到轻量级锁。</li>
-</ul>
-<h3 id="2-锁降级（罕见现象）"><a href="#2-锁降级（罕见现象）" class="headerlink" title="2. 锁降级（罕见现象）"></a>2. 锁降级（罕见现象）</h3><p>虽然通常说锁“只升不降”，但在某些特定的 JVM 实现（如 HotSpot）中，在 <strong>STW（Stop The World）</strong> 进行全局垃圾回收时，可能会尝试将重量级锁降级。但这对程序员来说是不可控且不可感知的。</p>
-<hr>
-<h2 id="🎙-面试官进阶-Q-amp-A"><a href="#🎙-面试官进阶-Q-amp-A" class="headerlink" title="🎙 面试官进阶 Q&amp;A"></a>🎙 面试官进阶 Q&amp;A</h2><p><strong>Q：程序员可以手动干预锁升级吗？</strong></p>
-<ul>
-<li><strong>答</strong>：不能直接干预。但可以通过参数调节（如 <code>-XX:BiasedLockingStartupDelay=0</code>）或者通过<strong>业务逻辑优化</strong>。例如，如果已知某个锁一定会有高并发竞争，我们可以提前让它“热身”，或者干脆改用 <code>ReentrantLock</code> 来获得更确定的控制力。</li>
-</ul>
-<p><strong>Q：为什么 <code>synchronized</code> 块比 <code>synchronized</code> 方法更好？</strong></p>
-<ul>
-<li><strong>答</strong>：核心在于<strong>减小临界区</strong>。锁块可以只包裹那几行真正需要同步的代码，从而缩短持锁时间，给 JVM 留出更多保持在“轻量级锁”状态的空间，避免膨胀到性能低下的重量级锁。</li>
-</ul>
-<hr>
-<h2 id="📌-总结"><a href="#📌-总结" class="headerlink" title="📌 总结"></a>📌 总结</h2><p><strong>锁膨胀是 JVM 的“自动挡”，而程序员的逻辑是“油门和刹车”。</strong> 你写出的竞争频率、持锁时长、逃逸程度，就是 JVM 决定是否切换挡位的唯一依据。</p>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/2-Java/">2 - Java</a>, <a class="article-category-link" href="/categories/2-Java/2-1-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.1 - 多线程</a>
-
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
-    <article id="post-2 Java/Java程序基础/Java Stack 过时了吗"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2023/08/11/2%20Java/Java%E7%A8%8B%E5%BA%8F%E5%9F%BA%E7%A1%80/Java%20Stack%20%E8%BF%87%E6%97%B6%E4%BA%86%E5%90%97/">Java Stack 过时了吗</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2023/08/11/2%20Java/Java%E7%A8%8B%E5%BA%8F%E5%9F%BA%E7%A1%80/Java%20Stack%20%E8%BF%87%E6%97%B6%E4%BA%86%E5%90%97/" class="article-date">
-	  <time datetime="2023-08-10T23:17:20.000Z" itemprop="datePublished">August 11, 2023</time>
-	</a>
-
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/2-Java/">2 - Java</a>, <a class="article-category-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a>
- 
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>在 Java 中，<code>Stack</code> 类并没有过时，仍然可以使用。然而，根据 Java 官方文档的建议，推荐使用 <code>Deque</code> 接口的实现类 <code>ArrayDeque</code> 来代替 <code>Stack</code>。</p>
-<p><code>Stack</code> 类是基于向量（<code>Vector</code>）实现的，而 <code>Vector</code> 是线程安全的、同步的，因此在性能上可能会有一些开销。而 <code>ArrayDeque</code> 是基于数组实现的双端队列，性能更高，并且在大多数情况下能够提供与 <code>Stack</code> 类相同的功能。</p>
-<p>此外，<code>Deque</code> 接口提供了更丰富的操作方法，例如在队首或队尾插入、删除元素等，使得其更灵活且更符合现代编程的需求。</p>
-<p>因此，尽管 <code>Stack</code> 类仍然可用，但在新的代码中，推荐使用 <code>ArrayDeque</code> 或其他实现了 <code>Deque</code> 接口的类来代替 <code>Stack</code>。</p>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/2-Java/">2 - Java</a>, <a class="article-category-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a>
-
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
-    <article id="post-2 Java/Java程序基础/java.util.Stack 类为什么是线程安全的_2023_05_28 周日- 5_24_39.15"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2023/08/11/2%20Java/Java%E7%A8%8B%E5%BA%8F%E5%9F%BA%E7%A1%80/java.util.Stack%20%E7%B1%BB%E4%B8%BA%E4%BB%80%E4%B9%88%E6%98%AF%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8%E7%9A%84_2023_05_28%20%E5%91%A8%E6%97%A5-%205_24_39.15/">java.util.Stack 类为什么是线程安全的</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2023/08/11/2%20Java/Java%E7%A8%8B%E5%BA%8F%E5%9F%BA%E7%A1%80/java.util.Stack%20%E7%B1%BB%E4%B8%BA%E4%BB%80%E4%B9%88%E6%98%AF%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8%E7%9A%84_2023_05_28%20%E5%91%A8%E6%97%A5-%205_24_39.15/" class="article-date">
-	  <time datetime="2023-08-10T23:17:24.000Z" itemprop="datePublished">August 11, 2023</time>
-	</a>
-
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/2-Java/">2 - Java</a>, <a class="article-category-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a>
- 
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>在Java中，<code>java.util.Stack</code> 类是线程安全的，这是因为它是通过在每个方法上添加<code>synchronized</code>关键字来实现同步的。<br><code>synchronized</code>关键字可以确保在同一时间只有一个线程可以访问被标记为<code>synchronized</code>的方法或代码块。<br>当一个线程执行一个被<code>synchronized</code>关键字修饰的方法时，它将获得一个锁，其他线程必须等待该锁释放才能访问相同的方法。<br>这样可以确保在任何给定的时刻只有一个线程可以修改<code>Stack</code>的状态，从而防止并发访问导致的数据不一致或竞态条件。<br>然而，需要注意的是，虽然<code>Stack</code>类本身是线程安全的，但在某些情况下，使用<code>synchronized</code>关键字可能会降低性能，特别是在高并发环境下。<br>因此，在Java中，推荐使用<code>java.util.concurrent</code>包提供的并发集合类，如<code>java.util.concurrent.ArrayDeque</code>或<code>java.util.concurrent.LinkedBlockingDeque</code>，它们提供了更高效和灵活的线程安全操作。</p>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/2-Java/">2 - Java</a>, <a class="article-category-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a>
 
       
       
@@ -1065,7 +715,7 @@
 
   <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/4/">Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/6/">Next</a>
+    <a class="extend prev" rel="prev" href="/page/4/">Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" href="/page/6/">Next</a>
   </nav>
 
 </section>
@@ -1173,7 +823,43 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2026/03/31/3%20Android/02%20Framework/07%20NNAPI/01-Android-Framework-%E4%B8%93%E9%A1%B9-NNAPI%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6/">Android Framework 专项 - NNAPI 核心机制</a></h6>
+              <h6 style="margin: 0;"><a href="/2026/04/09/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E9%80%9A%E9%81%93_05_%E7%B4%A0_%E6%95%B0%E5%BA%8F%E5%88%97/">协程进阶：通道 05. 管道案例：素数序列 (Primes)</a></h6>
+              <span>April 9, 2026</span>
+            </div>
+
+          </li>
+        
+          <li class="clearfix">
+
+            
+              <div class="widget-entry-summary" style="margin: 0;">
+            
+
+              <h6 style="margin: 0;"><a href="/2026/04/09/3%20Android/02%20Framework/08%20HWUI/Android%20HWUI%20%E7%A1%AC%E4%BB%B6%E5%8A%A0%E9%80%9F%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90/">Android Bitmap 创建流程深度分析</a></h6>
+              <span>April 9, 2026</span>
+            </div>
+
+          </li>
+        
+          <li class="clearfix">
+
+            
+              <div class="widget-entry-summary" style="margin: 0;">
+            
+
+              <h6 style="margin: 0;"><a href="/2026/04/09/3%20Android/02%20Framework/08%20HWUI/Android%20Bitmap%20%E5%88%9B%E5%BB%BA%E6%B5%81%E7%A8%8B%E6%B7%B1%E5%BA%A6%E5%88%86%E6%9E%90/">Android Bitmap 创建流程深度分析</a></h6>
+              <span>April 9, 2026</span>
+            </div>
+
+          </li>
+        
+          <li class="clearfix">
+
+            
+              <div class="widget-entry-summary" style="margin: 0;">
+            
+
+              <h6 style="margin: 0;"><a href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E7%9B%91%E7%9D%A3_03_%E7%9B%91%E7%9D%A3%E4%B8%8B%E7%9A%84%E5%BC%82%E5%B8%B8%E6%8D%95%E8%8E%B7/">协程进阶：监督 03. 监督环境下的异常捕获</a></h6>
               <span>March 31, 2026</span>
             </div>
 
@@ -1185,8 +871,8 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2026/03/30/3%20Android/02%20Framework/06%20GUI/01-Android-Framework-%E4%B8%93%E9%A1%B9-GUI%E6%B8%B2%E6%9F%93%E7%B3%BB%E7%BB%9F%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6/">Android Framework 专项 - GUI 渲染系统核心机制</a></h6>
-              <span>March 30, 2026</span>
+              <h6 style="margin: 0;"><a href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E7%9B%91%E7%9D%A3_02_supervisorScope/">协程进阶：监督 02. supervisorScope 作用域</a></h6>
+              <span>March 31, 2026</span>
             </div>
 
           </li>
@@ -1197,44 +883,8 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2026/03/30/3%20Android/02%20Framework/03%20WMS/05-Android-Framework-WMS%E4%B8%93%E9%A1%B9-%E5%BA%95%E5%B1%82%E6%94%AF%E6%92%91%E7%B3%BB%E7%BB%9F/">WMS 专项 - 底层支撑系统 (SurfaceFlinger, Input, View)</a></h6>
-              <span>March 30, 2026</span>
-            </div>
-
-          </li>
-        
-          <li class="clearfix">
-
-            
-              <div class="widget-entry-summary" style="margin: 0;">
-            
-
-              <h6 style="margin: 0;"><a href="/2026/03/30/3%20Android/02%20Framework/01%20WMS/03-Android-Framework-WMS%E4%B8%93%E9%A1%B9-Surface%E5%88%9B%E5%BB%BA%E4%B8%8E%E6%B8%B2%E6%9F%93%E9%93%BE%E8%B7%AF/">WMS 专项 - Surface 创建与渲染链路</a></h6>
-              <span>March 30, 2026</span>
-            </div>
-
-          </li>
-        
-          <li class="clearfix">
-
-            
-              <div class="widget-entry-summary" style="margin: 0;">
-            
-
-              <h6 style="margin: 0;"><a href="/2026/03/30/3%20Android/02%20Framework/01%20WMS/02-Android-Framework-WMS%E4%B8%93%E9%A1%B9-%E7%AA%97%E5%8F%A3%E5%B8%83%E5%B1%80%E4%B8%8ERelayout/">WMS 专项 - 窗口布局与 Relayout 机制</a></h6>
-              <span>March 30, 2026</span>
-            </div>
-
-          </li>
-        
-          <li class="clearfix">
-
-            
-              <div class="widget-entry-summary" style="margin: 0;">
-            
-
-              <h6 style="margin: 0;"><a href="/2026/03/30/3%20Android/02%20Framework/01%20WMS/01-Android-Framework-WMS%E4%B8%93%E9%A1%B9-%E7%AA%97%E5%8F%A3%E6%B7%BB%E5%8A%A0%E6%B5%81%E7%A8%8B%E8%A7%A3%E6%9E%90/">WMS 专项 - 窗口添加流程解析 (AddWindow)</a></h6>
-              <span>March 30, 2026</span>
+              <h6 style="margin: 0;"><a href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E7%9B%91%E7%9D%A3_01_SupervisorJob/">协程进阶：监督 01. SupervisorJob</a></h6>
+              <span>March 31, 2026</span>
             </div>
 
           </li>
@@ -1248,7 +898,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">9</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%9F%BA%E7%A1%80/">1.1 - Kotlin 基础</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/">11 - 音视频</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/11-1-%E6%92%AD%E6%94%BE%E5%99%A8%E5%AE%9E%E6%88%98/">11.1 - 播放器实战</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-1-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.1 - 多线程</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">39</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">24</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-1-Handler/">3.1.1 - Handler</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-2-AMS/">3.1.2 - AMS</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-3-WMS/">3.1.3 - WMS</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-4-Binder/">3.1.4 - Binder</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-5-Zygote/">3.1.5 - Zygote</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-6-GUI/">3.1.6 - GUI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-7-NNAPI/">3.1.7 - NNAPI</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-2-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.2 - 播放器架构方案设计</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-3-Android-%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.3 - Android 存储文件方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-2-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.2 - 简单好用的 gradle 云编译设置</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-2-%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/">7.2 - 手势分发</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">8</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-3-%E5%AE%9E%E6%97%B6%E6%B8%B2%E6%9F%93/">8.3 - 实时渲染</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">114</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%9F%BA%E7%A1%80/">1.1 - Kotlin 基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a><span class="category-list-count">104</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/">11 - 音视频</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/11-1-%E6%92%AD%E6%94%BE%E5%99%A8%E5%AE%9E%E6%88%98/">11.1 - 播放器实战</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-1-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.1 - 多线程</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">41</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">26</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-1-Handler/">3.1.1 - Handler</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-2-AMS/">3.1.2 - AMS</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-3-WMS/">3.1.3 - WMS</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-4-Binder/">3.1.4 - Binder</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-5-Zygote/">3.1.5 - Zygote</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-6-GUI/">3.1.6 - GUI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-7-NNAPI/">3.1.7 - NNAPI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-8-HWUI/">3.1.8 - HWUI</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-2-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.2 - 播放器架构方案设计</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-3-Android-%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.3 - Android 存储文件方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-2-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.2 - 简单好用的 gradle 云编译设置</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-2-%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/">7.2 - 手势分发</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">8</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-3-%E5%AE%9E%E6%97%B6%E6%B8%B2%E6%9F%93/">8.3 - 实时渲染</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1264,7 +914,7 @@
     <h3 class="widget-title">Archives</h3>
 
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/03/">March 2026</a><span class="archive-list-count">32</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/01/">January 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">November 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">March 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">54</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/04/">April 2026</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/03/">March 2026</a><span class="archive-list-count">135</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/01/">January 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">November 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">March 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">54</span></li></ul>
     </div>
   </div>
 
