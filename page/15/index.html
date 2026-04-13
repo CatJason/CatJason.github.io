@@ -846,7 +846,7 @@
 <!-- Table of Contents -->
 
   
-    <article id="post-2 Java/多线程/Java锁膨胀机制深度解析"  class="article article-type-post" itemscope itemprop="blogPost" >
+    <article id="post-2 Java/多线程/深度解析 Android 并发锁机制与应用实践"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -854,7 +854,7 @@
         
   
     <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Java%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/">深度解析：Java 锁的膨胀机制（偏向锁、轻量级锁、重量级锁）</a>
+      <a class="article-title" href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90%20Android%20%E5%B9%B6%E5%8F%91%E9%94%81%E6%9C%BA%E5%88%B6%E4%B8%8E%E5%BA%94%E7%94%A8%E5%AE%9E%E8%B7%B5/">深度解析 Android 并发锁机制与应用实践</a>
     </h1>
   
 
@@ -862,8 +862,8 @@
     
     <div class="article-meta">
       
-	<a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Java%E9%94%81%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/" class="article-date">
-	  <time datetime="2026-03-26T16:10:57.620Z" itemprop="datePublished">March 27, 2026</time>
+	<a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90%20Android%20%E5%B9%B6%E5%8F%91%E9%94%81%E6%9C%BA%E5%88%B6%E4%B8%8E%E5%BA%94%E7%94%A8%E5%AE%9E%E8%B7%B5/" class="article-date">
+	  <time datetime="2026-03-26T16:11:05.365Z" itemprop="datePublished">March 27, 2026</time>
 	</a>
 
       
@@ -874,64 +874,406 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>在 Android 的 ART（Android Runtime）和 HotSpot JVM 中，<code>synchronized</code> 关键字的性能优化主要依赖于锁的<strong>膨胀（Inflation）机制</strong>。系统会根据竞争情况，自动在四种状态间转换：<strong>无锁 -&gt; 偏向锁 -&gt; 轻量级锁 -&gt; 重量级锁</strong>。</p>
+        <h2 id="Android-开发中的并发编程：从关键字到锁机制"><a href="#Android-开发中的并发编程：从关键字到锁机制" class="headerlink" title="Android 开发中的并发编程：从关键字到锁机制"></a>Android 开发中的并发编程：从关键字到锁机制</h2><p>在 Kotlin&#x2F;Android 开发中，处理多线程并发主要有两个核心目标：<strong>可见性（Visibility）</strong> 和 <strong>原子性（Atomicity）</strong>。为了达成这些目标，Java 语言及其并发包（JUC）提供了从简单到复杂的多种工具。</p>
 <hr>
-<h2 id="一、-锁状态的核心存储：Mark-Word"><a href="#一、-锁状态的核心存储：Mark-Word" class="headerlink" title="一、 锁状态的核心存储：Mark Word"></a>一、 锁状态的核心存储：Mark Word</h2><p>锁的信息存储在 Java 对象的<strong>对象头（Object Header）</strong>中的 <code>Mark Word</code> 字段里。</p>
+<h3 id="1-基础关键字：原子性与可见性的保障"><a href="#1-基础关键字：原子性与可见性的保障" class="headerlink" title="1. 基础关键字：原子性与可见性的保障"></a>1. 基础关键字：原子性与可见性的保障</h3><p><strong>volatile</strong></p>
+<p><code>volatile</code> 是最轻量级的同步机制。</p>
 <ul>
-<li><strong>Mark Word</strong> 会根据锁状态的变化，复用自己的空间来存储：偏向线程 ID、指向栈中锁记录的指针、或指向互斥量（Monitor）的指针。</li>
+<li><strong>作用：</strong> 保证变量的<strong>可见性</strong>和<strong>禁止指令重排序</strong>。</li>
+<li><strong>原理：</strong> 当一个线程修改了 <code>volatile</code> 变量，新值会立即同步到主内存；其他线程读取时，会强制从主内存读取。</li>
+<li><strong>局限：</strong> <strong>不保证原子性</strong>。例如 <code>i++</code> 操作在多线程下依然是不安全的。</li>
 </ul>
-<hr>
-<h2 id="二、-四种锁状态详解"><a href="#二、-四种锁状态详解" class="headerlink" title="二、 四种锁状态详解"></a>二、 四种锁状态详解</h2><h3 id="1-偏向锁-Biased-Locking"><a href="#1-偏向锁-Biased-Locking" class="headerlink" title="1. 偏向锁 (Biased Locking)"></a>1. 偏向锁 (Biased Locking)</h3><ul>
-<li><strong>核心思想</strong>：假设锁总是由<strong>同一个线程</strong>多次获得，那么就没有必要进行同步操作（如 CAS）。</li>
-<li><strong>实现</strong>：在 Mark Word 中记录当前线程的 ID。下次该线程进入时，只需检查 ID 是否一致，完全不需要 CPU 原子指令。</li>
-<li><strong>优缺点</strong>：<ul>
-<li><strong>优点</strong>：单线程执行临界区代码时，性能接近无锁。</li>
-<li><strong>缺点</strong>：一旦出现另一个线程竞争，撤销偏向锁会产生较大的性能开销（需要等待全局安全点 Safe Point）。</li>
+<p>典型案例：为什么 DCL 单例必须加 Volatile？<br>以下是你代码中的问题分析及修正方案：</p>
+<p>❌ 错误代码示例</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Singleton</span> &#123;</span><br><span class="line">  <span class="comment">// 1. volatile 必须加：保证可见性，禁止指令重排序</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> <span class="type">Singleton</span> <span class="variable">instance</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 2. 锁对象必须是静态的：确保全局唯一，拦截所有线程的访问</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">Object</span> <span class="variable">lock</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Object</span>();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 私有构造函数：防止外部 new</span></span><br><span class="line">  <span class="keyword">private</span> <span class="title function_">Singleton</span><span class="params">()</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title function_">getInstance</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="comment">// 第一次检查：为了效率。如果 instance 已经创建，直接返回，避免进入锁竞争</span></span><br><span class="line">    <span class="keyword">if</span> (instance == <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="comment">// 这里使用静态锁对象。如果 lock 不是 static 的，每个 Singleton 实例都有自己的锁，</span></span><br><span class="line">      <span class="comment">// 而 getInstance 是静态方法，无法保证多个线程竞争的是同一把锁。</span></span><br><span class="line">      <span class="keyword">synchronized</span> (lock) &#123;</span><br><span class="line">        <span class="comment">// 第二次检查：为了安全性。确保在获取锁的瞬间，没有其他线程抢先创建了实例</span></span><br><span class="line">        <span class="keyword">if</span> (instance == <span class="literal">null</span>) &#123;</span><br><span class="line">          instance = <span class="keyword">new</span> <span class="title class_">Singleton</span>();</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> instance;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在 Java 5 之后，volatile 语义得到了增强。它不仅保证了线程 A 对 instance 的修改对线程 B 可见，更重要的是它在 new Singleton() 时建立了一个内存屏障。<br>如果没有 volatile，instance &#x3D; new Singleton(); 可能会被分解为：</p>
+<ul>
+<li>allocate (分配内存)</li>
+<li>instance &#x3D; memory (设置引用，此时对象还没初始化)</li>
+<li>ctorSingleton (执行构造函数)</li>
+</ul>
+<p>如果 2 和 3 发生重排序，其他线程就会拿到一个“半成品”对象。</p>
+<p>在单例模式的 DCL (Double Check Locking) 中，volatile 的核心作用其实是禁止指令重排序。<br>如果没有 volatile，对象可能在构造函数还没执行完时，就把内存地址赋给了变量。另一个线程拿到的就是一个“半成品”对象，直接崩溃。</p>
+<p>用途： 确保“在变量赋值之前，之前所有的初始化工作已经全部完成”。<br>场景： 刚才提到的单例模式赋值，或者作为“完成信号”标记。</p>
+<p>再深入理解一下<br>作为“触发器 &#x2F; 内存栅栏” (Memory Barrier)<br>当线程 A 写入一个 volatile 变量时，JMM (Java 内存模型) 会把该线程之前所有的普通变量修改也一起刷新到主内存中。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">  <span class="keyword">var</span> <span class="keyword">data</span> = <span class="number">0</span></span><br><span class="line">  <span class="meta">@Volatile</span> <span class="keyword">var</span> ready = <span class="literal">false</span></span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 线程 A</span></span><br><span class="line">  <span class="keyword">data</span> = <span class="number">42</span></span><br><span class="line">  ready = <span class="literal">true</span> <span class="comment">// 写入 volatile 变量，这会像“存盘”一样把 data 也刷过去</span></span><br><span class="line"></span><br><span class="line">------------------------- 这里好似有一层屏障------------------------------</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 线程 B</span></span><br><span class="line">  <span class="keyword">if</span> (ready) &#123;</span><br><span class="line">      println(<span class="keyword">data</span>) <span class="comment">// 此时 data 保证一定是 42</span></span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>所以 volatile 仅用于变量，且有能力<strong>影响其他的变量</strong></p>
+<h3 id="2-现代并发原语：CAS-Compare-And-Swap"><a href="#2-现代并发原语：CAS-Compare-And-Swap" class="headerlink" title="2. 现代并发原语：CAS (Compare And Swap)"></a>2. 现代并发原语：CAS (Compare And Swap)</h3><p>为什么不叫“修改”而叫“交换”？<br>这源于底层 CPU 指令（如 x86 的 LOCK CMPXCHG）。在硬件层面，这个操作通常是原子的，它会将寄存器里的新值与内存位置的值进行交换（或者说覆盖），以此确保在多核环境下，这一系列动作不会被其他处理器中途干扰。</p>
+<p><strong>CAS</strong> 是实现无锁编程（Lock-Free）的核心算法。</p>
+<ul>
+<li><strong>原理：</strong> 它包含三个操作数：内存地址 V、旧的预期值 A、即将更新的新值 B。只有当内存值 V 等于 A 时，才会将 V 修改为 B。</li>
+<li><strong>优点：</strong> 避免了线程切换的开销，效率极高。</li>
+<li><strong>缺点：</strong> 1.  <strong>ABA 问题</strong>（可用版本号解决）。<ol start="2">
+<li>自旋时间长会消耗 CPU。</li>
+</ol>
+</li>
+<li><strong>应用：</strong> Kotlin 中的 <code>AtomicInteger</code>, <code>AtomicBoolean</code>, <code>AtomicReference</code> 等都是基于 CAS 实现的。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">特性</th>
+<th align="left">AtomicInteger</th>
+<th align="left">AtomicReference<T></T></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>操作目标</strong></td>
+<td align="left">具体的 <code>Int</code> 数值</td>
+<td align="left">对象的<strong>引用地址</strong></td>
+</tr>
+<tr>
+<td align="left"><strong>原子范围</strong></td>
+<td align="left">数值的加减、替换</td>
+<td align="left">整个对象的<strong>切换&#x2F;替换</strong></td>
+</tr>
+<tr>
+<td align="left"><strong>性能</strong></td>
+<td align="left">极高（直接操作底层数字）</td>
+<td align="left">高（操作指针），但对象内部属性不保证原子性</td>
+</tr>
+<tr>
+<td align="left"><strong>Kotlin 示例</strong></td>
+<td align="left"><code>AtomicInteger(0)</code></td>
+<td align="left"><code>AtomicReference(User(&quot;Gemini&quot;))</code></td>
+</tr>
+</tbody></table>
+<h4 id="CAS-完整日志流-含冲突重试"><a href="#CAS-完整日志流-含冲突重试" class="headerlink" title="CAS 完整日志流 (含冲突重试)"></a>CAS 完整日志流 (含冲突重试)</h4><p><strong>第一轮：遭遇冲突</strong></p>
+<ul>
+<li><strong>[读取]</strong> 内存值 V &#x3D; 10。</li>
+<li><strong>[准备]</strong> 预期值 A &#x3D; 10，拟更新值 B &#x3D; 11。</li>
+<li><strong>[验证]</strong> 比较 V 是否为 A？</li>
+<li><strong>[冲突]</strong> 硬件返回 <strong>No</strong>（此时变量已被其他线程改成了 12）。</li>
+<li><strong>[动作]</strong> 写入失败，触发**自旋 (Retry)**。</li>
+</ul>
+<p><strong>第二轮：重试命中</strong></p>
+<ul>
+<li><strong>[读取]</strong> 重新获取内存值 V &#x3D; 12。</li>
+<li><strong>[准备]</strong> 预期值 A &#x3D; 12，拟更新值 B &#x3D; 13。</li>
+<li><strong>[验证]</strong> 比较 V 是否为 A？</li>
+<li><strong>[命中]</strong> 硬件返回 <strong>Yes</strong>（值未被改动）。</li>
+<li><strong>[结束]</strong> 成功写入 13，更新完成。</li>
+</ul>
+<h3 id="3-基础锁机制：Synchronized"><a href="#3-基础锁机制：Synchronized" class="headerlink" title="3. 基础锁机制：Synchronized"></a>3. 基础锁机制：Synchronized</h3><p><code>synchronized</code> 是 Java 中最常用的同步机制，它是一种<strong>隐式锁</strong>（由 JVM 自动管理获取和释放），也是一种<strong>互斥锁</strong>。</p>
+<h4 id="核心用法"><a href="#核心用法" class="headerlink" title="核心用法"></a>核心用法</h4><ul>
+<li><strong>修饰实例方法</strong>：锁住当前实例对象 (<code>this</code>)。</li>
+<li><strong>修饰静态方法</strong>：锁住当前类的 <code>Class</code> 对象。</li>
+<li><strong>修饰代码块</strong>：锁住指定的对象实例（最灵活，建议缩小锁的范围）。</li>
+</ul>
+<h4 id="底层原理：Monitor（管程）"><a href="#底层原理：Monitor（管程）" class="headerlink" title="底层原理：Monitor（管程）"></a>底层原理：Monitor（管程）</h4><p>每个 Java 对象天生就带了一把“锁”，在 JVM 中通过 <strong>Monitor</strong> 机制实现。</p>
+<ul>
+<li>**Enter (入锁)**：执行 <code>monitorenter</code> 指令，线程尝试获取对象的 Monitor。</li>
+<li>**Exit (释放)**：执行 <code>monitorexit</code> 指令，线程释放 Monitor（即使发生异常，JVM 也会保证释放）。</li>
+</ul>
+<h4 id="JVM-对它的“黑科技”优化"><a href="#JVM-对它的“黑科技”优化" class="headerlink" title="JVM 对它的“黑科技”优化"></a>JVM 对它的“黑科技”优化</h4><p>在早期 Java 版本中，<code>synchronized</code> 是笨重的重量级锁。但从 Java 6 开始，引入了<strong>锁升级</strong>路径以提升性能：</p>
+<ol>
+<li>**偏向锁 (Biased Locking)**：锁会偏向于第一个访问它的线程，无竞争时几乎无开销。</li>
+<li>**轻量级锁 (Lightweight Locking)**：当出现少量竞争时，通过 <strong>CAS</strong>（自旋）来获取锁，避免线程挂起。</li>
+<li>**重量级锁 (Heavyweight Locking)**：当竞争激烈时，升级为重量级锁，线程进入阻塞状态，交给操作系统调度。</li>
+</ol>
+<h3 id="4-高级锁机制：ReentrantLock-家族"><a href="#4-高级锁机制：ReentrantLock-家族" class="headerlink" title="4. 高级锁机制：ReentrantLock 家族"></a>4. 高级锁机制：ReentrantLock 家族</h3><p>当 <code>synchronized</code> 的灵活性不足时，我们会使用 <code>java.util.concurrent.locks</code> 中的工具。</p>
+<h4 id="ReentrantLock-可重入锁"><a href="#ReentrantLock-可重入锁" class="headerlink" title="ReentrantLock (可重入锁)"></a><strong>ReentrantLock (可重入锁)</strong></h4><ul>
+<li><strong>对比 synchronized：</strong> * <strong>手动控制：</strong> 必须手动调用 <code>lock()</code> 和 <code>unlock()</code>（建议配合 <code>try-finally</code>）。<ul>
+<li><strong>公平性：</strong> 支持公平锁（按等待顺序获取）。</li>
+<li><strong>可中断：</strong> 支持 <code>lockInterruptibly()</code>。</li>
+<li><strong>超时：</strong> 支持 <code>tryLock(timeout)</code>，避免死锁。</li>
 </ul>
 </li>
-<li><strong>Android 现状</strong>：在 Android ART 中，偏向锁的实现逻辑与 HotSpot 略有不同，但在高版本中出于简化系统和减少 Safe Point 停顿的考虑，偏向锁的使用逐渐被弱化甚至在某些场景下默认关闭。</li>
 </ul>
-<h3 id="2-轻量级锁-Lightweight-Locking"><a href="#2-轻量级锁-Lightweight-Locking" class="headerlink" title="2. 轻量级锁 (Lightweight Locking)"></a>2. 轻量级锁 (Lightweight Locking)</h3><ul>
-<li><strong>触发时机</strong>：当偏向锁被撤销，或者有第二个线程尝试获取锁（但竞争不激烈）时。</li>
-<li><strong>实现</strong>：线程在自己的<strong>虚拟机栈</strong>中创建一个名为“锁记录（Lock Record）”的空间，尝试用 <strong>CAS</strong> 操作将对象的 Mark Word 指向这个记录。</li>
-<li><strong>自旋优化</strong>：如果 CAS 失败，线程不会立即阻塞，而是执行一段<strong>自旋（Spinning）</strong>循环，期望持锁线程能迅速释放。</li>
-<li><strong>优点</strong>：避免了操作系统内核态与用户态切换的昂贵开销。</li>
+<h4 id="ReentrantReadWriteLock-读写锁"><a href="#ReentrantReadWriteLock-读写锁" class="headerlink" title="ReentrantReadWriteLock (读写锁)"></a><strong>ReentrantReadWriteLock (读写锁)</strong></h4><ul>
+<li><strong>核心逻辑：</strong> <strong>读读共享，读写互斥，写写互斥</strong>。</li>
+<li><strong>场景：</strong> 适用于“读多写少”的情况。</li>
+<li><strong>特点：</strong> 允许多个线程同时读取资源，但只有一个线程能进行写入。如果已有线程在读，写线程必须等待。</li>
 </ul>
-<h3 id="3-重量级锁-Heavyweight-Locking"><a href="#3-重量级锁-Heavyweight-Locking" class="headerlink" title="3. 重量级锁 (Heavyweight Locking)"></a>3. 重量级锁 (Heavyweight Locking)</h3><ul>
-<li><strong>触发时机</strong>：竞争激烈。如果自旋超过一定次数，或者在轻量级锁状态下又有第三个线程来抢锁。</li>
-<li><strong>实现</strong>：Mark Word 指向堆中的 <strong>Monitor（监视器）</strong> 对象。Monitor 依赖于操作系统的 <code>mutex</code> 指令。</li>
-<li><strong>行为</strong>：未能抢到锁的线程会被<strong>挂起（Park）</strong>，进入阻塞状态，等待操作系统唤醒。</li>
-<li><strong>代价</strong>：涉及内核态切换，上下文切换开销巨大。</li>
+<h2 id="synchronized-和-ReentrantLock-的区别"><a href="#synchronized-和-ReentrantLock-的区别" class="headerlink" title="synchronized 和 ReentrantLock 的区别"></a>synchronized 和 ReentrantLock 的区别</h2><p>编写一个程序，开启三个线程（分别为 Thread A, Thread B, Thread C）：</p>
+<ol>
+<li><strong>Thread A</strong> 负责打印字母 <code>A</code>。</li>
+<li><strong>Thread B</strong> 负责打印字母 <code>B</code>。</li>
+<li><strong>Thread C</strong> 负责打印字母 <code>C</code>。</li>
+</ol>
+<p><strong>要求：</strong></p>
+<ul>
+<li>这三个线程必须<strong>顺序执行</strong>，即控制台输出的结果必须是 <code>ABCABCABC...</code> 的形式。</li>
+<li>每个线程各自循环打印 $n$ 次（例如你代码中的 <code>loops = 5</code>）。</li>
 </ul>
+<h3 id="1-使用-synchronized"><a href="#1-使用-synchronized" class="headerlink" title="1. 使用 synchronized"></a>1. 使用 <code>synchronized</code></h3><p>这是最基础的实现方式，依靠 <code>wait()</code> 让出锁，并依靠 <code>notifyAll()</code> 唤醒其他正在等待该锁的线程。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> kotlin.concurrent.thread</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">synchronizedExample</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">val</span> lock = Object()</span><br><span class="line">    <span class="keyword">var</span> state = <span class="number">0</span> <span class="comment">// 0:A, 1:B, 2:C</span></span><br><span class="line">    <span class="keyword">val</span> loops = <span class="number">5</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">val</span> t1 = thread &#123;</span><br><span class="line">        repeat(loops) &#123;</span><br><span class="line">            synchronized(lock) &#123;</span><br><span class="line">                <span class="keyword">while</span> (state != <span class="number">0</span>) lock.wait()</span><br><span class="line">                print(<span class="string">&quot;A&quot;</span>)</span><br><span class="line">                state = <span class="number">1</span></span><br><span class="line">                lock.notifyAll()</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">val</span> t2 = thread &#123;</span><br><span class="line">        repeat(loops) &#123;</span><br><span class="line">            synchronized(lock) &#123;</span><br><span class="line">                <span class="keyword">while</span> (state != <span class="number">1</span>) lock.wait()</span><br><span class="line">                print(<span class="string">&quot;B&quot;</span>)</span><br><span class="line">                state = <span class="number">2</span></span><br><span class="line">                lock.notifyAll()</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">val</span> t3 = thread &#123;</span><br><span class="line">        repeat(loops) &#123;</span><br><span class="line">            synchronized(lock) &#123;</span><br><span class="line">                <span class="keyword">while</span> (state != <span class="number">2</span>) lock.wait()</span><br><span class="line">                print(<span class="string">&quot;C &quot;</span>)</span><br><span class="line">                state = <span class="number">0</span></span><br><span class="line">                lock.notifyAll()</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <hr>
-<h2 id="三、-锁的升级（膨胀）流程图"><a href="#三、-锁的升级（膨胀）流程图" class="headerlink" title="三、 锁的升级（膨胀）流程图"></a>三、 锁的升级（膨胀）流程图</h2><ol>
-<li><strong>初始状态</strong>：对象处于“无锁”或“可偏向”状态。</li>
-<li><strong>偏向开启</strong>：线程 A 访问，Mark Word 记录 A 的 ID。</li>
-<li><strong>轻度竞争</strong>：线程 B 访问，发现 ID 不匹配。撤销偏向锁，升级为轻量级锁。</li>
-<li><strong>CAS 竞争</strong>：线程 A 和 B 通过 CAS 争夺锁记录指针。</li>
-<li><strong>激烈竞争</strong>：CAS 失败次数过多，轻量级锁膨胀为重量级锁，线程 B 进入阻塞队列。</li>
+<h3 id="2-使用-ReentrantLock"><a href="#2-使用-ReentrantLock" class="headerlink" title="2. 使用 ReentrantLock"></a>2. 使用 <code>ReentrantLock</code></h3><p><code>ReentrantLock</code> 配合 <code>Condition</code> 的好处是它可以<strong>精准唤醒</strong>。在上面的 <code>synchronized</code> 例子中，<code>notifyAll()</code> 会唤醒所有线程，但其实只有下一个顺序的线程才是真正需要的。使用 <code>Condition</code> 可以直接定向唤醒。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.locks.ReentrantLock</span><br><span class="line"><span class="keyword">import</span> kotlin.concurrent.thread</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">reentrantLockExample</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">val</span> lock = ReentrantLock()</span><br><span class="line">    <span class="comment">// 为每个线程创建特定的“等待间”</span></span><br><span class="line">    <span class="keyword">val</span> conditionA = lock.newCondition()</span><br><span class="line">    <span class="keyword">val</span> conditionB = lock.newCondition()</span><br><span class="line">    <span class="keyword">val</span> conditionC = lock.newCondition()</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">var</span> state = <span class="number">0</span></span><br><span class="line">    <span class="keyword">val</span> loops = <span class="number">5</span></span><br><span class="line"></span><br><span class="line">    thread(name = <span class="string">&quot;A&quot;</span>) &#123;</span><br><span class="line">        repeat(loops) &#123;</span><br><span class="line">            lock.lock()</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (state != <span class="number">0</span>) conditionA.await()</span><br><span class="line">                print(<span class="string">&quot;A&quot;</span>)</span><br><span class="line">                state = <span class="number">1</span></span><br><span class="line">                conditionB.signal() <span class="comment">// 精准唤醒 B</span></span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                lock.unlock()</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    thread(name = <span class="string">&quot;B&quot;</span>) &#123;</span><br><span class="line">        repeat(loops) &#123;</span><br><span class="line">            lock.lock()</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (state != <span class="number">1</span>) conditionB.await()</span><br><span class="line">                print(<span class="string">&quot;B&quot;</span>)</span><br><span class="line">                state = <span class="number">2</span></span><br><span class="line">                conditionC.signal() <span class="comment">// 精准唤醒 C</span></span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                lock.unlock()</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    thread(name = <span class="string">&quot;C&quot;</span>) &#123;</span><br><span class="line">        repeat(loops) &#123;</span><br><span class="line">            lock.lock()</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (state != <span class="number">2</span>) conditionC.await()</span><br><span class="line">                print(<span class="string">&quot;C &quot;</span>)</span><br><span class="line">                state = <span class="number">0</span></span><br><span class="line">                conditionA.signal() <span class="comment">// 精准唤醒 A</span></span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                lock.unlock()</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="关键区别点"><a href="#关键区别点" class="headerlink" title="关键区别点"></a>关键区别点</h3><table>
+<thead>
+<tr>
+<th><strong>特性</strong></th>
+<th><strong>synchronized</strong></th>
+<th><strong>ReentrantLock</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>灵活性</strong></td>
+<td>自动加锁&#x2F;释放，代码简洁</td>
+<td>需手动 <code>lock()</code> 和 <code>unlock()</code>，更安全需配合 <code>finally</code></td>
+</tr>
+<tr>
+<td><strong>唤醒机制</strong></td>
+<td><code>notifyAll()</code> 唤醒所有，由线程竞争</td>
+<td><code>Condition</code> 可以实现精准“点名”唤醒，性能更优</td>
+</tr>
+<tr>
+<td><strong>等待响应</strong></td>
+<td>不可中断</td>
+<td>支持 <code>lockInterruptibly()</code>，可中断等待</td>
+</tr>
+</tbody></table>
+<h3 id="4-终极性能优化：StampedLock"><a href="#4-终极性能优化：StampedLock" class="headerlink" title="4. 终极性能优化：StampedLock"></a>4. 终极性能优化：StampedLock</h3><p><code>StampedLock</code> 是 Java 8 引入的，是对读写锁的改进。</p>
+<ul>
+<li><strong>核心改进：</strong> 引入了<strong>乐观读（Optimistic Reading）</strong>。</li>
+<li><strong>原理：</strong> 读操作时不会阻塞写操作。读完后检查一个“戳（Stamp）”，如果期间没有写操作发生，则读取成功；如果有写操作，再退化为悲观读锁。</li>
+<li><strong>注意：</strong> 它不可重入，且不支持 <code>Condition</code>。</li>
+</ul>
+<h3 id="5-Kotlin-线程安全的数据结构"><a href="#5-Kotlin-线程安全的数据结构" class="headerlink" title="5. Kotlin 线程安全的数据结构"></a>5. Kotlin 线程安全的数据结构</h3><h3 id="二、-深入分类解读"><a href="#二、-深入分类解读" class="headerlink" title="二、 深入分类解读"></a>二、 深入分类解读</h3><table>
+<thead>
+<tr>
+<th align="left">数据结构</th>
+<th align="left">底层原理</th>
+<th align="left">特点</th>
+<th align="left">最佳场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>ConcurrentHashMap</strong></td>
+<td align="left">CAS + <code>synchronized</code> (分段锁定)</td>
+<td align="left">高并发读写，允许完全并发的读</td>
+<td align="left">缓存、全局状态管理</td>
+</tr>
+<tr>
+<td align="left"><strong>CopyOnWriteArrayList</strong></td>
+<td align="left">写时复制副本 (Copy-On-Write)</td>
+<td align="left">读操作无锁，写操作极慢且耗内存</td>
+<td align="left">监听器列表、配置读取 (读多写极少)</td>
+</tr>
+<tr>
+<td align="left"><strong>CopyOnWriteArraySet</strong></td>
+<td align="left">基于 <code>CopyOnWriteArrayList</code></td>
+<td align="left">去重，且具备写时复制特性</td>
+<td align="left">白名单、去重的回调通知</td>
+</tr>
+<tr>
+<td align="left"><strong>ConcurrentLinkedQueue</strong></td>
+<td align="left">CAS (无锁算法)</td>
+<td align="left">非阻塞、高性能、无界</td>
+<td align="left">高频率、高并发的任务调度</td>
+</tr>
+<tr>
+<td align="left"><strong>LinkedBlockingQueue</strong></td>
+<td align="left">独占锁 (<code>ReentrantLock</code>)</td>
+<td align="left">阻塞式，可选有界&#x2F;无界</td>
+<td align="left">线程池任务队列 (ExecutorService)</td>
+</tr>
+<tr>
+<td align="left"><strong>ArrayBlockingQueue</strong></td>
+<td align="left">独占锁 + 数组</td>
+<td align="left">阻塞式，必须指定容量</td>
+<td align="left">生产者-消费者（防止内存溢出）</td>
+</tr>
+</tbody></table>
+<h4 id="1-“快读”-阵营：写时复制-Copy-On-Write"><a href="#1-“快读”-阵营：写时复制-Copy-On-Write" class="headerlink" title="1. “快读” 阵营：写时复制 (Copy-On-Write)"></a>1. “快读” 阵营：写时复制 (Copy-On-Write)</h4><ul>
+<li><strong>成员</strong>：<code>CopyOnWriteArrayList</code>, <code>CopyOnWriteArraySet</code></li>
+<li><strong>原理</strong>：当你修改集合时，它不直接在原数组上改，而是复制一个新数组，改完后再把引用指向新的。</li>
+<li><strong>优点</strong>：遍历（Iterator）时不需要加锁，绝对不会抛出 <code>ConcurrentModificationException</code>。</li>
+<li><strong>缺点</strong>：写操作代价极高（内存占用翻倍）。</li>
+</ul>
+<h4 id="2-“高频”-阵营：无锁-x2F-细粒度锁-CAS-x2F-Segment"><a href="#2-“高频”-阵营：无锁-x2F-细粒度锁-CAS-x2F-Segment" class="headerlink" title="2. “高频” 阵营：无锁&#x2F;细粒度锁 (CAS&#x2F;Segment)"></a>2. “高频” 阵营：无锁&#x2F;细粒度锁 (CAS&#x2F;Segment)</h4><ul>
+<li><strong>成员</strong>：<code>ConcurrentHashMap</code>, <code>ConcurrentLinkedQueue</code></li>
+<li><strong>原理</strong>：使用硬件层面的 <strong>CAS (Compare And Swap)</strong> 原子操作。<code>ConcurrentHashMap</code> 在 Java 8+ 之后对桶位（Bucket）加锁，而不是整个 Map。</li>
+<li><strong>优点</strong>：吞吐量极大，多个线程可以同时往里塞数据而不需要互相排队。</li>
+</ul>
+<h4 id="3-“同步”-阵营：阻塞队列-Blocking"><a href="#3-“同步”-阵营：阻塞队列-Blocking" class="headerlink" title="3. “同步” 阵营：阻塞队列 (Blocking)"></a>3. “同步” 阵营：阻塞队列 (Blocking)</h4><ul>
+<li><strong>成员</strong>：<code>LinkedBlockingQueue</code>, <code>ArrayBlockingQueue</code></li>
+<li><strong>原理</strong>：利用 <code>Condition</code> 实现“等待-唤醒”机制。如果队列满了，写线程会停下等；如果队列空了，读线程会停下等。</li>
+<li><strong>区别</strong>：<ul>
+<li><code>Array</code> 是预先分配好内存的，适合对内存控制严格的场景。</li>
+<li><code>Linked</code> 是动态分配的，吞吐量通常略高于 Array，但要注意如果不设置容量限制，可能会导致 OOM。</li>
+</ul>
+</li>
+</ul>
+<h4 id="1-ConcurrentHashMap-原理-Java-8"><a href="#1-ConcurrentHashMap-原理-Java-8" class="headerlink" title="1. ConcurrentHashMap 原理 (Java 8+)"></a>1. ConcurrentHashMap 原理 (Java 8+)</h4><p><code>ConcurrentHashMap</code> 的核心目标是在保证线程安全的同时，提供接近 <code>HashMap</code> 的高性能。</p>
+<h5 id="核心架构：由“分段锁”进化为“桶位锁”"><a href="#核心架构：由“分段锁”进化为“桶位锁”" class="headerlink" title="核心架构：由“分段锁”进化为“桶位锁”"></a>核心架构：由“分段锁”进化为“桶位锁”</h5><p>在 Java 8 之后，它摒弃了 Java 7 的 <code>Segment</code> 方案，改用 <strong>CAS + synchronized + 红黑树</strong> 的混合结构。</p>
+<h5 id="A-关键组件"><a href="#A-关键组件" class="headerlink" title="A. 关键组件"></a>A. 关键组件</h5><ul>
+<li><strong>Node 数组</strong>：存储数据的核心数组。</li>
+<li>**CAS (Compare And Swap)**：用于无锁地插入新节点或更新状态。</li>
+<li><strong>synchronized</strong>：仅锁定当前正在操作的 <strong>桶（Bucket）的头节点</strong>。</li>
+<li><strong>红黑树</strong>：当链表长度超过 8 时，转化为红黑树以保证查询效率为 O(\log n)。</li>
+</ul>
+<p>我们可以从以下几个维度来深度理解这个设计：</p>
+<h4 id="1-为什么要锁“头节点”？"><a href="#1-为什么要锁“头节点”？" class="headerlink" title="1. 为什么要锁“头节点”？"></a>1. 为什么要锁“头节点”？</h4><p>在散列表中，数组的每一个下标（Bucket）都是一个入口。如果你要往某个链表里增加节点，或者修改某个节点，你必须保证在这个过程中没有其他人也在动这根链表。</p>
+<ul>
+<li><strong>头节点就是“守门员”</strong>：头节点是访问整个桶位的唯一入口。通过 <code>synchronized(f)</code>（这里的 <code>f</code> 就是头节点对象），Java 实际上是把这个桶位变成了一个<strong>同步块</strong>。</li>
+<li><strong>最小化粒度</strong>：只要两个线程访问的是不同的数组下标（比如线程 A 在下标 1，线程 B 在下标 5），它们之间完全没有锁竞争。这也就是为什么它的并发性能极高。</li>
+</ul>
+<h4 id="2-为什么不用-CAS-到底，非要用-synchronized？"><a href="#2-为什么不用-CAS-到底，非要用-synchronized？" class="headerlink" title="2. 为什么不用 CAS 到底，非要用 synchronized？"></a>2. 为什么不用 CAS 到底，非要用 <code>synchronized</code>？</h4><p>这是一个很棒的工程权衡。你会发现：</p>
+<ul>
+<li><strong>当桶位为空时</strong>：使用 <strong>CAS</strong>。因为这时候只需要把新节点挂上去，不涉及复杂逻辑，CAS 失败了重试即可。</li>
+<li><strong>当桶位有数据时</strong>：情况变复杂了。你可能需要遍历链表看 Key 是否重复，或者需要旋转红黑树。<ul>
+<li>如果用 CAS 实现复杂的链表插入，逻辑会变得异常复杂（需要处理各种中间态）。</li>
+<li><strong><code>synchronized</code> 的进化</strong>：在 Java 8 中，<code>synchronized</code> 已经过优化（偏向锁、轻量级锁、锁消除等），在只有少量线程竞争时，性能非常出色。</li>
+<li><strong>代码可读性与稳定性</strong>：使用 <code>synchronized</code> 锁定头节点，可以让后续的链表&#x2F;红黑树操作变成“单线程化”，确保了逻辑的简单和安全。</li>
+</ul>
+</li>
+</ul>
+<h5 id="B-读写流程"><a href="#B-读写流程" class="headerlink" title="B. 读写流程"></a>B. 读写流程</h5><ol>
+<li><strong>写操作（put）</strong>：<ul>
+<li>计算 Hash 值，定位到数组下标。</li>
+<li>如果目标位置为空，利用 <strong>CAS</strong> 尝试插入。</li>
+<li>如果目标位置已有数据且正在扩容，则协助扩容。</li>
+<li>如果目标位置有数据且未扩容，使用 <code>synchronized</code> 锁定该位置的 <strong>头节点</strong>，然后进行链表或红黑树的插入。</li>
+</ul>
+</li>
+<li><strong>读操作（get）</strong>：<ul>
+<li><strong>完全无锁</strong>。Node 节点的 <code>value</code> 和 <code>next</code> 指针使用了 <code>volatile</code> 关键字，确保了多线程间的可见性。</li>
+</ul>
+</li>
+</ol>
+<h5 id="C-扩容机制-Multiphase-Transfer"><a href="#C-扩容机制-Multiphase-Transfer" class="headerlink" title="C. 扩容机制 (Multiphase Transfer)"></a>C. 扩容机制 (Multiphase Transfer)</h5><p>它是并发扩容的。当一个线程发现需要扩容时，它会参与进来协助数据的迁移，每个线程负责处理一小部分桶位，通过 <code>ForwardingNode</code> 标记已处理过的区域。</p>
+<h4 id="ConcurrentLinkedQueue-原理"><a href="#ConcurrentLinkedQueue-原理" class="headerlink" title="ConcurrentLinkedQueue 原理"></a>ConcurrentLinkedQueue 原理</h4><p><code>ConcurrentLinkedQueue</code> 是 Java 并发包（<code>java.util.concurrent</code>）中性能最高的队列之一。它是一个基于链接节点的<strong>无界线程安全队列</strong>，采用了 <strong>Michael &amp; Scott 非阻塞队列算法</strong>。</p>
+<p>其核心思想是：<strong>不使用锁（synchronized 或 ReentrantLock），而是完全通过 CAS（Compare-And-Swap）原子操作来实现。</strong></p>
+<hr>
+<h3 id="1-核心架构与设计"><a href="#1-核心架构与设计" class="headerlink" title="1. 核心架构与设计"></a>1. 核心架构与设计</h3><p><code>ConcurrentLinkedQueue</code> 内部维护了两个关键指针：<code>head</code>（头节点）和 <code>tail</code>（尾节点）。每个节点（Node）包含数据 <code>item</code> 和指向下一个节点的 <code>next</code> 指针。</p>
+<ul>
+<li><strong>原子性保障</strong>：<code>item</code> 和 <code>next</code> 都被声明为 <code>volatile</code>，确保了多线程间的内存可见性。</li>
+<li><strong>哨兵节点</strong>：初始化时，队列会创建一个空的“伪节点”，<code>head</code> 和 <code>tail</code> 最初都指向它。这简化了边界条件判断。</li>
+</ul>
+<h3 id="2-关键算法：延迟更新（HOPS-策略）"><a href="#2-关键算法：延迟更新（HOPS-策略）" class="headerlink" title="2. 关键算法：延迟更新（HOPS 策略）"></a>2. 关键算法：延迟更新（HOPS 策略）</h3><p>这是 <code>ConcurrentLinkedQueue</code> 最精妙的地方。在传统的无锁算法中，每次插入都要更新一次 <code>tail</code>，但 CAS 是昂贵的（涉及缓存一致性流量）。为了提高吞吐量，该队列并不保证 <code>tail</code> 永远指向最后一个节点。</p>
+<h4 id="A-入队-offer-的逻辑"><a href="#A-入队-offer-的逻辑" class="headerlink" title="A. 入队 (offer) 的逻辑"></a>A. 入队 (offer) 的逻辑</h4><ol>
+<li><strong>寻找真正的尾部</strong>：由于 <code>tail</code> 可能是“旧的”，程序会从 <code>tail</code> 开始往后遍历 <code>next</code>，直到找到真正的最后一个节点（即 <code>next == null</code> 的节点）。</li>
+<li><strong>CAS 插入</strong>：使用 CAS 将真正的尾节点的 <code>next</code> 指向新节点。</li>
+<li><strong>延迟更新 tail</strong>：只有当 <code>tail</code> 偏离真正末尾的距离超过一个阈值（通常是 1 个节点长度）时，才会通过 CAS 将 <code>tail</code> 指向新节点。</li>
 </ol>
 <blockquote>
-<p><strong>注意</strong>：锁的升级通常是<strong>不可逆</strong>的（但在某些 JVM 实现中，在全局垃圾回收 GC 时可能会发生锁降级）。</p>
+<p><strong>直观理解</strong>：就像接力赛，并不是每一棒都要把旗子插在终点，而是跑几棒后再统一更新终点标志的位置。</p>
 </blockquote>
-<hr>
-<h2 id="四、-补充优化：锁消除与锁粗化"><a href="#四、-补充优化：锁消除与锁粗化" class="headerlink" title="四、 补充优化：锁消除与锁粗化"></a>四、 补充优化：锁消除与锁粗化</h2><p>除了状态膨胀，编译器（JIT）还做了以下两项神级优化：</p>
-<h3 id="1-锁消除-Lock-Elimination"><a href="#1-锁消除-Lock-Elimination" class="headerlink" title="1. 锁消除 (Lock Elimination)"></a>1. 锁消除 (Lock Elimination)</h3><ul>
-<li><strong>原理</strong>：通过<strong>逃逸分析</strong>，如果发现一个对象只会在当前线程内部使用（不会被其他线程看到），JIT 编译器会直接把 <code>synchronized</code> 去掉。</li>
-<li><strong>例子</strong>：在方法内部定义的 <code>StringBuffer.append()</code>。</li>
+<h4 id="B-出队-poll-的逻辑"><a href="#B-出队-poll-的逻辑" class="headerlink" title="B. 出队 (poll) 的逻辑"></a>B. 出队 (poll) 的逻辑</h4><ol>
+<li><strong>寻找真正的头部</strong>：<code>head</code> 也不一定指向第一个有效元素。它可能指向一个已经被弹出的节点。</li>
+<li><strong>CAS 提取</strong>：找到第一个 <code>item</code> 不为 <code>null</code> 的节点，尝试用 CAS 将其 <code>item</code> 置为 <code>null</code>。</li>
+<li><strong>延迟更新 head</strong>：同理，只有当 <code>head</code> 偏离位置较远时，才会更新 <code>head</code> 指针。</li>
+</ol>
+<h3 id="3-CAS-如何解决竞争？"><a href="#3-CAS-如何解决竞争？" class="headerlink" title="3. CAS 如何解决竞争？"></a>3. CAS 如何解决竞争？</h3><p>假设两个线程同时尝试入队：</p>
+<ol>
+<li><strong>线程 A</strong> 执行 CAS 成功，将新节点挂载到了队列末尾。</li>
+<li><strong>线程 B</strong> 的 CAS 会失败（因为预期的 <code>null</code> 变成了线程 A 插入的新节点）。</li>
+<li><strong>自旋重试</strong>：线程 B 发现失败后，不会挂起，而是进入下一轮循环，重新定位新的尾节点并再次尝试 CAS。</li>
+</ol>
+<h4 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h4><ul>
+<li><strong>无锁化</strong>：避免了线程切换和阻塞的开销。</li>
+<li><strong>高性能</strong>：在高并发场景（尤其是生产者和消费者都很频繁时）下，吞吐量远超 <code>LinkedBlockingQueue</code>。</li>
+<li><strong>永不失效的迭代器</strong>：它的迭代器是弱一致性的，不会抛出 <code>ConcurrentModificationException</code>。</li>
 </ul>
-<h3 id="2-锁粗化-Lock-Coarsening"><a href="#2-锁粗化-Lock-Coarsening" class="headerlink" title="2. 锁粗化 (Lock Coarsening)"></a>2. 锁粗化 (Lock Coarsening)</h3><ul>
-<li><strong>原理</strong>：如果一系列连续的操作都对同一个对象加锁（如循环内加锁），编译器会把加锁的范围扩大到整个操作序列外部，避免频繁开关锁。</li>
+<h4 id="缺点-x2F-局限"><a href="#缺点-x2F-局限" class="headerlink" title="缺点&#x2F;局限"></a>缺点&#x2F;局限</h4><ul>
+<li><strong>size() 开销大</strong>：由于是链表结构且没有全局计数器（维护计数器本身需要同步），计算 <code>size</code> 必须遍历全表，复杂度为 $O(n)$。</li>
+<li><strong>内存压力</strong>：无界队列如果不加控制，在生产者远快于消费者时可能会导致 OOM。</li>
 </ul>
-<hr>
-<h2 id="🎙-面试考察点：资深级别回答"><a href="#🎙-面试考察点：资深级别回答" class="headerlink" title="🎙 面试考察点：资深级别回答"></a>🎙 面试考察点：资深级别回答</h2><p><strong>Q：既然重量级锁慢，为什么不一直用轻量级锁自旋？</strong></p>
+<p><code>ConcurrentLinkedQueue</code> 是通过 <strong>CAS 原子指令 + 延迟指针更新</strong> 实现的。它通过牺牲一定的实时准确性（如 <code>tail</code> 指针的滞后）换取了极高的并发处理能力，是实现高性能异步处理任务的理想选择。</p>
+<p>以下是触发 <code>tail</code> 偏离并重新校准的具体场景分析：</p>
+<h3 id="1-典型的“跳跃更新”场景（Hops-x3D-2）"><a href="#1-典型的“跳跃更新”场景（Hops-x3D-2）" class="headerlink" title="1. 典型的“跳跃更新”场景（Hops &#x3D; 2）"></a>1. 典型的“跳跃更新”场景（Hops &#x3D; 2）</h3><p>为了平衡 CAS 的性能开销，Doug Lea（JUC 作者）设计了让 <code>tail</code> 滞后。</p>
 <ul>
-<li><strong>答</strong>：自旋是需要<strong>消耗 CPU 算力</strong>的（虽然没挂起，但 CPU 在跑空转指令）。如果持锁线程执行时间很长，让其他线程一直自旋会白白浪费大量 CPU 资源。因此，当自旋达到一定阈值（适应性自旋），必须膨胀为重量级锁，让竞争线程去“睡觉”（挂起），把 CPU 让给真正干活的线程。</li>
+<li><strong>初始状态</strong>：<code>head</code> 和 <code>tail</code> 都指向同一个哨兵节点（Node 0）。</li>
+<li><strong>第一次插入（Thread A）</strong>：<ol>
+<li>发现 <code>tail.next == null</code>。</li>
+<li>CAS 将 <code>tail.next</code> 指向新节点 Node 1。</li>
+<li><strong>不更新 <code>tail</code><strong>。此时 <code>tail</code> 依然指向 Node 0，但 Node 0 指向 Node 1。这就产生了</strong>偏离</strong>（距离为 1）。</li>
+</ol>
+</li>
+<li><strong>第二次插入（Thread B 或 A）</strong>：<ol>
+<li>检查 <code>tail.next</code>，发现不为 <code>null</code>（指向了 Node 1）。</li>
+<li>顺着指针找到真正的末尾 Node 1。</li>
+<li>CAS 将 Node 1 的 <code>next</code> 指向 Node 2。</li>
+<li><strong>触发阈值</strong>：因为此时 <code>tail</code> 距离真正的末尾已经跳了 2 步，代码会执行 <code>compareAndSetTail</code>，将 <code>tail</code> 直接指向 Node 2。</li>
+</ol>
+</li>
 </ul>
-<p><strong>Q：在 Android 开发中，这套机制给我们的启示是什么？</strong></p>
+<h3 id="2-多线程竞争导致的“大幅偏离”"><a href="#2-多线程竞争导致的“大幅偏离”" class="headerlink" title="2. 多线程竞争导致的“大幅偏离”"></a>2. 多线程竞争导致的“大幅偏离”</h3><p>在极端高并发下，<code>tail</code> 偏离的距离可能远超 2 个节点：</p>
 <ul>
-<li><strong>答</strong>：1. 尽量减少锁的竞争范围（减小临界区）。2. 对于高频调用的代码，优先使用无锁结构（CAS&#x2F;Atomic），因为一旦膨胀到重量级锁，在移动端有限的算力下，性能损耗非常直观。</li>
+<li><strong>竞速状态</strong>：当线程 A 正在寻找末尾准备插入时，线程 B、C、D 已经快速完成了三次插入，但它们还没来得及更新 <code>tail</code> 指针。</li>
+<li><strong>被迫寻根</strong>：此时线程 A 发现 <code>tail.next</code> 后面跟着一串节点（Node 1 -&gt; Node 2 -&gt; Node 3）。线程 A 必须沿着 <code>next</code> 链条一直往后走，直到找到真正的末尾。</li>
+<li><strong>校准</strong>：一旦线程 A 完成了它的插入，它会尝试一次性将 <code>tail</code> 移动到它刚插入的那个最新节点上，瞬间完成“大幅度校准”。</li>
 </ul>
+<h3 id="3-节点被删除导致的特殊偏离（Dangling-Tail）"><a href="#3-节点被删除导致的特殊偏离（Dangling-Tail）" class="headerlink" title="3. 节点被删除导致的特殊偏离（Dangling Tail）"></a>3. 节点被删除导致的特殊偏离（Dangling Tail）</h3><p>有一种特殊情况：<code>tail</code> 指向的节点已经被出队（poll）并从链表中逻辑删除了。</p>
+<ul>
+<li><strong>原理</strong>：当一个节点出队后，为了帮助 GC，它的 <code>next</code> 可能会指向它自己（<code>p.next = p</code>）。</li>
+<li><strong>处理</strong>：当 <code>offer</code> 操作发现 <code>tail.next == tail</code> 时，说明 <code>tail</code> 已经由于落后太多，掉进了“时空裂缝”（指向了一个已失效的节点）。此时，线程会直接跳到 <code>head</code> 指针处，从头开始重新寻找末尾。</li>
+</ul>
+<h4 id="CopyOnWriteArrayList"><a href="#CopyOnWriteArrayList" class="headerlink" title="CopyOnWriteArrayList"></a>CopyOnWriteArrayList</h4><p><code>CopyOnWriteArrayList</code> 是 Java 并发包中设计最独特的集合之一。它的核心思想正如其名：<strong>写时复制（Copy-on-Write, COW）</strong>。</p>
+<p>其设计初衷是解决在多线程环境下，对 <code>ArrayList</code> 进行遍历时如果发生修改会抛出 <code>ConcurrentModificationException</code> 的问题，同时提供比完全加锁（<code>Vector</code>）更高的读取性能。</p>
+<h5 id="1-核心设计原理"><a href="#1-核心设计原理" class="headerlink" title="1. 核心设计原理"></a>1. 核心设计原理</h5><p><code>CopyOnWriteArrayList</code> 的核心逻辑可以概括为：<strong>读写分离，空间换时间</strong>。</p>
+<h5 id="A-内部结构"><a href="#A-内部结构" class="headerlink" title="A. 内部结构"></a>A. 内部结构</h5><p>它内部维护了一个 <strong><code>volatile</code></strong> 修饰的数组 <code>array</code>。<code>volatile</code> 确保了当数组引用指向一个新的数组时，所有线程都能立即看到。</p>
+<h5 id="B-写操作（修改、添加、删除）"><a href="#B-写操作（修改、添加、删除）" class="headerlink" title="B. 写操作（修改、添加、删除）"></a>B. 写操作（修改、添加、删除）</h5><p>当你执行 <code>add()</code> 或 <code>remove()</code> 时，它不会直接修改当前数组，而是执行以下步骤：</p>
+<ol>
+<li><strong>加锁</strong>：获取一把独占锁（<code>ReentrantLock</code>），确保同一时刻只有一个线程在修改。</li>
+<li><strong>复制</strong>：创建一个与当前数组内容完全相同的新数组。</li>
+<li><strong>修改</strong>：在<strong>新数组</strong>上执行添加或删除操作。</li>
+<li><strong>覆盖</strong>：将内部的 <code>array</code> 引用指向这个新数组。</li>
+<li><strong>释放锁</strong>：操作完成。</li>
+</ol>
+<h5 id="C-读操作（get、遍历）"><a href="#C-读操作（get、遍历）" class="headerlink" title="C. 读操作（get、遍历）"></a>C. 读操作（get、遍历）</h5><p>读操作是<strong>完全无锁</strong>的。线程直接读取当前的 <code>array</code>。</p>
+<ul>
+<li>由于写操作是在副本上进行的，读线程即使在写操作过程中进行遍历，读取的也是旧数组的快照（Snapshot），因此不会产生冲突，也不会抛出异常。</li>
+</ul>
+<h5 id="优点："><a href="#优点：" class="headerlink" title="优点："></a>优点：</h5><ol>
+<li><strong>线程安全且无锁读</strong>：读操作性能极高，适合高频读取。</li>
+<li><strong>一致性快照</strong>：遍历时不需要加锁，且不会受到修改操作的影响。</li>
+</ol>
+<h5 id="缺点："><a href="#缺点：" class="headerlink" title="缺点："></a>缺点：</h5><ol>
+<li><strong>内存开销</strong>：每次写操作都要复制整个数组。如果数组很大，会频繁触发 GC，甚至导致 OOM。</li>
+<li><strong>数据延迟（最终一致性）</strong>：读线程可能会在短时间内读取到旧数据，因为写操作还没把引用指向新数组。</li>
+<li><strong>写操作慢</strong>：因为涉及数组拷贝，写性能远低于 <code>ArrayList</code>。</li>
+</ol>
+<h5 id="最佳实践场景："><a href="#最佳实践场景：" class="headerlink" title="最佳实践场景："></a>最佳实践场景：</h5><ul>
+<li><strong>读多写极少</strong>：例如白名单、黑名单配置、系统属性配置。</li>
+<li><strong>监听器列表</strong>：在 Android 中存储 <code>Listener</code> 或 <code>Observer</code> 集合。通常这些监听器在初始化时注册，运行期间频繁触发读取，极少修改。</li>
+</ul>
+<h5 id="与-Collections-synchronizedList-的区别"><a href="#与-Collections-synchronizedList-的区别" class="headerlink" title="与 Collections.synchronizedList 的区别"></a>与 <code>Collections.synchronizedList</code> 的区别</h5><table>
+<thead>
+<tr>
+<th><strong>特性</strong></th>
+<th><strong>CopyOnWriteArrayList</strong></th>
+<th><strong>SynchronizedList</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>读性能</strong></td>
+<td>极高（无锁）</td>
+<td>一般（有锁）</td>
+</tr>
+<tr>
+<td><strong>写性能</strong></td>
+<td>低（复制数组）</td>
+<td>一般（锁竞争）</td>
+</tr>
+<tr>
+<td><strong>迭代器</strong></td>
+<td>弱一致性（Snapshot），不会报错</td>
+<td>强一致性，修改会抛 <code>Exception</code></td>
+</tr>
+<tr>
+<td><strong>内存占用</strong></td>
+<td>较高（写时翻倍）</td>
+<td>低（原地修改）</td>
+</tr>
+</tbody></table>
+<h1 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h1><h3 id="CAS原子操作原语"><a href="#CAS原子操作原语" class="headerlink" title="CAS原子操作原语"></a>CAS原子操作原语</h3><p>无锁软件通常依赖硬件提供的原子<strong>读取-修改-写入</strong>（Read-Modify-Write）原语。</p>
+<p>在较老一代的 ARM64 CPU 上，原子操作使用 <strong>LL&#x2F;SC 循环</strong>（Load-Link&#x2F;Store-Conditional）。CPU 加载一个值并标记该地址。如果另一个线程写入了该地址，存储操作会失败，循环会重试。因为线程可以不断尝试并在不等待其他线程的情况下成功，所以这一操作是无锁的。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">asmretry:</span><br><span class="line">    ldxr    x0, [x1]        // 从地址 x1 独占加载到 x0</span><br><span class="line">    add     x0, x0, #1      // 值加 1</span><br><span class="line">    stxr    w2, x0, [x1]    // 独占存储</span><br><span class="line">                            // w2 为 0 表示成功，1 表示失败</span><br><span class="line">    cbnz    w2, retry       // 如果 w2 非零（失败），跳转到 retry</span><br></pre></td></tr></table></figure>
+
+<p>（在 Compiler Explorer 中查看）</p>
+<p>更新的 ARM 架构（ARMv8.1）支持<strong>大型系统扩展</strong>（Large System Extensions, LSE），包括 CAS（Compare-And-Swap）和 Load-And-Add 等指令。在 Android 17 中，我们为 ART 编译器添加了 LSE 检测支持，能够在支持 LSE 的设备上生成优化指令：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">asm// ARMv8.1 LSE 原子操作示例</span><br><span class="line">ldadd   x0, x1, [x2]    // 原子 load-add</span><br><span class="line">                        // 更快，无需循环</span><br></pre></td></tr></table></figure>
+
+<p>在谷歌的基准测试中，使用 CAS 的高竞争代码比 LL&#x2F;SC 变体实现了约 <strong>3 倍加速</strong>。</p>
+<p>Java 语言通过 <code>java.util.concurrent.atomic</code> 提供原子操作原语，底层依赖这些特殊的 CPU 指令。</p>
 
       
     </div>
@@ -1027,7 +1369,7 @@
 <!-- Table of Contents -->
 
   
-    <article id="post-2 Java/多线程/Android并发锁面试题库"  class="article article-type-post" itemscope itemprop="blogPost" >
+    <article id="post-2 Java/多线程/Java 锁的膨胀机制"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -1035,7 +1377,7 @@
         
   
     <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Android%E5%B9%B6%E5%8F%91%E9%94%81%E9%9D%A2%E8%AF%95%E9%A2%98%E5%BA%93/">Android 面试题库：深度解析并发锁机制与应用实践</a>
+      <a class="article-title" href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Java%20%E9%94%81%E7%9A%84%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6/">Java 锁的膨胀机制（偏向锁、轻量级锁、重量级锁）</a>
     </h1>
   
 
@@ -1043,8 +1385,8 @@
     
     <div class="article-meta">
       
-	<a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Android%E5%B9%B6%E5%8F%91%E9%94%81%E9%9D%A2%E8%AF%95%E9%A2%98%E5%BA%93/" class="article-date">
-	  <time datetime="2026-03-26T16:11:05.365Z" itemprop="datePublished">March 27, 2026</time>
+	<a href="/2026/03/27/2%20Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Java%20%E9%94%81%E7%9A%84%E8%86%A8%E8%83%80%E6%9C%BA%E5%88%B6/" class="article-date">
+	  <time datetime="2026-03-26T16:10:57.620Z" itemprop="datePublished">March 27, 2026</time>
 	</a>
 
       
@@ -1055,116 +1397,70 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>在 Android 高级开发面试中，并发锁是考察候选人<strong>底层功底、内存模型理解以及系统架构能力</strong>的核心考点。本文针对 Android 实际开发场景，系统性梳理了各种锁的原理与选型。</p>
+        <p>这份合并后的深度分析涵盖了从底层存储到自动化流程，以及程序员如何通过代码逻辑“间接”干预锁命运的完整机制。</p>
 <hr>
-<h2 id="一、-Java-基础锁原语"><a href="#一、-Java-基础锁原语" class="headerlink" title="一、 Java 基础锁原语"></a>一、 Java 基础锁原语</h2><h3 id="1-synchronized-内置锁-x2F-监视器锁"><a href="#1-synchronized-内置锁-x2F-监视器锁" class="headerlink" title="1. synchronized (内置锁&#x2F;监视器锁)"></a>1. <code>synchronized</code> (内置锁&#x2F;监视器锁)</h3><ul>
-<li><strong>特性</strong>：自动获取&#x2F;释放、可重入、非公平。在现代 ART 虚拟机中经过了偏向锁、轻量级锁、重量级锁的膨胀优化。</li>
-<li><strong>面试考点</strong>：<ul>
-<li><strong>对象锁 vs 类锁</strong>：同步代码块与静态同步方法的区别。</li>
-<li><strong>原理</strong>：每个对象关联的 <code>monitor</code> 对象（EntryList, WaitSet）。</li>
-</ul>
-</li>
-<li><strong>应用场景</strong>：本项目的 <code>GLTextureView</code> 中用于状态机的全局调度。</li>
-</ul>
-<h3 id="2-ReentrantLock-显示锁"><a href="#2-ReentrantLock-显示锁" class="headerlink" title="2. ReentrantLock (显示锁)"></a>2. <code>ReentrantLock</code> (显示锁)</h3><ul>
-<li><strong>特性</strong>：基于 AQS（AbstractQueuedSynchronizer）实现。支持公平&#x2F;非公平选型、可中断、支持超时获取、多条件变量（Condition）。</li>
-<li><strong>面试考点</strong>：<ul>
-<li><strong>与 <code>synchronized</code> 区别</strong>：灵活性（tryLock）、性能（高竞争下更稳定）、可扩展性。</li>
-</ul>
-</li>
-<li><strong>应用场景</strong>：复杂的数据结构操作，或需要响应中断的长时间等待场景。</li>
+<h2 id="一、-锁状态的核心载体：Mark-Word"><a href="#一、-锁状态的核心载体：Mark-Word" class="headerlink" title="一、 锁状态的核心载体：Mark Word"></a>一、 锁状态的核心载体：Mark Word</h2><p>在 Java（包括 Android ART 和 HotSpot JVM）中，<code>synchronized</code> 的性能优化主要依赖于<strong>膨胀（Inflation）机制</strong>。锁的状态信息存储在对象头（Object Header）的 <strong>Mark Word</strong> 字段中：</p>
+<ul>
+<li><strong>空间复用</strong>：Mark Word 会根据锁状态的变化，动态存储偏向线程 ID、指向栈中锁记录的指针、或指向互斥量（Monitor）的指针。</li>
+<li><strong>四个阶段</strong>：锁会自动在 <strong>无锁 -&gt; 偏向锁 -&gt; 轻量级锁 -&gt; 重量级锁</strong> 这四种状态间转换。</li>
 </ul>
 <hr>
-<h2 id="二、-读写与性能优化锁"><a href="#二、-读写与性能优化锁" class="headerlink" title="二、 读写与性能优化锁"></a>二、 读写与性能优化锁</h2><h3 id="3-ReentrantReadWriteLock-读写锁"><a href="#3-ReentrantReadWriteLock-读写锁" class="headerlink" title="3. ReentrantReadWriteLock (读写锁)"></a>3. <code>ReentrantReadWriteLock</code> (读写锁)</h3><ul>
-<li><strong>核心逻辑</strong>：<strong>读读共享、读写互斥、写写互斥</strong>。</li>
-<li><strong>面试考点</strong>：<ul>
-<li><strong>锁降级</strong>：写锁可以降级为读锁，但读锁不能升级为写锁。</li>
-<li><strong>饥饿问题</strong>：大量读操作可能导致写操作长时间无法获取锁。</li>
+<h2 id="二、-四种锁状态详解：从“极致偏爱”到“失控挂起”"><a href="#二、-四种锁状态详解：从“极致偏爱”到“失控挂起”" class="headerlink" title="二、 四种锁状态详解：从“极致偏爱”到“失控挂起”"></a>二、 四种锁状态详解：从“极致偏爱”到“失控挂起”</h2><h3 id="1-无锁-Unlocked"><a href="#1-无锁-Unlocked" class="headerlink" title="1. 无锁 (Unlocked)"></a>1. 无锁 (Unlocked)</h3><p>对象的初始状态，Mark Word 中没有线程竞争的相关信息。</p>
+<h3 id="2-偏向锁-Biased-Locking"><a href="#2-偏向锁-Biased-Locking" class="headerlink" title="2. 偏向锁 (Biased Locking)"></a>2. 偏向锁 (Biased Locking)</h3><ul>
+<li><strong>核心思想</strong>：假设锁总是由<strong>同一个线程</strong>多次获得，从而消除同步操作（如 CAS）的开销。</li>
+<li><strong>实现</strong>：JVM 在 Mark Word 中记录当前线程 ID。该线程再次进入时，只需检查 ID 是否一致，性能接近无锁。</li>
+<li><strong>潜规则</strong>：JVM 启动初期通常有约 4s 的延迟开启时间，以避开启动阶段大量类加载导致的线程竞争。</li>
 </ul>
-</li>
-<li><strong>应用场景</strong>：App 的内存缓存（LruCache）查询频率远高于更新频率的场景。</li>
+<h3 id="3-轻量级锁-Lightweight-Locking"><a href="#3-轻量级锁-Lightweight-Locking" class="headerlink" title="3. 轻量级锁 (Lightweight Locking)"></a>3. 轻量级锁 (Lightweight Locking)</h3><ul>
+<li><strong>触发时机</strong>：当有第二个线程尝试获取锁，但竞争并不激烈时。</li>
+<li><strong>实现</strong>：线程在自己的虚拟机栈中创建“锁记录（Lock Record）”，尝试通过 <strong>CAS</strong> 将 Mark Word 指向该记录。</li>
+<li><strong>适应性自旋</strong>：抢不到锁的线程会在门口“打转”（自旋）。JVM 会根据历史成功率决定自旋时长，避免立即挂起线程。</li>
 </ul>
-<h3 id="4-StampedLock-乐观读锁"><a href="#4-StampedLock-乐观读锁" class="headerlink" title="4. StampedLock (乐观读锁)"></a>4. <code>StampedLock</code> (乐观读锁)</h3><ul>
-<li><strong>特性</strong>：Java 8 引入。提供了一种<strong>乐观读</strong>模式，读操作不会阻塞写操作。</li>
-<li><strong>面试考点</strong>：<ul>
-<li><strong>对比 ReadWriteLock</strong>：通过版本戳（Stamp）验证数据有效性，在读多写极少的极端场景下性能近乎无锁。</li>
-</ul>
-</li>
-<li><strong>应用场景</strong>：坐标点数据计算、频繁读取的配置信息。</li>
-</ul>
-<hr>
-<h2 id="三、-原子操作与轻量级同步"><a href="#三、-原子操作与轻量级同步" class="headerlink" title="三、 原子操作与轻量级同步"></a>三、 原子操作与轻量级同步</h2><h3 id="5-CAS-Compare-And-Swap"><a href="#5-CAS-Compare-And-Swap" class="headerlink" title="5. CAS (Compare And Swap)"></a>5. <code>CAS</code> (Compare And Swap)</h3><ul>
-<li><strong>原理</strong>：利用 CPU 的 <code>cmpxchg</code> 指令实现无锁原子更新。</li>
-<li><strong>面试考点</strong>：<ul>
-<li><strong>ABA 问题</strong>：如何通过 <code>AtomicStampedReference</code> 解决。</li>
-<li><strong>自旋开销</strong>：高竞争下 CPU 占用率过高。</li>
-</ul>
-</li>
-<li><strong>应用场景</strong>：计数器（AtomicInteger）、状态标记位。</li>
-</ul>
-<h3 id="6-volatile-关键字"><a href="#6-volatile-关键字" class="headerlink" title="6. volatile 关键字"></a>6. <code>volatile</code> 关键字</h3><ul>
-<li><strong>作用</strong>：<strong>可见性、有序性（禁止指令重排）</strong>。不保证原子性。</li>
-<li><strong>面试考点</strong>：<ul>
-<li><strong>DCL（双重检查锁定）单例模式</strong>：为什么必须加 <code>volatile</code>？（防止对象初始化未完成就被引用）。</li>
-</ul>
-</li>
-<li><strong>应用场景</strong>：本项目的 <code>mHasContentToDraw</code> 标志位同步。</li>
+<h3 id="4-重量级锁-Heavyweight-Locking"><a href="#4-重量级锁-Heavyweight-Locking" class="headerlink" title="4. 重量级锁 (Heavyweight Locking)"></a>4. 重量级锁 (Heavyweight Locking)</h3><ul>
+<li><strong>触发时机</strong>：竞争激烈。当自旋次数过多，或又有第三个线程加入抢锁。</li>
+<li><strong>实现</strong>：Mark Word 指向堆中的 <strong>Monitor（监视器）</strong>，依赖操作系统的 <code>mutex</code> 指令。</li>
+<li><strong>代价</strong>：未能抢到锁的线程会被<strong>挂起（Park）</strong>，涉及内核态与用户态的上下文切换，开销巨大。</li>
 </ul>
 <hr>
-<h2 id="四、-Android-场景下的特有应用"><a href="#四、-Android-场景下的特有应用" class="headerlink" title="四、 Android 场景下的特有应用"></a>四、 Android 场景下的特有应用</h2><h3 id="7-渲染链路同步-本项目核心"><a href="#7-渲染链路同步-本项目核心" class="headerlink" title="7. 渲染链路同步 (本项目核心)"></a>7. 渲染链路同步 (本项目核心)</h3><ul>
-<li><strong>痛点</strong>：GL 线程与 UI 线程的生命周期不同步。</li>
-<li><strong>方案</strong>：使用 <code>synchronized</code> 配合 <code>wait/notifyAll</code> 构建<strong>保护性暂停（Guarded Suspension）</strong>模型。</li>
-<li><strong>面试回答</strong>：参考 <code>GLTEXTUREVIEW_LOCKING.md</code> 中的握手协议描述。</li>
-</ul>
-<h3 id="8-锁的选型指南-横向对比"><a href="#8-锁的选型指南-横向对比" class="headerlink" title="8. 锁的选型指南 (横向对比)"></a>8. 锁的选型指南 (横向对比)</h3><table>
+<h2 id="三、-程序员如何“间接”控制锁的命运？"><a href="#三、-程序员如何“间接”控制锁的命运？" class="headerlink" title="三、 程序员如何“间接”控制锁的命运？"></a>三、 程序员如何“间接”控制锁的命运？</h2><p>虽然锁膨胀是 JVM 的“自动挡”，但你的逻辑决定了系统走哪条优化路径：</p>
+<table>
 <thead>
 <tr>
-<th align="left">维度</th>
-<th align="left"><code>synchronized</code></th>
-<th align="left"><code>ReentrantLock</code></th>
-<th align="left"><code>Atomic/CAS</code></th>
+<th align="left">优化维度</th>
+<th align="left">做法与建议</th>
+<th align="left">对 JVM 的影响</th>
 </tr>
 </thead>
 <tbody><tr>
-<td align="left"><strong>灵活性</strong></td>
-<td align="left">低（自动）</td>
-<td align="left">高（手动控制）</td>
-<td align="left">极高（无锁）</td>
+<td align="left"><strong>锁的粒度</strong></td>
+<td align="left">尽量使用 <code>synchronized(lockObj)</code> 缩小同步块。</td>
+<td align="left">减少虚假竞争，让锁尽可能维持在轻量级状态。</td>
 </tr>
 <tr>
-<td align="left"><strong>性能</strong></td>
-<td align="left">中（低中竞争优）</td>
-<td align="left">高（高竞争稳定）</td>
-<td align="left">极高（极短操作）</td>
+<td align="left"><strong>持锁时长</strong></td>
+<td align="left">同步块内只做核心状态变更，严禁长时间 IO。</td>
+<td align="left">防止自旋线程等不及而强行触发重量级锁膨胀。</td>
 </tr>
 <tr>
-<td align="left"><strong>功能</strong></td>
-<td align="left">基础</td>
-<td align="left">丰富（Condition&#x2F;公平性）</td>
-<td align="left">仅限原子变量</td>
+<td align="left"><strong>逃逸分析</strong></td>
+<td align="left">利用局部变量加锁（对象不逃逸出方法）。</td>
+<td align="left">JIT 编译器会触发<strong>锁消除</strong>，运行时完全不加锁。</td>
 </tr>
 <tr>
-<td align="left"><strong>风险</strong></td>
-<td align="left">低</td>
-<td align="left">高（易忘释放）</td>
-<td align="left">容易出现 ABA 问题</td>
+<td align="left"><strong>锁粗化</strong></td>
+<td align="left">避免在循环体内高频加锁。</td>
+<td align="left">编译器会将多次加锁合并，减少开关锁的性能损耗。</td>
 </tr>
 </tbody></table>
 <hr>
-<h2 id="五、-资深面试官进阶追问"><a href="#五、-资深面试官进阶追问" class="headerlink" title="五、 资深面试官进阶追问"></a>五、 资深面试官进阶追问</h2><p><strong>Q1：如何定位 App 线上发生的死锁？</strong></p>
+<h2 id="🎙-面试官进阶-Q-amp-A"><a href="#🎙-面试官进阶-Q-amp-A" class="headerlink" title="🎙 面试官进阶 Q&amp;A"></a>🎙 面试官进阶 Q&amp;A</h2><p><strong>Q：既然重量级锁慢，为什么不一直用轻量级锁自旋？</strong></p>
 <ul>
-<li><strong>答</strong>：1. 使用 <code>Thread.getAllStackTraces()</code> 获取堆栈。2. 寻找 <code>BLOCKED</code> 状态的线程。3. 分析锁的循环等待链（A 等 B，B 等 A）。</li>
+<li><strong>答</strong>：自旋会消耗 <strong>CPU 算力</strong>（CPU 在跑空转指令）。如果持锁线程执行时间很长，一直自旋会白白浪费 CPU 资源。因此，达到一定阈值后必须膨胀为重量级锁，让竞争线程去“睡觉”（挂起），把资源让给真正干活的线程。</li>
 </ul>
-<p><strong>Q2：为什么 ConcurrentLinkedQueue 不需要加锁？</strong></p>
+<p><strong>Q：在 Android 开发中，这套机制有什么实践意义？</strong></p>
 <ul>
-<li><strong>答</strong>：它采用了 <strong>Michael-Scott 非阻塞队列算法</strong>，底层完全基于 CAS 操作头尾指针，实现了极高的并发吞吐量。本项目在 <code>HybridNormalRenderer</code> 中使用它来处理弹幕队列，避免了每一帧渲染都要持锁的开销。</li>
+<li><strong>答</strong>：1. 对于高频调用的代码，优先考虑 <code>Atomic</code> 原子类或无锁结构，避免一旦膨胀到重量级锁后，移动端有限的算力导致明显的卡顿。2. 意识到 Android ART 在高版本中可能会弱化偏向锁，因此减少竞争和缩小临界区才是王道。</li>
 </ul>
-<p><strong>Q3：什么是偏向锁和锁消除？</strong></p>
-<ul>
-<li><strong>答</strong>：锁消除是 JIT 编译器的优化，若发现对象只会在单线程访问，则直接去掉 <code>synchronized</code>。偏向锁是假设锁一直由同一线程持有，减少 CAS 操作开销。</li>
-</ul>
-<hr>
-<h2 id="📌-总结"><a href="#📌-总结" class="headerlink" title="📌 总结"></a>📌 总结</h2><p>锁不是越多越好，而是<strong>越轻量越好</strong>。在 Android 开发中，首选无锁结构（Concurrent 容器），次选轻量级标记（volatile&#x2F;Atomic），最后才考虑重权重的 Monitor 或显示锁。</p>
 
       
     </div>
@@ -1371,7 +1667,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">114</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%9F%BA%E7%A1%80/">1.1 - Kotlin 基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a><span class="category-list-count">104</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/">11 - 音视频</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/11-1-%E6%92%AD%E6%94%BE%E5%99%A8%E5%AE%9E%E6%88%98/">11.1 - 播放器实战</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-1-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.1 - 多线程</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">41</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">26</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-1-Handler/">3.1.1 - Handler</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-2-AMS/">3.1.2 - AMS</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-3-WMS/">3.1.3 - WMS</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-4-Binder/">3.1.4 - Binder</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-5-Zygote/">3.1.5 - Zygote</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-6-GUI/">3.1.6 - GUI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-7-NNAPI/">3.1.7 - NNAPI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-8-HWUI/">3.1.8 - HWUI</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-2-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.2 - 播放器架构方案设计</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-3-Android-%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.3 - Android 存储文件方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-2-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.2 - 简单好用的 gradle 云编译设置</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-2-%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/">7.2 - 手势分发</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">8</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-3-%E5%AE%9E%E6%97%B6%E6%B8%B2%E6%9F%93/">8.3 - 实时渲染</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">114</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%9F%BA%E7%A1%80/">1.1 - Kotlin 基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a><span class="category-list-count">104</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/">11 - 音视频</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/11-1-%E6%92%AD%E6%94%BE%E5%99%A8%E5%AE%9E%E6%88%98/">11.1 - 播放器实战</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-1-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.1 - 多线程</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">43</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">28</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-1-Handler/">3.1.1 - Handler</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-2-AMS/">3.1.2 - AMS</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-3-WMS/">3.1.3 - WMS</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-4-Binder/">3.1.4 - Binder</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-5-Zygote/">3.1.5 - Zygote</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-6-GUI/">3.1.6 - GUI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-7-NNAPI/">3.1.7 - NNAPI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-8-HWUI/">3.1.8 - HWUI</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-2-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.2 - 播放器架构方案设计</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-3-Android-%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.3 - Android 存储文件方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-2-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.2 - 简单好用的 gradle 云编译设置</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-2-%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/">7.2 - 手势分发</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">8</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-3-%E5%AE%9E%E6%97%B6%E6%B8%B2%E6%9F%93/">8.3 - 实时渲染</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1387,7 +1683,7 @@
     <h3 class="widget-title">Archives</h3>
 
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/04/">April 2026</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/03/">March 2026</a><span class="archive-list-count">135</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/01/">January 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">November 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">March 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">54</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/04/">April 2026</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/03/">March 2026</a><span class="archive-list-count">137</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/01/">January 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">November 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">March 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">54</span></li></ul>
     </div>
   </div>
 

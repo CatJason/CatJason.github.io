@@ -115,6 +115,222 @@
         
           <section id="main">
   
+    <article id="post-3 Android/02 Framework/04 Binder/01-Android-Framework-专项-IPC-Binder-机制1"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2026/03/29/3%20Android/02%20Framework/04%20Binder/01-Android-Framework-%E4%B8%93%E9%A1%B9-IPC-Binder-%E6%9C%BA%E5%88%B61/">Android Framework 专项 - IPC Binder 机制（一）</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2026/03/29/3%20Android/02%20Framework/04%20Binder/01-Android-Framework-%E4%B8%93%E9%A1%B9-IPC-Binder-%E6%9C%BA%E5%88%B61/" class="article-date">
+	  <time datetime="2026-03-29T14:17:40.911Z" itemprop="datePublished">March 29, 2026</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-4-Binder/">3.1.4 - Binder</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Binder 是 Android 系统中最重要的进程间通信（IPC）机制。</p>
+<h3 id="1-为什么-Android-选用-Binder？"><a href="#1-为什么-Android-选用-Binder？" class="headerlink" title="1. 为什么 Android 选用 Binder？"></a>1. 为什么 Android 选用 Binder？</h3><p>在 Linux 系统中，已经存在多种 IPC 方式，如管道、信号、消息队列、共享内存、Socket 等。Android 选用 Binder 主要出于以下考虑：</p>
+<ul>
+<li><strong>性能（效率）</strong>：共享内存虽然最快（0 次拷贝），但管理复杂；Socket 效率低（2 次拷贝）；Binder 只需要 <strong>1 次数据拷贝</strong>，性能仅次于共享内存。</li>
+<li><strong>安全</strong>：传统 IPC 的接收方无法获得发送方可靠的 UID&#x2F;PID，难以进行权限校验。Binder 在内核层添加了身份校验，安全性更高。</li>
+<li><strong>稳定性</strong>：Binder 基于 Client-Server 架构，职责明确，容错性好。</li>
+</ul>
+<hr>
+<h3 id="2-Binder-的分层架构"><a href="#2-Binder-的分层架构" class="headerlink" title="2. Binder 的分层架构"></a>2. Binder 的分层架构</h3><p>Binder 的实现可以分为四个层次：</p>
+<ol>
+<li>**内核层 (Binder Driver)**：运行在内核空间，是所有 Binder 通信的枢纽。负责物理内存映射（mmap）和数据的跨进程传递。</li>
+<li>**驱动抽象层 (Libbinder)**：在 Native 层对驱动操作进行封装（如 <code>ProcessState</code>, <code>IPCThreadState</code>）。</li>
+<li>**框架层 (Java Binder)**：提供给 Java 开发者使用的接口（如 <code>IBinder</code>, <code>Binder</code>, <code>Stub</code>, <code>Proxy</code>）。</li>
+<li><strong>应用层</strong>：具体的业务实现（如 AIDL 定义的 Service）。</li>
+</ol>
+<hr>
+<h3 id="3-Binder-通信的核心：内存映射-mmap"><a href="#3-Binder-通信的核心：内存映射-mmap" class="headerlink" title="3. Binder 通信的核心：内存映射 (mmap)"></a>3. Binder 通信的核心：内存映射 (mmap)</h3><p>Binder 之所以能实现“一次拷贝”，核心在于 <code>mmap</code>。</p>
+<ul>
+<li>Binder 驱动会在内核空间分配一段缓冲区。</li>
+<li>驱动会将这段<strong>内核缓冲区</strong>同时映射到<strong>接收进程的用户空间</strong>。</li>
+<li>发送进程通过 <code>copy_from_user</code> 将数据拷贝到内核缓冲区，由于映射关系存在，接收进程直接就能在自己的用户空间读到这些数据。</li>
+</ul>
+<hr>
+<h3 id="4-总结"><a href="#4-总结" class="headerlink" title="4. 总结"></a>4. 总结</h3><p>Binder 是 Android 系统的灵魂。理解了 Binder，才能真正理解 AMS、WMS 等系统服务是如何与应用进程协同工作的。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-4-Binder/">3.1.4 - Binder</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-3 Android/02 Framework/05 Zygote/01-Android-Framework-专项-Zygote进程与进程孵化机制"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2026/03/30/3%20Android/02%20Framework/05%20Zygote/01-Android-Framework-%E4%B8%93%E9%A1%B9-Zygote%E8%BF%9B%E7%A8%8B%E4%B8%8E%E8%BF%9B%E7%A8%8B%E5%AD%B5%E5%8C%96%E6%9C%BA%E5%88%B6/">Android Framework 专项 - Zygote 进程与进程孵化机制</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2026/03/30/3%20Android/02%20Framework/05%20Zygote/01-Android-Framework-%E4%B8%93%E9%A1%B9-Zygote%E8%BF%9B%E7%A8%8B%E4%B8%8E%E8%BF%9B%E7%A8%8B%E5%AD%B5%E5%8C%96%E6%9C%BA%E5%88%B6/" class="article-date">
+	  <time datetime="2026-03-29T18:11:15.549Z" itemprop="datePublished">March 30, 2026</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-5-Zygote/">3.1.5 - Zygote</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Zygote（受精卵）进程是 Android 系统中所有应用进程和 SystemServer 进程的“鼻祖”。理解 Zygote 机制是深入掌握 Android 系统启动及应用进程创建的关键。</p>
+<hr>
+<h3 id="1-Zygote-的核心职责"><a href="#1-Zygote-的核心职责" class="headerlink" title="1. Zygote 的核心职责"></a>1. Zygote 的核心职责</h3><p>Zygote 进程在系统启动时由 <code>init</code> 进程解析 <code>init.rc</code> 脚本启动。它的主要工作可以概括为以下三点：</p>
+<table>
+<thead>
+<tr>
+<th align="left">职责</th>
+<th align="left">详细描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>预加载资源 (Preload)</strong></td>
+<td align="left">加载系统常用的类库（Framework 类）、资源（Drawables, XML）及共享库，供所有子进程共享。</td>
+</tr>
+<tr>
+<td align="left"><strong>启动 SystemServer</strong></td>
+<td align="left">孵化出 Android 的核心服务进程 <code>SystemServer</code>，由其启动 AMS, WMS 等系统服务。</td>
+</tr>
+<tr>
+<td align="left"><strong>孵化应用进程 (Fork)</strong></td>
+<td align="left">通过 <code>Socket</code> 监听请求，每当需要启动新应用时，通过 <code>fork</code> 机制快速创建子进程。</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="2-核心机制：Fork-与写时复制-COW"><a href="#2-核心机制：Fork-与写时复制-COW" class="headerlink" title="2. 核心机制：Fork 与写时复制 (COW)"></a>2. 核心机制：Fork 与写时复制 (COW)</h3><p>为什么 Android 选择使用 Zygote 来孵化进程，而不是直接启动？</p>
+<ul>
+<li><strong>启动速度快</strong>：Zygote 已经预加载了大量的共享类和资源。通过 Linux 的 <code>fork()</code> 系统调用创建子进程时，子进程直接继承了 Zygote 的内存状态。</li>
+<li>**节省内存 (Copy-On-Write)**：<ul>
+<li><code>fork</code> 后的子进程与父进程（Zygote）共享相同的物理内存页。</li>
+<li>只有当子进程尝试<strong>修改</strong>这些内存页时，内核才会真正为子进程分配新的内存副本。</li>
+<li>这种机制极大地减少了系统内存的冗余开销。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="3-Zygote-的启动流程分析"><a href="#3-Zygote-的启动流程分析" class="headerlink" title="3. Zygote 的启动流程分析"></a>3. Zygote 的启动流程分析</h3><table>
+<thead>
+<tr>
+<th align="left">关键步骤</th>
+<th align="left">执行角色</th>
+<th align="left">核心行为</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>1. 解析脚本</strong></td>
+<td align="left"><code>init</code> 进程</td>
+<td align="left">解析 <code>init.zygote.rc</code> 文件，执行 <code>app_main.cpp</code>。</td>
+</tr>
+<tr>
+<td align="left"><strong>2. 开启虚拟机</strong></td>
+<td align="left"><code>AppRuntime</code></td>
+<td align="left">调用 <code>AndroidRuntime.start()</code>，启动 ART&#x2F;Dalvik 虚拟机并注册 JNI 方法。</td>
+</tr>
+<tr>
+<td align="left"><strong>3. 进入 Java 层</strong></td>
+<td align="left"><code>ZygoteInit</code></td>
+<td align="left">通过 JNI 调用 <code>ZygoteInit.main()</code>，标志着 Zygote 正式从 C++ 切换到 Java 环境。</td>
+</tr>
+<tr>
+<td align="left"><strong>4. 开启 Socket 监听</strong></td>
+<td align="left"><code>ZygoteServer</code></td>
+<td align="left">建立 <code>/dev/socket/zygote</code> 本地套接字，等待来自 AMS 的进程创建请求。</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="4-从-AMS-启动应用进程的调用链"><a href="#4-从-AMS-启动应用进程的调用链" class="headerlink" title="4. 从 AMS 启动应用进程的调用链"></a>4. 从 AMS 启动应用进程的调用链</h3><p>当 AMS 发现目标进程不存在时，会触发以下调用：</p>
+<ol>
+<li><strong>AMS 服务端</strong>：调用 <code>Process.start()</code> 发起进程创建请求。</li>
+<li><strong>消息传递</strong>：通过 <code>ZygoteProcess</code> 向 <code>/dev/socket/zygote</code> 写入启动参数。</li>
+<li><strong>Zygote 服务端</strong>：监听到 Socket 消息，调用 <code>Zygote.forkAndSpecialize()</code>。</li>
+<li><strong>进程诞生</strong>：<ul>
+<li><strong>父进程</strong>（Zygote）：继续循环监听 Socket。</li>
+<li><strong>子进程</strong>（新 App）：初始化 <code>ActivityThread</code>，进入 <code>main</code> 函数，开启主线程 Loop。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. 总结</h3><table>
+<thead>
+<tr>
+<th align="left">关键术语</th>
+<th align="left">定义与作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>AppRuntime</strong></td>
+<td align="left">Zygote 的启动载体，负责虚拟机的创建与 JNI 环境初始化。</td>
+</tr>
+<tr>
+<td align="left"><strong>Preload</strong></td>
+<td align="left">资源预取技术，是 Android 应用能够快速启动的根本原因。</td>
+</tr>
+<tr>
+<td align="left"><strong>LocalSocket</strong></td>
+<td align="left">AMS 与 Zygote 通信的唯一方式（而非 Binder，因为 Fork 之后 Binder 通信会产生不可控的状态冲突）。</td>
+</tr>
+</tbody></table>
+<p>Zygote 的设计精妙地结合了 Linux 系统的底层特性（Fork&#x2F;COW）与 Android 资源共享的需求，是 Android 系统稳定运行的基石。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-5-Zygote/">3.1.5 - Zygote</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
     <article id="post-3 Android/02 Framework/05 Zygote/02-Android-Framework-专项-Zygote通信机制详解"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
@@ -1171,133 +1387,6 @@
 <!-- Table of Contents -->
 
   
-    <article id="post-6 Android编译打包/Android aar 文件到底是什么"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2023/08/11/6%20Android%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85/Android%20aar%20%E6%96%87%E4%BB%B6%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88/">Android aar 文件到底是什么</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2023/08/11/6%20Android%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85/Android%20aar%20%E6%96%87%E4%BB%B6%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88/" class="article-date">
-	  <time datetime="2023-08-10T23:19:04.000Z" itemprop="datePublished">August 11, 2023</time>
-	</a>
-
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a>, <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a>
- 
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>作者: 朕小猫与GPT4</p>
-<h1 id="问题起源：怎么打包发布一个含有-C-文件的-Library"><a href="#问题起源：怎么打包发布一个含有-C-文件的-Library" class="headerlink" title="问题起源：怎么打包发布一个含有 C++ 文件的 Library"></a>问题起源：怎么打包发布一个含有 C++ 文件的 Library</h1><p>起因是 KOOM 2.2.1 Release 存在后台分析进程在部分机型失效，想自己发布一个适合自己项目的版本。</p>
-<h1 id="so文件可以被打包到最终的AAR文件中吗"><a href="#so文件可以被打包到最终的AAR文件中吗" class="headerlink" title=".so文件可以被打包到最终的AAR文件中吗"></a>.so文件可以被打包到最终的AAR文件中吗</h1><p>是的，<code>.so</code>文件可以并且通常被打包到最终的AAR（Android Archive）文件中。AAR文件是Android开发中用于分发Android库的标准格式，它包含了库所需的所有资源、编译后的代码以及其他文件，比如<code>.so</code>文件（本地库文件）。</p>
-<h3 id="打包-so文件到AAR中的步骤"><a href="#打包-so文件到AAR中的步骤" class="headerlink" title="打包.so文件到AAR中的步骤"></a>打包<code>.so</code>文件到AAR中的步骤</h3><ol>
-<li><p><strong>放置<code>.so</code>文件</strong>: 将你的<code>.so</code>文件放置在项目的<code>src/main/jniLibs/</code>目录下。按照不同的CPU架构，你可能需要创建相应的子目录，例如<code>armeabi-v7a</code>、<code>arm64-v8a</code>、<code>x86</code>等，然后将相应架构的<code>.so</code>文件放置在这些目录下。</p>
-</li>
-<li><p><strong>配置Gradle构建脚本</strong>: 确保你的<code>build.gradle</code>文件正确配置，这样Gradle在构建过程中就会自动将<code>jniLibs</code>目录下的<code>.so</code>文件包括到AAR包中。大多数情况下，这个过程是自动完成的，无需额外配置。</p>
-</li>
-</ol>
-<h3 id="示例目录结构"><a href="#示例目录结构" class="headerlink" title="示例目录结构"></a>示例目录结构</h3><figure class="highlight crystal"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">YourLibraryProject/</span><br><span class="line">├── src/</span><br><span class="line">│   └── main/</span><br><span class="line">│       ├── java/</span><br><span class="line">│       │   └── ... (your Java or Kotlin source files)</span><br><span class="line">│       ├── res/</span><br><span class="line">│       │   └── ... (your resources)</span><br><span class="line">│       └── jniLibs/</span><br><span class="line">│           ├── armeabi-v7a/</span><br><span class="line">│           │   └── libyourlibrary.so</span><br><span class="line">│           ├── arm64-v8a/</span><br><span class="line">│           │   └── libyourlibrary.so</span><br><span class="line">│           ├── x86/</span><br><span class="line">│           │   └── libyourlibrary.so</span><br><span class="line">│           └── x86_64/</span><br><span class="line">│               └── libyourlibrary.so</span><br></pre></td></tr></table></figure>
-
-<h3 id="构建AAR包"><a href="#构建AAR包" class="headerlink" title="构建AAR包"></a>构建AAR包</h3><p>当你构建你的库时（例如，通过运行<code>./gradlew assembleRelease</code>），Gradle会自动将<code>jniLibs</code>目录下的所有<code>.so</code>文件包括到生成的AAR文件中。这样，当其他开发者将你的AAR文件作为依赖项添加到他们的项目中时，这些<code>.so</code>文件就会被自动解压到正确的位置，供他们的应用使用。</p>
-<p>确保在发布你的库之前测试它，以确保<code>.so</code>文件被正确包含且可以按预期工作。这通常涉及到在包含不同CPU架构设备的模拟器或真实设备上运行和测试你的库。</p>
-<h1 id="aar-里可以有哪些文件"><a href="#aar-里可以有哪些文件" class="headerlink" title=".aar 里可以有哪些文件"></a>.aar 里可以有哪些文件</h1><p>一个AAR（Android Archive）文件是Android库项目的发布包格式，用于在开发者之间共享Android库。AAR文件包含了库所需要的所有内容，使其可以被其他的Android应用项目引用。以下是AAR文件通常包含的文件和目录：</p>
-<h3 id="必需的内容"><a href="#必需的内容" class="headerlink" title="必需的内容"></a>必需的内容</h3><ul>
-<li><code>classes.jar</code>：包含库的所有编译后的Java类（.class文件）。</li>
-<li><code>res/</code>：包含库所使用的所有资源文件，如布局（layouts）、字符串（strings）、图片（drawables）等。</li>
-<li><code>AndroidManifest.xml</code>：库的Android清单文件，描述了库的包名、所需权限、活动（activities）、服务（services）等。</li>
-</ul>
-<h3 id="可选的内容"><a href="#可选的内容" class="headerlink" title="可选的内容"></a>可选的内容</h3><ul>
-<li><code>R.txt</code>：包含库中所有资源的ID名称和类型的列表，这是为了在库被引用时帮助生成最终应用的R类。</li>
-<li><code>aidl/</code>：包含库所使用的所有AIDL（Android Interface Definition Language）文件，用于定义跨进程通信接口。</li>
-<li><code>assets/</code>：包含可以被库访问的原始文件，如文本、音频或视频文件。</li>
-<li><code>libs/*.jar</code>：包含库依赖的任何Java库的JAR文件。</li>
-<li><code>jni/</code> 或 <code>jniLibs/</code>：包含库依赖的本地库（如<code>.so</code>文件），这些文件根据不同的CPU架构可能存放在不同的子目录下，如<code>armeabi-v7a/</code>、<code>arm64-v8a/</code>等。</li>
-<li><code>proguard.txt</code>：包含用于代码混淆的ProGuard规则。</li>
-<li><code>lint.jar</code>：包含自定义lint检查规则的JAR，这些规则可以在使用库的项目中被lint程序使用。</li>
-<li><code>public.txt</code>：列出了库公开的资源ID，这些资源ID在库的使用者中是可见的。</li>
-<li><code>annotations.zip</code>：包含用于工具支持的注解，比如nullability注解等。</li>
-</ul>
-<h3 id="如何查看AAR文件内容"><a href="#如何查看AAR文件内容" class="headerlink" title="如何查看AAR文件内容"></a>如何查看AAR文件内容</h3><p>你可以通过解压AAR文件（它本质上是一个ZIP文件）来查看里面的内容。使用任何标准的压缩文件管理器，如WinRAR、7-Zip等，都可以打开AAR文件并浏览其中的内容。</p>
-<h3 id="使用AAR文件"><a href="#使用AAR文件" class="headerlink" title="使用AAR文件"></a>使用AAR文件</h3><p>当你将AAR文件作为依赖项添加到Android项目中时，项目构建系统（如Gradle）会自动处理并引入这些内容，包括解析资源、合并清单文件等，从而使库中的功能可用于应用程序。<br><a target="_blank" rel="noopener" href="https://imgse.com/i/pFy2w6J"><img src="https://s21.ax1x.com/2024/03/10/pFy2w6J.png" alt="aar文件分析.png"></a></p>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a>, <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a>
-
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
-    <article id="post-6 Android编译打包/Android 云编译 gradle 配置"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2023/08/11/6%20Android%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85/Android%20%E4%BA%91%E7%BC%96%E8%AF%91%20gradle%20%E9%85%8D%E7%BD%AE/">Android aar 文件到底是什么</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2023/08/11/6%20Android%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85/Android%20%E4%BA%91%E7%BC%96%E8%AF%91%20gradle%20%E9%85%8D%E7%BD%AE/" class="article-date">
-	  <time datetime="2023-08-10T23:19:04.000Z" itemprop="datePublished">August 11, 2023</time>
-	</a>
-
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a>, <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-2-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.2 - 简单好用的 gradle 云编译设置</a>
- 
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>作者: 朕小猫与GPT4</p>
-<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br></pre></td><td class="code"><pre><span class="line">task downloadApk &#123;</span><br><span class="line">    doLast &#123;</span><br><span class="line">        <span class="keyword">def</span> remoteApkPath = <span class="string">&quot;/home/jason/AndroidStudioProjects/ncmusic/app/build/outputs/apk/debug/app-debug.apk&quot;</span></span><br><span class="line">        <span class="keyword">def</span> localApkDir = System.getProperty(<span class="string">&quot;user.home&quot;</span>) + <span class="string">&quot;/Downloads/&quot;</span></span><br><span class="line">        <span class="keyword">def</span> localApkPath = localApkDir + <span class="string">&quot;app-debug.apk&quot;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 创建本地目录</span></span><br><span class="line">        <span class="keyword">new</span> File(localApkDir).mkdirs()</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 使用 scp 下载远程 APK 文件到本地</span></span><br><span class="line">        <span class="keyword">def</span> command = <span class="string">&quot;sshpass -p &#x27;password&#x27; scp jason@192.168.1.100:$&#123;remoteApkPath&#125; $&#123;localApkPath&#125;&quot;</span></span><br><span class="line">        println <span class="string">&quot;Executing command: $&#123;command&#125;&quot;</span></span><br><span class="line"></span><br><span class="line">        exec &#123;</span><br><span class="line">            commandLine <span class="string">&#x27;bash&#x27;</span>, <span class="string">&#x27;-c&#x27;</span>, command</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">task installAndStart &#123;</span><br><span class="line">    dependsOn downloadApk</span><br><span class="line">    doLast &#123;</span><br><span class="line">        <span class="keyword">def</span> localApkPath = System.getProperty(<span class="string">&quot;user.home&quot;</span>) + <span class="string">&quot;/Downloads/app-debug.apk&quot;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 确保 adb 可用</span></span><br><span class="line">        <span class="keyword">def</span> adbPath = <span class="string">&#x27;/Users/jason/Library/Android/sdk/platform-tools/adb&#x27;</span></span><br><span class="line">        <span class="keyword">if</span> (!<span class="keyword">new</span> File(adbPath).exists()) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> GradleException(<span class="string">&quot;adb command not found at $&#123;adbPath&#125;! Please ensure Android SDK is properly installed.&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 安装 APK</span></span><br><span class="line">        <span class="keyword">def</span> installCommand = <span class="string">&quot;$&#123;adbPath&#125; install -r $&#123;localApkPath&#125;&quot;</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            exec &#123;</span><br><span class="line">                commandLine <span class="string">&#x27;bash&#x27;</span>, <span class="string">&#x27;-c&#x27;</span>, installCommand</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> GradleException(<span class="string">&quot;Failed to install APK: $&#123;e.message&#125;&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 提取包名</span></span><br><span class="line">        <span class="keyword">def</span> manifestFile = file(<span class="string">&quot;$&#123;rootProject.projectDir&#125;/app/src/main/AndroidManifest.xml&quot;</span>)</span><br><span class="line">        <span class="keyword">def</span> packageName = <span class="string">&quot;&quot;</span></span><br><span class="line">        <span class="keyword">if</span> (manifestFile.exists()) &#123;</span><br><span class="line">            manifestFile.eachLine &#123; line -&gt;</span><br><span class="line">                <span class="keyword">if</span> (line.contains(<span class="string">&quot;package=&quot;</span>)) &#123;</span><br><span class="line">                    packageName = line.split(<span class="string">&#x27;package=&#x27;</span>)[<span class="number">1</span>].split(<span class="string">&#x27;&quot;&#x27;</span>)[<span class="number">1</span>]</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (packageName == <span class="string">&quot;&quot;</span>) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> GradleException(<span class="string">&quot;Failed to extract package name from AndroidManifest.xml&quot;</span>)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> GradleException(<span class="string">&quot;AndroidManifest.xml file not found!&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 启动应用</span></span><br><span class="line">        <span class="keyword">def</span> launchCommand = <span class="string">&quot;$&#123;adbPath&#125; shell monkey -p $&#123;packageName&#125; -c android.intent.category.LAUNCHER 1&quot;</span></span><br><span class="line">        println <span class="string">&quot;Executing command: $&#123;launchCommand&#125;&quot;</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            exec &#123;</span><br><span class="line">                commandLine <span class="string">&#x27;bash&#x27;</span>, <span class="string">&#x27;-c&#x27;</span>, launchCommand</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> GradleException(<span class="string">&quot;Failed to launch application: $&#123;e.message&#125;&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">task downloadBuild &#123;</span><br><span class="line">    doLast &#123;</span><br><span class="line">        subprojects.each &#123; subproject -&gt;</span><br><span class="line">            <span class="keyword">def</span> remoteRootPath = <span class="string">&quot;/home/jason/AndroidStudioProjects/&quot;</span></span><br><span class="line">            <span class="keyword">def</span> remoteDirPath = remoteRootPath + <span class="string">&quot;$&#123;rootProject.name&#125;/$&#123;subproject.name&#125;/build&quot;</span></span><br><span class="line">            <span class="keyword">def</span> localDirPath = <span class="string">&quot;$&#123;subproject.projectDir&#125;&quot;</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 创建本地目录</span></span><br><span class="line">            <span class="keyword">new</span> File(localDirPath).mkdirs()</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 使用 rsync 同步远程文件到本地</span></span><br><span class="line">            <span class="keyword">def</span> command = <span class="string">&quot;sshpass -p &#x27;password&#x27; rsync -avz --delete jason@192.168.1.100:$&#123;remoteDirPath&#125; $&#123;localDirPath&#125;&quot;</span></span><br><span class="line">            println <span class="string">&quot;Executing command: $&#123;command&#125;&quot;</span></span><br><span class="line"></span><br><span class="line">            exec &#123;</span><br><span class="line">                commandLine <span class="string">&#x27;bash&#x27;</span>, <span class="string">&#x27;-c&#x27;</span>, command</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">task remoteBuild &#123;</span><br><span class="line">    doLast &#123;</span><br><span class="line">        <span class="comment">// 远程构建命令</span></span><br><span class="line">        <span class="keyword">def</span> command = <span class="string">&quot;sshpass -p &#x27;password&#x27; ssh jason@192.168.1.100 &#x27;cd /home/jason/AndroidStudioProjects/ncmusic/ &amp;&amp; ./gradlew assembleDebug&#x27;&quot;</span></span><br><span class="line">        exec &#123;</span><br><span class="line">            commandLine <span class="string">&#x27;bash&#x27;</span>, <span class="string">&#x27;-c&#x27;</span>, command</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义一个任务来执行远程构建、下载 APK、安装并启动应用，然后同步构建产物</span></span><br><span class="line">task buildDownloadInstallAndStart &#123;</span><br><span class="line">    dependsOn remoteBuild</span><br><span class="line">    finalizedBy installAndStart, downloadBuild</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a>, <a class="article-category-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-2-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.2 - 简单好用的 gradle 云编译设置</a>
-
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
 
 
   <nav id="page-nav">
@@ -1485,7 +1574,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">114</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%9F%BA%E7%A1%80/">1.1 - Kotlin 基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a><span class="category-list-count">104</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/">11 - 音视频</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/11-1-%E6%92%AD%E6%94%BE%E5%99%A8%E5%AE%9E%E6%88%98/">11.1 - 播放器实战</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-1-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.1 - 多线程</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">41</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">26</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-1-Handler/">3.1.1 - Handler</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-2-AMS/">3.1.2 - AMS</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-3-WMS/">3.1.3 - WMS</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-4-Binder/">3.1.4 - Binder</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-5-Zygote/">3.1.5 - Zygote</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-6-GUI/">3.1.6 - GUI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-7-NNAPI/">3.1.7 - NNAPI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-8-HWUI/">3.1.8 - HWUI</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-2-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.2 - 播放器架构方案设计</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-3-Android-%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.3 - Android 存储文件方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-2-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.2 - 简单好用的 gradle 云编译设置</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-2-%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/">7.2 - 手势分发</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">8</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-3-%E5%AE%9E%E6%97%B6%E6%B8%B2%E6%9F%93/">8.3 - 实时渲染</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">114</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%9F%BA%E7%A1%80/">1.1 - Kotlin 基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a><span class="category-list-count">104</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/">11 - 音视频</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/11-1-%E6%92%AD%E6%94%BE%E5%99%A8%E5%AE%9E%E6%88%98/">11.1 - 播放器实战</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-1-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.1 - 多线程</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">43</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">28</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-1-Handler/">3.1.1 - Handler</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-2-AMS/">3.1.2 - AMS</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-3-WMS/">3.1.3 - WMS</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-4-Binder/">3.1.4 - Binder</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-5-Zygote/">3.1.5 - Zygote</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-6-GUI/">3.1.6 - GUI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-7-NNAPI/">3.1.7 - NNAPI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-8-HWUI/">3.1.8 - HWUI</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-2-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.2 - 播放器架构方案设计</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-3-Android-%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.3 - Android 存储文件方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-2-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.2 - 简单好用的 gradle 云编译设置</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-2-%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/">7.2 - 手势分发</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">8</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-3-%E5%AE%9E%E6%97%B6%E6%B8%B2%E6%9F%93/">8.3 - 实时渲染</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1501,7 +1590,7 @@
     <h3 class="widget-title">Archives</h3>
 
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/04/">April 2026</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/03/">March 2026</a><span class="archive-list-count">135</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/01/">January 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">November 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">March 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">54</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/04/">April 2026</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/03/">March 2026</a><span class="archive-list-count">137</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/01/">January 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">November 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">March 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">54</span></li></ul>
     </div>
   </div>
 
