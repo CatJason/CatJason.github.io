@@ -1035,7 +1035,7 @@
 <li><strong>原理：</strong> 读操作时不会阻塞写操作。读完后检查一个“戳（Stamp）”，如果期间没有写操作发生，则读取成功；如果有写操作，再退化为悲观读锁。</li>
 <li><strong>注意：</strong> 它不可重入，且不支持 <code>Condition</code>。</li>
 </ul>
-<h3 id="5-Kotlin-线程安全的数据结构"><a href="#5-Kotlin-线程安全的数据结构" class="headerlink" title="5. Kotlin 线程安全的数据结构"></a>5. Kotlin 线程安全的数据结构</h3><h3 id="二、-深入分类解读"><a href="#二、-深入分类解读" class="headerlink" title="二、 深入分类解读"></a>二、 深入分类解读</h3><table>
+<h3 id="5-Kotlin-线程安全的数据结构"><a href="#5-Kotlin-线程安全的数据结构" class="headerlink" title="5. Kotlin 线程安全的数据结构"></a>5. Kotlin 线程安全的数据结构</h3><h2 id="二、-深入分类解读"><a href="#二、-深入分类解读" class="headerlink" title="二、 深入分类解读"></a>二、 深入分类解读</h2><table>
 <thead>
 <tr>
 <th align="left">数据结构</th>
@@ -1081,18 +1081,18 @@
 <td align="left">生产者-消费者（防止内存溢出）</td>
 </tr>
 </tbody></table>
-<h4 id="1-“快读”-阵营：写时复制-Copy-On-Write"><a href="#1-“快读”-阵营：写时复制-Copy-On-Write" class="headerlink" title="1. “快读” 阵营：写时复制 (Copy-On-Write)"></a>1. “快读” 阵营：写时复制 (Copy-On-Write)</h4><ul>
+<h3 id="1-“快读”-阵营：写时复制-Copy-On-Write"><a href="#1-“快读”-阵营：写时复制-Copy-On-Write" class="headerlink" title="1. “快读” 阵营：写时复制 (Copy-On-Write)"></a>1. “快读” 阵营：写时复制 (Copy-On-Write)</h3><ul>
 <li><strong>成员</strong>：<code>CopyOnWriteArrayList</code>, <code>CopyOnWriteArraySet</code></li>
 <li><strong>原理</strong>：当你修改集合时，它不直接在原数组上改，而是复制一个新数组，改完后再把引用指向新的。</li>
 <li><strong>优点</strong>：遍历（Iterator）时不需要加锁，绝对不会抛出 <code>ConcurrentModificationException</code>。</li>
 <li><strong>缺点</strong>：写操作代价极高（内存占用翻倍）。</li>
 </ul>
-<h4 id="2-“高频”-阵营：无锁-x2F-细粒度锁-CAS-x2F-Segment"><a href="#2-“高频”-阵营：无锁-x2F-细粒度锁-CAS-x2F-Segment" class="headerlink" title="2. “高频” 阵营：无锁&#x2F;细粒度锁 (CAS&#x2F;Segment)"></a>2. “高频” 阵营：无锁&#x2F;细粒度锁 (CAS&#x2F;Segment)</h4><ul>
+<h3 id="2-“高频”-阵营：无锁-x2F-细粒度锁-CAS-x2F-Segment"><a href="#2-“高频”-阵营：无锁-x2F-细粒度锁-CAS-x2F-Segment" class="headerlink" title="2. “高频” 阵营：无锁&#x2F;细粒度锁 (CAS&#x2F;Segment)"></a>2. “高频” 阵营：无锁&#x2F;细粒度锁 (CAS&#x2F;Segment)</h3><ul>
 <li><strong>成员</strong>：<code>ConcurrentHashMap</code>, <code>ConcurrentLinkedQueue</code></li>
 <li><strong>原理</strong>：使用硬件层面的 <strong>CAS (Compare And Swap)</strong> 原子操作。<code>ConcurrentHashMap</code> 在 Java 8+ 之后对桶位（Bucket）加锁，而不是整个 Map。</li>
 <li><strong>优点</strong>：吞吐量极大，多个线程可以同时往里塞数据而不需要互相排队。</li>
 </ul>
-<h4 id="3-“同步”-阵营：阻塞队列-Blocking"><a href="#3-“同步”-阵营：阻塞队列-Blocking" class="headerlink" title="3. “同步” 阵营：阻塞队列 (Blocking)"></a>3. “同步” 阵营：阻塞队列 (Blocking)</h4><ul>
+<h3 id="3-“同步”-阵营：阻塞队列-Blocking"><a href="#3-“同步”-阵营：阻塞队列-Blocking" class="headerlink" title="3. “同步” 阵营：阻塞队列 (Blocking)"></a>3. “同步” 阵营：阻塞队列 (Blocking)</h3><ul>
 <li><strong>成员</strong>：<code>LinkedBlockingQueue</code>, <code>ArrayBlockingQueue</code></li>
 <li><strong>原理</strong>：利用 <code>Condition</code> 实现“等待-唤醒”机制。如果队列满了，写线程会停下等；如果队列空了，读线程会停下等。</li>
 <li><strong>区别</strong>：<ul>
@@ -1222,11 +1222,11 @@
 <ul>
 <li>由于写操作是在副本上进行的，读线程即使在写操作过程中进行遍历，读取的也是旧数组的快照（Snapshot），因此不会产生冲突，也不会抛出异常。</li>
 </ul>
-<h5 id="优点："><a href="#优点：" class="headerlink" title="优点："></a>优点：</h5><ol>
+<h5 id="优点-1"><a href="#优点-1" class="headerlink" title="优点"></a>优点</h5><ol>
 <li><strong>线程安全且无锁读</strong>：读操作性能极高，适合高频读取。</li>
 <li><strong>一致性快照</strong>：遍历时不需要加锁，且不会受到修改操作的影响。</li>
 </ol>
-<h5 id="缺点："><a href="#缺点：" class="headerlink" title="缺点："></a>缺点：</h5><ol>
+<h5 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h5><ol>
 <li><strong>内存开销</strong>：每次写操作都要复制整个数组。如果数组很大，会频繁触发 GC，甚至导致 OOM。</li>
 <li><strong>数据延迟（最终一致性）</strong>：读线程可能会在短时间内读取到旧数据，因为写操作还没把引用指向新数组。</li>
 <li><strong>写操作慢</strong>：因为涉及数组拷贝，写性能远低于 <code>ArrayList</code>。</li>
@@ -1264,7 +1264,37 @@
 <td>低（原地修改）</td>
 </tr>
 </tbody></table>
-<h1 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h1><h3 id="CAS原子操作原语"><a href="#CAS原子操作原语" class="headerlink" title="CAS原子操作原语"></a>CAS原子操作原语</h3><p>无锁软件通常依赖硬件提供的原子<strong>读取-修改-写入</strong>（Read-Modify-Write）原语。</p>
+<h1 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h1><h2 id="Java-7-ConcurrentHashMap-Segment-分段锁"><a href="#Java-7-ConcurrentHashMap-Segment-分段锁" class="headerlink" title="Java 7 ConcurrentHashMap Segment 分段锁"></a>Java 7 ConcurrentHashMap Segment 分段锁</h2><p>在 Java 7 的 <code>ConcurrentHashMap</code> 中，<strong>Segment 分段锁</strong>的实现本质上是<strong>“化整为零”</strong>的锁管理策略。它通过将一个巨大的哈希表拆分为多个独立维护的小型哈希表，从而实现真正的并发写入。</p>
+<p>以下是其核心设计与实现逻辑：</p>
+<h3 id="1-核心数据结构：分层架构"><a href="#1-核心数据结构：分层架构" class="headerlink" title="1. 核心数据结构：分层架构"></a>1. 核心数据结构：分层架构</h3><p><code>Segment</code> 的实现依赖于一个三层嵌套结构：</p>
+<ul>
+<li><strong>外层 ConcurrentHashMap</strong>：持有一个 <code>Segment</code> 数组。</li>
+<li><strong>中层 Segment</strong>：每个 Segment 内部包含一个小型 <code>HashEntry</code> 数组。最关键的是，**<code>Segment</code> 类继承自 <code>ReentrantLock</code>**，这使得每个分段本身就是一把锁。</li>
+<li><strong>内层 HashEntry</strong>：具体的键值对节点。</li>
+</ul>
+<h3 id="2-写入流程（put-操作）：双重定位"><a href="#2-写入流程（put-操作）：双重定位" class="headerlink" title="2. 写入流程（put 操作）：双重定位"></a>2. 写入流程（put 操作）：双重定位</h3><p>当你向 Map 中插入数据时，会经历两次定位过程：</p>
+<ol>
+<li><strong>定位 Segment</strong>：通过对 Key 的 <code>hashCode</code> 进行再哈希，计算出该数据属于哪一个 Segment。</li>
+<li><strong>加锁操作</strong>：调用该 Segment 的 <code>lock()</code> 方法。此时，<strong>只有操作同一个 Segment 的线程才会被阻塞</strong>。操作不同 Segment 的线程可以并行执行。</li>
+<li><strong>定位 HashEntry</strong>：在 Segment 内部的数组中找到具体的桶位置，执行插入逻辑。</li>
+<li><strong>释放锁</strong>：操作完成后通过 <code>unlock()</code> 释放。</li>
+</ol>
+<h3 id="3-读取流程（get-操作）：无锁化设计"><a href="#3-读取流程（get-操作）：无锁化设计" class="headerlink" title="3. 读取流程（get 操作）：无锁化设计"></a>3. 读取流程（get 操作）：无锁化设计</h3><p>Segment 设计的一个精妙之处在于 <code>get</code> 操作通常是<strong>不需要加锁</strong>的。</p>
+<ul>
+<li><strong>实现原理</strong>：<code>HashEntry</code> 的 <code>value</code> 字段和 <code>next</code> 指针都使用了 <strong><code>volatile</code> 关键字</strong>。</li>
+<li><strong>效果</strong>：<code>volatile</code> 保证了内存可见性，即一个线程修改了数据，另一个线程能立刻看到最新值。这使得读取操作可以在不获取锁的情况下安全进行，极大提升了吞吐量。</li>
+</ul>
+<h3 id="4-关键技术点：为什么是-2-的幂次方？"><a href="#4-关键技术点：为什么是-2-的幂次方？" class="headerlink" title="4. 关键技术点：为什么是 2 的幂次方？"></a>4. 关键技术点：为什么是 2 的幂次方？</h3><p>正如之前提到的，Segment 数组的大小（并发级别）会被调整为 2 的幂次方。</p>
+<ul>
+<li><strong>掩码运算</strong>：假设 Segment 数量为 16（即 $2^4$），寻址时只需执行 <code>(hash &gt;&gt;&gt; segmentShift) &amp; segmentMask</code>。</li>
+<li><strong>效率</strong>：这种位运算比传统的取模运算（%）要快得多，确保了在高并发下定位 Segment 的性能损耗降到最低。</li>
+</ul>
+<h3 id="5-总结：Segment-的本质"><a href="#5-总结：Segment-的本质" class="headerlink" title="5. 总结：Segment 的本质"></a>5. 总结：Segment 的本质</h3><p>Segment 实际上是<strong>对锁的物理隔离</strong>。</p>
+<ul>
+<li>它解决了 <code>Hashtable</code> 中“一人持锁，全家等待”的尴尬局面。</li>
+<li><strong>限制</strong>：一旦初始化完成，Segment 的数量就固定了，这意味着它的最大并发度在整个生命周期内无法动态扩展。这也是为什么 Java 8 最终转向了基于 CAS 的<strong>桶级（Bucket-level）锁</strong>，实现了更细粒度的控制。</li>
+</ul>
+<h2 id="CAS原子操作原语"><a href="#CAS原子操作原语" class="headerlink" title="CAS原子操作原语"></a>CAS原子操作原语</h2><p>无锁软件通常依赖硬件提供的原子<strong>读取-修改-写入</strong>（Read-Modify-Write）原语。</p>
 <p>在较老一代的 ARM64 CPU 上，原子操作使用 <strong>LL&#x2F;SC 循环</strong>（Load-Link&#x2F;Store-Conditional）。CPU 加载一个值并标记该地址。如果另一个线程写入了该地址，存储操作会失败，循环会重试。因为线程可以不断尝试并在不等待其他线程的情况下成功，所以这一操作是无锁的。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">asmretry:</span><br><span class="line">    ldxr    x0, [x1]        // 从地址 x1 独占加载到 x0</span><br><span class="line">    add     x0, x0, #1      // 值加 1</span><br><span class="line">    stxr    w2, x0, [x1]    // 独占存储</span><br><span class="line">                            // w2 为 0 表示成功，1 表示失败</span><br><span class="line">    cbnz    w2, retry       // 如果 w2 非零（失败），跳转到 retry</span><br></pre></td></tr></table></figure>
 
