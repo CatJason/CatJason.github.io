@@ -156,7 +156,21 @@
 <li><strong>代码关键点</strong>:<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 在 startOtherServices 方法中</span></span><br><span class="line">wm = WindowManagerService.main(context, inputManager, !mFirstBoot, mOnlyCore, <span class="keyword">new</span> <span class="title class_">PhoneWindowManager</span>(), mActivityManagerService.getAppTransition());</span><br><span class="line">ServiceManager.addService(Context.WINDOW_SERVICE, wm);</span><br></pre></td></tr></table></figure></li>
 </ul>
 <h2 id="2-窗口添加流程-WindowManager-addView"><a href="#2-窗口添加流程-WindowManager-addView" class="headerlink" title="2. 窗口添加流程 (WindowManager.addView)"></a>2. 窗口添加流程 (WindowManager.addView)</h2><p>这是应用进程请求 WMS 显示 UI 的核心路径。</p>
-<h3 id="2-1-时序图：addView-过程"><a href="#2-1-时序图：addView-过程" class="headerlink" title="2.1 时序图：addView 过程"></a>2.1 时序图：addView 过程</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">sequenceDiagram</span><br><span class="line">    participant App as 应用进程 (Activity/View)</span><br><span class="line">    participant WMGlobal as WindowManagerGlobal</span><br><span class="line">    participant VRI as ViewRootImpl</span><br><span class="line">    participant Session as Session (WMS Proxy)</span><br><span class="line">    participant WMS as WindowManagerService</span><br><span class="line"></span><br><span class="line">    App-&gt;&gt;WMGlobal: addView(view, params)</span><br><span class="line">    WMGlobal-&gt;&gt;VRI: new ViewRootImpl()</span><br><span class="line">    VRI-&gt;&gt;VRI: setView()</span><br><span class="line">    VRI-&gt;&gt;Session: addToDisplay()</span><br><span class="line">    Session-&gt;&gt;WMS: addWindow()</span><br><span class="line">    WMS-&gt;&gt;WMS: 验证权限 &amp; Token</span><br><span class="line">    WMS-&gt;&gt;WMS: 创建 WindowState 实例</span><br><span class="line">    WMS--&gt;&gt;VRI: 返回操作结果 (OK/Err)</span><br></pre></td></tr></table></figure>
+<h3 id="2-1-时序图：addView-过程"><a href="#2-1-时序图：addView-过程" class="headerlink" title="2.1 时序图：addView 过程"></a>2.1 时序图：addView 过程</h3><pre class="mermaid">sequenceDiagram
+    participant App as 应用进程 (Activity/View)
+    participant WMGlobal as WindowManagerGlobal
+    participant VRI as ViewRootImpl
+    participant Session as Session (WMS Proxy)
+    participant WMS as WindowManagerService
+
+    App->>WMGlobal: addView(view, params)
+    WMGlobal->>VRI: new ViewRootImpl()
+    VRI->>VRI: setView()
+    VRI->>Session: addToDisplay()
+    Session->>WMS: addWindow()
+    WMS->>WMS: 验证权限 & Token
+    WMS->>WMS: 创建 WindowState 实例
+    WMS-->>VRI: 返回操作结果 (OK/Err)</pre>
 
 <h3 id="2-2-核心步骤解析"><a href="#2-2-核心步骤解析" class="headerlink" title="2.2 核心步骤解析"></a>2.2 核心步骤解析</h3><ol>
 <li><strong>WindowManagerGlobal</strong>: 应用进程内的单例，管理所有窗口的 View 和 ViewRootImpl。</li>
@@ -165,7 +179,21 @@
 <li><strong>addWindow</strong>: WMS 内部方法，负责创建 <code>WindowState</code> 并维护 Z-order 堆栈。</li>
 </ol>
 <h2 id="3-布局与-Surface-分配-Relayout"><a href="#3-布局与-Surface-分配-Relayout" class="headerlink" title="3. 布局与 Surface 分配 (Relayout)"></a>3. 布局与 Surface 分配 (Relayout)</h2><p>窗口添加后，需要确定具体大小并获得绘图“画布”（Surface）。</p>
-<h3 id="3-1-时序图：Relayout-过程"><a href="#3-1-时序图：Relayout-过程" class="headerlink" title="3.1 时序图：Relayout 过程"></a>3.1 时序图：Relayout 过程</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">sequenceDiagram</span><br><span class="line">    participant VRI as ViewRootImpl</span><br><span class="line">    participant Session as Session (WMS Proxy)</span><br><span class="line">    participant WMS as WindowManagerService</span><br><span class="line">    participant WinState as WindowState</span><br><span class="line">    participant SF as SurfaceFlinger</span><br><span class="line"></span><br><span class="line">    VRI-&gt;&gt;VRI: performTraversals()</span><br><span class="line">    VRI-&gt;&gt;Session: relayout()</span><br><span class="line">    Session-&gt;&gt;WMS: relayoutWindow()</span><br><span class="line">    WMS-&gt;&gt;WinState: createSurfaceControl()</span><br><span class="line">    WinState-&gt;&gt;SF: 请求分配 Layer</span><br><span class="line">    SF--&gt;&gt;WinState: 返回 SurfaceControl Native 句柄</span><br><span class="line">    WMS--&gt;&gt;VRI: 填充应用端的 Surface 对象</span><br><span class="line">    VRI-&gt;&gt;VRI: 开始应用层绘制 (Canvas/OpenGL)</span><br></pre></td></tr></table></figure>
+<h3 id="3-1-时序图：Relayout-过程"><a href="#3-1-时序图：Relayout-过程" class="headerlink" title="3.1 时序图：Relayout 过程"></a>3.1 时序图：Relayout 过程</h3><pre class="mermaid">sequenceDiagram
+    participant VRI as ViewRootImpl
+    participant Session as Session (WMS Proxy)
+    participant WMS as WindowManagerService
+    participant WinState as WindowState
+    participant SF as SurfaceFlinger
+
+    VRI->>VRI: performTraversals()
+    VRI->>Session: relayout()
+    Session->>WMS: relayoutWindow()
+    WMS->>WinState: createSurfaceControl()
+    WinState->>SF: 请求分配 Layer
+    SF-->>WinState: 返回 SurfaceControl Native 句柄
+    WMS-->>VRI: 填充应用端的 Surface 对象
+    VRI->>VRI: 开始应用层绘制 (Canvas/OpenGL)</pre>
 
 <h2 id="4-关键类及其关系"><a href="#4-关键类及其关系" class="headerlink" title="4. 关键类及其关系"></a>4. 关键类及其关系</h2><table>
 <thead>

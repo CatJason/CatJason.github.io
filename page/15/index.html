@@ -802,7 +802,7 @@
 <h2 id="4-线程切换-flowOn"><a href="#4-线程切换-flowOn" class="headerlink" title="4. 线程切换 (flowOn)"></a>4. 线程切换 (flowOn)</h2><p>Flow 遵循上下文保存原则。使用 <code>flowOn</code> 改变<strong>上游</strong>操作符执行的协程上下文。</p>
 <figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">flow &#123;</span><br><span class="line">    <span class="comment">// 这部分将运行在 Dispatchers.Default</span></span><br><span class="line">    emit(computeResult())</span><br><span class="line">&#125;.flowOn(Dispatchers.Default)</span><br><span class="line"> .collect &#123; value -&gt;</span><br><span class="line">    <span class="comment">// 这部分运行在收集器的上下文中（如 Dispatchers.Main）</span></span><br><span class="line">    updateUI(value)</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="5-背压处理-Buffering-amp-Conflation"><a href="#5-背压处理-Buffering-amp-Conflation" class="headerlink" title="5. 背压处理 (Buffering &amp; Conflation)"></a>5. 背压处理 (Buffering &amp; Conflation)</h2><p>当生产者速度快于消费者时，可以使用以下方式：</p>
+<h2 id="5-背压处理-Buffering-Conflation"><a href="#5-背压处理-Buffering-Conflation" class="headerlink" title="5. 背压处理 (Buffering &amp; Conflation)"></a>5. 背压处理 (Buffering &amp; Conflation)</h2><p>当生产者速度快于消费者时，可以使用以下方式：</p>
 <ul>
 <li><strong>buffer()</strong>: 缓冲发送，让生产者和消费者并发运行。</li>
 <li><strong>conflate()</strong>: 合并发送，消费者只处理最新的值，跳过中间值。</li>
@@ -1087,7 +1087,7 @@
 <li><strong>优点</strong>：遍历（Iterator）时不需要加锁，绝对不会抛出 <code>ConcurrentModificationException</code>。</li>
 <li><strong>缺点</strong>：写操作代价极高（内存占用翻倍）。</li>
 </ul>
-<h2 id="2-“高频”-阵营：无锁-x2F-细粒度锁-CAS-x2F-Segment"><a href="#2-“高频”-阵营：无锁-x2F-细粒度锁-CAS-x2F-Segment" class="headerlink" title="2. “高频” 阵营：无锁&#x2F;细粒度锁 (CAS&#x2F;Segment)"></a>2. “高频” 阵营：无锁&#x2F;细粒度锁 (CAS&#x2F;Segment)</h2><ul>
+<h2 id="2-“高频”-阵营：无锁-细粒度锁-CAS-Segment"><a href="#2-“高频”-阵营：无锁-细粒度锁-CAS-Segment" class="headerlink" title="2. “高频” 阵营：无锁&#x2F;细粒度锁 (CAS&#x2F;Segment)"></a>2. “高频” 阵营：无锁&#x2F;细粒度锁 (CAS&#x2F;Segment)</h2><ul>
 <li><strong>成员</strong>：<code>ConcurrentHashMap</code>, <code>ConcurrentLinkedQueue</code></li>
 <li><strong>原理</strong>：使用硬件层面的 <strong>CAS (Compare And Swap)</strong> 原子操作。<code>ConcurrentHashMap</code> 在 Java 8+ 之后对桶位（Bucket）加锁，而不是整个 Map。</li>
 <li><strong>优点</strong>：吞吐量极大，多个线程可以同时往里塞数据而不需要互相排队。</li>
@@ -1172,13 +1172,13 @@
 <li><strong>高性能</strong>：在高并发场景（尤其是生产者和消费者都很频繁时）下，吞吐量远超 <code>LinkedBlockingQueue</code>。</li>
 <li><strong>永不失效的迭代器</strong>：它的迭代器是弱一致性的，不会抛出 <code>ConcurrentModificationException</code>。</li>
 </ul>
-<h5 id="缺点-x2F-局限"><a href="#缺点-x2F-局限" class="headerlink" title="缺点&#x2F;局限"></a>缺点&#x2F;局限</h5><ul>
+<h5 id="缺点-局限"><a href="#缺点-局限" class="headerlink" title="缺点&#x2F;局限"></a>缺点&#x2F;局限</h5><ul>
 <li><strong>size() 开销大</strong>：由于是链表结构且没有全局计数器（维护计数器本身需要同步），计算 <code>size</code> 必须遍历全表，复杂度为 $O(n)$。</li>
 <li><strong>内存压力</strong>：无界队列如果不加控制，在生产者远快于消费者时可能会导致 OOM。</li>
 </ul>
 <p><code>ConcurrentLinkedQueue</code> 是通过 <strong>CAS 原子指令 + 延迟指针更新</strong> 实现的。它通过牺牲一定的实时准确性（如 <code>tail</code> 指针的滞后）换取了极高的并发处理能力，是实现高性能异步处理任务的理想选择。</p>
 <p>以下是触发 <code>tail</code> 偏离并重新校准的具体场景分析：</p>
-<h5 id="1-典型的“跳跃更新”场景（Hops-x3D-2）"><a href="#1-典型的“跳跃更新”场景（Hops-x3D-2）" class="headerlink" title="1. 典型的“跳跃更新”场景（Hops &#x3D; 2）"></a>1. 典型的“跳跃更新”场景（Hops &#x3D; 2）</h5><p>为了平衡 CAS 的性能开销，Doug Lea（JUC 作者）设计了让 <code>tail</code> 滞后。</p>
+<h5 id="1-典型的“跳跃更新”场景（Hops-2）"><a href="#1-典型的“跳跃更新”场景（Hops-2）" class="headerlink" title="1. 典型的“跳跃更新”场景（Hops &#x3D; 2）"></a>1. 典型的“跳跃更新”场景（Hops &#x3D; 2）</h5><p>为了平衡 CAS 的性能开销，Doug Lea（JUC 作者）设计了让 <code>tail</code> 滞后。</p>
 <ul>
 <li><strong>初始状态</strong>：<code>head</code> 和 <code>tail</code> 都指向同一个哨兵节点（Node 0）。</li>
 <li><strong>第一次插入（Thread A）</strong>：<ol>
@@ -1483,7 +1483,7 @@
 </tr>
 </tbody></table>
 <hr>
-<h2 id="🎙-面试官进阶-Q-amp-A"><a href="#🎙-面试官进阶-Q-amp-A" class="headerlink" title="🎙 面试官进阶 Q&amp;A"></a>🎙 面试官进阶 Q&amp;A</h2><p><strong>Q：既然重量级锁慢，为什么不一直用轻量级锁自旋？</strong></p>
+<h2 id="🎙-面试官进阶-Q-A"><a href="#🎙-面试官进阶-Q-A" class="headerlink" title="🎙 面试官进阶 Q&amp;A"></a>🎙 面试官进阶 Q&amp;A</h2><p><strong>Q：既然重量级锁慢，为什么不一直用轻量级锁自旋？</strong></p>
 <ul>
 <li><strong>答</strong>：自旋会消耗 <strong>CPU 算力</strong>（CPU 在跑空转指令）。如果持锁线程执行时间很长，一直自旋会白白浪费 CPU 资源。因此，达到一定阈值后必须膨胀为重量级锁，让竞争线程去“睡觉”（挂起），把资源让给真正干活的线程。</li>
 </ul>

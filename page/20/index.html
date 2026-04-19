@@ -903,7 +903,7 @@
 <li><strong>每一帧都是“重新构建”</strong>：虽然引擎有 <code>Command Buffer</code> 重用技术，但其本质是<strong>主动评估</strong>。即使场景静止，CPU 依然在进行视锥剔除（Frustum Culling）和状态检查。</li>
 <li><strong>性能权衡</strong>：这种架构能处理极其复杂的 3D 变换，但对移动端而言，它意味着 CPU 无法进入 C-State 深度睡眠，是<strong>电量杀手</strong>。</li>
 </ul>
-<h3 id="1-2-Android-HWUI：被动式保留渲染-Reactive-x2F-Retained-Mode"><a href="#1-2-Android-HWUI：被动式保留渲染-Reactive-x2F-Retained-Mode" class="headerlink" title="1.2 Android HWUI：被动式保留渲染 (Reactive &#x2F; Retained Mode)"></a>1.2 Android HWUI：被动式保留渲染 (Reactive &#x2F; Retained Mode)</h3><p>Android UI 是为<strong>局部更新</strong>和<strong>长时间静止</strong>设计的。</p>
+<h3 id="1-2-Android-HWUI：被动式保留渲染-Reactive-Retained-Mode"><a href="#1-2-Android-HWUI：被动式保留渲染-Reactive-Retained-Mode" class="headerlink" title="1.2 Android HWUI：被动式保留渲染 (Reactive &#x2F; Retained Mode)"></a>1.2 Android HWUI：被动式保留渲染 (Reactive &#x2F; Retained Mode)</h3><p>Android UI 是为<strong>局部更新</strong>和<strong>长时间静止</strong>设计的。</p>
 <ul>
 <li><strong>DisplayList 编译机制</strong>：View 的 <code>onDraw</code> 不产生像素，而是将 Canvas API 映射为二进制指令集（DisplayList）。这类似于一种“中间语言”。</li>
 <li><strong>RenderNode 属性化</strong>：RenderNode 封装了 DisplayList 及其变换属性（Alpha, Matrix, Clip）。<strong>平移、缩放动画只需修改 RenderNode 的属性，完全不触发 <code>onDraw</code>。</strong></li>
@@ -1087,7 +1087,7 @@
 <li>**缺页中断 (Page Faults)**：当 <code>calloc</code> 开始写入零值时，每跨越 4KB（一个内存页），硬件就会触发一次缺页中断，陷入内核，由内核分配物理页并建立映射。</li>
 <li><strong>CPU 计算</strong>：这一切都是在 CPU 上串行完成的。</li>
 </ol>
-<h3 id="4-2-后续-Clear-x2F-Draw-为什么快？"><a href="#4-2-后续-Clear-x2F-Draw-为什么快？" class="headerlink" title="4.2 后续 Clear&#x2F;Draw 为什么快？"></a>4.2 后续 Clear&#x2F;Draw 为什么快？</h3><p>当你已经创建好 Bitmap，调用 <code>bitmap.eraseColor(Color.TRANSPARENT)</code> 或在上面绘图时：</p>
+<h3 id="4-2-后续-Clear-Draw-为什么快？"><a href="#4-2-后续-Clear-Draw-为什么快？" class="headerlink" title="4.2 后续 Clear&#x2F;Draw 为什么快？"></a>4.2 后续 Clear&#x2F;Draw 为什么快？</h3><p>当你已经创建好 Bitmap，调用 <code>bitmap.eraseColor(Color.TRANSPARENT)</code> 或在上面绘图时：</p>
 <ol>
 <li><strong>内存已驻留</strong>：物理内存页已经分配好了，映射关系已经建立，<strong>不再有缺页中断</strong>。</li>
 <li><strong>GPU 加速</strong>：如果开启了硬件加速，<code>eraseColor</code> 最终可能转换成一条 GPU 指令（如 OpenGL 的 <code>glClear</code> 或 Vulkan 的 Clear 指令）。GPU 拥有数百个核心和极高的内存带宽，清空几个 MB 的数据只需要几微秒。</li>
