@@ -115,6 +115,76 @@
         
           <section id="main">
   
+    <article id="post-3 Android/02 Framework/01 Handler/05-Android-Framework-专项-Android17的无锁MessageQueue2"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2026/03/30/3%20Android/02%20Framework/01%20Handler/05-Android-Framework-%E4%B8%93%E9%A1%B9-Android17%E7%9A%84%E6%97%A0%E9%94%81MessageQueue2/">Android 17 的无锁 MessageQueue</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2026/03/30/3%20Android/02%20Framework/01%20Handler/05-Android-Framework-%E4%B8%93%E9%A1%B9-Android17%E7%9A%84%E6%97%A0%E9%94%81MessageQueue2/" class="article-date">
+	  <time datetime="2026-03-29T17:48:29.035Z" itemprop="datePublished">March 30, 2026</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-1-Handler/">3.1.1 - Handler</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Android-UI-掉帧的问题"><a href="#Android-UI-掉帧的问题" class="headerlink" title="Android UI 掉帧的问题"></a>Android UI 掉帧的问题</h2><p>为了说明问题，让我们分析一个用户在拍照后导航回主屏幕时遭遇卡顿的 trace。下图展示了 Perfetto 中导致掉帧的事件序列：</p>
+<p><img src="https://i-blog.csdnimg.cn/direct/56dcb8d8c0af431aa705b7bcc55aa551.jpeg" alt="在这里插入图片描述"></p>
+<ul>
+<li><strong>现象</strong>：Launcher 主线程错过了帧截止时间。阻塞了 18ms，超过了 60Hz 渲染所需的 16ms 截止时间。</li>
+<li><strong>诊断</strong>：Perfetto 显示主线程被 MessageQueue 锁阻塞。”BackgroundExecutor” 线程持有该锁。</li>
+<li><strong>根因</strong>：BackgroundExecutor 运行在 <code>Process.THREAD_PRIORITY_BACKGROUND</code>（极低优先级）。它正在执行一个非紧急任务（检查应用使用限制）。与此同时，中优先级线程正在使用 CPU 处理来自相机的数据。OS 调度器抢占了 BackgroundExecutor 线程来运行相机线程。</li>
+</ul>
+<p>这一序列导致 Launcher 的 UI 线程（高优先级）被相机工作线程（中优先级）间接阻塞——因为后者阻止了 Launcher 的后台线程（低优先级）释放锁。</p>
+<h2 id="问题拆解"><a href="#问题拆解" class="headerlink" title="问题拆解"></a>问题拆解</h2><p>要拆解这个问题，首先要搞清楚具体去掉了哪一把锁</p>
+<p>在 Android 17（API 级别 37）中，Google 对 <code>MessageQueue</code> 进行了重大重构，引入了名为 <strong>DeliQueue</strong> 的无锁实现。</p>
+<p>你问的具体是去掉了哪把锁？答案是：<strong>去掉了原本包裹在 <code>enqueueMessage()</code>、<code>next()</code>、<code>removeMessages()</code> 等核心方法周围的那个唯一的全局同步锁（Object Monitor Lock）。</strong></p>
+<p>以下是详细的改动逻辑和背后的机制：</p>
+<h3 id="1-被去掉的“那把锁”"><a href="#1-被去掉的“那把锁”" class="headerlink" title="1. 被去掉的“那把锁”"></a>1. 被去掉的“那把锁”</h3><p>在 Android 17 之前，<code>MessageQueue</code> 内部几乎所有操作都依赖于一个私有的 <code>Object</code> 对象（通常就是 <code>MessageQueue</code> 实例本身）来作为同步锁：</p>
+<p>Java</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// 传统实现（Android 17 之前）</span><br><span class="line">boolean enqueueMessage(Message msg, long when) &#123;</span><br><span class="line">    synchronized (this) &#123; // 就是这把锁被“干掉”了</span><br><span class="line">        // 插入逻辑，修改 mMessages 链表</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这把锁是一个<strong>独占锁（Exclusive Lock）</strong>。这意味着：如果后台线程正在向主线程发送消息（加锁），而此时主线程刚好执行完任务想去取下一条消息（也需要加锁），主线程就会被后台线程阻塞。这就是造成 UI 掉帧和“优先级反转”的典型场景。</p>
+<h3 id="2-Android-17-是如何实现“无锁”的？"><a href="#2-Android-17-是如何实现“无锁”的？" class="headerlink" title="2. Android 17 是如何实现“无锁”的？"></a>2. Android 17 是如何实现“无锁”的？</h3><p>Android 17 并没有简单地删掉 <code>synchronized</code> 关键字，而是改变了底层的数据结构，将原本的一个“优先级链表”拆分成了两个部分，并配合 <strong>CAS (Compare-And-Swap)</strong> 原子操作来实现并发安全。</p>
+<h4 id="核心架构：DeliQueue"><a href="#核心架构：DeliQueue" class="headerlink" title="核心架构：DeliQueue"></a>核心架构：DeliQueue</h4><ul>
+<li><strong>入队端（Treiber Stack）：</strong> 当任何线程调用 <code>enqueueMessage</code> 时，消息不再直接插入优先级队列，而是压入一个<strong>无锁栈（Lock-free Stack）</strong>。这个过程使用 CAS 指令，不需要挂起线程，多线程并发时性能极高。</li>
+<li><strong>出队端（Min-heap）：</strong> Looper 线程（通常是 UI 线程）拥有一个私有的<strong>最小堆（Min-heap）</strong>。由于这个堆只有 Looper 线程自己能访问，因此<strong>完全不需要锁</strong>。</li>
+<li><strong>同步机制：</strong> 当 Looper 发现堆里没消息了，它会一次性从无锁栈中取出所有新消息，排序后放入自己的最小堆。</li>
+</ul>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-1-Handler/">3.1.1 - Handler</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
     <article id="post-3 Android/02 Framework/01 Handler/05-Android-Framework-专项-Android17的无锁MessageQueue"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
@@ -1348,151 +1418,6 @@
 <!-- Table of Contents -->
 
   
-    <article id="post-3 Android/02 Framework/02 AMS/03-Android-Framework-AMS专项-AMS与ATMS的区别解析"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2026/03/29/3%20Android/02%20Framework/02%20AMS/03-Android-Framework-AMS%E4%B8%93%E9%A1%B9-AMS%E4%B8%8EATMS%E7%9A%84%E5%8C%BA%E5%88%AB%E8%A7%A3%E6%9E%90/">AMS 与 ATMS 的区别解析</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2026/03/29/3%20Android/02%20Framework/02%20AMS/03-Android-Framework-AMS%E4%B8%93%E9%A1%B9-AMS%E4%B8%8EATMS%E7%9A%84%E5%8C%BA%E5%88%AB%E8%A7%A3%E6%9E%90/" class="article-date">
-	  <time datetime="2026-03-29T14:34:31.412Z" itemprop="datePublished">March 29, 2026</time>
-	</a>
-
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-2-AMS/">3.1.2 - AMS</a>
- 
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>自 Android 10 (API 29) 开始，Google 对原本庞大的 <code>ActivityManagerService</code> (AMS) 进行了结构性重构，将其核心的 Activity 管理职能抽离出来，成立了 <code>ActivityTaskManagerService</code> (ATMS)。</p>
-<h3 id="1-为什么要进行拆分？"><a href="#1-为什么要进行拆分？" class="headerlink" title="1. 为什么要进行拆分？"></a>1. 为什么要进行拆分？</h3><p>在早期的 Android 版本中，AMS 承载了太多的职责。这种“巨石”设计导致了严重的工程问题：</p>
-<table>
-<thead>
-<tr>
-<th align="left">核心痛点</th>
-<th align="left">详细解析与举例</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left"><strong>代码耦合严重</strong></td>
-<td align="left"><strong>现象</strong>：Activity 栈管理逻辑与广播分发逻辑共用同一个线程&#x2F;锁。<br><strong>举例</strong>：在计算复杂的 Task 切换（如分屏模式下的 Activity 移动）时，如果逻辑出错产生死锁或耗时过长，会直接阻塞同一进程内的广播分发 <code>Handler</code>，导致无关的广播接收者出现 ANR。</td>
-</tr>
-<tr>
-<td align="left"><strong>职责不清晰</strong></td>
-<td align="left"><strong>现象</strong>：WMS 需要频繁跨模块获取 Activity 状态。<br><strong>举例</strong>：WMS 在准备窗口切换动画时，必须知道 Activity 是否可见。旧版 WMS 需通过繁琐的 IPC 调用 AMS 的 <code>ActivityRecord</code> 状态，这不仅产生了大量的跨模块冗余代码，还增加了同步状态时的延迟。拆分后，ATMS 与 WMS 深度融合，共同管理 <code>WindowContainer</code> 层级结构。</td>
-</tr>
-<tr>
-<td align="left"><strong>维护成本极高</strong></td>
-<td align="left"><strong>现象</strong>：单文件行数爆炸，合并冲突不断。<br><strong>举例</strong>：<code>ActivityManagerService.java</code> 的源码量曾一度突破 30,000 行。开发者 A 在修复 <code>Service</code> 粘性启动的 Bug，开发者 B 在优化 <code>Activity</code> 的启动速度，由于两人都在操作同一个文件，导致每次版本合并时都会产生极其复杂的代码冲突。</td>
-</tr>
-</tbody></table>
-<h4 id="核心管理对象：Record-体系"><a href="#核心管理对象：Record-体系" class="headerlink" title="核心管理对象：Record 体系"></a>核心管理对象：Record 体系</h4><p>为了实现职责分离，AMS 与 ATMS 分别维护了不同的核心数据对象：</p>
-<table>
-<thead>
-<tr>
-<th align="left">对象名称</th>
-<th align="left">所属服务</th>
-<th align="left">核心职责</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left"><strong>ProcessRecord</strong></td>
-<td align="left"><strong>AMS</strong></td>
-<td align="left"><strong>进程管家</strong>。描述一个应用进程的实体，记录了进程的 PID、UID、包含的组件（Service, Receiver）、进程优先级（Adj）以及内存状态。AMS 通过它来决定系统内存不足时该“杀掉”哪个进程。</td>
-</tr>
-<tr>
-<td align="left"><strong>ActivityRecord</strong></td>
-<td align="left"><strong>ATMS</strong></td>
-<td align="left"><strong>Activity 档案</strong>。描述一个 Activity 实例的最小单位。记录了 Intent、所属 Task、状态（Resumed, Paused 等）、对应的 WindowToken。它与应用端的 Activity 实例一一对应。</td>
-</tr>
-<tr>
-<td align="left"><strong>TaskRecord</strong></td>
-<td align="left"><strong>ATMS</strong></td>
-<td align="left"><strong>任务容器</strong>。描述一个“最近任务”或“任务栈”。管理一组相关的 <code>ActivityRecord</code>，决定了 Activity 的回退顺序（LIFO，后进先出）以及在多窗口模式下的显示分组。</td>
-</tr>
-</tbody></table>
-<hr>
-<h3 id="2-AMS-vs-ATMS-职责对比"><a href="#2-AMS-vs-ATMS-职责对比" class="headerlink" title="2. AMS vs ATMS 职责对比"></a>2. AMS vs ATMS 职责对比</h3><table>
-<thead>
-<tr>
-<th align="left">维度</th>
-<th align="left">ActivityManagerService (AMS)</th>
-<th align="left">ActivityTaskManagerService (ATMS)</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left"><strong>核心职责</strong></td>
-<td align="left">管理应用生命周期（进程、四大组件中的后三者）。</td>
-<td align="left">专门管理 Activity 及其容器（Task, Stack, Display）。</td>
-</tr>
-<tr>
-<td align="left"><strong>组件管理</strong></td>
-<td align="left">Service, BroadcastReceiver, ContentProvider。</td>
-<td align="left">Activity 启动、生命周期、Task 切换。</td>
-</tr>
-<tr>
-<td align="left"><strong>进程管理</strong></td>
-<td align="left">负责 OOM Adjuster、进程启动与回收。</td>
-<td align="left">不直接参与进程管理。</td>
-</tr>
-<tr>
-<td align="left"><strong>交互对象</strong></td>
-<td align="left">主要与 <code>ProcessRecord</code> 交互。</td>
-<td align="left">主要与 <code>ActivityRecord</code>、<code>TaskRecord</code> 交互。</td>
-</tr>
-<tr>
-<td align="left"><strong>WMS 关系</strong></td>
-<td align="left">间接交互。</td>
-<td align="left"><strong>强绑定</strong>。与 WMS 共同管理窗口 and Activity。</td>
-</tr>
-</tbody></table>
-<hr>
-<h3 id="3-架构演进的关键点"><a href="#3-架构演进的关键点" class="headerlink" title="3. 架构演进的关键点"></a>3. 架构演进的关键点</h3><h4 id="3-1-跨进程通信的变化"><a href="#3-1-跨进程通信的变化" class="headerlink" title="3.1 跨进程通信的变化"></a>3.1 跨进程通信的变化</h4><ul>
-<li><strong>Android 9 以前</strong>：App -&gt; AMS (startActivity)。</li>
-<li><strong>Android 10 以后</strong>：App -&gt; ATMS (startActivity)。</li>
-</ul>
-<h4 id="3-2-内部协作流程"><a href="#3-2-内部协作流程" class="headerlink" title="3.2 内部协作流程"></a>3.2 内部协作流程</h4><ol>
-<li><strong>ATMS</strong> 负责判断 Activity 应该在哪个 Task 启动，并管理其生命周期状态。</li>
-<li>当需要启动一个新的进程来承载 Activity 时，<strong>ATMS</strong> 会回调 <strong>AMS</strong> 的 <code>startProcessAsync</code> 方法。</li>
-<li><strong>AMS</strong> 负责与 Zygote 通信并完成进程的创建。</li>
-</ol>
-<hr>
-<h3 id="4-总结：一句话区分"><a href="#4-总结：一句话区分" class="headerlink" title="4. 总结：一句话区分"></a>4. 总结：一句话区分</h3><ul>
-<li><strong>ATMS</strong> 是“<strong>Activity 管家</strong>”：只关心 Activity 怎么跳、怎么显示、怎么分组。</li>
-<li><strong>AMS</strong> 是“<strong>应用管家</strong>”：关心进程还在不在、Service 跑没跑、广播发没发。</li>
-</ul>
-<p>这种拆分使得 Android 系统在支持 <strong>多窗口模式 (Multi-Window)</strong> 和 <strong>折叠屏 (Foldables)</strong> 时，逻辑更加清晰和独立。</p>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/3-Android/">3 - Android</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a>, <a class="article-category-link" href="/categories/3-Android/3-1-Framework/3-1-2-AMS/">3.1.2 - AMS</a>
-
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
 
 
   <nav id="page-nav">
@@ -1605,6 +1530,18 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
+              <h6 style="margin: 0;"><a href="/2026/04/18/3%20Android/03%20%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/%E5%B8%A7%E7%8E%87%E7%9B%91%E6%8E%A7/Android%20%E5%B8%A7%E7%BB%98%E5%88%B6%E8%80%97%E6%97%B6%E5%85%A8%E9%93%BE%E8%B7%AF%E6%BA%AF%E6%BA%90/">Android Bitmap 性能专题 - Bitmap 内存从申请到回收</a></h6>
+              <span>April 18, 2026</span>
+            </div>
+
+          </li>
+        
+          <li class="clearfix">
+
+            
+              <div class="widget-entry-summary" style="margin: 0;">
+            
+
               <h6 style="margin: 0;"><a href="/2026/04/09/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E9%80%9A%E9%81%93_05_%E7%B4%A0_%E6%95%B0%E5%BA%8F%E5%88%97/">协程进阶：通道 05. 管道案例：素数序列 (Primes)</a></h6>
               <span>April 9, 2026</span>
             </div>
@@ -1659,18 +1596,6 @@
 
           </li>
         
-          <li class="clearfix">
-
-            
-              <div class="widget-entry-summary" style="margin: 0;">
-            
-
-              <h6 style="margin: 0;"><a href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E7%9B%91%E7%9D%A3_01_SupervisorJob/">协程进阶：监督 01. SupervisorJob</a></h6>
-              <span>March 31, 2026</span>
-            </div>
-
-          </li>
-        
       </ul>
     </div>
   </div>
@@ -1680,7 +1605,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">114</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%9F%BA%E7%A1%80/">1.1 - Kotlin 基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a><span class="category-list-count">104</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/">11 - 音视频</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/11-1-%E6%92%AD%E6%94%BE%E5%99%A8%E5%AE%9E%E6%88%98/">11.1 - 播放器实战</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-1-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.1 - 多线程</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">43</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">28</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-1-Handler/">3.1.1 - Handler</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-2-AMS/">3.1.2 - AMS</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-3-WMS/">3.1.3 - WMS</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-4-Binder/">3.1.4 - Binder</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-5-Zygote/">3.1.5 - Zygote</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-6-GUI/">3.1.6 - GUI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-7-NNAPI/">3.1.7 - NNAPI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-8-HWUI/">3.1.8 - HWUI</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-2-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.2 - 播放器架构方案设计</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-3-Android-%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.3 - Android 存储文件方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-2-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.2 - 简单好用的 gradle 云编译设置</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-2-%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/">7.2 - 手势分发</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">8</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-3-%E5%AE%9E%E6%97%B6%E6%B8%B2%E6%9F%93/">8.3 - 实时渲染</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/">0 - 算法</a><span class="category-list-count">33</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-0-%E7%AE%97%E6%B3%95%E6%A8%A1%E7%89%88/">0.0 - 算法模版</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/">0.1 - 算法题目</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-0-%E7%AE%80%E5%8D%95/">0.1.0 - 简单</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-1-%E4%B8%AD%E7%AD%89/">0.1.1 - 中等</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-1-%E7%AE%97%E6%B3%95%E9%A2%98%E7%9B%AE/0-1-2-%E5%9B%B0%E9%9A%BE/">0.1.2 - 困难</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/0-%E7%AE%97%E6%B3%95/0-2-80-%E9%81%93%E5%9F%BA%E7%A1%80%E7%AE%97%E6%B3%95/">0.2 - 80 道基础算法</a><span class="category-list-count">4</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/">1 - Kotlin</a><span class="category-list-count">114</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-0-Kotlin-%E5%9F%BA%E7%A1%80/">1.0 - Kotlin 基础</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%9F%BA%E7%A1%80/">1.1 - Kotlin 基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/1-Kotlin/1-2-Kotlin-%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/">1.2 - Kotlin 协程基础</a><span class="category-list-count">104</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/">11 - 音视频</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/11-%E9%9F%B3%E8%A7%86%E9%A2%91/11-1-%E6%92%AD%E6%94%BE%E5%99%A8%E5%AE%9E%E6%88%98/">11.1 - 播放器实战</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/">2 - Java</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-0-Java-%E5%9F%BA%E7%A1%80/">2.0 - Java 基础</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/2-Java/2-1-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">2.1 - 多线程</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/">3 - Android</a><span class="category-list-count">44</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-0-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">3.0 - 性能优化</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/">3.1 - Framework</a><span class="category-list-count">28</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-1-Handler/">3.1.1 - Handler</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-2-AMS/">3.1.2 - AMS</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-3-WMS/">3.1.3 - WMS</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-4-Binder/">3.1.4 - Binder</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-5-Zygote/">3.1.5 - Zygote</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-6-GUI/">3.1.6 - GUI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-7-NNAPI/">3.1.7 - NNAPI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-Framework/3-1-8-HWUI/">3.1.8 - HWUI</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-1-%E5%B8%A7%E7%8E%87%E4%B8%8E%E5%B8%A7%E7%BB%98%E5%88%B6%E8%80%97%E6%97%B6/">3.1 - 帧率与帧绘制耗时</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-2-Arouter/">3.2 - Arouter</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/3-Android/3-4-Jetpacket/">3.4 - Jetpacket</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4 - 架构方案设计</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-1-MVI/">4.1 - MVI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-2-%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.2 - 播放器架构方案设计</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/4-%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/4-3-Android-%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">4.3 - Android 存储文件方案设计</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/">6 - Android 打包编译</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-1-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90/">6.1 - 文件分析</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/6-Android-%E6%89%93%E5%8C%85%E7%BC%96%E8%AF%91/6-2-%E7%AE%80%E5%8D%95%E5%A5%BD%E7%94%A8%E7%9A%84-gradle-%E4%BA%91%E7%BC%96%E8%AF%91%E8%AE%BE%E7%BD%AE/">6.2 - 简单好用的 gradle 云编译设置</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/">7 - 复杂代码模版</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-1-UI-%E7%BB%98%E5%88%B6%E6%A8%A1%E7%89%88/">7.1 - UI 绘制模版</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/7-%E5%A4%8D%E6%9D%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E7%89%88/7-2-%E6%89%8B%E5%8A%BF%E5%88%86%E5%8F%91/">7.2 - 手势分发</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/">8 - C++</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-C/8-1-C-%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/">8.1 - C++理论基础</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a><span class="category-list-count">8</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-1-%E5%9F%BA%E7%A1%80%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3/">8.1 - 基础项目拆解</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-2-OpenGL-ES-3-0/">8.2 - OpenGL ES 3.0</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-3-%E5%AE%9E%E6%97%B6%E6%B8%B2%E6%9F%93/">8.3 - 实时渲染</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/9-%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BD%91%E7%AB%99%E5%88%86%E4%BA%AB/">9 - 第三方网站分享</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1696,7 +1621,7 @@
     <h3 class="widget-title">Archives</h3>
 
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/04/">April 2026</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/03/">March 2026</a><span class="archive-list-count">137</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/01/">January 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">November 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">March 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">54</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/04/">April 2026</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/03/">March 2026</a><span class="archive-list-count">137</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/01/">January 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">November 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">March 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">54</span></li></ul>
     </div>
   </div>
 
