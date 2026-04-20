@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>弹幕引擎 (一) 从流式渲染架构与批式渲染架构说起 | 喵星科技报</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  
+  
+  
+  <meta name="description" content="两种渲染架构这两种架构代表了计算机科学中处理任务的两种截然不同的哲学：“流式”追求实时响应（Latency-Optimized），而“批式”追求吞吐与效率（Throughput-Optimized）。 在 Android 图形系统中，将这两者强行整合在一起，本质上就是在处理“阻抗不匹配”（Impedance Mismatch）问题。  流式架构 (Streaming Architecture) —">
+<meta property="og:type" content="article">
+<meta property="og:title" content="弹幕引擎 (一) 从流式渲染架构与批式渲染架构说起">
+<meta property="og:url" content="http://example.com/2025/02/05/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/04%20%E5%BC%B9%E5%B9%95%E5%BC%95%E6%93%8E/%E5%BC%B9%E5%B9%95%E5%BC%95%E6%93%8E%20(%E4%B8%80)%20%E4%BB%8E%E6%B5%81%E5%BC%8F%E6%B8%B2%E6%9F%93%E6%9E%B6%E6%9E%84%E4%B8%8E%E6%89%B9%E5%BC%8F%E6%B8%B2%E6%9F%93%E6%9E%B6%E6%9E%84%E8%AF%B4%E8%B5%B7/index.html">
+<meta property="og:site_name" content="喵星科技报">
+<meta property="og:description" content="两种渲染架构这两种架构代表了计算机科学中处理任务的两种截然不同的哲学：“流式”追求实时响应（Latency-Optimized），而“批式”追求吞吐与效率（Throughput-Optimized）。 在 Android 图形系统中，将这两者强行整合在一起，本质上就是在处理“阻抗不匹配”（Impedance Mismatch）问题。  流式架构 (Streaming Architecture) —">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-02-05T01:55:28.780Z">
+<meta property="article:modified_time" content="2026-04-20T19:13:55.657Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="喵星科技报" type="application/atom+xml">
+  
+  <link rel="icon" href="/css/images/favicon.ico">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+    
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Yanone+Kaffeesatz%3A200%2C300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Oswald%3A300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+<script src="/js/jquery-3.1.1.min.js"></script>
+
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.css" >
+  <link rel="stylesheet" href="/css/fashion.css" >
+  <link rel="stylesheet" href="/css/glyphs.css" >
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  
+    <a target="_blank" rel="noopener" href="https://github.com/CatJason" class="github-corner" aria-label="View source on GitHub">
+      <svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; left: 0; transform: scale(-1, 1); z-index: 9999;" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.5 120.5,78.5 C119.9,75.7 122.6,76.3 122.6,76.3 C127.3,81.2 124.9,88.2 124.9,88.2 C124.3,94.1 120.5,97.5 119.4,105.4" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path>
+      </svg>
+    </a>
+    <style>
+      .github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}
+      @keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}
+      @media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}
+    </style>
+  
+
+  <header id="allheader" class="site-header" role="banner">
+  <div class="clearfix container">
+      <div class="site-branding">
+
+          <h1 class="site-title">
+            
+              <a href="/" title="喵星科技报" rel="home"> 喵星科技报 </a>
+            
+          </h1>
+          
+          
+            
+          <nav id="main-navigation" class="main-navigation" role="navigation">
+            <a class="nav-open">Menu</a>
+            <a class="nav-close">Close</a>
+
+            <div class="clearfix sf-menu">
+              <ul id="main-nav" class="menu sf-js-enabled sf-arrows"  style="touch-action: pan-y;">
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="/"> <a class="" href="/">Home</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="archives"> <a class="" href="/archives">Archives</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="categories"> <a class="" href="/categories">Categories</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="tags"> <a class="" href="/tags">Tags</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="about"> <a class="" href="/about">About</a> </li>
+                    
+              </ul>
+            </div>
+          </nav>
+
+      </div>
+  </div>
+</header>
+
+
+  <div id="container">
+    <div id="wrap">
+            
+      <div id="content" class="outer">
+        
+          <section id="main" class="post-main" style="float:none; width: 100%;"><article id="post-8渲染引擎/04 弹幕引擎/弹幕引擎 (一) 从流式渲染架构与批式渲染架构说起" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" class="article-title" itemprop="name">
+      弹幕引擎 (一) 从流式渲染架构与批式渲染架构说起
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2025/02/05/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/04%20%E5%BC%B9%E5%B9%95%E5%BC%95%E6%93%8E/%E5%BC%B9%E5%B9%95%E5%BC%95%E6%93%8E%20(%E4%B8%80)%20%E4%BB%8E%E6%B5%81%E5%BC%8F%E6%B8%B2%E6%9F%93%E6%9E%B6%E6%9E%84%E4%B8%8E%E6%89%B9%E5%BC%8F%E6%B8%B2%E6%9F%93%E6%9E%B6%E6%9E%84%E8%AF%B4%E8%B5%B7/" class="article-date">
+	  <time datetime="2025-02-05T01:55:28.780Z" itemprop="datePublished">February 5, 2025</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a>, <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-3-%E5%BC%B9%E5%B9%95%E5%BC%95%E6%93%8E/">8.3 - 弹幕引擎</a>
+ 
+      
+	<span id="busuanzi_container_page_pv">
+	  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	</span>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="两种渲染架构"><a href="#两种渲染架构" class="headerlink" title="两种渲染架构"></a>两种渲染架构</h2><p>这两种架构代表了计算机科学中处理任务的两种截然不同的哲学：<strong>“流式”追求实时响应（Latency-Optimized）</strong>，而<strong>“批式”追求吞吐与效率（Throughput-Optimized）</strong>。</p>
+<p>在 Android 图形系统中，将这两者强行整合在一起，本质上就是在处理“阻抗不匹配”（Impedance Mismatch）问题。</p>
+<hr>
+<h3 id="流式架构-Streaming-Architecture-——-“持续交付”"><a href="#流式架构-Streaming-Architecture-——-“持续交付”" class="headerlink" title="流式架构 (Streaming Architecture) —— “持续交付”"></a>流式架构 (Streaming Architecture) —— “持续交付”</h3><p>流式架构的核心在于<strong>即时性</strong>。数据一旦产生，就必须尽快通过管道流向目的地，系统的目标是最小化“端到端延迟”（End-to-End Latency）。</p>
+<ul>
+<li><strong>核心原则</strong>：Event-Driven（事件驱动）。每一条数据（Frame）都是一个独立处理的事件。</li>
+<li><strong>时间观念</strong>：基于<strong>“数据到达时间”</strong>（Event Time）。渲染引擎产生一帧，就意味着该帧必须立即显示。</li>
+<li><strong>系统特征</strong>：<ul>
+<li><strong>低延迟</strong>：不等待后续数据，无需缓存队列。</li>
+<li><strong>恒定开销</strong>：渲染引擎需要保持持续的计算负载，无法利用“闲时休息”来节省资源。</li>
+<li><strong>不可预测性</strong>：数据的到达频率若波动，系统必须能立即响应，否则就会造成抖动。</li>
+</ul>
+</li>
+</ul>
+<p><strong>在你的架构中</strong>：OpenGL 渲染线程就是典型的流式架构，它要求“此时此刻”就要渲染出当前状态。</p>
+<hr>
+<h3 id="批式架构-Batching-Architecture-——-“批量吞吐”"><a href="#批式架构-Batching-Architecture-——-“批量吞吐”" class="headerlink" title="批式架构 (Batching Architecture) —— “批量吞吐”"></a>批式架构 (Batching Architecture) —— “批量吞吐”</h3><p>批式架构的核心在于<strong>优化总成本与效率</strong>。它故意引入“延迟”，将多次小的操作合并为一次大的操作（Coalescing），目的是摊薄系统调用的开销。</p>
+<ul>
+<li><strong>核心原则</strong>：Task-Coalescing（任务合并）。等待任务累积到阈值（时间片或数量），再一次性提交。</li>
+<li><strong>时间观念</strong>：基于<strong>“系统时钟”</strong>（System Cycle&#x2F;Tick）。无论任务多早完成，都必须等待下一个“发车时刻”（VSync 信号）。</li>
+<li><strong>系统特征</strong>：<ul>
+<li><strong>高效率</strong>：通过减少上下文切换、减少 CPU&#x2F;GPU 切换、利用 CPU 缓存亲和性，降低单次任务的平均成本。</li>
+<li><strong>高吞吐</strong>：在单位时间内处理更多数据。</li>
+<li><strong>容忍延迟</strong>：只要最终结果符合预期的交付周期，内部的处理顺序和时机可以灵活调整。</li>
+</ul>
+</li>
+</ul>
+<p><strong>在你的架构中</strong>：Android View 系统（<code>ViewRootImpl</code>）就是批式架构，它把所有的 UI 更新请求收集起来，等到 <code>Choreographer</code> 信号到来时，统一进行遍历（Traversal）。</p>
+<hr>
+<h3 id="为什么两者会产生冲突？（底层哲学冲突）"><a href="#为什么两者会产生冲突？（底层哲学冲突）" class="headerlink" title="为什么两者会产生冲突？（底层哲学冲突）"></a>为什么两者会产生冲突？（底层哲学冲突）</h3><p>这种冲突在工程上被称为 <strong>“时域上的不兼容”</strong>：</p>
+<ol>
+<li><strong>处理模型的“错位”</strong>：</li>
+</ol>
+<ul>
+<li>流式架构要求<strong>“随时”</strong>处理任务。</li>
+<li>批式架构要求<strong>“准点”</strong>处理任务。</li>
+<li>当流式产生的数据（OpenGL 帧）试图进入批式系统（View 树）时，它会被强制进入“等待队列”。这种等待，人为地将原本平滑的流打断了。</li>
+</ul>
+<ol start="2">
+<li><strong>吞吐量与延迟的权衡（Trade-off）</strong>：</li>
+</ol>
+<ul>
+<li>Android 系统设计 View 系统的批式处理，是为了让整个 App 的界面渲染更加经济（省电、省 CPU），这是为了全局最优。</li>
+<li>但你的渲染引擎是局部优化（追求单组件的极致平滑），这与全局策略产生了利益冲突。</li>
+</ul>
+<hr>
+<h3 id="理解这两个架构"><a href="#理解这两个架构" class="headerlink" title="理解这两个架构"></a>理解这两个架构</h3><p>**私家车 (Streaming &#x2F; OpenGL 渲染线程)**：你是驾驶者，追求的是“随到随走”。你的油门由你的引擎逻辑（渲染循环）控制，你希望以恒定的 60km&#x2F;h（60fps）在路上行驶。</p>
+<p>**轮渡 (Batching &#x2F; Android View 系统)**：这是公共交通系统，它严格遵循“时刻表”运行。轮渡只在固定的时刻（VSync 信号）才会靠岸并进行装载（Traversal 绘制流程）。</p>
+<p><strong>码头闸机 (mWillDrawSoon)<strong>：这是码头管理处。它的规则是：如果轮渡已经在准备启航了（<code>mWillDrawSoon = true</code>），为了保障航行安全，</strong>码头闸机必须关闭，不再允许任何车辆进入码头。</strong></p>
+<hr>
+<h3 id="GLSurfaceView-与-GLTextureView-的架构本质对比"><a href="#GLSurfaceView-与-GLTextureView-的架构本质对比" class="headerlink" title="GLSurfaceView 与 GLTextureView 的架构本质对比"></a>GLSurfaceView 与 GLTextureView 的架构本质对比</h3><p>首先需要明确一点：<strong>Android 原生 SDK 中并没有 <code>GLTextureView</code> 这个类</strong>。通常开发者会使用 <code>TextureView</code> 并配合自定义的 OpenGL 渲染逻辑来实现类似的功能。</p>
+<p>我们将这一逻辑架构下的组件称为 **<code>GLTextureView</code>**（即自定义封装了 OpenGL 渲染能力的 <code>TextureView</code>）。以下是重写后的对比分析：</p>
+<hr>
+<p>如果说 <strong><code>GLSurfaceView</code></strong> 是将“流”直接注入到了图形合成器（SurfaceFlinger）的轨道上，那么 <strong><code>GLTextureView</code></strong> 则是将渲染出的“流”强行塞入了一个 View 系统的“容器”中。</p>
+<p>以下是 <code>GLTextureView</code> 作为“批式容器”架构的三个关键原则：</p>
+<h4 id="1-受限的生产自主权（依附于-View-树）"><a href="#1-受限的生产自主权（依附于-View-树）" class="headerlink" title="1. 受限的生产自主权（依附于 View 树）"></a>1. 受限的生产自主权（依附于 View 树）</h4><ul>
+<li><strong>原理</strong>：<code>GLTextureView</code> 本质上是一个 <code>TextureView</code>。它的生命周期、测量（Measure）、布局（Layout）和绘制（Draw）完全被 <code>ViewRootImpl</code> 的调度所接管。</li>
+<li><strong>对比</strong>：<code>GLSurfaceView</code> 拥有独立的 Surface，直接对冲系统合成器；而 <code>GLTextureView</code> 的渲染产出必须作为 View 树的一个 Layer，每一帧都必须经过 View 系统繁琐的 traversal 流程才能上屏。</li>
+<li><strong>结论</strong>：它<strong>无法摆脱 <code>mWillDrawSoon</code> 的锁链</strong>。因为它的生产过程必须等待主线程的 View 遍历周期（Traversal），它被迫服从 UI 系统的调度频率，而不是自主的渲染频率。</li>
+</ul>
+<h4 id="2-“被动式”的渲染循环（受限于-UI-节拍）"><a href="#2-“被动式”的渲染循环（受限于-UI-节拍）" class="headerlink" title="2. “被动式”的渲染循环（受限于 UI 节拍）"></a>2. “被动式”的渲染循环（受限于 UI 节拍）</h4><ul>
+<li><strong>原理</strong>：虽然 <code>GLTextureView</code> 内部也可以开辟渲染线程，但它的数据交付（Commit）必须通过 <code>SurfaceTexture</code> 触发 <code>invalidate()</code> 或 <code>requestLayout()</code>。</li>
+<li><strong>时序耦合</strong>：它的数据上屏时间必须与 UI 主线程的 VSync 信号对齐。当 <code>ViewRootImpl</code> 处于 <code>performTraversals()</code> 的忙碌期时，渲染线程提交的数据会被“搁置”或“合并”。</li>
+<li><strong>结论</strong>：它是典型的“批式”架构。渲染线程虽然在独立生产，但数据被 View 系统“缓存”在 <code>TextureView</code> 的缓冲区中，必须等到 View 系统允许绘制时，才能通过合成流程输出。</li>
+</ul>
+<h4 id="3-数据流的“二次转运”（非零拷贝）"><a href="#3-数据流的“二次转运”（非零拷贝）" class="headerlink" title="3. 数据流的“二次转运”（非零拷贝）"></a>3. 数据流的“二次转运”（非零拷贝）</h4><ul>
+<li><strong>原理</strong>：在 <code>GLTextureView</code> 中，你的 OpenGL 渲染结果先写入 <code>SurfaceTexture</code>，然后需要经过 GPU 拷贝&#x2F;转换到 View 的 Layer 纹理中（由 UI 系统合成）。</li>
+<li><strong>对比</strong>：<code>GLSurfaceView</code> 的数据流是“直通”的，它直接作为 Surface 层被合成器读取。而 <code>GLTextureView</code> 存在一个“转运”过程——View 系统必须先获取 <code>SurfaceTexture</code> 的数据，将其合成到整个 App 的 UI 树中，这个过程增加了额外的 CPU&#x2F;GPU 调度开销，也正是延迟的来源。</li>
+</ul>
+<hr>
+<h2 id="GLTextureView-抖动的问题"><a href="#GLTextureView-抖动的问题" class="headerlink" title="GLTextureView 抖动的问题"></a>GLTextureView 抖动的问题</h2><p>我们将 <code>GLTextureView</code> 定义为一个“强行塞入批式容器的流式渲染组件”。这种架构上的错位，是导致渲染抖动（Jitter）的根本源头。在高性能弹幕引擎的开发中，这种抖动并非逻辑错误，而是<strong>时序调度上的“水土不服”</strong>。</p>
+<h3 id="渲染流与-UI-循环的“错位”"><a href="#渲染流与-UI-循环的“错位”" class="headerlink" title="渲染流与 UI 循环的“错位”"></a>渲染流与 UI 循环的“错位”</h3><p><code>GLTextureView</code> 的最大痛点在于其<strong>双重时钟依赖</strong>：</p>
+<ul>
+<li><strong>内部时钟（Render Thread）</strong>：负责产出渲染帧，通常以恒定速率（如 60fps&#x2F;120fps）运行。</li>
+<li><strong>外部时钟（ViewRootImpl）</strong>：负责 UI 的 <code>measure/layout/draw</code>，严格受 VSync 信号驱动，具有极高的间歇性和突发性。</li>
+</ul>
+<p>当 OpenGL 线程完成一帧渲染时，它通过 <code>SurfaceTexture</code> 更新回调通知 UI 线程。然而，View 系统并不总是处于“准备好接收”的状态。一旦 View 树中出现了耗时布局（如嵌套过深的 Layout 或频繁的 <code>invalidate</code>），UI 线程就会进入长时间的 <code>performTraversals</code> 周期。</p>
+<p><strong>此时，渲染帧被迫“滞后”</strong>。对于肉眼而言，这就形成了抖动：上一帧间隔 16ms，由于被拦截，下一帧间隔变成了 32ms，再下一帧为了追赶进度，可能在 10ms 就执行了。这种<strong>帧呈现时长（Frame Presentation Time）的剧烈波动</strong>，就是用户感知到的“顿挫感”。</p>
+<hr>
+<h3 id="调度拦截：mWillDrawSoon-导致的“闸机锁死”"><a href="#调度拦截：mWillDrawSoon-导致的“闸机锁死”" class="headerlink" title="调度拦截：mWillDrawSoon 导致的“闸机锁死”"></a>调度拦截：<code>mWillDrawSoon</code> 导致的“闸机锁死”</h3><p>回顾我们提到的“码头闸机”比喻，<code>mWillDrawSoon</code> 就是那个一旦合上就绝不通融的机制。</p>
+<p>在 <code>GLTextureView</code> 中，<code>invalidate()</code> 逻辑是其更新 UI 的唯一入口。当 OpenGL 线程频繁调用 <code>invalidate()</code> 请求更新时：</p>
+<ul>
+<li><strong>如果 UI 线程正在执行布局任务</strong>：<code>ViewRootImpl</code> 会将 <code>mWillDrawSoon</code> 置为 <code>true</code>。</li>
+<li><strong>拒绝服务</strong>：此时 <code>TextureView</code> 发出的重绘请求会被系统判定为“冗余”，直接丢弃或合并。</li>
+<li><strong>视觉后果</strong>：OpenGL 线程以为这一帧已经提交成功，但实际上它在缓冲区（BufferQueue）中被“锁”住了，直到 UI 线程完成当前循环并处理下一个 <code>traversal</code>。这种<strong>强制的等待</strong>，使得原本流畅的弹幕运动轨迹在某一瞬间“卡”住了。</li>
+</ul>
+<hr>
+<h3 id="缓冲区失衡：挤压与丢帧的博弈"><a href="#缓冲区失衡：挤压与丢帧的博弈" class="headerlink" title="缓冲区失衡：挤压与丢帧的博弈"></a>缓冲区失衡：挤压与丢帧的博弈</h3><p>由于 <code>GLTextureView</code> 本质上是一个 <code>TextureView</code>，它必须通过 <code>BufferQueue</code> 与 <code>SurfaceFlinger</code> 握手。这里的生产与消费关系极易失衡：</p>
+<ul>
+<li><strong>BufferQueue 挤压 (Congestion)<strong>：如果你的 OpenGL 渲染引擎产出过快（例如渲染线程没有设置 Frame Rate 限制），<code>BufferQueue</code> 会迅速填满。此时，如果 <code>TextureView</code> 的消费能力跟不上，会导致系统阻塞 Producer 或产生明显的</strong>输入延迟（Input Lag）</strong>。用户会感觉弹幕“跟手性”很差，仿佛有一层厚厚的阻尼感。</li>
+<li><strong>帧丢弃 (Frame Drop)<strong>：如果系统为了维持 App 的整体流畅度，配置了 <code>DROP_OLDEST</code> 策略，那么当 <code>BufferQueue</code> 满载时，旧帧会被直接丢弃。对于弹幕引擎来说，这意味着</strong>弹幕位置的“跳跃”</strong>——上一秒弹幕还在屏幕左侧，下一秒直接出现在了右侧，运动轨迹的连续性被彻底破坏。</li>
+</ul>
+<p>这是一个非常经典的“时序冲突”模型。通过“私家车、轮渡、码头闸机”的比喻，我们可以清晰地看到卡顿（Jitter）是如何从“微观等待”演变成“宏观视觉抖动”的。</p>
+<p>让我们把这个过程拆解为三个阶段，来看看你的“私家车”是如何在码头被迫经历那场“抖动”的。</p>
+<h3 id="第一阶段：完美的节奏-平滑渲染"><a href="#第一阶段：完美的节奏-平滑渲染" class="headerlink" title="第一阶段：完美的节奏 (平滑渲染)"></a>第一阶段：完美的节奏 (平滑渲染)</h3><ul>
+<li><strong>状态</strong>：码头（View 系统）一切正常，轮渡（VSync）准时靠岸。</li>
+<li><strong>过程</strong>：你的私家车（渲染帧）以 60km&#x2F;h（16.6ms&#x2F;帧）的速度匀速行驶。每一辆车到达码头时，闸机（mWillDrawSoon）都是打开的。</li>
+<li><strong>结果</strong>：车子顺利开上船，轮渡准时出发。观众看到的是均匀平滑的动画。</li>
+</ul>
+<h3 id="第二阶段：闸机锁死-卡顿发生的瞬间"><a href="#第二阶段：闸机锁死-卡顿发生的瞬间" class="headerlink" title="第二阶段：闸机锁死 (卡顿发生的瞬间)"></a>第二阶段：闸机锁死 (卡顿发生的瞬间)</h3><ul>
+<li><strong>状态</strong>：轮渡（UI 线程）突然变得极其忙碌。因为它是“公共交通”，它不仅要装你的车，还要处理一大堆复杂的“乘客”（View 树的 Measure&#x2F;Layout 布局计算）。</li>
+<li><strong>冲突</strong>：当你的车（新的一帧）准时到达码头时，闸机管理员（ViewRootImpl）看了一眼忙碌的甲板，大喊一声：“<strong>轮渡已经准备发船了，现在是 <code>mWillDrawSoon = true</code>，闸机关闭！</strong>”</li>
+<li><strong>过程</strong>：你的车被迫停在码头干等。虽然引擎（OpenGL 线程）还在轰鸣，但你被拦在了闸机外。</li>
+</ul>
+<h3 id="第三阶段：抖动-Jitter-的视觉真相"><a href="#第三阶段：抖动-Jitter-的视觉真相" class="headerlink" title="第三阶段：抖动 (Jitter 的视觉真相)"></a>第三阶段：抖动 (Jitter 的视觉真相)</h3><p>抖动并不是因为你“停下”了，而是因为<strong>你被迫改变了行驶节奏</strong>。</p>
+<ol>
+<li><strong>车 1</strong>：顺利上船，第 0ms 出发。</li>
+<li><strong>车 2</strong>：到达时闸机已关闭，被迫在码头等到了第 32ms，才赶上下一班轮渡。</li>
+<li><strong>车 3</strong>：轮渡恢复正常，第 48ms 出发。</li>
+</ol>
+<p><strong>视觉上的“抖动”感由此产生：</strong></p>
+<ul>
+<li><strong>节奏断裂</strong>：观众看到的画面间隔是：<code>16ms -&gt; 32ms -&gt; 16ms</code>。</li>
+<li><strong>这种不一致才是“抖动”的本质</strong>。如果所有的车都等 32ms，那画面看起来只是“慢”（30fps）；但因为你一会儿 16ms，一会儿 32ms，这种<strong>节奏的剧烈突变</strong>，导致人眼立刻捕捉到了弹幕轨迹的“顿挫”或“瞬移”。</li>
+</ul>
+<hr>
+<h3 id="深入理解：为什么闸机关闭会导致“抖动”？"><a href="#深入理解：为什么闸机关闭会导致“抖动”？" class="headerlink" title="深入理解：为什么闸机关闭会导致“抖动”？"></a>深入理解：为什么闸机关闭会导致“抖动”？</h3><p>在技术层面，这个过程有三个细节决定了抖动的严重程度：</p>
+<ol>
+<li><p><strong>“被迫排队”的后坐力</strong>：<br>当闸机（<code>mWillDrawSoon</code>）最终打开时，轮渡（View 系统）可能会因为刚才的积压，导致下一次发船更加匆忙。这种“忽快忽慢”的调度节奏，会将你的私家车（OpenGL 帧）的交付周期彻底搞乱。</p>
+</li>
+<li><p><strong>BufferQueue 的“洪峰效应”</strong>：<br>在闸机关闭期间，你的 OpenGL 引擎并没有停下来，它还在持续不断地往码头输送“车流”。如果你的缓冲区（BufferQueue）有限，闸机一打开，可能会瞬间涌入好几辆车。系统为了追赶进度，可能会直接丢弃中间的车，这就会导致<strong>“跳帧”</strong>——你原本打算显示的弹幕运动过程，被直接跨越了，导致视觉上的“瞬间跳跃”。</p>
+</li>
+<li><p><strong>不确定性的“黑盒”</strong>：<br>最可怕的是，作为“私家车”驾驶员（渲染线程），你根本不知道码头闸机什么时候关，什么时候开。你唯一的感知就是：<strong>我明明踩着油门，速度却被这个码头的交通规则强制修正了。</strong></p>
+</li>
+</ol>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p><strong>抖动，其实就是你的渲染引擎（私家车）试图维持恒定节奏，却被系统的调度规则（码头闸机）强行改写了发车时间。</strong></p>
+<h2 id="反压机制（抖动变卡顿）"><a href="#反压机制（抖动变卡顿）" class="headerlink" title="反压机制（抖动变卡顿）"></a>反压机制（抖动变卡顿）</h2><p><strong>反压（Backpressure）</strong> 是计算机科学中用于处理“<strong>生产者速度过快，而消费者消费速度跟不上</strong>”这一矛盾的调节机制。</p>
+<p>简单来说，当系统无法处理此时到达的流量时，通过某种手段“向上游”发出信号，让上游放慢速度。</p>
+<p>通过人工手段将一个异步、非确定性的系统（Async&#x2F;Unpredictable），强行转化为一个同步、确定性的“步进系统”（Lock-step）。</p>
+<p>从工程学的角度来看，<strong>“将不可控的抖动（Jitter）转化为可控的卡顿（Stutter）”</strong>，在很多高性能实时系统（如游戏引擎的帧率锁定）中，是一个非常经典的优化策略。</p>
+<h4 id="实现方案"><a href="#实现方案" class="headerlink" title="实现方案"></a>实现方案</h4><p>在 TextureView 中添加一个 mHasContentToDraw，监听到有待绘制的下一帧或者 swapBuffer 之后，设置为ture，阻止新的帧绘制，在 onSurfaceTextureUpdated 之后设置为 false，这样，把抖动变成卡顿</p>
+<p>mHasContentToDraw &#x3D; true</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onSurfaceTextureAvailable</span><span class="params">(SurfaceTexture surface, <span class="type">int</span> width, <span class="type">int</span> height)</span> &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">listenerField</span> <span class="operator">=</span> SurfaceTexture.class.getDeclaredField(<span class="string">&quot;mOnFrameAvailableListener&quot;</span>);</span><br><span class="line">        listenerField.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        <span class="keyword">final</span> SurfaceTexture.<span class="type">OnFrameAvailableListener</span> <span class="variable">originalListener</span> <span class="operator">=</span> (SurfaceTexture.OnFrameAvailableListener) listenerField.get(surface);</span><br><span class="line">        surface.setOnFrameAvailableListener(<span class="keyword">new</span> <span class="title class_">SurfaceTexture</span>.OnFrameAvailableListener() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onFrameAvailable</span><span class="params">(SurfaceTexture surfaceTexture)</span> &#123;</span><br><span class="line">                mHasContentToDraw = <span class="literal">true</span>;</span><br><span class="line">                <span class="keyword">if</span> (originalListener != <span class="literal">null</span>) &#123;</span><br><span class="line">                    originalListener.onFrameAvailable(surfaceTexture);</span><br><span class="line">                &#125;</span><br><span class="line">                postInvalidate();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        Log.e(TAG, <span class="string">&quot;Fail to hijack ST&quot;</span>, e);</span><br><span class="line">    &#125;</span><br><span class="line">    mGLThread.surfaceCreated();</span><br><span class="line">    onSurfaceTextureSizeChanged(surface, width, height);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">int</span> <span class="title function_">swap</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (! mEgl.eglSwapBuffers(mEglDisplay, mEglSurface)) &#123;</span><br><span class="line">        <span class="keyword">return</span> mEgl.eglGetError();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">GLTextureView</span> <span class="variable">view</span> <span class="operator">=</span> mGLTextureViewWeakRef.get();</span><br><span class="line">    <span class="keyword">if</span> (view != <span class="literal">null</span>) &#123;</span><br><span class="line">        view.mHasContentToDraw = <span class="literal">true</span>;</span><br><span class="line">        view.postInvalidate();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> EGL10.EGL_SUCCESS;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>mHasContentToDraw &#x3D; false</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onSurfaceTextureUpdated</span><span class="params">(SurfaceTexture surface)</span> &#123;</span><br><span class="line">    mHasContentToDraw = <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>原生的状态</strong>：Producer（GL 线程）和 Consumer（UI 线程）处于“失联”状态，GL 线程只管拼命生产，UI 线程只管按自己的频率消费。这种异步导致了 <code>BufferQueue</code> 经常发生竞态条件（Race Condition），从而产生了抖动。</p>
+<p><strong>改进的方案</strong>：渲染管线从“异步并发”变成了“同步串行”。这种<strong>步进式（Step-by-step）</strong>的渲染，确实消除了随机的时序错乱（Jitter），将其变成了固定的帧处理间隔。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a>, <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-3-%E5%BC%B9%E5%B9%95%E5%BC%95%E6%93%8E/">8.3 - 弹幕引擎</a>
+
+      
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2026/03/25/1%20Kotlin/01%20Kotlin%20%E5%8D%8F%E7%A8%8B%E6%BA%90%E7%A0%81/%E5%8D%8F%E7%A8%8B%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Kotlin 协程异常处理与上报机制
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2025/02/05/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/03%20%E5%AE%9E%E6%97%B6%E6%B8%B2%E6%9F%93/01%20%E7%BB%98%E5%88%B6%E7%AC%AC%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">实时渲染（一）绘制一个三角形</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="sidebar">
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">Contents</strong>
+    
+      <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%A4%E7%A7%8D%E6%B8%B2%E6%9F%93%E6%9E%B6%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">两种渲染架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%81%E5%BC%8F%E6%9E%B6%E6%9E%84-Streaming-Architecture-%E2%80%94%E2%80%94-%E2%80%9C%E6%8C%81%E7%BB%AD%E4%BA%A4%E4%BB%98%E2%80%9D"><span class="nav-number">1.1.</span> <span class="nav-text">流式架构 (Streaming Architecture) —— “持续交付”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%B9%E5%BC%8F%E6%9E%B6%E6%9E%84-Batching-Architecture-%E2%80%94%E2%80%94-%E2%80%9C%E6%89%B9%E9%87%8F%E5%90%9E%E5%90%90%E2%80%9D"><span class="nav-number">1.2.</span> <span class="nav-text">批式架构 (Batching Architecture) —— “批量吞吐”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%A4%E8%80%85%E4%BC%9A%E4%BA%A7%E7%94%9F%E5%86%B2%E7%AA%81%EF%BC%9F%EF%BC%88%E5%BA%95%E5%B1%82%E5%93%B2%E5%AD%A6%E5%86%B2%E7%AA%81%EF%BC%89"><span class="nav-number">1.3.</span> <span class="nav-text">为什么两者会产生冲突？（底层哲学冲突）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%90%86%E8%A7%A3%E8%BF%99%E4%B8%A4%E4%B8%AA%E6%9E%B6%E6%9E%84"><span class="nav-number">1.4.</span> <span class="nav-text">理解这两个架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GLSurfaceView-%E4%B8%8E-GLTextureView-%E7%9A%84%E6%9E%B6%E6%9E%84%E6%9C%AC%E8%B4%A8%E5%AF%B9%E6%AF%94"><span class="nav-number">1.5.</span> <span class="nav-text">GLSurfaceView 与 GLTextureView 的架构本质对比</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%8F%97%E9%99%90%E7%9A%84%E7%94%9F%E4%BA%A7%E8%87%AA%E4%B8%BB%E6%9D%83%EF%BC%88%E4%BE%9D%E9%99%84%E4%BA%8E-View-%E6%A0%91%EF%BC%89"><span class="nav-number">1.5.1.</span> <span class="nav-text">1. 受限的生产自主权（依附于 View 树）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E2%80%9C%E8%A2%AB%E5%8A%A8%E5%BC%8F%E2%80%9D%E7%9A%84%E6%B8%B2%E6%9F%93%E5%BE%AA%E7%8E%AF%EF%BC%88%E5%8F%97%E9%99%90%E4%BA%8E-UI-%E8%8A%82%E6%8B%8D%EF%BC%89"><span class="nav-number">1.5.2.</span> <span class="nav-text">2. “被动式”的渲染循环（受限于 UI 节拍）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E6%95%B0%E6%8D%AE%E6%B5%81%E7%9A%84%E2%80%9C%E4%BA%8C%E6%AC%A1%E8%BD%AC%E8%BF%90%E2%80%9D%EF%BC%88%E9%9D%9E%E9%9B%B6%E6%8B%B7%E8%B4%9D%EF%BC%89"><span class="nav-number">1.5.3.</span> <span class="nav-text">3. 数据流的“二次转运”（非零拷贝）</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GLTextureView-%E6%8A%96%E5%8A%A8%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">2.</span> <span class="nav-text">GLTextureView 抖动的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B8%B2%E6%9F%93%E6%B5%81%E4%B8%8E-UI-%E5%BE%AA%E7%8E%AF%E7%9A%84%E2%80%9C%E9%94%99%E4%BD%8D%E2%80%9D"><span class="nav-number">2.1.</span> <span class="nav-text">渲染流与 UI 循环的“错位”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B0%83%E5%BA%A6%E6%8B%A6%E6%88%AA%EF%BC%9AmWillDrawSoon-%E5%AF%BC%E8%87%B4%E7%9A%84%E2%80%9C%E9%97%B8%E6%9C%BA%E9%94%81%E6%AD%BB%E2%80%9D"><span class="nav-number">2.2.</span> <span class="nav-text">调度拦截：mWillDrawSoon 导致的“闸机锁死”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%93%E5%86%B2%E5%8C%BA%E5%A4%B1%E8%A1%A1%EF%BC%9A%E6%8C%A4%E5%8E%8B%E4%B8%8E%E4%B8%A2%E5%B8%A7%E7%9A%84%E5%8D%9A%E5%BC%88"><span class="nav-number">2.3.</span> <span class="nav-text">缓冲区失衡：挤压与丢帧的博弈</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%EF%BC%9A%E5%AE%8C%E7%BE%8E%E7%9A%84%E8%8A%82%E5%A5%8F-%E5%B9%B3%E6%BB%91%E6%B8%B2%E6%9F%93"><span class="nav-number">2.4.</span> <span class="nav-text">第一阶段：完美的节奏 (平滑渲染)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E9%98%B6%E6%AE%B5%EF%BC%9A%E9%97%B8%E6%9C%BA%E9%94%81%E6%AD%BB-%E5%8D%A1%E9%A1%BF%E5%8F%91%E7%94%9F%E7%9A%84%E7%9E%AC%E9%97%B4"><span class="nav-number">2.5.</span> <span class="nav-text">第二阶段：闸机锁死 (卡顿发生的瞬间)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E9%98%B6%E6%AE%B5%EF%BC%9A%E6%8A%96%E5%8A%A8-Jitter-%E7%9A%84%E8%A7%86%E8%A7%89%E7%9C%9F%E7%9B%B8"><span class="nav-number">2.6.</span> <span class="nav-text">第三阶段：抖动 (Jitter 的视觉真相)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E9%97%B8%E6%9C%BA%E5%85%B3%E9%97%AD%E4%BC%9A%E5%AF%BC%E8%87%B4%E2%80%9C%E6%8A%96%E5%8A%A8%E2%80%9D%EF%BC%9F"><span class="nav-number">2.7.</span> <span class="nav-text">深入理解：为什么闸机关闭会导致“抖动”？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">2.8.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%8D%E5%8E%8B%E6%9C%BA%E5%88%B6%EF%BC%88%E6%8A%96%E5%8A%A8%E5%8F%98%E5%8D%A1%E9%A1%BF%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">反压机制（抖动变卡顿）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%A1%88"><span class="nav-number">3.0.1.</span> <span class="nav-text">实现方案</span></a></li></ol></li></ol></li></ol>
+    
+    </div>
+  </aside>
+</section>
+        
+      </div>
+
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    <footer id="footer" class="site-footer">
+  
+
+  <div class="clearfix container">
+      <div class="site-info">
+	      &copy; 2026 喵星科技报 All Rights Reserved.
+        
+            <span id="busuanzi_container_site_uv">
+              本站访客数<span id="busuanzi_value_site_uv"></span>人次  
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+          
+      </div>
+      <div class="site-credit">
+        Theme by <a href="https://github.com/iTimeTraveler/hexo-theme-hipaper" target="_blank">hipaper</a>
+      </div>
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var wrapdiv = document.getElementById("wrap");
+    var contentdiv = document.getElementById("content");
+
+    wrapdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+
+
+    <!-- headerblur min height -->
+    
+      var headerblur = document.getElementById("header-blur");
+      headerblur.style.minHeight = window.getComputedStyle(document.getElementById("allheader"), null).height;
+    
+    
+</script>
+    
+<div style="display: none;">
+  <script src="https://s11.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+</div>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+<script src="/js/bootstrap.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+	</script>
+
+
+
+
+
+
+  </div>
+
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js" async=""></script>
+</body>
+</html>
