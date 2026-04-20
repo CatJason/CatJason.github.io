@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Kotlin Flow 常用用法指南 | 喵星科技报</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  
+  
+  
+  <meta name="description" content="Kotlin Flow 常用用法指南Kotlin Flow 是基于协程的异步流，用于按顺序发出多个值。以下是项目中常用的 Flow 操作与模式总结。 1. 创建 Flow常用的创建方式包括 flow 构建器、flowOf 和扩展函数 asFlow。 12345678910111213&#x2F;&#x2F; 1. 使用 flow &amp;#123;&amp;#125; 构建器val simpleFlow &#x3D; flow &amp;#123;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kotlin Flow 常用用法指南">
+<meta property="og:url" content="http://example.com/2026/03/25/1%20Kotlin/01%20Kotlin%20%E5%8D%8F%E7%A8%8B%E6%BA%90%E7%A0%81/%E5%B8%B8%E7%94%A8%20Flow%20%E7%94%A8%E6%B3%95/index.html">
+<meta property="og:site_name" content="喵星科技报">
+<meta property="og:description" content="Kotlin Flow 常用用法指南Kotlin Flow 是基于协程的异步流，用于按顺序发出多个值。以下是项目中常用的 Flow 操作与模式总结。 1. 创建 Flow常用的创建方式包括 flow 构建器、flowOf 和扩展函数 asFlow。 12345678910111213&#x2F;&#x2F; 1. 使用 flow &amp;#123;&amp;#125; 构建器val simpleFlow &#x3D; flow &amp;#123;">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-03-24T19:47:49.509Z">
+<meta property="article:modified_time" content="2026-03-30T17:39:32.733Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="喵星科技报" type="application/atom+xml">
+  
+  <link rel="icon" href="/css/images/favicon.ico">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+    
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Yanone+Kaffeesatz%3A200%2C300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Oswald%3A300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+<script src="/js/jquery-3.1.1.min.js"></script>
+
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.css" >
+  <link rel="stylesheet" href="/css/fashion.css" >
+  <link rel="stylesheet" href="/css/glyphs.css" >
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  
+    <a target="_blank" rel="noopener" href="https://github.com/CatJason" class="github-corner" aria-label="View source on GitHub">
+      <svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; left: 0; transform: scale(-1, 1); z-index: 9999;" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.5 120.5,78.5 C119.9,75.7 122.6,76.3 122.6,76.3 C127.3,81.2 124.9,88.2 124.9,88.2 C124.3,94.1 120.5,97.5 119.4,105.4" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path>
+      </svg>
+    </a>
+    <style>
+      .github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}
+      @keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}
+      @media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}
+    </style>
+  
+
+  <header id="allheader" class="site-header" role="banner">
+  <div class="clearfix container">
+      <div class="site-branding">
+
+          <h1 class="site-title">
+            
+              <a href="/" title="喵星科技报" rel="home"> 喵星科技报 </a>
+            
+          </h1>
+          
+          
+            
+          <nav id="main-navigation" class="main-navigation" role="navigation">
+            <a class="nav-open">Menu</a>
+            <a class="nav-close">Close</a>
+
+            <div class="clearfix sf-menu">
+              <ul id="main-nav" class="menu sf-js-enabled sf-arrows"  style="touch-action: pan-y;">
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="/"> <a class="" href="/">Home</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="archives"> <a class="" href="/archives">Archives</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="categories"> <a class="" href="/categories">Categories</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="tags"> <a class="" href="/tags">Tags</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="about"> <a class="" href="/about">About</a> </li>
+                    
+              </ul>
+            </div>
+          </nav>
+
+      </div>
+  </div>
+</header>
+
+
+  <div id="container">
+    <div id="wrap">
+            
+      <div id="content" class="outer">
+        
+          <section id="main" class="post-main" style="float:none; width: 100%;"><article id="post-1 Kotlin/01 Kotlin 协程源码/常用 Flow 用法" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" class="article-title" itemprop="name">
+      Kotlin Flow 常用用法指南
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2026/03/25/1%20Kotlin/01%20Kotlin%20%E5%8D%8F%E7%A8%8B%E6%BA%90%E7%A0%81/%E5%B8%B8%E7%94%A8%20Flow%20%E7%94%A8%E6%B3%95/" class="article-date">
+	  <time datetime="2026-03-24T19:47:49.509Z" itemprop="datePublished">March 25, 2026</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a>
+ 
+      
+	<span id="busuanzi_container_page_pv">
+	  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	</span>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Kotlin-Flow-常用用法指南"><a href="#Kotlin-Flow-常用用法指南" class="headerlink" title="Kotlin Flow 常用用法指南"></a>Kotlin Flow 常用用法指南</h1><p>Kotlin Flow 是基于协程的异步流，用于按顺序发出多个值。以下是项目中常用的 Flow 操作与模式总结。</p>
+<h2 id="1-创建-Flow"><a href="#1-创建-Flow" class="headerlink" title="1. 创建 Flow"></a>1. 创建 Flow</h2><p>常用的创建方式包括 <code>flow</code> 构建器、<code>flowOf</code> 和扩展函数 <code>asFlow</code>。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 使用 flow &#123;&#125; 构建器</span></span><br><span class="line"><span class="keyword">val</span> simpleFlow = flow &#123;</span><br><span class="line">    <span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">1.</span><span class="number">.3</span>) &#123;</span><br><span class="line">        delay(<span class="number">100</span>)</span><br><span class="line">        emit(i) <span class="comment">// 发送值</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 使用 flowOf() 发送固定值</span></span><br><span class="line"><span class="keyword">val</span> fixedFlow = flowOf(<span class="string">&quot;A&quot;</span>, <span class="string">&quot;B&quot;</span>, <span class="string">&quot;C&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 将集合或序列转换为 Flow</span></span><br><span class="line"><span class="keyword">val</span> collectionFlow = listOf(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>).asFlow()</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-末端操作符-Terminal-Operators"><a href="#2-末端操作符-Terminal-Operators" class="headerlink" title="2. 末端操作符 (Terminal Operators)"></a>2. 末端操作符 (Terminal Operators)</h2><p>末端操作符会触发 Flow 的收集。</p>
+<ul>
+<li><strong>collect</strong>: 最基础的收集操作。</li>
+<li><strong>toList &#x2F; toSet</strong>: 将 Flow 转换为集合。</li>
+<li><strong>first</strong>: 获取第一个值（并取消后续发送）。</li>
+<li><strong>reduce &#x2F; fold</strong>: 对流中的值进行累加计算。</li>
+</ul>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> sum = (<span class="number">1.</span><span class="number">.5</span>).asFlow()</span><br><span class="line">    .reduce &#123; a, b -&gt; a + b &#125; <span class="comment">// 结果为 15</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-中间操作符-Intermediate-Operators"><a href="#3-中间操作符-Intermediate-Operators" class="headerlink" title="3. 中间操作符 (Intermediate Operators)"></a>3. 中间操作符 (Intermediate Operators)</h2><p>用于对流进行变换，它们是冷操作符，不会立即触发执行。</p>
+<ul>
+<li><strong>map</strong>: 转换每个值。</li>
+<li><strong>filter</strong>: 过滤值。</li>
+<li><strong>transform</strong>: 最通用的变换操作符，可以多次调用 <code>emit</code>。</li>
+<li><strong>take</strong>: 限制发送数量。</li>
+</ul>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">(<span class="number">1.</span><span class="number">.10</span>).asFlow()</span><br><span class="line">    .filter &#123; it % <span class="number">2</span> == <span class="number">0</span> &#125;</span><br><span class="line">    .map &#123; <span class="string">&quot;Number <span class="variable">$it</span>&quot;</span> &#125;</span><br><span class="line">    .take(<span class="number">2</span>)</span><br><span class="line">    .collect &#123; println(it) &#125; <span class="comment">// 输出 Number 2, Number 4</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="4-线程切换-flowOn"><a href="#4-线程切换-flowOn" class="headerlink" title="4. 线程切换 (flowOn)"></a>4. 线程切换 (flowOn)</h2><p>Flow 遵循上下文保存原则。使用 <code>flowOn</code> 改变<strong>上游</strong>操作符执行的协程上下文。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">flow &#123;</span><br><span class="line">    <span class="comment">// 这部分将运行在 Dispatchers.Default</span></span><br><span class="line">    emit(computeResult())</span><br><span class="line">&#125;.flowOn(Dispatchers.Default)</span><br><span class="line"> .collect &#123; value -&gt;</span><br><span class="line">    <span class="comment">// 这部分运行在收集器的上下文中（如 Dispatchers.Main）</span></span><br><span class="line">    updateUI(value)</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="5-背压处理-Buffering-Conflation"><a href="#5-背压处理-Buffering-Conflation" class="headerlink" title="5. 背压处理 (Buffering &amp; Conflation)"></a>5. 背压处理 (Buffering &amp; Conflation)</h2><p>当生产者速度快于消费者时，可以使用以下方式：</p>
+<ul>
+<li><strong>buffer()</strong>: 缓冲发送，让生产者和消费者并发运行。</li>
+<li><strong>conflate()</strong>: 合并发送，消费者只处理最新的值，跳过中间值。</li>
+<li><strong>collectLatest</strong>: 当有新值发出时，取消当前的收集处理并开始处理新值。</li>
+</ul>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">simpleFlow()</span><br><span class="line">    .buffer() <span class="comment">// 并发处理，提高效率</span></span><br><span class="line">    .collect &#123; value -&gt; </span><br><span class="line">        delay(<span class="number">300</span>) </span><br><span class="line">        println(value) </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="6-组合多个-Flow"><a href="#6-组合多个-Flow" class="headerlink" title="6. 组合多个 Flow"></a>6. 组合多个 Flow</h2><ul>
+<li><strong>zip</strong>: 一对一合并两个流的值。</li>
+<li><strong>combine</strong>: 只要任何一个流发出新值，就使用两个流最新的值进行合并计算。</li>
+</ul>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> nums = (<span class="number">1.</span><span class="number">.3</span>).asFlow()</span><br><span class="line"><span class="keyword">val</span> strs = flowOf(<span class="string">&quot;One&quot;</span>, <span class="string">&quot;Two&quot;</span>, <span class="string">&quot;Three&quot;</span>)</span><br><span class="line">nums.zip(strs) &#123; a, b -&gt; <span class="string">&quot;<span class="variable">$a</span> -&gt; <span class="variable">$b</span>&quot;</span> &#125;.collect &#123; println(it) &#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="7-展平流-Flattening"><a href="#7-展平流-Flattening" class="headerlink" title="7. 展平流 (Flattening)"></a>7. 展平流 (Flattening)</h2><p>当流的值本身也是流时（<code>Flow&lt;Flow&lt;T&gt;&gt;</code>）：</p>
+<ul>
+<li><strong>flatMapConcat</strong>: 按顺序连接（等待前一个内部流完成）。</li>
+<li><strong>flatMapMerge</strong>: 并发合并内部流。</li>
+<li><strong>flatMapLatest</strong>: 只要外部流发出新值，就取消前一个内部流的收集。</li>
+</ul>
+<h2 id="8-异常处理与完成"><a href="#8-异常处理与完成" class="headerlink" title="8. 异常处理与完成"></a>8. 异常处理与完成</h2><ul>
+<li><strong>catch</strong>: 捕获上游抛出的异常。</li>
+<li><strong>onCompletion</strong>: 在流完成（无论正常还是异常）时执行。</li>
+</ul>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">simpleFlow()</span><br><span class="line">    .onCompletion &#123; cause -&gt; println(<span class="string">&quot;Done with <span class="variable">$cause</span>&quot;</span>) &#125;</span><br><span class="line">    .<span class="keyword">catch</span> &#123; e -&gt; emit(-<span class="number">1</span>) &#125; <span class="comment">// 捕获异常并发送默认值</span></span><br><span class="line">    .collect &#123; println(it) &#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/1-Kotlin/">1 - Kotlin</a>, <a class="article-category-link" href="/categories/1-Kotlin/1-1-Kotlin-%E5%8D%8F%E7%A8%8B/">1.1 - Kotlin 协程</a>
+
+      
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2026/03/25/1%20Kotlin/01%20Kotlin%20%E5%8D%8F%E7%A8%8B%E6%BA%90%E7%A0%81/%E5%8D%8F%E7%A8%8B%E4%B8%8A%E4%B8%8B%E6%96%87%E4%B8%8E%20CombinedContext%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Kotlin 协程上下文与 CombinedContext 源码解析
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2026/03/25/1%20Kotlin/01%20Kotlin%20%E5%8D%8F%E7%A8%8B%E6%BA%90%E7%A0%81/%E5%8D%8F%E7%A8%8B%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Kotlin 协程异常处理源码解析：从抛出到拦截的全链路追踪</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="sidebar">
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">Contents</strong>
+    
+      <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Kotlin-Flow-%E5%B8%B8%E7%94%A8%E7%94%A8%E6%B3%95%E6%8C%87%E5%8D%97"><span class="nav-number">1.</span> <span class="nav-text">Kotlin Flow 常用用法指南</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%88%9B%E5%BB%BA-Flow"><span class="nav-number">1.1.</span> <span class="nav-text">1. 创建 Flow</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E6%9C%AB%E7%AB%AF%E6%93%8D%E4%BD%9C%E7%AC%A6-Terminal-Operators"><span class="nav-number">1.2.</span> <span class="nav-text">2. 末端操作符 (Terminal Operators)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E4%B8%AD%E9%97%B4%E6%93%8D%E4%BD%9C%E7%AC%A6-Intermediate-Operators"><span class="nav-number">1.3.</span> <span class="nav-text">3. 中间操作符 (Intermediate Operators)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E7%BA%BF%E7%A8%8B%E5%88%87%E6%8D%A2-flowOn"><span class="nav-number">1.4.</span> <span class="nav-text">4. 线程切换 (flowOn)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E8%83%8C%E5%8E%8B%E5%A4%84%E7%90%86-Buffering-Conflation"><span class="nav-number">1.5.</span> <span class="nav-text">5. 背压处理 (Buffering &amp; Conflation)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E7%BB%84%E5%90%88%E5%A4%9A%E4%B8%AA-Flow"><span class="nav-number">1.6.</span> <span class="nav-text">6. 组合多个 Flow</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E5%B1%95%E5%B9%B3%E6%B5%81-Flattening"><span class="nav-number">1.7.</span> <span class="nav-text">7. 展平流 (Flattening)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E4%B8%8E%E5%AE%8C%E6%88%90"><span class="nav-number">1.8.</span> <span class="nav-text">8. 异常处理与完成</span></a></li></ol></li></ol>
+    
+    </div>
+  </aside>
+</section>
+        
+      </div>
+
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    <footer id="footer" class="site-footer">
+  
+
+  <div class="clearfix container">
+      <div class="site-info">
+	      &copy; 2026 喵星科技报 All Rights Reserved.
+        
+            <span id="busuanzi_container_site_uv">
+              本站访客数<span id="busuanzi_value_site_uv"></span>人次  
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+          
+      </div>
+      <div class="site-credit">
+        Theme by <a href="https://github.com/iTimeTraveler/hexo-theme-hipaper" target="_blank">hipaper</a>
+      </div>
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var wrapdiv = document.getElementById("wrap");
+    var contentdiv = document.getElementById("content");
+
+    wrapdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+
+
+    <!-- headerblur min height -->
+    
+    
+</script>
+    
+<div style="display: none;">
+  <script src="https://s11.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+</div>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+<script src="/js/bootstrap.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+	</script>
+
+
+
+
+
+
+  </div>
+
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js" async=""></script>
+</body>
+</html>
