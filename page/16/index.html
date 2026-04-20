@@ -757,34 +757,36 @@
 <h3 id="2-任务分发：Choreographer-doCallbacks"><a href="#2-任务分发：Choreographer-doCallbacks" class="headerlink" title="2. 任务分发：Choreographer.doCallbacks()"></a>2. 任务分发：<code>Choreographer.doCallbacks()</code></h3><p>这是 <code>Choreographer</code> 内部用于依次执行各阶段任务（输入、动画、遍历、提交）的核心逻辑。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 执行指定类型的回调任务。</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> callbackType 回调类型（INPUT, ANIMATION, INSETS_ANIMATION, TRAVERSAL, COMMIT）</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> frameIntervalNanos 当前设备的帧间隔（例如 60Hz 约为 16.6ms）</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">void</span> <span class="title function_">doCallbacks</span><span class="params">(<span class="type">int</span> callbackType, <span class="type">long</span> frameIntervalNanos)</span> &#123;</span><br><span class="line">    CallbackRecord callbacks;</span><br><span class="line">    <span class="type">long</span> <span class="variable">frameTimeNanos</span> <span class="operator">=</span> mFrameData.mFrameTimeNanos;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">synchronized</span> (mLock) &#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">long</span> <span class="variable">now</span> <span class="operator">=</span> System.nanoTime();</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 提取所有“到期”的回调</span></span><br><span class="line">        callbacks = mCallbackQueues[callbackType].extractDueCallbacksLocked(</span><br><span class="line">                now / TimeUtils.NANOS_PER_MS);</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> (callbacks == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        mCallbacksRunning = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 特殊处理：提交阶段 (CALLBACK_COMMIT)，修正帧时间基准以应对严重掉帧</span></span><br><span class="line">        <span class="keyword">if</span> (callbackType == Choreographer.CALLBACK_COMMIT) &#123;</span><br><span class="line">            <span class="keyword">final</span> <span class="type">long</span> <span class="variable">jitterNanos</span> <span class="operator">=</span> now - frameTimeNanos;</span><br><span class="line">            <span class="keyword">if</span> (frameIntervalNanos &gt; <span class="number">0</span> &amp;&amp; jitterNanos &gt;= <span class="number">2</span> * frameIntervalNanos) &#123;</span><br><span class="line">                <span class="keyword">final</span> <span class="type">long</span> <span class="variable">lastFrameOffset</span> <span class="operator">=</span> jitterNanos % frameIntervalNanos + frameIntervalNanos;</span><br><span class="line">                frameTimeNanos = now - lastFrameOffset;</span><br><span class="line">                mLastFrameTimeNanos = frameTimeNanos;</span><br><span class="line">                mFrameData.update(frameTimeNanos, mDisplayEventReceiver, jitterNanos);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Trace.traceBegin(Trace.TRACE_TAG_VIEW, CALLBACK_TRACE_TITLES[callbackType]);</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">CallbackRecord</span> <span class="variable">c</span> <span class="operator">=</span> callbacks; c != <span class="literal">null</span>; c = c.next) &#123;</span><br><span class="line">            <span class="comment">// 执行回调。对于 CALLBACK_TRAVERSAL 类型，会进入 ViewRootImpl.performTraversals()</span></span><br><span class="line">            c.run(mFrameData);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (mLock) &#123;</span><br><span class="line">            mCallbacksRunning = <span class="literal">false</span>;</span><br><span class="line">            <span class="keyword">do</span> &#123;</span><br><span class="line">                <span class="keyword">final</span> <span class="type">CallbackRecord</span> <span class="variable">next</span> <span class="operator">=</span> callbacks.next;</span><br><span class="line">                recycleCallbackLocked(callbacks);</span><br><span class="line">                callbacks = next;</span><br><span class="line">            &#125; <span class="keyword">while</span> (callbacks != <span class="literal">null</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        Trace.traceEnd(Trace.TRACE_TAG_VIEW);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+<h4 id="1-修正帧时间基准以应对严重掉帧"><a href="#1-修正帧时间基准以应对严重掉帧" class="headerlink" title="1. 修正帧时间基准以应对严重掉帧"></a>1. 修正帧时间基准以应对严重掉帧</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (callbackType == Choreographer.CALLBACK_COMMIT) &#123;</span><br><span class="line">                <span class="keyword">final</span> <span class="type">long</span> <span class="variable">jitterNanos</span> <span class="operator">=</span> now - frameTimeNanos;</span><br><span class="line">                <span class="keyword">if</span> (frameIntervalNanos &gt; <span class="number">0</span> &amp;&amp; jitterNanos &gt;= <span class="number">2</span> * frameIntervalNanos) &#123;</span><br><span class="line">                    <span class="keyword">final</span> <span class="type">long</span> <span class="variable">lastFrameOffset</span> <span class="operator">=</span> jitterNanos % frameIntervalNanos + frameIntervalNanos;</span><br><span class="line">                    frameTimeNanos = now - lastFrameOffset;</span><br><span class="line">                    mLastFrameTimeNanos = frameTimeNanos;</span><br><span class="line">                    mFrameData.update(frameTimeNanos, mDisplayEventReceiver, jitterNanos);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br></pre></td></tr></table></figure>
+
 <p>这在 <code>Choreographer</code> 的底层逻辑中是一个非常重要的保护机制，用于解决因严重的掉帧或主线程卡顿导致的 <strong>“逻辑时间偏差”</strong>。</p>
 <hr>
-<h4 id="1-核心意图：为什么要进行这一步计算？"><a href="#1-核心意图：为什么要进行这一步计算？" class="headerlink" title="1. 核心意图：为什么要进行这一步计算？"></a>1. 核心意图：为什么要进行这一步计算？</h4><p>在 Android 的动画（Animation）和图形渲染中，所有计算都是基于 <code>frameTimeNanos</code> 这个基准的。计算逻辑通常如下：</p>
-<p>$$\text{progress} &#x3D; \frac{\text{currentTime} - \text{startTime}}{\text{duration}}$$</p>
+<h5 id="1-核心意图：为什么要进行这一步计算？"><a href="#1-核心意图：为什么要进行这一步计算？" class="headerlink" title="1. 核心意图：为什么要进行这一步计算？"></a>1. 核心意图：为什么要进行这一步计算？</h5><p>在 Android 的动画（Animation）和图形渲染中，所有计算都是基于 <code>frameTimeNanos</code> 这个基准的。计算逻辑通常如下：</p>
+<p>progress &#x3D; (currentTime - startTime) &#x2F; duration</p>
 <p>如果系统发生了严重的卡顿（例如主线程阻塞了 500ms），<code>frameTimeNanos</code> 依然停留在 500ms 之前。如果不进行校正，当代码恢复执行时，程序会使用这个“过时”的 <code>frameTimeNanos</code>。这会导致：</p>
 <ul>
 <li><strong>动画“跳变”</strong>：动画会瞬间计算出很大的 delta，导致元素直接从起点“瞬移”到终点，产生视觉上的闪烁。</li>
 <li><strong>物理引擎异常</strong>：如果你的代码里有基于物理模拟的逻辑，巨大的时间差会导致计算出的速度、位移爆炸。</li>
 </ul>
-<h4 id="2-代码逻辑拆解"><a href="#2-代码逻辑拆解" class="headerlink" title="2. 代码逻辑拆解"></a>2. 代码逻辑拆解</h4><p>这段代码在 <code>CALLBACK_COMMIT</code> 阶段触发，其逻辑是在检测到<strong>极度严重掉帧</strong>时，强行将“当前的逻辑帧时间”重置到最近的一个有效时间点。</p>
+<h5 id="2-代码逻辑拆解"><a href="#2-代码逻辑拆解" class="headerlink" title="2. 代码逻辑拆解"></a>2. 代码逻辑拆解</h5><p>这段代码在 <code>CALLBACK_COMMIT</code> 阶段触发，其逻辑是在检测到<strong>极度严重掉帧</strong>时，强行将“当前的逻辑帧时间”重置到最近的一个有效时间点。</p>
 <ul>
 <li><p>**<code>jitterNanos</code> (抖动&#x2F;延迟量)**：</p>
-<p>$$jitterNanos &#x3D; now - frameTimeNanos$$</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jitterNanos = now - frameTimeNanos</span><br></pre></td></tr></table></figure>
+
 <p>这是当前物理时间（<code>now</code>）距离该帧预期执行时间（<code>frameTimeNanos</code>）的偏移量。如果该值很大，说明我们在这一帧上滞后了很多。</p>
 </li>
 <li><p>**阈值判断 (<code>jitterNanos &gt;= 2 \* frameIntervalNanos</code>)**：</p>
 <p>这是为了避免误判。只有当延迟超过 2 个帧周期（在 60Hz 下约 &gt; 33.3ms）时，才会介入。这说明系统已经错过了至少一个 VSYNC 信号，进入了严重的掉帧状态。</p>
 </li>
 <li><p>**重新对齐 <code>frameTimeNanos</code>**：</p>
-<p>Java</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">final long lastFrameOffset = jitterNanos % frameIntervalNanos + frameIntervalNanos;</span><br><span class="line">frameTimeNanos = now - lastFrameOffset;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="type">long</span> <span class="variable">lastFrameOffset</span> <span class="operator">=</span> jitterNanos % frameIntervalNanos + frameIntervalNanos;</span><br><span class="line">frameTimeNanos = now - lastFrameOffset;</span><br></pre></td></tr></table></figure>
 
 <p>这里将 <code>frameTimeNanos</code> 设置为 <code>now</code> 减去一个偏移量。这个偏移量被强制限制在 <code>frameIntervalNanos</code> 到 <code>2 * frameIntervalNanos</code> 之间。</p>
 <p><strong>效果</strong>：它将 <code>frameTimeNanos</code> “强制拉回”到距离当前 <code>now</code> 最近的、符合渲染周期节奏的时间点。</p>
 </li>
 </ul>
 <hr>
-<h4 id="3-可视化理解"><a href="#3-可视化理解" class="headerlink" title="3. 可视化理解"></a>3. 可视化理解</h4><p>上图展示了当发生卡顿时，虚拟时间轴如何被校准以平滑后续动画。</p>
+<h5 id="3-可视化理解"><a href="#3-可视化理解" class="headerlink" title="3. 可视化理解"></a>3. 可视化理解</h5><p>上图展示了当发生卡顿时，虚拟时间轴如何被校准以平滑后续动画。</p>
 <table>
 <thead>
 <tr>
@@ -807,6 +809,48 @@
 <td><strong>修正后</strong></td>
 <td><code>frameTimeNanos</code> 被重置到 <code>now - interval</code></td>
 <td>动画认为上一帧是 16.6ms 前，从而继续平滑过渡，掩盖了卡顿期间的时间断层。</td>
+</tr>
+</tbody></table>
+<h4 id="2-与-View-相关的耗时统计"><a href="#2-与-View-相关的耗时统计" class="headerlink" title="2. 与 View 相关的耗时统计"></a>2. 与 View 相关的耗时统计</h4><h5 id="核心分类逻辑：通过-callbackType-实现“打标签”"><a href="#核心分类逻辑：通过-callbackType-实现“打标签”" class="headerlink" title="核心分类逻辑：通过 callbackType 实现“打标签”"></a>核心分类逻辑：通过 <code>callbackType</code> 实现“打标签”</h5><p><code>Choreographer</code> 内部维护了一个数组：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 必须与下面的 CALLBACK_* 整数保持同步，用于索引此数组。</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@hide</span></span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String[] CALLBACK_TRACE_TITLES = &#123;</span><br><span class="line">        <span class="string">&quot;input&quot;</span>, <span class="string">&quot;animation&quot;</span>, <span class="string">&quot;insets_animation&quot;</span>, <span class="string">&quot;traversal&quot;</span>, <span class="string">&quot;commit&quot;</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>当 <code>doCallbacks(int callbackType, ...)</code> 被调用时，代码执行的是： <code>Trace.traceBegin(Trace.TRACE_TAG_VIEW, CALLBACK_TRACE_TITLES[callbackType]);</code></p>
+<ul>
+<li><strong>对于 Input</strong>：传入 <code>callbackType = 0</code>，字符串就是 <code>&quot;input&quot;</code>。</li>
+<li><strong>对于 Animation</strong>：传入 <code>callbackType = 1</code>，字符串就是 <code>&quot;animation&quot;</code>。</li>
+</ul>
+<h5 id="核心对应关系表"><a href="#核心对应关系表" class="headerlink" title="核心对应关系表"></a>核心对应关系表</h5><table>
+<thead>
+<tr>
+<th><strong>CALLBACK_TRACE_TITLES (Trace 标签)</strong></th>
+<th><strong>FrameMetrics 对应指标 (Duration)</strong></th>
+<th><strong>核心职能</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>“input”</strong></td>
+<td><code>INPUT_HANDLING_DURATION</code></td>
+<td>处理 MotionEvent、按键事件等。</td>
+</tr>
+<tr>
+<td><strong>“animation”</strong></td>
+<td><code>ANIMATION_DURATION</code></td>
+<td>处理 <code>ValueAnimator</code> 等动画逻辑。</td>
+</tr>
+<tr>
+<td><strong>“insets_animation”</strong></td>
+<td><code>INSETS_ANIMATION_DURATION</code></td>
+<td>处理窗口插屏（如键盘弹出）动画。</td>
+</tr>
+<tr>
+<td><strong>“traversal”</strong></td>
+<td><code>LAYOUT_MEASURE_DURATION</code></td>
+<td>执行 <code>performTraversals</code>，即 Measure + Layout。</td>
+</tr>
+<tr>
+<td><strong>“commit”</strong></td>
+<td><code>SYNC_DURATION</code></td>
+<td>同步 RenderNode 数据到渲染线程 (RenderThread)。</td>
 </tr>
 </tbody></table>
 <h3 id="3-核心负载：Choreographer-FrameData"><a href="#3-核心负载：Choreographer-FrameData" class="headerlink" title="3. 核心负载：Choreographer.FrameData"></a>3. 核心负载：<code>Choreographer.FrameData</code></h3><p>封装了 VSYNC 信号的时间戳和多组呈现时间线（Frame Timeline），这是现代 Android 系统平滑显示的核心数据结构。</p>
