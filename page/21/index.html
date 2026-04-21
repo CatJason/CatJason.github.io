@@ -662,6 +662,194 @@
 <!-- Table of Contents -->
 
   
+    <article id="post-8渲染引擎/04 弹幕引擎/弹幕引擎 (一) 从流式渲染架构与批式渲染架构说起"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2026/04/21/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/04%20%E5%BC%B9%E5%B9%95%E5%BC%95%E6%93%8E/%E5%BC%B9%E5%B9%95%E5%BC%95%E6%93%8E%20(%E4%B8%80)%20%E4%BB%8E%E6%B5%81%E5%BC%8F%E6%B8%B2%E6%9F%93%E6%9E%B6%E6%9E%84%E4%B8%8E%E6%89%B9%E5%BC%8F%E6%B8%B2%E6%9F%93%E6%9E%B6%E6%9E%84%E8%AF%B4%E8%B5%B7/">弹幕引擎 (一) 从流式渲染架构与批式渲染架构说起</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2026/04/21/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/04%20%E5%BC%B9%E5%B9%95%E5%BC%95%E6%93%8E/%E5%BC%B9%E5%B9%95%E5%BC%95%E6%93%8E%20(%E4%B8%80)%20%E4%BB%8E%E6%B5%81%E5%BC%8F%E6%B8%B2%E6%9F%93%E6%9E%B6%E6%9E%84%E4%B8%8E%E6%89%B9%E5%BC%8F%E6%B8%B2%E6%9F%93%E6%9E%B6%E6%9E%84%E8%AF%B4%E8%B5%B7/" class="article-date">
+	  <time datetime="2026-04-21T10:59:47.798Z" itemprop="datePublished">April 21, 2026</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a>, <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-4-%E9%AB%98%E6%80%A7%E8%83%BD%E5%BC%B9%E5%B9%95%E5%BC%95%E6%93%8E/">8.4 - 高性能弹幕引擎</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="两种渲染架构"><a href="#两种渲染架构" class="headerlink" title="两种渲染架构"></a>两种渲染架构</h2><p>这两种架构代表了计算机科学中处理任务的两种截然不同的哲学：<strong>“流式”追求实时响应（Latency-Optimized）</strong>，而<strong>“批式”追求吞吐与效率（Throughput-Optimized）</strong>。</p>
+<p>在 Android 图形系统中，将这两者强行整合在一起，本质上就是在处理“阻抗不匹配”（Impedance Mismatch）问题。</p>
+<hr>
+<h3 id="流式架构-Streaming-Architecture-——-“持续交付”"><a href="#流式架构-Streaming-Architecture-——-“持续交付”" class="headerlink" title="流式架构 (Streaming Architecture) —— “持续交付”"></a>流式架构 (Streaming Architecture) —— “持续交付”</h3><p>流式架构的核心在于<strong>即时性</strong>。数据一旦产生，就必须尽快通过管道流向目的地，系统的目标是最小化“端到端延迟”（End-to-End Latency）。</p>
+<ul>
+<li><strong>核心原则</strong>：Event-Driven（事件驱动）。每一条数据（Frame）都是一个独立处理的事件。</li>
+<li><strong>时间观念</strong>：基于<strong>“数据到达时间”</strong>（Event Time）。渲染引擎产生一帧，就意味着该帧必须立即显示。</li>
+<li><strong>系统特征</strong>：<ul>
+<li><strong>低延迟</strong>：不等待后续数据，无需缓存队列。</li>
+<li><strong>恒定开销</strong>：渲染引擎需要保持持续的计算负载，无法利用“闲时休息”来节省资源。</li>
+<li><strong>不可预测性</strong>：数据的到达频率若波动，系统必须能立即响应，否则就会造成抖动。</li>
+</ul>
+</li>
+</ul>
+<p><strong>在你的架构中</strong>：OpenGL 渲染线程就是典型的流式架构，它要求“此时此刻”就要渲染出当前状态。</p>
+<hr>
+<h3 id="批式架构-Batching-Architecture-——-“批量吞吐”"><a href="#批式架构-Batching-Architecture-——-“批量吞吐”" class="headerlink" title="批式架构 (Batching Architecture) —— “批量吞吐”"></a>批式架构 (Batching Architecture) —— “批量吞吐”</h3><p>批式架构的核心在于<strong>优化总成本与效率</strong>。它故意引入“延迟”，将多次小的操作合并为一次大的操作（Coalescing），目的是摊薄系统调用的开销。</p>
+<ul>
+<li><strong>核心原则</strong>：Task-Coalescing（任务合并）。等待任务累积到阈值（时间片或数量），再一次性提交。</li>
+<li><strong>时间观念</strong>：基于<strong>“系统时钟”</strong>（System Cycle&#x2F;Tick）。无论任务多早完成，都必须等待下一个“发车时刻”（VSync 信号）。</li>
+<li><strong>系统特征</strong>：<ul>
+<li><strong>高效率</strong>：通过减少上下文切换、减少 CPU&#x2F;GPU 切换、利用 CPU 缓存亲和性，降低单次任务的平均成本。</li>
+<li><strong>高吞吐</strong>：在单位时间内处理更多数据。</li>
+<li><strong>容忍延迟</strong>：只要最终结果符合预期的交付周期，内部的处理顺序和时机可以灵活调整。</li>
+</ul>
+</li>
+</ul>
+<p><strong>在你的架构中</strong>：Android View 系统（<code>ViewRootImpl</code>）就是批式架构，它把所有的 UI 更新请求收集起来，等到 <code>Choreographer</code> 信号到来时，统一进行遍历（Traversal）。</p>
+<hr>
+<h3 id="为什么两者会产生冲突？（底层哲学冲突）"><a href="#为什么两者会产生冲突？（底层哲学冲突）" class="headerlink" title="为什么两者会产生冲突？（底层哲学冲突）"></a>为什么两者会产生冲突？（底层哲学冲突）</h3><p>这种冲突在工程上被称为 <strong>“时域上的不兼容”</strong>：</p>
+<ol>
+<li><strong>处理模型的“错位”</strong>：</li>
+</ol>
+<ul>
+<li>流式架构要求<strong>“随时”</strong>处理任务。</li>
+<li>批式架构要求<strong>“准点”</strong>处理任务。</li>
+<li>当流式产生的数据（OpenGL 帧）试图进入批式系统（View 树）时，它会被强制进入“等待队列”。这种等待，人为地将原本平滑的流打断了。</li>
+</ul>
+<ol start="2">
+<li><strong>吞吐量与延迟的权衡（Trade-off）</strong>：</li>
+</ol>
+<ul>
+<li>Android 系统设计 View 系统的批式处理，是为了让整个 App 的界面渲染更加经济（省电、省 CPU），这是为了全局最优。</li>
+<li>但你的渲染引擎是局部优化（追求单组件的极致平滑），这与全局策略产生了利益冲突。</li>
+</ul>
+<hr>
+<h3 id="理解这两个架构"><a href="#理解这两个架构" class="headerlink" title="理解这两个架构"></a>理解这两个架构</h3><p>**私家车 (Streaming &#x2F; OpenGL 渲染线程)**：你是驾驶者，追求的是“随到随走”。你的油门由你的引擎逻辑（渲染循环）控制，你希望以恒定的 60km&#x2F;h（60fps）在路上行驶。</p>
+<p>**轮渡 (Batching &#x2F; Android View 系统)**：这是公共交通系统，它严格遵循“时刻表”运行。轮渡只在固定的时刻（VSync 信号）才会靠岸并进行装载（Traversal 绘制流程）。</p>
+<p><strong>码头闸机 (mWillDrawSoon)<strong>：这是码头管理处。它的规则是：如果轮渡已经在准备启航了（<code>mWillDrawSoon = true</code>），为了保障航行安全，</strong>码头闸机必须关闭，不再允许任何车辆进入码头。</strong></p>
+<hr>
+<h3 id="GLSurfaceView-与-GLTextureView-的架构本质对比"><a href="#GLSurfaceView-与-GLTextureView-的架构本质对比" class="headerlink" title="GLSurfaceView 与 GLTextureView 的架构本质对比"></a>GLSurfaceView 与 GLTextureView 的架构本质对比</h3><p>首先需要明确一点：<strong>Android 原生 SDK 中并没有 <code>GLTextureView</code> 这个类</strong>。通常开发者会使用 <code>TextureView</code> 并配合自定义的 OpenGL 渲染逻辑来实现类似的功能。</p>
+<p>我们将这一逻辑架构下的组件称为 **<code>GLTextureView</code>**（即自定义封装了 OpenGL 渲染能力的 <code>TextureView</code>）。以下是重写后的对比分析：</p>
+<hr>
+<p>如果说 <strong><code>GLSurfaceView</code></strong> 是将“流”直接注入到了图形合成器（SurfaceFlinger）的轨道上，那么 <strong><code>GLTextureView</code></strong> 则是将渲染出的“流”强行塞入了一个 View 系统的“容器”中。</p>
+<p>以下是 <code>GLTextureView</code> 作为“批式容器”架构的三个关键原则：</p>
+<h4 id="1-受限的生产自主权（依附于-View-树）"><a href="#1-受限的生产自主权（依附于-View-树）" class="headerlink" title="1. 受限的生产自主权（依附于 View 树）"></a>1. 受限的生产自主权（依附于 View 树）</h4><ul>
+<li><strong>原理</strong>：<code>GLTextureView</code> 本质上是一个 <code>TextureView</code>。它的生命周期、测量（Measure）、布局（Layout）和绘制（Draw）完全被 <code>ViewRootImpl</code> 的调度所接管。</li>
+<li><strong>对比</strong>：<code>GLSurfaceView</code> 拥有独立的 Surface，直接对冲系统合成器；而 <code>GLTextureView</code> 的渲染产出必须作为 View 树的一个 Layer，每一帧都必须经过 View 系统繁琐的 traversal 流程才能上屏。</li>
+<li><strong>结论</strong>：它<strong>无法摆脱 <code>mWillDrawSoon</code> 的锁链</strong>。因为它的生产过程必须等待主线程的 View 遍历周期（Traversal），它被迫服从 UI 系统的调度频率，而不是自主的渲染频率。</li>
+</ul>
+<h4 id="2-“被动式”的渲染循环（受限于-UI-节拍）"><a href="#2-“被动式”的渲染循环（受限于-UI-节拍）" class="headerlink" title="2. “被动式”的渲染循环（受限于 UI 节拍）"></a>2. “被动式”的渲染循环（受限于 UI 节拍）</h4><ul>
+<li><strong>原理</strong>：虽然 <code>GLTextureView</code> 内部也可以开辟渲染线程，但它的数据交付（Commit）必须通过 <code>SurfaceTexture</code> 触发 <code>invalidate()</code> 或 <code>requestLayout()</code>。</li>
+<li><strong>时序耦合</strong>：它的数据上屏时间必须与 UI 主线程的 VSync 信号对齐。当 <code>ViewRootImpl</code> 处于 <code>performTraversals()</code> 的忙碌期时，渲染线程提交的数据会被“搁置”或“合并”。</li>
+<li><strong>结论</strong>：它是典型的“批式”架构。渲染线程虽然在独立生产，但数据被 View 系统“缓存”在 <code>TextureView</code> 的缓冲区中，必须等到 View 系统允许绘制时，才能通过合成流程输出。</li>
+</ul>
+<h4 id="3-数据流的“二次转运”（非零拷贝）"><a href="#3-数据流的“二次转运”（非零拷贝）" class="headerlink" title="3. 数据流的“二次转运”（非零拷贝）"></a>3. 数据流的“二次转运”（非零拷贝）</h4><ul>
+<li><strong>原理</strong>：在 <code>GLTextureView</code> 中，你的 OpenGL 渲染结果先写入 <code>SurfaceTexture</code>，然后需要经过 GPU 拷贝&#x2F;转换到 View 的 Layer 纹理中（由 UI 系统合成）。</li>
+<li><strong>对比</strong>：<code>GLSurfaceView</code> 的数据流是“直通”的，它直接作为 Surface 层被合成器读取。而 <code>GLTextureView</code> 存在一个“转运”过程——View 系统必须先获取 <code>SurfaceTexture</code> 的数据，将其合成到整个 App 的 UI 树中，这个过程增加了额外的 CPU&#x2F;GPU 调度开销，也正是延迟的来源。</li>
+</ul>
+<hr>
+<h2 id="GLTextureView-抖动的问题"><a href="#GLTextureView-抖动的问题" class="headerlink" title="GLTextureView 抖动的问题"></a>GLTextureView 抖动的问题</h2><p>我们将 <code>GLTextureView</code> 定义为一个“强行塞入批式容器的流式渲染组件”。这种架构上的错位，是导致渲染抖动（Jitter）的根本源头。在高性能弹幕引擎的开发中，这种抖动并非逻辑错误，而是<strong>时序调度上的“水土不服”</strong>。</p>
+<h3 id="渲染流与-UI-循环的“错位”"><a href="#渲染流与-UI-循环的“错位”" class="headerlink" title="渲染流与 UI 循环的“错位”"></a>渲染流与 UI 循环的“错位”</h3><p><code>GLTextureView</code> 的最大痛点在于其<strong>双重时钟依赖</strong>：</p>
+<ul>
+<li><strong>内部时钟（Render Thread）</strong>：负责产出渲染帧，通常以恒定速率（如 60fps&#x2F;120fps）运行。</li>
+<li><strong>外部时钟（ViewRootImpl）</strong>：负责 UI 的 <code>measure/layout/draw</code>，严格受 VSync 信号驱动，具有极高的间歇性和突发性。</li>
+</ul>
+<p>当 OpenGL 线程完成一帧渲染时，它通过 <code>SurfaceTexture</code> 更新回调通知 UI 线程。然而，View 系统并不总是处于“准备好接收”的状态。一旦 View 树中出现了耗时布局（如嵌套过深的 Layout 或频繁的 <code>invalidate</code>），UI 线程就会进入长时间的 <code>performTraversals</code> 周期。</p>
+<p><strong>此时，渲染帧被迫“滞后”</strong>。对于肉眼而言，这就形成了抖动：上一帧间隔 16ms，由于被拦截，下一帧间隔变成了 32ms，再下一帧为了追赶进度，可能在 10ms 就执行了。这种<strong>帧呈现时长（Frame Presentation Time）的剧烈波动</strong>，就是用户感知到的“顿挫感”。</p>
+<hr>
+<h3 id="调度拦截：mWillDrawSoon-导致的“闸机锁死”"><a href="#调度拦截：mWillDrawSoon-导致的“闸机锁死”" class="headerlink" title="调度拦截：mWillDrawSoon 导致的“闸机锁死”"></a>调度拦截：<code>mWillDrawSoon</code> 导致的“闸机锁死”</h3><p>回顾我们提到的“码头闸机”比喻，<code>mWillDrawSoon</code> 就是那个一旦合上就绝不通融的机制。</p>
+<p>在 <code>GLTextureView</code> 中，<code>invalidate()</code> 逻辑是其更新 UI 的唯一入口。当 OpenGL 线程频繁调用 <code>invalidate()</code> 请求更新时：</p>
+<ul>
+<li><strong>如果 UI 线程正在执行布局任务</strong>：<code>ViewRootImpl</code> 会将 <code>mWillDrawSoon</code> 置为 <code>true</code>。</li>
+<li><strong>拒绝服务</strong>：此时 <code>TextureView</code> 发出的重绘请求会被系统判定为“冗余”，直接丢弃或合并。</li>
+<li><strong>视觉后果</strong>：OpenGL 线程以为这一帧已经提交成功，但实际上它在缓冲区（BufferQueue）中被“锁”住了，直到 UI 线程完成当前循环并处理下一个 <code>traversal</code>。这种<strong>强制的等待</strong>，使得原本流畅的弹幕运动轨迹在某一瞬间“卡”住了。</li>
+</ul>
+<hr>
+<h3 id="缓冲区失衡：挤压与丢帧的博弈"><a href="#缓冲区失衡：挤压与丢帧的博弈" class="headerlink" title="缓冲区失衡：挤压与丢帧的博弈"></a>缓冲区失衡：挤压与丢帧的博弈</h3><p>由于 <code>GLTextureView</code> 本质上是一个 <code>TextureView</code>，它必须通过 <code>BufferQueue</code> 与 <code>SurfaceFlinger</code> 握手。这里的生产与消费关系极易失衡：</p>
+<ul>
+<li><strong>BufferQueue 挤压 (Congestion)<strong>：如果你的 OpenGL 渲染引擎产出过快（例如渲染线程没有设置 Frame Rate 限制），<code>BufferQueue</code> 会迅速填满。此时，如果 <code>TextureView</code> 的消费能力跟不上，会导致系统阻塞 Producer 或产生明显的</strong>输入延迟（Input Lag）</strong>。用户会感觉弹幕“跟手性”很差，仿佛有一层厚厚的阻尼感。</li>
+<li><strong>帧丢弃 (Frame Drop)<strong>：如果系统为了维持 App 的整体流畅度，配置了 <code>DROP_OLDEST</code> 策略，那么当 <code>BufferQueue</code> 满载时，旧帧会被直接丢弃。对于弹幕引擎来说，这意味着</strong>弹幕位置的“跳跃”</strong>——上一秒弹幕还在屏幕左侧，下一秒直接出现在了右侧，运动轨迹的连续性被彻底破坏。</li>
+</ul>
+<p>这是一个非常经典的“时序冲突”模型。通过“私家车、轮渡、码头闸机”的比喻，我们可以清晰地看到卡顿（Jitter）是如何从“微观等待”演变成“宏观视觉抖动”的。</p>
+<p>让我们把这个过程拆解为三个阶段，来看看你的“私家车”是如何在码头被迫经历那场“抖动”的。</p>
+<h3 id="第一阶段：完美的节奏-平滑渲染"><a href="#第一阶段：完美的节奏-平滑渲染" class="headerlink" title="第一阶段：完美的节奏 (平滑渲染)"></a>第一阶段：完美的节奏 (平滑渲染)</h3><ul>
+<li><strong>状态</strong>：码头（View 系统）一切正常，轮渡（VSync）准时靠岸。</li>
+<li><strong>过程</strong>：你的私家车（渲染帧）以 60km&#x2F;h（16.6ms&#x2F;帧）的速度匀速行驶。每一辆车到达码头时，闸机（mWillDrawSoon）都是打开的。</li>
+<li><strong>结果</strong>：车子顺利开上船，轮渡准时出发。观众看到的是均匀平滑的动画。</li>
+</ul>
+<h3 id="第二阶段：闸机锁死-卡顿发生的瞬间"><a href="#第二阶段：闸机锁死-卡顿发生的瞬间" class="headerlink" title="第二阶段：闸机锁死 (卡顿发生的瞬间)"></a>第二阶段：闸机锁死 (卡顿发生的瞬间)</h3><ul>
+<li><strong>状态</strong>：轮渡（UI 线程）突然变得极其忙碌。因为它是“公共交通”，它不仅要装你的车，还要处理一大堆复杂的“乘客”（View 树的 Measure&#x2F;Layout 布局计算）。</li>
+<li><strong>冲突</strong>：当你的车（新的一帧）准时到达码头时，闸机管理员（ViewRootImpl）看了一眼忙碌的甲板，大喊一声：“<strong>轮渡已经准备发船了，现在是 <code>mWillDrawSoon = true</code>，闸机关闭！</strong>”</li>
+<li><strong>过程</strong>：你的车被迫停在码头干等。虽然引擎（OpenGL 线程）还在轰鸣，但你被拦在了闸机外。</li>
+</ul>
+<h3 id="第三阶段：抖动-Jitter-的视觉真相"><a href="#第三阶段：抖动-Jitter-的视觉真相" class="headerlink" title="第三阶段：抖动 (Jitter 的视觉真相)"></a>第三阶段：抖动 (Jitter 的视觉真相)</h3><p>抖动并不是因为你“停下”了，而是因为<strong>你被迫改变了行驶节奏</strong>。</p>
+<ol>
+<li><strong>车 1</strong>：顺利上船，第 0ms 出发。</li>
+<li><strong>车 2</strong>：到达时闸机已关闭，被迫在码头等到了第 32ms，才赶上下一班轮渡。</li>
+<li><strong>车 3</strong>：轮渡恢复正常，第 48ms 出发。</li>
+</ol>
+<p><strong>视觉上的“抖动”感由此产生：</strong></p>
+<ul>
+<li><strong>节奏断裂</strong>：观众看到的画面间隔是：<code>16ms -&gt; 32ms -&gt; 16ms</code>。</li>
+<li><strong>这种不一致才是“抖动”的本质</strong>。如果所有的车都等 32ms，那画面看起来只是“慢”（30fps）；但因为你一会儿 16ms，一会儿 32ms，这种<strong>节奏的剧烈突变</strong>，导致人眼立刻捕捉到了弹幕轨迹的“顿挫”或“瞬移”。</li>
+</ul>
+<hr>
+<h3 id="深入理解：为什么闸机关闭会导致“抖动”？"><a href="#深入理解：为什么闸机关闭会导致“抖动”？" class="headerlink" title="深入理解：为什么闸机关闭会导致“抖动”？"></a>深入理解：为什么闸机关闭会导致“抖动”？</h3><p>在技术层面，这个过程有三个细节决定了抖动的严重程度：</p>
+<ol>
+<li><p><strong>“被迫排队”的后坐力</strong>：<br>当闸机（<code>mWillDrawSoon</code>）最终打开时，轮渡（View 系统）可能会因为刚才的积压，导致下一次发船更加匆忙。这种“忽快忽慢”的调度节奏，会将你的私家车（OpenGL 帧）的交付周期彻底搞乱。</p>
+</li>
+<li><p><strong>BufferQueue 的“洪峰效应”</strong>：<br>在闸机关闭期间，你的 OpenGL 引擎并没有停下来，它还在持续不断地往码头输送“车流”。如果你的缓冲区（BufferQueue）有限，闸机一打开，可能会瞬间涌入好几辆车。系统为了追赶进度，可能会直接丢弃中间的车，这就会导致<strong>“跳帧”</strong>——你原本打算显示的弹幕运动过程，被直接跨越了，导致视觉上的“瞬间跳跃”。</p>
+</li>
+<li><p><strong>不确定性的“黑盒”</strong>：<br>最可怕的是，作为“私家车”驾驶员（渲染线程），你根本不知道码头闸机什么时候关，什么时候开。你唯一的感知就是：<strong>我明明踩着油门，速度却被这个码头的交通规则强制修正了。</strong></p>
+</li>
+</ol>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p><strong>抖动，其实就是你的渲染引擎（私家车）试图维持恒定节奏，却被系统的调度规则（码头闸机）强行改写了发车时间。</strong></p>
+<h2 id="反压机制（抖动变卡顿）"><a href="#反压机制（抖动变卡顿）" class="headerlink" title="反压机制（抖动变卡顿）"></a>反压机制（抖动变卡顿）</h2><p><strong>反压（Backpressure）</strong> 是计算机科学中用于处理“<strong>生产者速度过快，而消费者消费速度跟不上</strong>”这一矛盾的调节机制。</p>
+<p>简单来说，当系统无法处理此时到达的流量时，通过某种手段“向上游”发出信号，让上游放慢速度。</p>
+<p>通过人工手段将一个异步、非确定性的系统（Async&#x2F;Unpredictable），强行转化为一个同步、确定性的“步进系统”（Lock-step）。</p>
+<p>从工程学的角度来看，<strong>“将不可控的抖动（Jitter）转化为可控的卡顿（Stutter）”</strong>，在很多高性能实时系统（如游戏引擎的帧率锁定）中，是一个非常经典的优化策略。</p>
+<h4 id="实现方案"><a href="#实现方案" class="headerlink" title="实现方案"></a>实现方案</h4><p>在 TextureView 中添加一个 mHasContentToDraw，监听到有待绘制的下一帧或者 swapBuffer 之后，设置为ture，阻止新的帧绘制，在 onSurfaceTextureUpdated 之后设置为 false，这样，把抖动变成卡顿</p>
+<p>mHasContentToDraw &#x3D; true</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onSurfaceTextureAvailable</span><span class="params">(SurfaceTexture surface, <span class="type">int</span> width, <span class="type">int</span> height)</span> &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">listenerField</span> <span class="operator">=</span> SurfaceTexture.class.getDeclaredField(<span class="string">&quot;mOnFrameAvailableListener&quot;</span>);</span><br><span class="line">        listenerField.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        <span class="keyword">final</span> SurfaceTexture.<span class="type">OnFrameAvailableListener</span> <span class="variable">originalListener</span> <span class="operator">=</span> (SurfaceTexture.OnFrameAvailableListener) listenerField.get(surface);</span><br><span class="line">        surface.setOnFrameAvailableListener(<span class="keyword">new</span> <span class="title class_">SurfaceTexture</span>.OnFrameAvailableListener() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onFrameAvailable</span><span class="params">(SurfaceTexture surfaceTexture)</span> &#123;</span><br><span class="line">                mHasContentToDraw = <span class="literal">true</span>;</span><br><span class="line">                <span class="keyword">if</span> (originalListener != <span class="literal">null</span>) &#123;</span><br><span class="line">                    originalListener.onFrameAvailable(surfaceTexture);</span><br><span class="line">                &#125;</span><br><span class="line">                postInvalidate();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        Log.e(TAG, <span class="string">&quot;Fail to hijack ST&quot;</span>, e);</span><br><span class="line">    &#125;</span><br><span class="line">    mGLThread.surfaceCreated();</span><br><span class="line">    onSurfaceTextureSizeChanged(surface, width, height);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">int</span> <span class="title function_">swap</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (! mEgl.eglSwapBuffers(mEglDisplay, mEglSurface)) &#123;</span><br><span class="line">        <span class="keyword">return</span> mEgl.eglGetError();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">GLTextureView</span> <span class="variable">view</span> <span class="operator">=</span> mGLTextureViewWeakRef.get();</span><br><span class="line">    <span class="keyword">if</span> (view != <span class="literal">null</span>) &#123;</span><br><span class="line">        view.mHasContentToDraw = <span class="literal">true</span>;</span><br><span class="line">        view.postInvalidate();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> EGL10.EGL_SUCCESS;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>mHasContentToDraw &#x3D; false</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onSurfaceTextureUpdated</span><span class="params">(SurfaceTexture surface)</span> &#123;</span><br><span class="line">    mHasContentToDraw = <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>原生的状态</strong>：Producer（GL 线程）和 Consumer（UI 线程）处于“失联”状态，GL 线程只管拼命生产，UI 线程只管按自己的频率消费。这种异步导致了 <code>BufferQueue</code> 经常发生竞态条件（Race Condition），从而产生了抖动。</p>
+<p><strong>改进的方案</strong>：渲染管线从“异步并发”变成了“同步串行”。这种<strong>步进式（Step-by-step）</strong>的渲染，确实消除了随机的时序错乱（Jitter），将其变成了固定的帧处理间隔。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a>, <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-4-%E9%AB%98%E6%80%A7%E8%83%BD%E5%BC%B9%E5%B9%95%E5%BC%95%E6%93%8E/">8.4 - 高性能弹幕引擎</a>
+
+      
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
     <article id="post-8渲染引擎/03 实时渲染/01 绘制第一个三角形"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
@@ -866,194 +1054,6 @@
       
 	<span class="ico-folder"></span>
     <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a>, <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-3-%E5%AE%9E%E6%97%B6%E6%B8%B2%E6%9F%93/">8.3 - 实时渲染</a>
-
-      
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
-    <article id="post-8渲染引擎/04 弹幕引擎/弹幕引擎 (一) 从流式渲染架构与批式渲染架构说起"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2025/02/05/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/04%20%E5%BC%B9%E5%B9%95%E5%BC%95%E6%93%8E/%E5%BC%B9%E5%B9%95%E5%BC%95%E6%93%8E%20(%E4%B8%80)%20%E4%BB%8E%E6%B5%81%E5%BC%8F%E6%B8%B2%E6%9F%93%E6%9E%B6%E6%9E%84%E4%B8%8E%E6%89%B9%E5%BC%8F%E6%B8%B2%E6%9F%93%E6%9E%B6%E6%9E%84%E8%AF%B4%E8%B5%B7/">弹幕引擎 (一) 从流式渲染架构与批式渲染架构说起</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2025/02/05/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/04%20%E5%BC%B9%E5%B9%95%E5%BC%95%E6%93%8E/%E5%BC%B9%E5%B9%95%E5%BC%95%E6%93%8E%20(%E4%B8%80)%20%E4%BB%8E%E6%B5%81%E5%BC%8F%E6%B8%B2%E6%9F%93%E6%9E%B6%E6%9E%84%E4%B8%8E%E6%89%B9%E5%BC%8F%E6%B8%B2%E6%9F%93%E6%9E%B6%E6%9E%84%E8%AF%B4%E8%B5%B7/" class="article-date">
-	  <time datetime="2025-02-05T01:55:28.780Z" itemprop="datePublished">February 5, 2025</time>
-	</a>
-
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a>, <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-4-%E9%AB%98%E6%80%A7%E8%83%BD%E5%BC%B9%E5%B9%95%E5%BC%95%E6%93%8E/">8.4 - 高性能弹幕引擎</a>
- 
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="两种渲染架构"><a href="#两种渲染架构" class="headerlink" title="两种渲染架构"></a>两种渲染架构</h2><p>这两种架构代表了计算机科学中处理任务的两种截然不同的哲学：<strong>“流式”追求实时响应（Latency-Optimized）</strong>，而<strong>“批式”追求吞吐与效率（Throughput-Optimized）</strong>。</p>
-<p>在 Android 图形系统中，将这两者强行整合在一起，本质上就是在处理“阻抗不匹配”（Impedance Mismatch）问题。</p>
-<hr>
-<h3 id="流式架构-Streaming-Architecture-——-“持续交付”"><a href="#流式架构-Streaming-Architecture-——-“持续交付”" class="headerlink" title="流式架构 (Streaming Architecture) —— “持续交付”"></a>流式架构 (Streaming Architecture) —— “持续交付”</h3><p>流式架构的核心在于<strong>即时性</strong>。数据一旦产生，就必须尽快通过管道流向目的地，系统的目标是最小化“端到端延迟”（End-to-End Latency）。</p>
-<ul>
-<li><strong>核心原则</strong>：Event-Driven（事件驱动）。每一条数据（Frame）都是一个独立处理的事件。</li>
-<li><strong>时间观念</strong>：基于<strong>“数据到达时间”</strong>（Event Time）。渲染引擎产生一帧，就意味着该帧必须立即显示。</li>
-<li><strong>系统特征</strong>：<ul>
-<li><strong>低延迟</strong>：不等待后续数据，无需缓存队列。</li>
-<li><strong>恒定开销</strong>：渲染引擎需要保持持续的计算负载，无法利用“闲时休息”来节省资源。</li>
-<li><strong>不可预测性</strong>：数据的到达频率若波动，系统必须能立即响应，否则就会造成抖动。</li>
-</ul>
-</li>
-</ul>
-<p><strong>在你的架构中</strong>：OpenGL 渲染线程就是典型的流式架构，它要求“此时此刻”就要渲染出当前状态。</p>
-<hr>
-<h3 id="批式架构-Batching-Architecture-——-“批量吞吐”"><a href="#批式架构-Batching-Architecture-——-“批量吞吐”" class="headerlink" title="批式架构 (Batching Architecture) —— “批量吞吐”"></a>批式架构 (Batching Architecture) —— “批量吞吐”</h3><p>批式架构的核心在于<strong>优化总成本与效率</strong>。它故意引入“延迟”，将多次小的操作合并为一次大的操作（Coalescing），目的是摊薄系统调用的开销。</p>
-<ul>
-<li><strong>核心原则</strong>：Task-Coalescing（任务合并）。等待任务累积到阈值（时间片或数量），再一次性提交。</li>
-<li><strong>时间观念</strong>：基于<strong>“系统时钟”</strong>（System Cycle&#x2F;Tick）。无论任务多早完成，都必须等待下一个“发车时刻”（VSync 信号）。</li>
-<li><strong>系统特征</strong>：<ul>
-<li><strong>高效率</strong>：通过减少上下文切换、减少 CPU&#x2F;GPU 切换、利用 CPU 缓存亲和性，降低单次任务的平均成本。</li>
-<li><strong>高吞吐</strong>：在单位时间内处理更多数据。</li>
-<li><strong>容忍延迟</strong>：只要最终结果符合预期的交付周期，内部的处理顺序和时机可以灵活调整。</li>
-</ul>
-</li>
-</ul>
-<p><strong>在你的架构中</strong>：Android View 系统（<code>ViewRootImpl</code>）就是批式架构，它把所有的 UI 更新请求收集起来，等到 <code>Choreographer</code> 信号到来时，统一进行遍历（Traversal）。</p>
-<hr>
-<h3 id="为什么两者会产生冲突？（底层哲学冲突）"><a href="#为什么两者会产生冲突？（底层哲学冲突）" class="headerlink" title="为什么两者会产生冲突？（底层哲学冲突）"></a>为什么两者会产生冲突？（底层哲学冲突）</h3><p>这种冲突在工程上被称为 <strong>“时域上的不兼容”</strong>：</p>
-<ol>
-<li><strong>处理模型的“错位”</strong>：</li>
-</ol>
-<ul>
-<li>流式架构要求<strong>“随时”</strong>处理任务。</li>
-<li>批式架构要求<strong>“准点”</strong>处理任务。</li>
-<li>当流式产生的数据（OpenGL 帧）试图进入批式系统（View 树）时，它会被强制进入“等待队列”。这种等待，人为地将原本平滑的流打断了。</li>
-</ul>
-<ol start="2">
-<li><strong>吞吐量与延迟的权衡（Trade-off）</strong>：</li>
-</ol>
-<ul>
-<li>Android 系统设计 View 系统的批式处理，是为了让整个 App 的界面渲染更加经济（省电、省 CPU），这是为了全局最优。</li>
-<li>但你的渲染引擎是局部优化（追求单组件的极致平滑），这与全局策略产生了利益冲突。</li>
-</ul>
-<hr>
-<h3 id="理解这两个架构"><a href="#理解这两个架构" class="headerlink" title="理解这两个架构"></a>理解这两个架构</h3><p>**私家车 (Streaming &#x2F; OpenGL 渲染线程)**：你是驾驶者，追求的是“随到随走”。你的油门由你的引擎逻辑（渲染循环）控制，你希望以恒定的 60km&#x2F;h（60fps）在路上行驶。</p>
-<p>**轮渡 (Batching &#x2F; Android View 系统)**：这是公共交通系统，它严格遵循“时刻表”运行。轮渡只在固定的时刻（VSync 信号）才会靠岸并进行装载（Traversal 绘制流程）。</p>
-<p><strong>码头闸机 (mWillDrawSoon)<strong>：这是码头管理处。它的规则是：如果轮渡已经在准备启航了（<code>mWillDrawSoon = true</code>），为了保障航行安全，</strong>码头闸机必须关闭，不再允许任何车辆进入码头。</strong></p>
-<hr>
-<h3 id="GLSurfaceView-与-GLTextureView-的架构本质对比"><a href="#GLSurfaceView-与-GLTextureView-的架构本质对比" class="headerlink" title="GLSurfaceView 与 GLTextureView 的架构本质对比"></a>GLSurfaceView 与 GLTextureView 的架构本质对比</h3><p>首先需要明确一点：<strong>Android 原生 SDK 中并没有 <code>GLTextureView</code> 这个类</strong>。通常开发者会使用 <code>TextureView</code> 并配合自定义的 OpenGL 渲染逻辑来实现类似的功能。</p>
-<p>我们将这一逻辑架构下的组件称为 **<code>GLTextureView</code>**（即自定义封装了 OpenGL 渲染能力的 <code>TextureView</code>）。以下是重写后的对比分析：</p>
-<hr>
-<p>如果说 <strong><code>GLSurfaceView</code></strong> 是将“流”直接注入到了图形合成器（SurfaceFlinger）的轨道上，那么 <strong><code>GLTextureView</code></strong> 则是将渲染出的“流”强行塞入了一个 View 系统的“容器”中。</p>
-<p>以下是 <code>GLTextureView</code> 作为“批式容器”架构的三个关键原则：</p>
-<h4 id="1-受限的生产自主权（依附于-View-树）"><a href="#1-受限的生产自主权（依附于-View-树）" class="headerlink" title="1. 受限的生产自主权（依附于 View 树）"></a>1. 受限的生产自主权（依附于 View 树）</h4><ul>
-<li><strong>原理</strong>：<code>GLTextureView</code> 本质上是一个 <code>TextureView</code>。它的生命周期、测量（Measure）、布局（Layout）和绘制（Draw）完全被 <code>ViewRootImpl</code> 的调度所接管。</li>
-<li><strong>对比</strong>：<code>GLSurfaceView</code> 拥有独立的 Surface，直接对冲系统合成器；而 <code>GLTextureView</code> 的渲染产出必须作为 View 树的一个 Layer，每一帧都必须经过 View 系统繁琐的 traversal 流程才能上屏。</li>
-<li><strong>结论</strong>：它<strong>无法摆脱 <code>mWillDrawSoon</code> 的锁链</strong>。因为它的生产过程必须等待主线程的 View 遍历周期（Traversal），它被迫服从 UI 系统的调度频率，而不是自主的渲染频率。</li>
-</ul>
-<h4 id="2-“被动式”的渲染循环（受限于-UI-节拍）"><a href="#2-“被动式”的渲染循环（受限于-UI-节拍）" class="headerlink" title="2. “被动式”的渲染循环（受限于 UI 节拍）"></a>2. “被动式”的渲染循环（受限于 UI 节拍）</h4><ul>
-<li><strong>原理</strong>：虽然 <code>GLTextureView</code> 内部也可以开辟渲染线程，但它的数据交付（Commit）必须通过 <code>SurfaceTexture</code> 触发 <code>invalidate()</code> 或 <code>requestLayout()</code>。</li>
-<li><strong>时序耦合</strong>：它的数据上屏时间必须与 UI 主线程的 VSync 信号对齐。当 <code>ViewRootImpl</code> 处于 <code>performTraversals()</code> 的忙碌期时，渲染线程提交的数据会被“搁置”或“合并”。</li>
-<li><strong>结论</strong>：它是典型的“批式”架构。渲染线程虽然在独立生产，但数据被 View 系统“缓存”在 <code>TextureView</code> 的缓冲区中，必须等到 View 系统允许绘制时，才能通过合成流程输出。</li>
-</ul>
-<h4 id="3-数据流的“二次转运”（非零拷贝）"><a href="#3-数据流的“二次转运”（非零拷贝）" class="headerlink" title="3. 数据流的“二次转运”（非零拷贝）"></a>3. 数据流的“二次转运”（非零拷贝）</h4><ul>
-<li><strong>原理</strong>：在 <code>GLTextureView</code> 中，你的 OpenGL 渲染结果先写入 <code>SurfaceTexture</code>，然后需要经过 GPU 拷贝&#x2F;转换到 View 的 Layer 纹理中（由 UI 系统合成）。</li>
-<li><strong>对比</strong>：<code>GLSurfaceView</code> 的数据流是“直通”的，它直接作为 Surface 层被合成器读取。而 <code>GLTextureView</code> 存在一个“转运”过程——View 系统必须先获取 <code>SurfaceTexture</code> 的数据，将其合成到整个 App 的 UI 树中，这个过程增加了额外的 CPU&#x2F;GPU 调度开销，也正是延迟的来源。</li>
-</ul>
-<hr>
-<h2 id="GLTextureView-抖动的问题"><a href="#GLTextureView-抖动的问题" class="headerlink" title="GLTextureView 抖动的问题"></a>GLTextureView 抖动的问题</h2><p>我们将 <code>GLTextureView</code> 定义为一个“强行塞入批式容器的流式渲染组件”。这种架构上的错位，是导致渲染抖动（Jitter）的根本源头。在高性能弹幕引擎的开发中，这种抖动并非逻辑错误，而是<strong>时序调度上的“水土不服”</strong>。</p>
-<h3 id="渲染流与-UI-循环的“错位”"><a href="#渲染流与-UI-循环的“错位”" class="headerlink" title="渲染流与 UI 循环的“错位”"></a>渲染流与 UI 循环的“错位”</h3><p><code>GLTextureView</code> 的最大痛点在于其<strong>双重时钟依赖</strong>：</p>
-<ul>
-<li><strong>内部时钟（Render Thread）</strong>：负责产出渲染帧，通常以恒定速率（如 60fps&#x2F;120fps）运行。</li>
-<li><strong>外部时钟（ViewRootImpl）</strong>：负责 UI 的 <code>measure/layout/draw</code>，严格受 VSync 信号驱动，具有极高的间歇性和突发性。</li>
-</ul>
-<p>当 OpenGL 线程完成一帧渲染时，它通过 <code>SurfaceTexture</code> 更新回调通知 UI 线程。然而，View 系统并不总是处于“准备好接收”的状态。一旦 View 树中出现了耗时布局（如嵌套过深的 Layout 或频繁的 <code>invalidate</code>），UI 线程就会进入长时间的 <code>performTraversals</code> 周期。</p>
-<p><strong>此时，渲染帧被迫“滞后”</strong>。对于肉眼而言，这就形成了抖动：上一帧间隔 16ms，由于被拦截，下一帧间隔变成了 32ms，再下一帧为了追赶进度，可能在 10ms 就执行了。这种<strong>帧呈现时长（Frame Presentation Time）的剧烈波动</strong>，就是用户感知到的“顿挫感”。</p>
-<hr>
-<h3 id="调度拦截：mWillDrawSoon-导致的“闸机锁死”"><a href="#调度拦截：mWillDrawSoon-导致的“闸机锁死”" class="headerlink" title="调度拦截：mWillDrawSoon 导致的“闸机锁死”"></a>调度拦截：<code>mWillDrawSoon</code> 导致的“闸机锁死”</h3><p>回顾我们提到的“码头闸机”比喻，<code>mWillDrawSoon</code> 就是那个一旦合上就绝不通融的机制。</p>
-<p>在 <code>GLTextureView</code> 中，<code>invalidate()</code> 逻辑是其更新 UI 的唯一入口。当 OpenGL 线程频繁调用 <code>invalidate()</code> 请求更新时：</p>
-<ul>
-<li><strong>如果 UI 线程正在执行布局任务</strong>：<code>ViewRootImpl</code> 会将 <code>mWillDrawSoon</code> 置为 <code>true</code>。</li>
-<li><strong>拒绝服务</strong>：此时 <code>TextureView</code> 发出的重绘请求会被系统判定为“冗余”，直接丢弃或合并。</li>
-<li><strong>视觉后果</strong>：OpenGL 线程以为这一帧已经提交成功，但实际上它在缓冲区（BufferQueue）中被“锁”住了，直到 UI 线程完成当前循环并处理下一个 <code>traversal</code>。这种<strong>强制的等待</strong>，使得原本流畅的弹幕运动轨迹在某一瞬间“卡”住了。</li>
-</ul>
-<hr>
-<h3 id="缓冲区失衡：挤压与丢帧的博弈"><a href="#缓冲区失衡：挤压与丢帧的博弈" class="headerlink" title="缓冲区失衡：挤压与丢帧的博弈"></a>缓冲区失衡：挤压与丢帧的博弈</h3><p>由于 <code>GLTextureView</code> 本质上是一个 <code>TextureView</code>，它必须通过 <code>BufferQueue</code> 与 <code>SurfaceFlinger</code> 握手。这里的生产与消费关系极易失衡：</p>
-<ul>
-<li><strong>BufferQueue 挤压 (Congestion)<strong>：如果你的 OpenGL 渲染引擎产出过快（例如渲染线程没有设置 Frame Rate 限制），<code>BufferQueue</code> 会迅速填满。此时，如果 <code>TextureView</code> 的消费能力跟不上，会导致系统阻塞 Producer 或产生明显的</strong>输入延迟（Input Lag）</strong>。用户会感觉弹幕“跟手性”很差，仿佛有一层厚厚的阻尼感。</li>
-<li><strong>帧丢弃 (Frame Drop)<strong>：如果系统为了维持 App 的整体流畅度，配置了 <code>DROP_OLDEST</code> 策略，那么当 <code>BufferQueue</code> 满载时，旧帧会被直接丢弃。对于弹幕引擎来说，这意味着</strong>弹幕位置的“跳跃”</strong>——上一秒弹幕还在屏幕左侧，下一秒直接出现在了右侧，运动轨迹的连续性被彻底破坏。</li>
-</ul>
-<p>这是一个非常经典的“时序冲突”模型。通过“私家车、轮渡、码头闸机”的比喻，我们可以清晰地看到卡顿（Jitter）是如何从“微观等待”演变成“宏观视觉抖动”的。</p>
-<p>让我们把这个过程拆解为三个阶段，来看看你的“私家车”是如何在码头被迫经历那场“抖动”的。</p>
-<h3 id="第一阶段：完美的节奏-平滑渲染"><a href="#第一阶段：完美的节奏-平滑渲染" class="headerlink" title="第一阶段：完美的节奏 (平滑渲染)"></a>第一阶段：完美的节奏 (平滑渲染)</h3><ul>
-<li><strong>状态</strong>：码头（View 系统）一切正常，轮渡（VSync）准时靠岸。</li>
-<li><strong>过程</strong>：你的私家车（渲染帧）以 60km&#x2F;h（16.6ms&#x2F;帧）的速度匀速行驶。每一辆车到达码头时，闸机（mWillDrawSoon）都是打开的。</li>
-<li><strong>结果</strong>：车子顺利开上船，轮渡准时出发。观众看到的是均匀平滑的动画。</li>
-</ul>
-<h3 id="第二阶段：闸机锁死-卡顿发生的瞬间"><a href="#第二阶段：闸机锁死-卡顿发生的瞬间" class="headerlink" title="第二阶段：闸机锁死 (卡顿发生的瞬间)"></a>第二阶段：闸机锁死 (卡顿发生的瞬间)</h3><ul>
-<li><strong>状态</strong>：轮渡（UI 线程）突然变得极其忙碌。因为它是“公共交通”，它不仅要装你的车，还要处理一大堆复杂的“乘客”（View 树的 Measure&#x2F;Layout 布局计算）。</li>
-<li><strong>冲突</strong>：当你的车（新的一帧）准时到达码头时，闸机管理员（ViewRootImpl）看了一眼忙碌的甲板，大喊一声：“<strong>轮渡已经准备发船了，现在是 <code>mWillDrawSoon = true</code>，闸机关闭！</strong>”</li>
-<li><strong>过程</strong>：你的车被迫停在码头干等。虽然引擎（OpenGL 线程）还在轰鸣，但你被拦在了闸机外。</li>
-</ul>
-<h3 id="第三阶段：抖动-Jitter-的视觉真相"><a href="#第三阶段：抖动-Jitter-的视觉真相" class="headerlink" title="第三阶段：抖动 (Jitter 的视觉真相)"></a>第三阶段：抖动 (Jitter 的视觉真相)</h3><p>抖动并不是因为你“停下”了，而是因为<strong>你被迫改变了行驶节奏</strong>。</p>
-<ol>
-<li><strong>车 1</strong>：顺利上船，第 0ms 出发。</li>
-<li><strong>车 2</strong>：到达时闸机已关闭，被迫在码头等到了第 32ms，才赶上下一班轮渡。</li>
-<li><strong>车 3</strong>：轮渡恢复正常，第 48ms 出发。</li>
-</ol>
-<p><strong>视觉上的“抖动”感由此产生：</strong></p>
-<ul>
-<li><strong>节奏断裂</strong>：观众看到的画面间隔是：<code>16ms -&gt; 32ms -&gt; 16ms</code>。</li>
-<li><strong>这种不一致才是“抖动”的本质</strong>。如果所有的车都等 32ms，那画面看起来只是“慢”（30fps）；但因为你一会儿 16ms，一会儿 32ms，这种<strong>节奏的剧烈突变</strong>，导致人眼立刻捕捉到了弹幕轨迹的“顿挫”或“瞬移”。</li>
-</ul>
-<hr>
-<h3 id="深入理解：为什么闸机关闭会导致“抖动”？"><a href="#深入理解：为什么闸机关闭会导致“抖动”？" class="headerlink" title="深入理解：为什么闸机关闭会导致“抖动”？"></a>深入理解：为什么闸机关闭会导致“抖动”？</h3><p>在技术层面，这个过程有三个细节决定了抖动的严重程度：</p>
-<ol>
-<li><p><strong>“被迫排队”的后坐力</strong>：<br>当闸机（<code>mWillDrawSoon</code>）最终打开时，轮渡（View 系统）可能会因为刚才的积压，导致下一次发船更加匆忙。这种“忽快忽慢”的调度节奏，会将你的私家车（OpenGL 帧）的交付周期彻底搞乱。</p>
-</li>
-<li><p><strong>BufferQueue 的“洪峰效应”</strong>：<br>在闸机关闭期间，你的 OpenGL 引擎并没有停下来，它还在持续不断地往码头输送“车流”。如果你的缓冲区（BufferQueue）有限，闸机一打开，可能会瞬间涌入好几辆车。系统为了追赶进度，可能会直接丢弃中间的车，这就会导致<strong>“跳帧”</strong>——你原本打算显示的弹幕运动过程，被直接跨越了，导致视觉上的“瞬间跳跃”。</p>
-</li>
-<li><p><strong>不确定性的“黑盒”</strong>：<br>最可怕的是，作为“私家车”驾驶员（渲染线程），你根本不知道码头闸机什么时候关，什么时候开。你唯一的感知就是：<strong>我明明踩着油门，速度却被这个码头的交通规则强制修正了。</strong></p>
-</li>
-</ol>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p><strong>抖动，其实就是你的渲染引擎（私家车）试图维持恒定节奏，却被系统的调度规则（码头闸机）强行改写了发车时间。</strong></p>
-<h2 id="反压机制（抖动变卡顿）"><a href="#反压机制（抖动变卡顿）" class="headerlink" title="反压机制（抖动变卡顿）"></a>反压机制（抖动变卡顿）</h2><p><strong>反压（Backpressure）</strong> 是计算机科学中用于处理“<strong>生产者速度过快，而消费者消费速度跟不上</strong>”这一矛盾的调节机制。</p>
-<p>简单来说，当系统无法处理此时到达的流量时，通过某种手段“向上游”发出信号，让上游放慢速度。</p>
-<p>通过人工手段将一个异步、非确定性的系统（Async&#x2F;Unpredictable），强行转化为一个同步、确定性的“步进系统”（Lock-step）。</p>
-<p>从工程学的角度来看，<strong>“将不可控的抖动（Jitter）转化为可控的卡顿（Stutter）”</strong>，在很多高性能实时系统（如游戏引擎的帧率锁定）中，是一个非常经典的优化策略。</p>
-<h4 id="实现方案"><a href="#实现方案" class="headerlink" title="实现方案"></a>实现方案</h4><p>在 TextureView 中添加一个 mHasContentToDraw，监听到有待绘制的下一帧或者 swapBuffer 之后，设置为ture，阻止新的帧绘制，在 onSurfaceTextureUpdated 之后设置为 false，这样，把抖动变成卡顿</p>
-<p>mHasContentToDraw &#x3D; true</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onSurfaceTextureAvailable</span><span class="params">(SurfaceTexture surface, <span class="type">int</span> width, <span class="type">int</span> height)</span> &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">listenerField</span> <span class="operator">=</span> SurfaceTexture.class.getDeclaredField(<span class="string">&quot;mOnFrameAvailableListener&quot;</span>);</span><br><span class="line">        listenerField.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        <span class="keyword">final</span> SurfaceTexture.<span class="type">OnFrameAvailableListener</span> <span class="variable">originalListener</span> <span class="operator">=</span> (SurfaceTexture.OnFrameAvailableListener) listenerField.get(surface);</span><br><span class="line">        surface.setOnFrameAvailableListener(<span class="keyword">new</span> <span class="title class_">SurfaceTexture</span>.OnFrameAvailableListener() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onFrameAvailable</span><span class="params">(SurfaceTexture surfaceTexture)</span> &#123;</span><br><span class="line">                mHasContentToDraw = <span class="literal">true</span>;</span><br><span class="line">                <span class="keyword">if</span> (originalListener != <span class="literal">null</span>) &#123;</span><br><span class="line">                    originalListener.onFrameAvailable(surfaceTexture);</span><br><span class="line">                &#125;</span><br><span class="line">                postInvalidate();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        Log.e(TAG, <span class="string">&quot;Fail to hijack ST&quot;</span>, e);</span><br><span class="line">    &#125;</span><br><span class="line">    mGLThread.surfaceCreated();</span><br><span class="line">    onSurfaceTextureSizeChanged(surface, width, height);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">int</span> <span class="title function_">swap</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (! mEgl.eglSwapBuffers(mEglDisplay, mEglSurface)) &#123;</span><br><span class="line">        <span class="keyword">return</span> mEgl.eglGetError();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">GLTextureView</span> <span class="variable">view</span> <span class="operator">=</span> mGLTextureViewWeakRef.get();</span><br><span class="line">    <span class="keyword">if</span> (view != <span class="literal">null</span>) &#123;</span><br><span class="line">        view.mHasContentToDraw = <span class="literal">true</span>;</span><br><span class="line">        view.postInvalidate();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> EGL10.EGL_SUCCESS;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>mHasContentToDraw &#x3D; false</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onSurfaceTextureUpdated</span><span class="params">(SurfaceTexture surface)</span> &#123;</span><br><span class="line">    mHasContentToDraw = <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>原生的状态</strong>：Producer（GL 线程）和 Consumer（UI 线程）处于“失联”状态，GL 线程只管拼命生产，UI 线程只管按自己的频率消费。这种异步导致了 <code>BufferQueue</code> 经常发生竞态条件（Race Condition），从而产生了抖动。</p>
-<p><strong>改进的方案</strong>：渲染管线从“异步并发”变成了“同步串行”。这种<strong>步进式（Step-by-step）</strong>的渲染，确实消除了随机的时序错乱（Jitter），将其变成了固定的帧处理间隔。</p>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/">8 - 渲染引擎</a>, <a class="article-category-link" href="/categories/8-%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/8-4-%E9%AB%98%E6%80%A7%E8%83%BD%E5%BC%B9%E5%B9%95%E5%BC%95%E6%93%8E/">8.4 - 高性能弹幕引擎</a>
 
       
       
@@ -1384,6 +1384,18 @@
               <div class="widget-entry-summary" style="margin: 0;">
             
 
+              <h6 style="margin: 0;"><a href="/2026/04/21/8%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/04%20%E5%BC%B9%E5%B9%95%E5%BC%95%E6%93%8E/%E5%BC%B9%E5%B9%95%E5%BC%95%E6%93%8E%20(%E4%B8%80)%20%E4%BB%8E%E6%B5%81%E5%BC%8F%E6%B8%B2%E6%9F%93%E6%9E%B6%E6%9E%84%E4%B8%8E%E6%89%B9%E5%BC%8F%E6%B8%B2%E6%9F%93%E6%9E%B6%E6%9E%84%E8%AF%B4%E8%B5%B7/">弹幕引擎 (一) 从流式渲染架构与批式渲染架构说起</a></h6>
+              <span>April 21, 2026</span>
+            </div>
+
+          </li>
+        
+          <li class="clearfix">
+
+            
+              <div class="widget-entry-summary" style="margin: 0;">
+            
+
               <h6 style="margin: 0;"><a href="/2026/04/18/3%20Android/03%20%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/%E5%B8%A7%E7%8E%87%E7%9B%91%E6%8E%A7/Android%20%E5%B8%A7%E7%BB%98%E5%88%B6%E8%80%97%E6%97%B6%E5%85%A8%E9%93%BE%E8%B7%AF%E6%BA%AF%E6%BA%90/">Android 帧绘制耗时全链路溯源</a></h6>
               <span>April 18, 2026</span>
             </div>
@@ -1438,18 +1450,6 @@
 
           </li>
         
-          <li class="clearfix">
-
-            
-              <div class="widget-entry-summary" style="margin: 0;">
-            
-
-              <h6 style="margin: 0;"><a href="/2026/03/31/1%20Kotlin/03%20Kotlin%20%E5%8D%8F%E7%A8%8B%E5%9F%BA%E7%A1%80/%E5%8D%8F%E7%A8%8B%E8%BF%9B%E9%98%B6_%E7%9B%91%E7%9D%A3_02_supervisorScope/">协程进阶：监督 02. supervisorScope 作用域</a></h6>
-              <span>March 31, 2026</span>
-            </div>
-
-          </li>
-        
       </ul>
     </div>
   </div>
@@ -1475,7 +1475,7 @@
     <h3 class="widget-title">Archives</h3>
 
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/04/">April 2026</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/03/">March 2026</a><span class="archive-list-count">137</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/01/">January 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">November 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">March 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">54</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/04/">April 2026</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/03/">March 2026</a><span class="archive-list-count">137</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/01/">January 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">November 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">March 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">54</span></li></ul>
     </div>
   </div>
 
