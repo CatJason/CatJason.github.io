@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>播放器内核专项（一）线程模型的分离 | 喵星科技报</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  
+  
+  
+  <meta name="description" content="ExoPlayer 线程模型架构文档概述ExoPlayer 的线程模型是其实现高性能、低延迟媒体播放的核心。为了保证 UI 的流畅性并确保播放状态的稳定，ExoPlayer 采用了多线程异步解耦架构。在这种架构下，播放器的 API 调用（通常在主线程&#x2F;应用线程）与实际的媒体处理（解码、渲染、缓冲）被严格分离。  架构概览ExoPlayer 的设计理念是“控制权在主线程，执行权在播放线程”">
+<meta property="og:type" content="article">
+<meta property="og:title" content="播放器内核专项（一）线程模型的分离">
+<meta property="og:url" content="http://example.com/2026/04/29/9%20%E9%9F%B3%E8%A7%86%E9%A2%91/01%20%E6%92%AD%E6%94%BE%E5%99%A8/%E6%92%AD%E6%94%BE%E5%99%A8%E5%86%85%E6%A0%B8%E4%B8%93%E9%A1%B9%EF%BC%88%E4%B8%80%EF%BC%89%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%88%86%E7%A6%BB/index.html">
+<meta property="og:site_name" content="喵星科技报">
+<meta property="og:description" content="ExoPlayer 线程模型架构文档概述ExoPlayer 的线程模型是其实现高性能、低延迟媒体播放的核心。为了保证 UI 的流畅性并确保播放状态的稳定，ExoPlayer 采用了多线程异步解耦架构。在这种架构下，播放器的 API 调用（通常在主线程&#x2F;应用线程）与实际的媒体处理（解码、渲染、缓冲）被严格分离。  架构概览ExoPlayer 的设计理念是“控制权在主线程，执行权在播放线程”">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-04-29T11:24:08.876Z">
+<meta property="article:modified_time" content="2026-05-01T13:11:04.412Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="喵星科技报" type="application/atom+xml">
+  
+  <link rel="icon" href="/css/images/favicon.ico">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+    
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Yanone+Kaffeesatz%3A200%2C300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Oswald%3A300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+<script src="/js/jquery-3.1.1.min.js"></script>
+
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.css" >
+  <link rel="stylesheet" href="/css/fashion.css" >
+  <link rel="stylesheet" href="/css/glyphs.css" >
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  
+    <a target="_blank" rel="noopener" href="https://github.com/CatJason" class="github-corner" aria-label="View source on GitHub">
+      <svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; left: 0; transform: scale(-1, 1); z-index: 9999;" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.5 120.5,78.5 C119.9,75.7 122.6,76.3 122.6,76.3 C127.3,81.2 124.9,88.2 124.9,88.2 C124.3,94.1 120.5,97.5 119.4,105.4" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path>
+      </svg>
+    </a>
+    <style>
+      .github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}
+      @keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}
+      @media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}
+    </style>
+  
+
+  <header id="allheader" class="site-header" role="banner">
+  <div class="clearfix container">
+      <div class="site-branding">
+
+          <h1 class="site-title">
+            
+              <a href="/" title="喵星科技报" rel="home"> 喵星科技报 </a>
+            
+          </h1>
+          
+          
+            
+          <nav id="main-navigation" class="main-navigation" role="navigation">
+            <a class="nav-open">Menu</a>
+            <a class="nav-close">Close</a>
+
+            <div class="clearfix sf-menu">
+              <ul id="main-nav" class="menu sf-js-enabled sf-arrows"  style="touch-action: pan-y;">
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="/"> <a class="" href="/">Home</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="archives"> <a class="" href="/archives">Archives</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="categories"> <a class="" href="/categories">Categories</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="tags"> <a class="" href="/tags">Tags</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="about"> <a class="" href="/about">About</a> </li>
+                    
+              </ul>
+            </div>
+          </nav>
+
+      </div>
+  </div>
+</header>
+
+
+  <div id="container">
+    <div id="wrap">
+            
+      <div id="content" class="outer">
+        
+          <section id="main" class="post-main" style="float:none; width: 100%;"><article id="post-9 音视频/01 播放器/播放器内核专项（一）线程模型的分离" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" class="article-title" itemprop="name">
+      播放器内核专项（一）线程模型的分离
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2026/04/29/9%20%E9%9F%B3%E8%A7%86%E9%A2%91/01%20%E6%92%AD%E6%94%BE%E5%99%A8/%E6%92%AD%E6%94%BE%E5%99%A8%E5%86%85%E6%A0%B8%E4%B8%93%E9%A1%B9%EF%BC%88%E4%B8%80%EF%BC%89%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%88%86%E7%A6%BB/" class="article-date">
+	  <time datetime="2026-04-29T11:24:08.876Z" itemprop="datePublished">April 29, 2026</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/9-%E9%9F%B3%E8%A7%86%E9%A2%91/">9 - 音视频</a>, <a class="article-category-link" href="/categories/9-%E9%9F%B3%E8%A7%86%E9%A2%91/9-1-%E6%92%AD%E6%94%BE%E5%99%A8%E5%AE%9E%E6%88%98/">9.1 - 播放器实战</a>
+ 
+      
+	<span id="busuanzi_container_page_pv">
+	  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	</span>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="ExoPlayer-线程模型架构文档"><a href="#ExoPlayer-线程模型架构文档" class="headerlink" title="ExoPlayer 线程模型架构文档"></a>ExoPlayer 线程模型架构文档</h1><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>ExoPlayer 的线程模型是其实现高性能、低延迟媒体播放的核心。为了保证 UI 的流畅性并确保播放状态的稳定，ExoPlayer 采用了<strong>多线程异步解耦架构</strong>。在这种架构下，播放器的 API 调用（通常在主线程&#x2F;应用线程）与实际的媒体处理（解码、渲染、缓冲）被严格分离。</p>
+<hr>
+<h2 id="架构概览"><a href="#架构概览" class="headerlink" title="架构概览"></a>架构概览</h2><p>ExoPlayer 的设计理念是“<strong>控制权在主线程，执行权在播放线程</strong>”。所有对播放器的操作均通过 <code>Handler</code> 发送到内部的播放线程中执行，从而避免阻塞主线程。</p>
+<hr>
+<h2 id="核心线程分解"><a href="#核心线程分解" class="headerlink" title="核心线程分解"></a>核心线程分解</h2><p>ExoPlayer 的运行依赖于以下三个主要的线程角色，它们各司其职，通过消息机制协同工作。</p>
+<table>
+<thead>
+<tr>
+<th align="left">线程角色</th>
+<th align="left">名称</th>
+<th align="left">主要职责</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>应用&#x2F;主线程</strong></td>
+<td align="left">Main &#x2F; UI Thread</td>
+<td align="left">UI 交互、用户指令输入、监听播放状态回调</td>
+</tr>
+<tr>
+<td align="left"><strong>播放线程</strong></td>
+<td align="left">Playback Thread</td>
+<td align="left">状态机管理、媒体时钟同步、解码器调度、渲染控制</td>
+</tr>
+<tr>
+<td align="left"><strong>媒体加载线程</strong></td>
+<td align="left">Media Loading Threads</td>
+<td align="left">网络 IO、数据下载、Buffer 填充、数据解析</td>
+</tr>
+</tbody></table>
+<h3 id="1-主线程-Application-UI-Thread"><a href="#1-主线程-Application-UI-Thread" class="headerlink" title="1. 主线程 (Application&#x2F;UI Thread)"></a>1. 主线程 (Application&#x2F;UI Thread)</h3><ul>
+<li><strong>用途：</strong> 这是宿主应用程序运行的线程。</li>
+<li><strong>职责：</strong><ul>
+<li>初始化 <code>ExoPlayer</code> 实例。</li>
+<li>接收来自用户的操作（如播放、暂停、进度跳转）。</li>
+<li>接收播放器抛出的回调事件（如 <code>onPlayerStateChanged</code>、<code>onPlayerError</code>），以便更新 UI。</li>
+</ul>
+</li>
+<li><strong>限制：</strong> <strong>绝对不能</strong>在主线程执行耗时操作（如网络请求或复杂的解码逻辑）。</li>
+</ul>
+<h3 id="2-播放线程-Playback-Thread"><a href="#2-播放线程-Playback-Thread" class="headerlink" title="2. 播放线程 (Playback Thread)"></a>2. 播放线程 (Playback Thread)</h3><ul>
+<li><strong>用途：</strong> ExoPlayer 在内部创建一个专门的后台线程（通常使用 <code>HandlerThread</code> 或 <code>ExoPlayer</code> 内部管理的线程）来处理播放逻辑。</li>
+<li><strong>职责：</strong><ul>
+<li><strong>核心逻辑控制：</strong> 维护播放器的内部状态机（Idle, Buffering, Ready, Ended）。</li>
+<li><strong>同步：</strong> 协调音频和视频流的同步（Media Clock Synchronization）。</li>
+<li><strong>组件通信：</strong> 与 <code>MediaSource</code>、<code>Renderer</code> 和 <code>TrackSelector</code> 进行交互。</li>
+</ul>
+</li>
+<li><strong>架构优势：</strong> 通过将所有状态变更逻辑封装在单一的播放线程中，避免了复杂的多线程竞争条件（Race Conditions），无需对内部状态变量使用大量的锁（Lock&#x2F;Mutex），从而提升了性能。</li>
+</ul>
+<h3 id="3-媒体加载-IO-线程-Media-Loading-Parsing-Threads"><a href="#3-媒体加载-IO-线程-Media-Loading-Parsing-Threads" class="headerlink" title="3. 媒体加载&#x2F;IO 线程 (Media Loading&#x2F;Parsing Threads)"></a>3. 媒体加载&#x2F;IO 线程 (Media Loading&#x2F;Parsing Threads)</h3><ul>
+<li><strong>用途：</strong> 由 <code>MediaSource</code> 相关的组件创建的后台线程池。</li>
+<li><strong>职责：</strong><ul>
+<li>执行具体的网络请求（下载数据块）。</li>
+<li>文件解析（如读取 MP4 的 <code>moov</code> 原子，解析 DASH&#x2F;HLS 的 Manifest）。</li>
+<li>将解析后的数据放入缓冲区（Buffer）。</li>
+</ul>
+</li>
+<li><strong>架构优势：</strong> 实现了 IO 操作与渲染操作的彻底分离，确保网络波动（如 Wi-Fi 抖动）不会直接卡死播放器或 UI。</li>
+</ul>
+<hr>
+<h2 id="线程通信与解耦机制"><a href="#线程通信与解耦机制" class="headerlink" title="线程通信与解耦机制"></a>线程通信与解耦机制</h2><p>ExoPlayer 的解耦架构依赖于 <code>Handler</code> 和 <code>Looper</code> 机制：</p>
+<ol>
+<li><strong>指令下发：</strong> 当你在主线程调用 <code>player.play()</code> 时，ExoPlayer 内部会将该调用封装为一个 <code>Message</code> 或 <code>Runnable</code>，通过 <code>Handler</code> 发送到播放线程的 <code>MessageQueue</code> 中。</li>
+<li><strong>顺序执行：</strong> 播放线程按顺序从 <code>MessageQueue</code> 中取出并执行任务。这种方式保证了播放指令的串行化，避免了并发冲突。</li>
+<li><strong>结果反馈：</strong> 当播放线程完成任务或状态发生改变时，它会通过 <code>Handler</code> 将事件通过主线程的 <code>Looper</code> 发回，从而在应用层触发监听器（Listeners）。</li>
+</ol>
+<hr>
+<h2 id="最佳实践与开发者注意事项"><a href="#最佳实践与开发者注意事项" class="headerlink" title="最佳实践与开发者注意事项"></a>最佳实践与开发者注意事项</h2><p>为了维持这种线程架构的稳定性，开发者应遵循以下准则：</p>
+<ul>
+<li><strong>线程归属感 (Thread Confinement)：</strong> <code>ExoPlayer</code> 实例的操作必须在创建它的那个线程上进行（通常是主线程）。不要在不同的线程中随意操作同一个 <code>ExoPlayer</code> 实例。</li>
+<li><strong>轻量化回调：</strong> 虽然 <code>onPlayerStateChanged</code> 等回调是在主线程执行的，但如果你在回调中执行了极其耗时的操作（如数据库写入或复杂的 UI 渲染逻辑），依然会掉帧。请确保回调逻辑保持轻量。</li>
+<li><strong>避免阻塞播放线程：</strong> 如果自定义了 <code>MediaSource</code> 或 <code>Renderer</code>，请确保其中的 <code>read</code> 或 <code>render</code> 方法不会被同步阻塞过长时间，否则会直接导致播放线程卡顿，进而引发音频断续或视频冻结。</li>
+<li><strong>生命周期管理：</strong> 务必在 <code>Activity</code> 或 <code>Fragment</code> 的生命周期销毁回调（如 <code>onStop</code> 或 <code>onDestroy</code>）中调用 <code>player.release()</code>，以释放播放线程资源，防止内存泄漏。</li>
+</ul>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/9-%E9%9F%B3%E8%A7%86%E9%A2%91/">9 - 音视频</a>, <a class="article-category-link" href="/categories/9-%E9%9F%B3%E8%A7%86%E9%A2%91/9-1-%E6%92%AD%E6%94%BE%E5%99%A8%E5%AE%9E%E6%88%98/">9.1 - 播放器实战</a>
+
+      
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2026/04/29/9%20%E9%9F%B3%E8%A7%86%E9%A2%91/01%20%E6%92%AD%E6%94%BE%E5%99%A8/%E6%92%AD%E6%94%BE%E5%99%A8%E5%86%85%E6%A0%B8%E4%B8%93%E9%A1%B9%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%8E%20PlayerMessage%20%E8%AF%B4%E8%B5%B7/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">播放器内核专项（二）PlayerMessage</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="sidebar">
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">Contents</strong>
+    
+      <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ExoPlayer-%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84%E6%96%87%E6%A1%A3"><span class="nav-number">1.</span> <span class="nav-text">ExoPlayer 线程模型架构文档</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9E%B6%E6%9E%84%E6%A6%82%E8%A7%88"><span class="nav-number">1.2.</span> <span class="nav-text">架构概览</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E7%BA%BF%E7%A8%8B%E5%88%86%E8%A7%A3"><span class="nav-number">1.3.</span> <span class="nav-text">核心线程分解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%B8%BB%E7%BA%BF%E7%A8%8B-Application-UI-Thread"><span class="nav-number">1.3.1.</span> <span class="nav-text">1. 主线程 (Application&#x2F;UI Thread)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%92%AD%E6%94%BE%E7%BA%BF%E7%A8%8B-Playback-Thread"><span class="nav-number">1.3.2.</span> <span class="nav-text">2. 播放线程 (Playback Thread)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%AA%92%E4%BD%93%E5%8A%A0%E8%BD%BD-IO-%E7%BA%BF%E7%A8%8B-Media-Loading-Parsing-Threads"><span class="nav-number">1.3.3.</span> <span class="nav-text">3. 媒体加载&#x2F;IO 线程 (Media Loading&#x2F;Parsing Threads)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E9%80%9A%E4%BF%A1%E4%B8%8E%E8%A7%A3%E8%80%A6%E6%9C%BA%E5%88%B6"><span class="nav-number">1.4.</span> <span class="nav-text">线程通信与解耦机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E4%B8%8E%E5%BC%80%E5%8F%91%E8%80%85%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">1.5.</span> <span class="nav-text">最佳实践与开发者注意事项</span></a></li></ol></li></ol>
+    
+    </div>
+  </aside>
+</section>
+        
+      </div>
+
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    <footer id="footer" class="site-footer">
+  
+
+  <div class="clearfix container">
+      <div class="site-info">
+	      &copy; 2026 喵星科技报 All Rights Reserved.
+        
+            <span id="busuanzi_container_site_uv">
+              本站访客数<span id="busuanzi_value_site_uv"></span>人次  
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+          
+      </div>
+      <div class="site-credit">
+        Theme by <a href="https://github.com/iTimeTraveler/hexo-theme-hipaper" target="_blank">hipaper</a>
+      </div>
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var wrapdiv = document.getElementById("wrap");
+    var contentdiv = document.getElementById("content");
+
+    wrapdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+
+
+    <!-- headerblur min height -->
+    
+      var headerblur = document.getElementById("header-blur");
+      headerblur.style.minHeight = window.getComputedStyle(document.getElementById("allheader"), null).height;
+    
+    
+</script>
+    
+<div style="display: none;">
+  <script src="https://s11.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+</div>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+<script src="/js/bootstrap.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+	</script>
+
+
+
+
+
+
+  </div>
+
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js" async=""></script>
+</body>
+</html>
