@@ -12,12 +12,12 @@
   <meta name="description" content="PlayerMessage 的设计核心是一个状态机（State Machine），用于确保消息在复杂的播放器线程模型中能够安全、准确地传递。我们可以将这些字段分为三大类来理解：  1. 基础配置（定义消息是什么）这些字段在消息创建时设定，定义了“谁来处理”、“处理什么”以及“何时处理”。  target: 消息的接收者（实现了 Target 接口）。这是处理逻辑的核心，通常是 Renderer 或">
 <meta property="og:type" content="article">
 <meta property="og:title" content="播放器内核专项（二）PlayerMessage">
-<meta property="og:url" content="http://example.com/2026/04/29/9%20%E9%9F%B3%E8%A7%86%E9%A2%91/01%20%E6%92%AD%E6%94%BE%E5%99%A8/%E6%92%AD%E6%94%BE%E5%99%A8%E5%86%85%E6%A0%B8%E4%B8%93%E9%A1%B9%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%8E%20PlayerMessage%20%E8%AF%B4%E8%B5%B7/index.html">
+<meta property="og:url" content="http://example.com/2026/04/29/9%20%E9%9F%B3%E8%A7%86%E9%A2%91/02%20%E6%92%AD%E6%94%BE%E5%99%A8/%E6%92%AD%E6%94%BE%E5%99%A8%E5%86%85%E6%A0%B8%E4%B8%93%E9%A1%B9%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%8E%20PlayerMessage%20%E8%AF%B4%E8%B5%B7/index.html">
 <meta property="og:site_name" content="喵星科技报">
 <meta property="og:description" content="PlayerMessage 的设计核心是一个状态机（State Machine），用于确保消息在复杂的播放器线程模型中能够安全、准确地传递。我们可以将这些字段分为三大类来理解：  1. 基础配置（定义消息是什么）这些字段在消息创建时设定，定义了“谁来处理”、“处理什么”以及“何时处理”。  target: 消息的接收者（实现了 Target 接口）。这是处理逻辑的核心，通常是 Renderer 或">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2026-04-29T11:24:08.876Z">
-<meta property="article:modified_time" content="2026-05-01T13:11:04.406Z">
+<meta property="article:modified_time" content="2026-05-03T21:29:31.992Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
   
@@ -117,7 +117,7 @@
             
       <div id="content" class="outer">
         
-          <section id="main" class="post-main" style="float:none; width: 100%;"><article id="post-9 音视频/01 播放器/播放器内核专项（二）从 PlayerMessage 说起" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+          <section id="main" class="post-main" style="float:none; width: 100%;"><article id="post-9 音视频/02 播放器/播放器内核专项（二）从 PlayerMessage 说起" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -133,13 +133,13 @@
     
     <div class="article-meta">
       
-	<a href="/2026/04/29/9%20%E9%9F%B3%E8%A7%86%E9%A2%91/01%20%E6%92%AD%E6%94%BE%E5%99%A8/%E6%92%AD%E6%94%BE%E5%99%A8%E5%86%85%E6%A0%B8%E4%B8%93%E9%A1%B9%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%8E%20PlayerMessage%20%E8%AF%B4%E8%B5%B7/" class="article-date">
+	<a href="/2026/04/29/9%20%E9%9F%B3%E8%A7%86%E9%A2%91/02%20%E6%92%AD%E6%94%BE%E5%99%A8/%E6%92%AD%E6%94%BE%E5%99%A8%E5%86%85%E6%A0%B8%E4%B8%93%E9%A1%B9%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%8E%20PlayerMessage%20%E8%AF%B4%E8%B5%B7/" class="article-date">
 	  <time datetime="2026-04-29T11:24:08.876Z" itemprop="datePublished">April 29, 2026</time>
 	</a>
 
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/9-%E9%9F%B3%E8%A7%86%E9%A2%91/">9 - 音视频</a>, <a class="article-category-link" href="/categories/9-%E9%9F%B3%E8%A7%86%E9%A2%91/9-1-%E6%92%AD%E6%94%BE%E5%99%A8%E5%AE%9E%E6%88%98/">9.1 - 播放器实战</a>
+    <a class="article-category-link" href="/categories/9-%E9%9F%B3%E8%A7%86%E9%A2%91/">9 - 音视频</a>, <a class="article-category-link" href="/categories/9-%E9%9F%B3%E8%A7%86%E9%A2%91/9-2-%E6%92%AD%E6%94%BE%E5%99%A8%E5%86%85%E6%A0%B8%E6%8B%86%E8%A7%A3/">9.2 - 播放器内核拆解</a>
  
       
 	<span id="busuanzi_container_page_pv">
@@ -193,7 +193,7 @@
     <footer class="entry-meta entry-footer">
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/9-%E9%9F%B3%E8%A7%86%E9%A2%91/">9 - 音视频</a>, <a class="article-category-link" href="/categories/9-%E9%9F%B3%E8%A7%86%E9%A2%91/9-1-%E6%92%AD%E6%94%BE%E5%99%A8%E5%AE%9E%E6%88%98/">9.1 - 播放器实战</a>
+    <a class="article-category-link" href="/categories/9-%E9%9F%B3%E8%A7%86%E9%A2%91/">9 - 音视频</a>, <a class="article-category-link" href="/categories/9-%E9%9F%B3%E8%A7%86%E9%A2%91/9-2-%E6%92%AD%E6%94%BE%E5%99%A8%E5%86%85%E6%A0%B8%E6%8B%86%E8%A7%A3/">9.2 - 播放器内核拆解</a>
 
       
       
@@ -229,7 +229,7 @@
     
 <nav id="article-nav">
   
-    <a href="/2026/04/29/9%20%E9%9F%B3%E8%A7%86%E9%A2%91/01%20%E6%92%AD%E6%94%BE%E5%99%A8/%E6%92%AD%E6%94%BE%E5%99%A8%E5%86%85%E6%A0%B8%E4%B8%93%E9%A1%B9%EF%BC%88%E4%B8%80%EF%BC%89%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%88%86%E7%A6%BB/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2026/04/29/9%20%E9%9F%B3%E8%A7%86%E9%A2%91/02%20%E6%92%AD%E6%94%BE%E5%99%A8/%E6%92%AD%E6%94%BE%E5%99%A8%E5%86%85%E6%A0%B8%E4%B8%93%E9%A1%B9%EF%BC%88%E4%B8%80%EF%BC%89%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%88%86%E7%A6%BB/" id="article-nav-newer" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
