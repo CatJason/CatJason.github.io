@@ -905,50 +905,73 @@
 <tr>
 <td><strong>索引管理</strong></td>
 <td>管理 <code>0</code> 号轨道。</td>
-<td>管理 <code>1 + index</code> 号轨道。</td>
+<td>管理 <code>1 + index</code> 号轨道。<br></td>
+</tr>
+<tr>
+<td>这些函数构成了 <code>ChunkSampleStream</code> 的核心逻辑。为了方便理解，可以将它们按照 <strong>生命周期管理、数据读取、加载控制、Seek&#x2F;位置管理</strong> 以及 <strong>内部状态维护</strong> 这五个核心维度进行分类。</td>
+<td></td>
+<td></td>
 </tr>
 </tbody></table>
-<h1 id="待博主下一次更新"><a href="#待博主下一次更新" class="headerlink" title="待博主下一次更新"></a>待博主下一次更新</h1><hr>
-<h2 id="核心控制层-Orchestration"><a href="#核心控制层-Orchestration" class="headerlink" title="核心控制层 (Orchestration)"></a>核心控制层 (Orchestration)</h2><p>这一层负责整个加载流程的调度、决策与执行。</p>
+<h4 id="ChunkSampleStream-里面大概有什么"><a href="#ChunkSampleStream-里面大概有什么" class="headerlink" title="ChunkSampleStream 里面大概有什么"></a>ChunkSampleStream 里面大概有什么</h4><h5 id="Chunk-纬度"><a href="#Chunk-纬度" class="headerlink" title="Chunk 纬度"></a>Chunk 纬度</h5><p>在 <code>ChunkSampleStream</code> 的这些参数中，直接或间接与 <strong>Chunk（分片）</strong> 相关的成员可以归纳为以下几类，涵盖了从“决策”到“执行”，再到“存储”和“消费”的完整生命周期：</p>
+<h6 id="分片决策与获取-Decision-Retrieval"><a href="#分片决策与获取-Decision-Retrieval" class="headerlink" title="分片决策与获取 (Decision &amp; Retrieval)"></a>分片决策与获取 (Decision &amp; Retrieval)</h6><p>这组参数决定了“下一个分片是什么”以及“去哪里拿”。</p>
 <ul>
-<li><strong>ChunkSampleStream</strong>: <strong>系统的指挥中心</strong>。它负责与播放器（Player）对接，管理样本缓冲区（SampleQueue），并协调 <code>ChunkSource</code> 进行数据加载。</li>
-<li><strong>ChunkSource</strong>: <strong>加载策略源（接口）</strong>。它不负责具体的下载，而是决定“接下来该加载哪段数据”。它会根据当前的带宽、缓冲区状态以及 ABR（自适应码率）算法，选择合适的分片并填充到 <code>ChunkHolder</code> 中。</li>
-<li><strong>ChunkHolder</strong>: <strong>决策载体</strong>。这是一个简单的容器类，用于 <code>ChunkSource</code> 返回决策结果，可能包含一个待加载的 <code>Chunk</code> 对象或一个“已到达流末尾”的标记。</li>
+<li><strong><code>chunkSource</code></strong>: <strong>分片源</strong>。这是整个流程的“大脑”，负责根据当前的缓冲情况和网络带宽，决定下一个该下载哪个分片。</li>
+<li><strong><code>nextChunkHolder</code></strong>: <strong>分片持有者</strong>。一个临时的容器，<code>chunkSource</code> 会将选中的分片信息填充到这个对象中，供加载器使用。</li>
 </ul>
-<hr>
-<h2 id="分片数据模型层-Data-Model"><a href="#分片数据模型层-Data-Model" class="headerlink" title="分片数据模型层 (Data Model)"></a>分片数据模型层 (Data Model)</h2><p>这一层定义了分片物理实体的继承体系。</p>
+<h6 id="分片任务执行-Execution"><a href="#分片任务执行-Execution" class="headerlink" title="分片任务执行 (Execution)"></a>分片任务执行 (Execution)</h6><p>这组参数关注“正在进行的”分片任务。</p>
 <ul>
-<li><strong>Chunk</strong>: <strong>所有分片的基类</strong>。定义了基础属性，如加载的数据源（DataSource）、数据规格（Format）以及加载原因。</li>
-<li><strong>MediaChunk</strong>: <strong>媒体分片抽象类</strong>。在 <code>Chunk</code> 基础上增加了时间戳信息（起止时间）和分片序号。</li>
-<li><strong>BaseMediaChunk</strong>: <strong>媒体分片的基础实现</strong>。它引入了索引逻辑，能够将解析出的样本数据精准映射到底层的 <code>SampleQueue</code>。</li>
-<li><strong>ContainerMediaChunk</strong>: <strong>容器化分片实现</strong>。用于处理封装在 MP4、TS 或 WebM 等容器中的媒体数据。</li>
-<li><strong>SingleSampleMediaChunk</strong>: <strong>单样本分片实现</strong>。常用于加载独立的样本文件（如外挂字幕或某些特定的图片流）。</li>
-<li><strong>InitializationChunk</strong>: <strong>初始化分片</strong>。它不包含实际的音视频样本，而是包含解码器所需的元数据（如 SPS&#x2F;PPS），用于初始化解复用器。</li>
-<li><strong>DataChunk</strong>: <strong>通用数据分片</strong>。用于传输非媒体数据（如 DRM 许可证数据或清空缓存的指令）。</li>
+<li><strong><code>loadingChunk</code></strong>: <strong>当前加载的分片</strong>。记录目前正在通过网络下载的那个 <code>Chunk</code> 对象。</li>
+<li><strong><code>canceledMediaChunk</code></strong>: <strong>被取消的分片</strong>。如果当前的加载任务被中止（例如因为用户跳转或切换了更清晰的轨道），该变量会临时持有该分片，用于后续的清理或重试逻辑。</li>
 </ul>
-<hr>
-<h2 id="解析与提取层-Extraction"><a href="#解析与提取层-Extraction" class="headerlink" title="解析与提取层 (Extraction)"></a>解析与提取层 (Extraction)</h2><p>这一层负责将二进制的“块”解析为播放器可识别的音视频帧。</p>
+<h6 id="分片存储与视图-Storage-View"><a href="#分片存储与视图-Storage-View" class="headerlink" title="分片存储与视图 (Storage &amp; View)"></a>分片存储与视图 (Storage &amp; View)</h6><p>分片下载完成后的存放地。</p>
 <ul>
-<li><strong>ChunkExtractor</strong>: <strong>解析接口</strong>。定义了将分片数据流提取为样本（Samples）的标准行为。</li>
-<li><strong>BundledChunkExtractor</strong>: <strong>内置解析实现</strong>。使用 ExoPlayer 内部集成的各类 <code>Extractor</code>（如 <code>FragmentedMp4Extractor</code>）来解析数据。</li>
-<li><strong>MediaParserChunkExtractor</strong>: <strong>系统级解析实现</strong>。利用 Android 11 及以上系统提供的 <code>MediaParser</code> API 进行数据提取。</li>
-<li><strong>BaseMediaChunkOutput</strong>: <strong>数据路由中间件</strong>。它作为 <code>ChunkExtractor</code> 的输出目标，负责将提取出来的样本数据转发给当前正在处理的 <code>BaseMediaChunk</code>。</li>
+<li><strong><code>mediaChunks</code></strong>: <strong>分片列表</strong>。一个内部的 <code>ArrayList</code>，按顺序存储所有已下载完成、正等待被 <code>SampleQueue</code> 消费或正在输出的分片。</li>
+<li><strong><code>readOnlyMediaChunks</code></strong>: <strong>只读分片列表</strong>。提供给外部（如 UI 或监控层）查看当前缓冲区内分片状态的视图，保证了线程安全和封装性。</li>
 </ul>
-<hr>
-<h2 id="辅助与迭代层-Auxiliary"><a href="#辅助与迭代层-Auxiliary" class="headerlink" title="辅助与迭代层 (Auxiliary)"></a>辅助与迭代层 (Auxiliary)</h2><p>用于在不加载真实数据的情况下预览流信息。</p>
+<h6 id="分片解析与输出-Parsing-Output"><a href="#分片解析与输出-Parsing-Output" class="headerlink" title="分片解析与输出 (Parsing &amp; Output)"></a>分片解析与输出 (Parsing &amp; Output)</h6><p>负责将分片文件“拆解”并路由到正确的轨道。</p>
 <ul>
-<li><strong>MediaChunkIterator</strong>: <strong>元数据迭代器（接口）</strong>。允许 <code>ChunkSource</code> 在未开始实际加载前，先查看后续分片的时间跨度和数据范围。</li>
-<li><strong>BaseMediaChunkIterator</strong>: <strong>迭代器基础抽象</strong>。简化了具体协议（如 DASH 或 HLS）中分片迭代器的实现逻辑。</li>
+<li><strong><code>chunkOutput</code></strong>: <strong>分片输出桥接器</strong>。它扮演了中介角色，将解复用器（Extractor）从分片中解析出的音视频数据，精准地分发到对应的 <code>SampleQueue</code> 中。</li>
 </ul>
-<hr>
-<h2 id="协作关系总结"><a href="#协作关系总结" class="headerlink" title="协作关系总结"></a>协作关系总结</h2><ol>
-<li><strong>请求决策</strong>：<code>ChunkSampleStream</code> 调用 <code>ChunkSource.getNextChunk()</code>。</li>
-<li><strong>生成分片</strong>：<code>ChunkSource</code> 使用 <code>MediaChunkIterator</code> 预览流信息，决策后创建一个 <code>ContainerMediaChunk</code> 等对象，放入 <code>ChunkHolder</code>。</li>
-<li><strong>执行加载</strong>：<code>ChunkSampleStream</code> 将该分片交给加载器执行下载。</li>
-<li><strong>解析输出</strong>：在下载过程中，分片数据被推入 <code>ChunkExtractor</code>。解析出的样本通过 <code>BaseMediaChunkOutput</code> 写入 <code>BaseMediaChunk</code> 关联的缓存区，最终供播放器渲染。</li>
-</ol>
-<h1 id="ExoPlayer-Chunk-加载系统：职责分类与交互指南"><a href="#ExoPlayer-Chunk-加载系统：职责分类与交互指南" class="headerlink" title="ExoPlayer Chunk 加载系统：职责分类与交互指南"></a>ExoPlayer Chunk 加载系统：职责分类与交互指南</h1><p>本指南旨在通过架构逻辑的可视化，帮助开发者理解 ExoPlayer 中分片（Chunk）加载系统的核心组件、职责边界及其交互流程。</p>
-<h2 id="二、-核心类分类说明表"><a href="#二、-核心类分类说明表" class="headerlink" title="二、 核心类分类说明表"></a>二、 核心类分类说明表</h2><table>
+<h6 id="分片状态同步-Synchronization-Indexing"><a href="#分片状态同步-Synchronization-Indexing" class="headerlink" title="分片状态同步 (Synchronization &amp; Indexing)"></a>分片状态同步 (Synchronization &amp; Indexing)</h6><p>维护分片与播放进度、格式之间的对应关系。</p>
+<ul>
+<li><strong><code>nextNotifyPrimaryFormatMediaChunkIndex</code></strong>: <strong>格式通知索引</strong>。由于不同的分片可能具有不同的分辨率或码率，该索引记录了下一个需要触发“格式变化”通知的分片位置，确保渲染器能及时感知到数据流的变化。</li>
+</ul>
+<h6 id="分片生命周期示意"><a href="#分片生命周期示意" class="headerlink" title="分片生命周期示意"></a>分片生命周期示意</h6><ul>
+<li><strong>Step 1:</strong> <code>chunkSource</code> 选定分片并放入 <code>nextChunkHolder</code>。</li>
+<li><strong>Step 2:</strong> <code>loader</code> 开始加载 <code>loadingChunk</code>。</li>
+<li><strong>Step 3:</strong> <code>chunkOutput</code> 将数据从分片剥离，存入 <code>primarySampleQueue</code>。</li>
+<li><strong>Step 4:</strong> 下载完的分片进入 <code>mediaChunks</code> 队列。</li>
+<li><strong>Step 5:</strong> 消费完成后，分片从 <code>mediaChunks</code> 移除。</li>
+</ul>
+<h5 id="Loading-纬度"><a href="#Loading-纬度" class="headerlink" title="Loading 纬度"></a>Loading 纬度</h5><h6 id="加载执行与调度-Execution-Scheduling"><a href="#加载执行与调度-Execution-Scheduling" class="headerlink" title="加载执行与调度 (Execution &amp; Scheduling)"></a>加载执行与调度 (Execution &amp; Scheduling)</h6><ul>
+<li><strong><code>loader</code></strong>: <strong>核心执行器</strong>。内部封装了线程池，负责在后台线程执行 <code>loadingChunk</code> 的下载任务。</li>
+<li><strong><code>chunkSource</code></strong>: <strong>加载决策者</strong>。虽然它不执行下载，但它决定了加载的内容，是加载行为的“指挥官”。</li>
+<li><strong><code>loadingChunk</code></strong>: <strong>当前加载任务</strong>。指向当前正在被 <code>loader</code> 处理的 <code>Chunk</code> 实例。</li>
+</ul>
+<h6 id="状态监控与反馈-State-Monitoring-Feedback"><a href="#状态监控与反馈-State-Monitoring-Feedback" class="headerlink" title="状态监控与反馈 (State Monitoring &amp; Feedback)"></a>状态监控与反馈 (State Monitoring &amp; Feedback)</h6><p>用于实时追踪加载进度，并通知外部组件（如 <code>ExoPlayer</code> 核心或 UI）。</p>
+<ul>
+<li><strong><code>loadingFinished</code></strong>: <strong>加载完成标志</strong>。这是一个关键的状态位，当 <code>chunkSource</code> 告知没有更多分片可加载（流结束）且当前无待处理任务时，该值为 <code>true</code>。</li>
+<li><strong><code>callback</code></strong>: <strong>加载进度回调</strong>。用于将“数据已加载”、“加载完成”或“由于某种原因加载停滞”的消息通知给上层的 <code>MediaPeriod</code>。</li>
+<li><strong><code>mediaSourceEventDispatcher</code></strong>: <strong>事件广播器</strong>。负责发送更细粒度的事件，例如 <code>onLoadStarted</code>（加载开始）、<code>onLoadCompleted</code>（加载成功）和 <code>onLoadCanceled</code>（加载取消）。</li>
+</ul>
+<h6 id="加载异常与容错-Error-Handling-Resilience"><a href="#加载异常与容错-Error-Handling-Resilience" class="headerlink" title="加载异常与容错 (Error Handling &amp; Resilience)"></a>加载异常与容错 (Error Handling &amp; Resilience)</h6><p>当网络抖动或请求失败时，负责处理“接下来该怎么办”的逻辑。</p>
+<ul>
+<li><strong><code>loadErrorHandlingPolicy</code></strong>: <strong>错误策略管理</strong>。定义了加载失败后的行为：是立即重试、延迟 5 秒重试，还是直接抛出异常并停止加载。</li>
+<li><strong><code>canceledMediaChunk</code></strong>: <strong>取消状态记录</strong>。如果加载任务因为某种原因被手动取消（Cancel），此变量会记录该任务，以便后续判断是否需要重新触发加载。</li>
+</ul>
+<h6 id="加载控制-Loading-Control"><a href="#加载控制-Loading-Control" class="headerlink" title="加载控制 (Loading Control)"></a>加载控制 (Loading Control)</h6><p>根据播放状态决定是否允许继续读取或加载数据。</p>
+<ul>
+<li><strong><code>suppressRead</code></strong>: <strong>数据读取抑制</strong>。虽然它更偏向消费端，但在某些跳转或重新缓冲（Re-buffering）场景下，它会配合加载状态共同确保播放器不会在数据未就绪时尝试读取，从而影响整体加载策略。</li>
+</ul>
+<h6 id="加载状态机简述"><a href="#加载状态机简述" class="headerlink" title="加载状态机简述"></a>加载状态机简述</h6><ul>
+<li><strong>准备阶段</strong>: <code>chunkSource</code> 通过 <code>nextChunkHolder</code> 提交任务。</li>
+<li><strong>启动阶段</strong>: <code>loader</code> 接管 <code>loadingChunk</code>，<code>mediaSourceEventDispatcher</code> 发出开始信号。</li>
+<li><strong>运行阶段</strong>: <code>callback</code> 不断汇报进度。</li>
+<li><strong>异常阶段</strong>: 若失败，<code>loadErrorHandlingPolicy</code> 介入决定是否重试。</li>
+<li><strong>结束阶段</strong>: 如果没有更多数据，<code>loadingFinished</code> 设为 <code>true</code>。</li>
+</ul>
+<h2 id="ExoPlayer-Chunk-加载系统：职责分类与交互指南"><a href="#ExoPlayer-Chunk-加载系统：职责分类与交互指南" class="headerlink" title="ExoPlayer Chunk 加载系统：职责分类与交互指南"></a>ExoPlayer Chunk 加载系统：职责分类与交互指南</h2><table>
 <thead>
 <tr>
 <th align="left">所属分类</th>
@@ -1012,17 +1035,9 @@
 <td align="left"><strong>预览工具</strong>。在未加载真实数据前，允许系统查看后续分片的排列和时间信息。</td>
 </tr>
 </tbody></table>
-<hr>
-<h2 id="三、-核心协作逻辑-Workflow"><a href="#三、-核心协作逻辑-Workflow" class="headerlink" title="三、 核心协作逻辑 (Workflow)"></a>三、 核心协作逻辑 (Workflow)</h2><ol>
-<li><strong>调度阶段</strong>：<code>ChunkSampleStream</code> 定期轮询 <code>ChunkSource</code> 是否需要加载新数据。</li>
-<li><strong>决策阶段</strong>：<code>ChunkSource</code> 根据当前带宽和缓冲区情况，填充 <code>ChunkHolder</code>（包含具体的 <code>Chunk</code> 子类）。</li>
-<li><strong>加载阶段</strong>：由 <code>Loader</code> 执行 <code>Chunk</code> 的加载任务。</li>
-<li><strong>提取阶段</strong>：如果是媒体分片，<code>ChunkExtractor</code> 开始解析，通过 <code>BaseMediaChunkOutput</code> 将解析出的数据推送到 <code>SampleQueue</code> 供渲染器消费。</li>
-</ol>
 <blockquote>
 <p>[!TIP]<br><strong>设计模式应用</strong>：该系统是典型的<strong>策略模式</strong>（ChunkSource）与<strong>工厂模式</strong>（ChunkExtractor）的结合，保证了对不同流媒体协议（DASH, HLS, SmoothStreaming）的扩展性。</p>
 </blockquote>
-<hr>
 <h3 id="💡-建议"><a href="#💡-建议" class="headerlink" title="💡 建议"></a>💡 建议</h3><p>如果你是在做代码重构或性能调优，重点关注 <code>ChunkSource</code> 的码率切换算法以及 <code>SampleQueue</code> 的内存占用情况。这两个点通常是 Chunk 系统中最容易产生瓶颈的地方。</p>
 
       
