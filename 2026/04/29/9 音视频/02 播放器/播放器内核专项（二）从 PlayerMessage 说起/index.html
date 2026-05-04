@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>播放器内核专项（二）PlayerMessage | 喵星科技报</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  
+  
+  
+  <meta name="description" content="PlayerMessage 的设计核心是一个状态机（State Machine），用于确保消息在复杂的播放器线程模型中能够安全、准确地传递。我们可以将这些字段分为三大类来理解：  1. 基础配置（定义消息是什么）这些字段在消息创建时设定，定义了“谁来处理”、“处理什么”以及“何时处理”。  target: 消息的接收者（实现了 Target 接口）。这是处理逻辑的核心，通常是 Renderer 或">
+<meta property="og:type" content="article">
+<meta property="og:title" content="播放器内核专项（二）PlayerMessage">
+<meta property="og:url" content="http://example.com/2026/04/29/9%20%E9%9F%B3%E8%A7%86%E9%A2%91/02%20%E6%92%AD%E6%94%BE%E5%99%A8/%E6%92%AD%E6%94%BE%E5%99%A8%E5%86%85%E6%A0%B8%E4%B8%93%E9%A1%B9%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%8E%20PlayerMessage%20%E8%AF%B4%E8%B5%B7/index.html">
+<meta property="og:site_name" content="喵星科技报">
+<meta property="og:description" content="PlayerMessage 的设计核心是一个状态机（State Machine），用于确保消息在复杂的播放器线程模型中能够安全、准确地传递。我们可以将这些字段分为三大类来理解：  1. 基础配置（定义消息是什么）这些字段在消息创建时设定，定义了“谁来处理”、“处理什么”以及“何时处理”。  target: 消息的接收者（实现了 Target 接口）。这是处理逻辑的核心，通常是 Renderer 或">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-04-29T11:24:08.876Z">
+<meta property="article:modified_time" content="2026-05-03T21:29:31.992Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="喵星科技报" type="application/atom+xml">
+  
+  <link rel="icon" href="/css/images/favicon.ico">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+    
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Yanone+Kaffeesatz%3A200%2C300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Oswald%3A300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+<script src="/js/jquery-3.1.1.min.js"></script>
+
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.css" >
+  <link rel="stylesheet" href="/css/fashion.css" >
+  <link rel="stylesheet" href="/css/glyphs.css" >
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  
+    <a target="_blank" rel="noopener" href="https://github.com/CatJason" class="github-corner" aria-label="View source on GitHub">
+      <svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; left: 0; transform: scale(-1, 1); z-index: 9999;" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.5 120.5,78.5 C119.9,75.7 122.6,76.3 122.6,76.3 C127.3,81.2 124.9,88.2 124.9,88.2 C124.3,94.1 120.5,97.5 119.4,105.4" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path>
+      </svg>
+    </a>
+    <style>
+      .github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}
+      @keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}
+      @media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}
+    </style>
+  
+
+  <header id="allheader" class="site-header" role="banner">
+  <div class="clearfix container">
+      <div class="site-branding">
+
+          <h1 class="site-title">
+            
+              <a href="/" title="喵星科技报" rel="home"> 喵星科技报 </a>
+            
+          </h1>
+          
+          
+            
+          <nav id="main-navigation" class="main-navigation" role="navigation">
+            <a class="nav-open">Menu</a>
+            <a class="nav-close">Close</a>
+
+            <div class="clearfix sf-menu">
+              <ul id="main-nav" class="menu sf-js-enabled sf-arrows"  style="touch-action: pan-y;">
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="/"> <a class="" href="/">Home</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="archives"> <a class="" href="/archives">Archives</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="categories"> <a class="" href="/categories">Categories</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="tags"> <a class="" href="/tags">Tags</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="about"> <a class="" href="/about">About</a> </li>
+                    
+              </ul>
+            </div>
+          </nav>
+
+      </div>
+  </div>
+</header>
+
+
+  <div id="container">
+    <div id="wrap">
+            
+      <div id="content" class="outer">
+        
+          <section id="main" class="post-main" style="float:none; width: 100%;"><article id="post-9 音视频/02 播放器/播放器内核专项（二）从 PlayerMessage 说起" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" class="article-title" itemprop="name">
+      播放器内核专项（二）PlayerMessage
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2026/04/29/9%20%E9%9F%B3%E8%A7%86%E9%A2%91/02%20%E6%92%AD%E6%94%BE%E5%99%A8/%E6%92%AD%E6%94%BE%E5%99%A8%E5%86%85%E6%A0%B8%E4%B8%93%E9%A1%B9%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%8E%20PlayerMessage%20%E8%AF%B4%E8%B5%B7/" class="article-date">
+	  <time datetime="2026-04-29T11:24:08.876Z" itemprop="datePublished">April 29, 2026</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/9-%E9%9F%B3%E8%A7%86%E9%A2%91/">9 - 音视频</a>, <a class="article-category-link" href="/categories/9-%E9%9F%B3%E8%A7%86%E9%A2%91/9-2-%E6%92%AD%E6%94%BE%E5%99%A8%E5%86%85%E6%A0%B8%E6%8B%86%E8%A7%A3/">9.2 - 播放器内核拆解</a>
+ 
+      
+	<span id="busuanzi_container_page_pv">
+	  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	</span>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><code>PlayerMessage</code> 的设计核心是一个<strong>状态机（State Machine）</strong>，用于确保消息在复杂的播放器线程模型中能够安全、准确地传递。我们可以将这些字段分为三大类来理解：</p>
+<hr>
+<h3 id="1-基础配置（定义消息是什么）"><a href="#1-基础配置（定义消息是什么）" class="headerlink" title="1. 基础配置（定义消息是什么）"></a>1. 基础配置（定义消息是什么）</h3><p>这些字段在消息创建时设定，定义了“谁来处理”、“处理什么”以及“何时处理”。</p>
+<ul>
+<li><strong><code>target</code></strong>: 消息的接收者（实现了 <code>Target</code> 接口）。这是处理逻辑的核心，通常是 <code>Renderer</code> 或其他播放器组件。</li>
+<li><strong><code>sender</code></strong>: 消息的发送者，负责将消息放入播放器的消息队列。</li>
+<li><strong><code>type</code></strong>: 消息类型（整数常量），用于告知 <code>target</code> 该如何处理该消息。</li>
+<li><strong><code>payload</code></strong>: 携带的具体数据，可以是任何对象（如设置参数、配置信息等）。</li>
+<li><strong><code>looper</code></strong>: 指定消息处理的线程。这非常重要，因为 <code>ExoPlayer</code> 是多线程环境，该字段确保消息被发送到正确的线程处理，避免线程不安全问题。</li>
+<li><strong><code>mediaItemIndex</code> &amp; <code>positionMs</code></strong>: 定义了消息的<strong>触发时机</strong>（在哪一段视频的哪个时间点触发）。如果不设置，通常意味着立即触发。</li>
+</ul>
+<h3 id="2-状态标志（追踪生命周期）"><a href="#2-状态标志（追踪生命周期）" class="headerlink" title="2. 状态标志（追踪生命周期）"></a>2. 状态标志（追踪生命周期）</h3><p>这些字段用于记录消息在传递过程中的状态，防止非法操作（例如：消息发出了还能修改吗？）。</p>
+<ul>
+<li><strong><code>isSent</code></strong>: 消息是否已经调用了 <code>send()</code>。一旦变为 <code>true</code>，上述所有配置字段（Type, Payload, Position 等）都不可再更改，保证了线程安全。</li>
+<li><strong><code>isDelivered</code></strong>: 消息是否已经成功抵达 <code>target</code> 并被执行。</li>
+<li><strong><code>isProcessed</code></strong>: 消息是否处理完毕（无论是因为成功执行了，还是因为被取消了）。</li>
+<li><strong><code>isCanceled</code></strong>: 消息是否在发送后被手动取消。</li>
+</ul>
+<h3 id="3-控制与同步（决定消息如何终结）"><a href="#3-控制与同步（决定消息如何终结）" class="headerlink" title="3. 控制与同步（决定消息如何终结）"></a>3. 控制与同步（决定消息如何终结）</h3><ul>
+<li><strong><code>deleteAfterDelivery</code></strong>: 决定消息是一次性的还是重复触发的。如果为 <code>false</code>，则当播放器循环播放回到该位置时，消息会再次触发。</li>
+<li><strong><code>clock</code></strong>: 用于 <code>blockUntilDelivered(timeoutMs)</code> 方法中，计算超时时间。</li>
+</ul>
+<hr>
+<h3 id="PlayerMessage-生命周期流程图"><a href="#PlayerMessage-生命周期流程图" class="headerlink" title="PlayerMessage 生命周期流程图"></a>PlayerMessage 生命周期流程图</h3><p>理解这些状态的关键在于理解消息从创建到销毁的旅程：</p>
+<ol>
+<li><strong>创建 (Initialization)</strong>: 设置 Target、Timeline、Looper。</li>
+<li><strong>配置 (Configuration)</strong>: 调用 <code>setPayload</code>, <code>setPosition</code> 等。此时 <code>isSent</code> 为 <code>false</code>，允许修改。</li>
+<li><strong>发送 (Send)</strong>: 调用 <code>send()</code>。状态 <code>isSent</code> 置为 <code>true</code>。此时配置被锁定。</li>
+<li><strong>排队与执行 (Delivery)</strong>: 播放器在 <code>looper</code> 指定的线程中处理消息，调用 <code>target.handleMessage()</code>。</li>
+<li><strong>结束 (Completion)</strong>:<ul>
+<li>成功：执行完毕，调用 <code>markAsProcessed(true)</code>。</li>
+<li>取消：调用 <code>cancel()</code>，状态 <code>isCanceled</code> 置为 <code>true</code>，调用 <code>markAsProcessed(false)</code>。</li>
+<li>标记为已处理 (<code>isProcessed = true</code>) 后，<code>blockUntilDelivered()</code> 等待的方法会收到通知并返回。</li>
+</ul>
+</li>
+</ol>
+<h3 id="核心设计哲学"><a href="#核心设计哲学" class="headerlink" title="核心设计哲学"></a>核心设计哲学</h3><p>您可以看到代码中大量使用了 <code>checkState(!isSent)</code>。这体现了不可变性（Immutability）的设计原则：一旦消息投入发送队列，其状态就不应该被外部随意更改，从而避免了极其难以调试的竞态条件（Race Conditions）。</p>
+<p>这种机制确保了即便您在 UI 线程创建消息，也可以安全地将其发送到播放器的播放线程（Playback Thread）进行执行。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/9-%E9%9F%B3%E8%A7%86%E9%A2%91/">9 - 音视频</a>, <a class="article-category-link" href="/categories/9-%E9%9F%B3%E8%A7%86%E9%A2%91/9-2-%E6%92%AD%E6%94%BE%E5%99%A8%E5%86%85%E6%A0%B8%E6%8B%86%E8%A7%A3/">9.2 - 播放器内核拆解</a>
+
+      
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2026/04/29/9%20%E9%9F%B3%E8%A7%86%E9%A2%91/02%20%E6%92%AD%E6%94%BE%E5%99%A8/%E6%92%AD%E6%94%BE%E5%99%A8%E5%86%85%E6%A0%B8%E4%B8%93%E9%A1%B9%EF%BC%88%E4%B8%80%EF%BC%89%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%88%86%E7%A6%BB/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          播放器内核专项（一）线程模型的分离
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2026/04/25/8%20%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E/04%20Vulkan/01%20%E7%8E%B0%E4%BB%A3%E5%9B%BE%E5%BD%A2%20API%20%E7%9A%84%E5%9F%BA%E7%9F%B3%20Vulkan%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E7%BB%98%E5%88%B6%E7%AC%AC%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">现代图形 API 的基石 Vulkan（一）：绘制第一个三角形</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="sidebar">
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">Contents</strong>
+    
+      <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%9F%BA%E7%A1%80%E9%85%8D%E7%BD%AE%EF%BC%88%E5%AE%9A%E4%B9%89%E6%B6%88%E6%81%AF%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">1. 基础配置（定义消息是什么）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E7%8A%B6%E6%80%81%E6%A0%87%E5%BF%97%EF%BC%88%E8%BF%BD%E8%B8%AA%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">2. 状态标志（追踪生命周期）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%8E%A7%E5%88%B6%E4%B8%8E%E5%90%8C%E6%AD%A5%EF%BC%88%E5%86%B3%E5%AE%9A%E6%B6%88%E6%81%AF%E5%A6%82%E4%BD%95%E7%BB%88%E7%BB%93%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">3. 控制与同步（决定消息如何终结）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PlayerMessage-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E6%B5%81%E7%A8%8B%E5%9B%BE"><span class="nav-number">4.</span> <span class="nav-text">PlayerMessage 生命周期流程图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E8%AE%BE%E8%AE%A1%E5%93%B2%E5%AD%A6"><span class="nav-number">5.</span> <span class="nav-text">核心设计哲学</span></a></li></ol>
+    
+    </div>
+  </aside>
+</section>
+        
+      </div>
+
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    <footer id="footer" class="site-footer">
+  
+
+  <div class="clearfix container">
+      <div class="site-info">
+	      &copy; 2026 喵星科技报 All Rights Reserved.
+        
+            <span id="busuanzi_container_site_uv">
+              本站访客数<span id="busuanzi_value_site_uv"></span>人次  
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+          
+      </div>
+      <div class="site-credit">
+        Theme by <a href="https://github.com/iTimeTraveler/hexo-theme-hipaper" target="_blank">hipaper</a>
+      </div>
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var wrapdiv = document.getElementById("wrap");
+    var contentdiv = document.getElementById("content");
+
+    wrapdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+
+
+    <!-- headerblur min height -->
+    
+      var headerblur = document.getElementById("header-blur");
+      headerblur.style.minHeight = window.getComputedStyle(document.getElementById("allheader"), null).height;
+    
+    
+</script>
+    
+<div style="display: none;">
+  <script src="https://s11.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+</div>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+<script src="/js/bootstrap.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+	</script>
+
+
+
+
+
+
+  </div>
+
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js" async=""></script>
+</body>
+</html>
