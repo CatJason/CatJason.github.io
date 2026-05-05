@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>播放器数据结构与功能模块（一）Chunk (块) —— 加载层视角 | 喵星科技报</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  
+  
+  
+  <meta name="description" content="Chunk 是 Media3 内部 ChunkSource 和 ChunkSampleStream 处理的对象实例。 定义： 在代码中，Chunk 是一个抽象类，代表了一次完整的 HTTP 加载任务。 特性：一个 Chunk 通常对应一个 Segment，但并不绝对。 作用： 封装了数据加载的状态（从哪下载、下载了多少、数据读到了哪个 Buffer）。 1234567891011121314151">
+<meta property="og:type" content="article">
+<meta property="og:title" content="播放器数据结构与功能模块（一）Chunk (块) —— 加载层视角">
+<meta property="og:url" content="http://example.com/2026/05/05/9%20%E9%9F%B3%E8%A7%86%E9%A2%91/01%20%E6%92%AD%E6%94%BE%E5%99%A8%E5%8A%9F%E8%83%BD%E6%A8%A1%E5%9D%97/01%20%E6%92%AD%E6%94%BE%E5%99%A8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E5%8A%9F%E8%83%BD%E6%A8%A1%E5%9D%97%EF%BC%88%E4%B8%80%EF%BC%89Chunk%20(%E5%9D%97)%20%E2%80%94%E2%80%94%20%E5%8A%A0%E8%BD%BD%E5%B1%82%E8%A7%86%E8%A7%92/index.html">
+<meta property="og:site_name" content="喵星科技报">
+<meta property="og:description" content="Chunk 是 Media3 内部 ChunkSource 和 ChunkSampleStream 处理的对象实例。 定义： 在代码中，Chunk 是一个抽象类，代表了一次完整的 HTTP 加载任务。 特性：一个 Chunk 通常对应一个 Segment，但并不绝对。 作用： 封装了数据加载的状态（从哪下载、下载了多少、数据读到了哪个 Buffer）。 1234567891011121314151">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-05-04T21:36:58.218Z">
+<meta property="article:modified_time" content="2026-05-04T22:24:25.401Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="喵星科技报" type="application/atom+xml">
+  
+  <link rel="icon" href="/css/images/favicon.ico">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+    
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Yanone+Kaffeesatz%3A200%2C300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Oswald%3A300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+<script src="/js/jquery-3.1.1.min.js"></script>
+
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.css" >
+  <link rel="stylesheet" href="/css/fashion.css" >
+  <link rel="stylesheet" href="/css/glyphs.css" >
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  
+    <a target="_blank" rel="noopener" href="https://github.com/CatJason" class="github-corner" aria-label="View source on GitHub">
+      <svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; left: 0; transform: scale(-1, 1); z-index: 9999;" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.5 120.5,78.5 C119.9,75.7 122.6,76.3 122.6,76.3 C127.3,81.2 124.9,88.2 124.9,88.2 C124.3,94.1 120.5,97.5 119.4,105.4" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path>
+      </svg>
+    </a>
+    <style>
+      .github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}
+      @keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}
+      @media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}
+    </style>
+  
+
+  <header id="allheader" class="site-header" role="banner">
+  <div class="clearfix container">
+      <div class="site-branding">
+
+          <h1 class="site-title">
+            
+              <a href="/" title="喵星科技报" rel="home"> 喵星科技报 </a>
+            
+          </h1>
+          
+          
+            
+          <nav id="main-navigation" class="main-navigation" role="navigation">
+            <a class="nav-open">Menu</a>
+            <a class="nav-close">Close</a>
+
+            <div class="clearfix sf-menu">
+              <ul id="main-nav" class="menu sf-js-enabled sf-arrows"  style="touch-action: pan-y;">
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="/"> <a class="" href="/">Home</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="archives"> <a class="" href="/archives">Archives</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="categories"> <a class="" href="/categories">Categories</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="tags"> <a class="" href="/tags">Tags</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663" linktext="about"> <a class="" href="/about">About</a> </li>
+                    
+              </ul>
+            </div>
+          </nav>
+
+      </div>
+  </div>
+</header>
+
+
+  <div id="container">
+    <div id="wrap">
+            
+      <div id="content" class="outer">
+        
+          <section id="main" class="post-main" style="float:none; width: 100%;"><article id="post-9 音视频/01 播放器功能模块/01 播放器数据结构与功能模块（一）Chunk (块) —— 加载层视角" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" class="article-title" itemprop="name">
+      播放器数据结构与功能模块（一）Chunk (块) —— 加载层视角
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2026/05/05/9%20%E9%9F%B3%E8%A7%86%E9%A2%91/01%20%E6%92%AD%E6%94%BE%E5%99%A8%E5%8A%9F%E8%83%BD%E6%A8%A1%E5%9D%97/01%20%E6%92%AD%E6%94%BE%E5%99%A8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E5%8A%9F%E8%83%BD%E6%A8%A1%E5%9D%97%EF%BC%88%E4%B8%80%EF%BC%89Chunk%20(%E5%9D%97)%20%E2%80%94%E2%80%94%20%E5%8A%A0%E8%BD%BD%E5%B1%82%E8%A7%86%E8%A7%92/" class="article-date">
+	  <time datetime="2026-05-04T21:36:58.218Z" itemprop="datePublished">May 5, 2026</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/9-%E9%9F%B3%E8%A7%86%E9%A2%91/">9 - 音视频</a>, <a class="article-category-link" href="/categories/9-%E9%9F%B3%E8%A7%86%E9%A2%91/9-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E5%8A%9F%E8%83%BD%E6%A8%A1%E5%9D%97/">9.1 - 播放器数据结构与功能模块</a>
+ 
+      
+	<span id="busuanzi_container_page_pv">
+	  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	</span>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Chunk 是 Media3 内部 ChunkSource 和 ChunkSampleStream 处理的对象实例。</p>
+<p><strong>定义</strong>： 在代码中，Chunk 是一个抽象类，代表了一次完整的 HTTP 加载任务。</p>
+<p><strong>特性</strong>：一个 Chunk 通常对应一个 Segment，但并不绝对。</p>
+<p><strong>作用</strong>： 封装了数据加载的状态（从哪下载、下载了多少、数据读到了哪个 Buffer）。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** 可使用 &#123;<span class="doctag">@link</span> Loader&#125; 进行加载的对象接口。 */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Loadable</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 取消加载任务。</span></span><br><span class="line"><span class="comment">   *</span></span><br><span class="line"><span class="comment">   * &lt;p&gt;Loadable 的实现类应确保在调用此方法后，当前正在执行的 &#123;<span class="doctag">@link</span> #load()&#125; 调用能迅速退出。</span></span><br><span class="line"><span class="comment">   * &#123;<span class="doctag">@link</span> #load()&#125; 可以通过正常返回或抛出 &#123;<span class="doctag">@link</span> IOException&#125; 来退出。</span></span><br><span class="line"><span class="comment">   *</span></span><br><span class="line"><span class="comment">   * &lt;p&gt;如果当前有正在执行的 &#123;<span class="doctag">@link</span> #load()&#125; 调用，则在调用此方法后，执行该调用的线程将被立即中断。</span></span><br><span class="line"><span class="comment">   * 因此，实现类不需要（也不应该尝试）自行中断加载线程。</span></span><br><span class="line"><span class="comment">   *</span></span><br><span class="line"><span class="comment">   * &lt;p&gt;尽管加载线程会被中断，但 Loadable 的实现类不应在 &#123;<span class="doctag">@link</span> #load()&#125; 中使用线程的中断状态</span></span><br><span class="line"><span class="comment">   * 来判断加载是否已被取消。这种方法并不健壮。相反，实现类应该使用自己的标志（例如使用 &#123;<span class="doctag">@link</span> AtomicBoolean&#125;）</span></span><br><span class="line"><span class="comment">   * 来发出取消信号。</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="keyword">void</span> <span class="title function_">cancelLoad</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 执行加载操作，在完成或取消时返回。</span></span><br><span class="line"><span class="comment">   *</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@throws</span> IOException 如果输入内容无法加载。</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="keyword">void</span> <span class="title function_">load</span><span class="params">()</span> <span class="keyword">throws</span> IOException;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> androidx.media3.exoplayer.source.chunk;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="keyword">static</span> com.google.common.base.Preconditions.checkNotNull;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> android.net.Uri;</span><br><span class="line"><span class="keyword">import</span> androidx.annotation.Nullable;</span><br><span class="line"><span class="keyword">import</span> androidx.media3.common.C;</span><br><span class="line"><span class="keyword">import</span> androidx.media3.common.C.DataType;</span><br><span class="line"><span class="keyword">import</span> androidx.media3.common.Format;</span><br><span class="line"><span class="keyword">import</span> androidx.media3.common.util.UnstableApi;</span><br><span class="line"><span class="keyword">import</span> androidx.media3.datasource.DataSource;</span><br><span class="line"><span class="keyword">import</span> androidx.media3.datasource.DataSpec;</span><br><span class="line"><span class="keyword">import</span> androidx.media3.datasource.StatsDataSource;</span><br><span class="line"><span class="keyword">import</span> androidx.media3.exoplayer.source.LoadEventInfo;</span><br><span class="line"><span class="keyword">import</span> androidx.media3.exoplayer.upstream.Loader.Loadable;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 一个抽象基类，实现了 &#123;<span class="doctag">@link</span> Loadable&#125; 接口，用于加载流播放所需的各种“数据块（Chunks）”。</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@UnstableApi</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">Chunk</span> <span class="keyword">implements</span> <span class="title class_">Loadable</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/** 标识此加载任务的唯一 ID。 */</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">final</span> <span class="type">long</span> loadTaskId;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/** 定义要加载的数据范围（如 URL、偏移量、长度等）的 &#123;<span class="doctag">@link</span> DataSpec&#125;。 */</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">final</span> DataSpec dataSpec;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/** 此分片的数据类型（例如：媒体数据、清单文件、元数据等），仅用于统计和报告。 */</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">final</span> <span class="meta">@DataType</span> <span class="type">int</span> type;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/** 此分片所属轨道的格式信息（如：分辨率、码率、编码格式等）。 */</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">final</span> Format trackFormat;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 轨道选择的原因（例如：自适应切换、手动选择、初次加载等）。</span></span><br><span class="line"><span class="comment">   * 如果该分片不属于特定轨道或原因未知，则为 &#123;<span class="doctag">@link</span> C#SELECTION_REASON_UNKNOWN&#125;。</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">final</span> <span class="meta">@C</span>.SelectionReason <span class="type">int</span> trackSelectionReason;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 轨道选择时的附加可选数据。如果没有相关数据则为 Null。</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="meta">@Nullable</span> <span class="keyword">public</span> <span class="keyword">final</span> Object trackSelectionData;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 此分片包含的媒体内容的起始时间戳（微秒）。</span></span><br><span class="line"><span class="comment">   * 如果加载的数据不包含媒体采样（如加载索引文件），则为 &#123;<span class="doctag">@link</span> C#TIME_UNSET&#125;。</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">final</span> <span class="type">long</span> startTimeUs;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 此分片包含的媒体内容的结束时间戳（微秒）。</span></span><br><span class="line"><span class="comment">   * 如果加载的数据不包含媒体采样，则为 &#123;<span class="doctag">@link</span> C#TIME_UNSET&#125;。</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">final</span> <span class="type">long</span> endTimeUs;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/** 具有统计功能的数据源，用于追踪已读取的字节数、最后的响应头等。 */</span></span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">final</span> StatsDataSource dataSource;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span> dataSource 执行数据加载的数据源。</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span> dataSpec 定义要加载的数据范围。</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span> type 分片类型。</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span> trackFormat 轨道格式。</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span> trackSelectionReason 轨道选择原因。</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span> trackSelectionData 轨道选择关联数据。</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span> startTimeUs 媒体起始时间。</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span> endTimeUs 媒体结束时间。</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="keyword">public</span> <span class="title function_">Chunk</span><span class="params">(</span></span><br><span class="line"><span class="params">      DataSource dataSource,</span></span><br><span class="line"><span class="params">      DataSpec dataSpec,</span></span><br><span class="line"><span class="params">      <span class="meta">@DataType</span> <span class="type">int</span> type,</span></span><br><span class="line"><span class="params">      Format trackFormat,</span></span><br><span class="line"><span class="params">      <span class="meta">@C</span>.SelectionReason <span class="type">int</span> trackSelectionReason,</span></span><br><span class="line"><span class="params">      <span class="meta">@Nullable</span> Object trackSelectionData,</span></span><br><span class="line"><span class="params">      <span class="type">long</span> startTimeUs,</span></span><br><span class="line"><span class="params">      <span class="type">long</span> endTimeUs)</span> &#123;</span><br><span class="line">    <span class="comment">// 将传入的 dataSource 包装成带统计功能的 StatsDataSource</span></span><br><span class="line">    <span class="built_in">this</span>.dataSource = <span class="keyword">new</span> <span class="title class_">StatsDataSource</span>(dataSource);</span><br><span class="line">    <span class="built_in">this</span>.dataSpec = checkNotNull(dataSpec);</span><br><span class="line">    <span class="built_in">this</span>.type = type;</span><br><span class="line">    <span class="built_in">this</span>.trackFormat = trackFormat;</span><br><span class="line">    <span class="built_in">this</span>.trackSelectionReason = trackSelectionReason;</span><br><span class="line">    <span class="built_in">this</span>.trackSelectionData = trackSelectionData;</span><br><span class="line">    <span class="built_in">this</span>.startTimeUs = startTimeUs;</span><br><span class="line">    <span class="built_in">this</span>.endTimeUs = endTimeUs;</span><br><span class="line">    <span class="comment">// 为当前任务生成一个新的 ID，用于日志追踪和事件上报</span></span><br><span class="line">    loadTaskId = LoadEventInfo.getNewId();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/** 返回此分片的持续时间（微秒）。 */</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">final</span> <span class="type">long</span> <span class="title function_">getDurationUs</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> endTimeUs - startTimeUs;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 返回已加载的字节数。</span></span><br><span class="line"><span class="comment">   * 注意：必须在加载完成、失败或被取消后调用此方法。</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">final</span> <span class="type">long</span> <span class="title function_">bytesLoaded</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> dataSource.getBytesRead();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 返回最后一次调用 &#123;<span class="doctag">@link</span> DataSource#open&#125; 关联的 &#123;<span class="doctag">@link</span> Uri&#125;。</span></span><br><span class="line"><span class="comment">   * 如果发生了重定向，则返回重定向后的 URI。</span></span><br><span class="line"><span class="comment">   * 注意：必须在加载完成、失败或被取消后调用此方法。</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">final</span> Uri <span class="title function_">getUri</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> dataSource.getLastOpenedUri();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 返回最后一次 &#123;<span class="doctag">@link</span> DataSource#open&#125; 调用产生的响应头。</span></span><br><span class="line"><span class="comment">   * 注意：必须在加载完成、失败或被取消后调用此方法。</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">final</span> Map&lt;String, List&lt;String&gt;&gt; <span class="title function_">getResponseHeaders</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> dataSource.getLastResponseHeaders();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/9-%E9%9F%B3%E8%A7%86%E9%A2%91/">9 - 音视频</a>, <a class="article-category-link" href="/categories/9-%E9%9F%B3%E8%A7%86%E9%A2%91/9-1-%E6%92%AD%E6%94%BE%E5%99%A8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E5%8A%9F%E8%83%BD%E6%A8%A1%E5%9D%97/">9.1 - 播放器数据结构与功能模块</a>
+
+      
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2026/05/05/9%20%E9%9F%B3%E8%A7%86%E9%A2%91/01%20%E6%92%AD%E6%94%BE%E5%99%A8%E5%8A%9F%E8%83%BD%E6%A8%A1%E5%9D%97/03%20%E6%92%AD%E6%94%BE%E5%99%A8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E5%8A%9F%E8%83%BD%E6%A8%A1%E5%9D%97%EF%BC%88%E4%B8%89%EF%BC%89Chunk%20%E4%B8%8E%20Segment/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          播放器数据结构与功能模块（三）Chunk 与 Segment
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2026/05/05/9%20%E9%9F%B3%E8%A7%86%E9%A2%91/01%20%E6%92%AD%E6%94%BE%E5%99%A8%E5%8A%9F%E8%83%BD%E6%A8%A1%E5%9D%97/04%20%E6%92%AD%E6%94%BE%E5%99%A8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E5%8A%9F%E8%83%BD%E6%A8%A1%E5%9D%97%EF%BC%88%E5%9B%9B%EF%BC%89Dash%20%E6%95%B0%E6%8D%AE%E5%9F%BA%E7%A1%80/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">播放器数据结构与功能模块（四）Dash 数据基础</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="sidebar">
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">Contents</strong>
+    
+      <ol class="nav">None</ol>
+    
+    </div>
+  </aside>
+</section>
+        
+      </div>
+
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    <footer id="footer" class="site-footer">
+  
+
+  <div class="clearfix container">
+      <div class="site-info">
+	      &copy; 2026 喵星科技报 All Rights Reserved.
+        
+            <span id="busuanzi_container_site_uv">
+              本站访客数<span id="busuanzi_value_site_uv"></span>人次  
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+          
+      </div>
+      <div class="site-credit">
+        Theme by <a href="https://github.com/iTimeTraveler/hexo-theme-hipaper" target="_blank">hipaper</a>
+      </div>
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var wrapdiv = document.getElementById("wrap");
+    var contentdiv = document.getElementById("content");
+
+    wrapdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+
+
+    <!-- headerblur min height -->
+    
+      var headerblur = document.getElementById("header-blur");
+      headerblur.style.minHeight = window.getComputedStyle(document.getElementById("allheader"), null).height;
+    
+    
+</script>
+    
+<div style="display: none;">
+  <script src="https://s11.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+</div>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+<script src="/js/bootstrap.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+	</script>
+
+
+
+
+
+
+  </div>
+
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js" async=""></script>
+</body>
+</html>
